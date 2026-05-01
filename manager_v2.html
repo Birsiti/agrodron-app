@@ -907,11 +907,19 @@ function selectRequest(row){
   if(currentRequest.area) $('area').value=currentRequest.area;
   if(currentRequest.location) $('location').value=currentRequest.location;
 
-  // Культура
-  if(currentRequest.coef){
-    const s=$('treatment');
+  // Культура — ищем по названию (data-name), fallback по коэффициенту
+  const s=$('treatment');
+  let matched=false;
+  if(currentRequest.treatment){
+    const tName=currentRequest.treatment.toLowerCase().trim();
     for(let i=0;i<s.options.length;i++){
-      if(parseFloat(s.options[i].value)===parseFloat(currentRequest.coef)){s.selectedIndex=i;break;}
+      const dn=(s.options[i].dataset.name||'').toLowerCase().trim();
+      if(dn&&tName.includes(dn)||dn&&dn.includes(tName)){s.selectedIndex=i;matched=true;break;}
+    }
+  }
+  if(!matched&&currentRequest.coef){
+    for(let i=0;i<s.options.length;i++){
+      if(Math.abs(parseFloat(s.options[i].value)-parseFloat(currentRequest.coef))<0.001){s.selectedIndex=i;break;}
     }
   }
 
@@ -1028,7 +1036,7 @@ function sendKP(){
 `✈️ *Обработка:*\n`+
 `   ${fmt(ppaTreat)} BYN/га × ${r.area} га = *${fmt(treatTotal)} BYN*\n\n`+
 `🚗 *Дорога:*\n`+
-`   ${$('km').value||0} км × ${r.km>0?fmt(r.transport/r.km,2):fmt(r.transport,2)} BYN/км = *${fmt(transportTotal)} BYN*\n`+
+`   ${r.km} км × ${r.km>0?fmt(r.transport/r.km,2):'0'} BYN/км = *${fmt(transportTotal)} BYN*\n`+
 `─────────────────────\n`+
 `💰 *ИТОГО с НДС: ${fmtB(r.total)}*\n\n`+
 `Препараты и вода — за счёт заказчика.\n`+
