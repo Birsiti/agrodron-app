@@ -519,7 +519,7 @@ if(tg){tg.ready();tg.expand();}
 const $=id=>document.getElementById(id);
 const gv=(id,def)=>{const v=parseFloat($(id)?.value);return isNaN(v)?def:v;};
 const fmt=(n,d=2)=>n.toFixed(d);
-const fmtB=n=>fmt(n)+' BYN';
+const fmtB=(n,d=2)=>n.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 
 let clientData={};
 let currentStatus='new';
@@ -618,9 +618,9 @@ function calc(){
   $('r_ppa').textContent=fmt(ppa);
   $('r_area').textContent=area+' га';
   $('r_days').textContent=tripDays===1?'1 день (без ночёвки)':tripDays+' дн. (суточные начислены)';
-  $('r_cost').textContent=fmtB(cost);
-  $('r_profit').textContent=fmtB(actP)+' · '+fmt(actM,1)+'%';
-  $('r_total').textContent=fmtB(total);
+  $('r_cost').textContent=fmtB(cost)+' BYN';
+  $('r_profit').textContent=fmtB(actP)+' BYN · '+fmt(actM,1)+'%';
+  $('r_total').textContent=fmtB(total)+' BYN';
 
   // COEFFICIENTS
   const coefs=[
@@ -819,6 +819,8 @@ async function loadRequests(){
         date_status:v[17]||'',
       };
     }).filter(r=>r.org);
+    // Сортировка: новые заявки сверху
+    allRequests.sort((a,b)=>b.row - a.row);
     updateCounts();
     applyFilter();
   }catch(e){
@@ -1034,11 +1036,11 @@ function sendKP(){
 `🌾 Культура: ${treatName}\n\n`+
 `─────────────────────\n`+
 `✈️ *Обработка:*\n`+
-`   ${fmt(ppaTreat)} BYN/га × ${r.area} га = *${fmt(treatTotal)} BYN*\n\n`+
+`   ${fmt(ppaTreat)} BYN/га × ${r.area} га = *${fmtB(treatTotal)} BYN*\n\n`+
 `🚗 *Дорога:*\n`+
-`   ${r.km} км × ${r.km>0?fmt(r.transport/r.km,2):'0'} BYN/км = *${fmt(transportTotal)} BYN*\n`+
+`   ${r.km} км × ${r.km>0?fmt(r.transport/r.km,2):'0'} BYN/км = *${fmtB(transportTotal)} BYN*\n`+
 `─────────────────────\n`+
-`💰 *ИТОГО с НДС: ${fmtB(r.total)}*\n\n`+
+`💰 *ИТОГО с НДС: ${fmtB(r.total)} BYN*\n\n`+
 `Препараты и вода — за счёт заказчика.\n`+
 `Для согласования даты выезда свяжитесь с менеджером.`;
 
