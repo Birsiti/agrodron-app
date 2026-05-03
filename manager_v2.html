@@ -3,7 +3,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Расчёт заявки | AgroDron.BY</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -58,7 +58,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .btn-refresh{background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
 .btn-refresh:hover{border-color:var(--green);color:var(--green)}
 .btn-open{padding:5px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
-.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:40;transform:translateY(100%);transition:.3s}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;z-index:40;transform:translateY(100%);transition:.3s}
 .save-bar.show{transform:translateY(0)}
 .save-bar-msg{color:rgba(255,255,255,.7);font-size:12px;flex:1}
 .btn-save-status{padding:10px 18px;background:var(--gm);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
@@ -94,16 +94,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 @media(max-width:600px){
 .rp{padding:10px 8px}
 .rt-hdr{flex-direction:column;align-items:flex-start;gap:6px}
-.client-strip{flex-direction:column;align-items:flex-start}
-.status-wrap{width:100%}
+.client-strip{flex-direction:column;align-items:flex-start;padding:10px 12px}
+.status-wrap{width:100%;gap:4px}
 .stat{font-size:10px;padding:4px 7px}
-.fi,.sw select{font-size:13px}
-.pbig{font-size:32px}
+.fi,.sw select{font-size:16px}
+.pbig{font-size:28px}
+.pcard{padding:16px}
 .actions{grid-template-columns:1fr}
-.btn-send{grid-column:auto}
+.btn-send{grid-column:auto;font-size:13px;padding:12px}
 .frow{grid-template-columns:1fr}
-.save-bar{padding:10px 12px}
-.save-bar-msg{font-size:11px}
+.save-bar{padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));flex-wrap:wrap}
+.save-bar-msg{font-size:11px;width:100%}
+.btn-save-status{flex:1}
+.ch{padding:9px 12px 0}
+.cb{padding:8px 12px 11px}
+.vg{grid-template-columns:1fr}
+.card{border-radius:9px}
+.btn-open{padding:4px 8px;font-size:10px}
+.rt td,.rt th{padding:7px 8px;font-size:12px}
 }
 
 /* ── CARDS ── */

@@ -13,7 +13,7 @@
   --border:#e2e8f0;--text:#1a1a2e;--muted:#64748b;
   --danger:#dc2626;--danger-bg:#fef2f2;
 }
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:88px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 
 /* HEADER */
 .header{background:var(--navy);padding:13px 16px;display:flex;align-items:center;gap:10px}
@@ -85,7 +85,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .ftextarea:focus{outline:none;border-color:var(--green);background:#fff}
 
 /* BOTTOM */
-.bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);padding:11px 14px;display:flex;gap:8px;z-index:50;safe-area-inset-bottom:env(safe-area-inset-bottom)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:50}
 .bbk{padding:11px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);background:#fafbfd}
 .bfwd{flex:1;padding:12px;background:var(--green);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
 .bfwd:active{background:#145a3d}
@@ -105,6 +105,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* PAGES */
 .page{display:none}
 .page.active{display:block}
+
+@media(max-width:380px){
+  .wrap{padding:6px 8px 0}
+  .cb{padding:8px 12px 11px}
+  .fi,.sw select,.ftextarea{font-size:16px}
+  .ph-input{font-size:16px}
+  .tbgroup{gap:5px}
+  .tb{padding:8px 4px;font-size:12px}
+  .bfwd{font-size:14px}
+  .bbk{padding:11px 12px;font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -153,7 +164,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
           <label class="fl">Тип поля / культура</label>
           <div class="sw">
             <select id="treatment">
-              <option value="1" data-name="Зерновые" disabled selected>Выберите тип поля / культуру</option>
+              <option value="" data-name="" disabled selected>Выберите тип поля / культуру</option>
               <optgroup label="── Сельхоз культуры ──">
                 <option value="1" data-name="Зерновые">Зерновые (пшеница, ячмень, рожь)</option>
                 <option value="1.05" data-name="Рапс">Рапс</option>
@@ -411,6 +422,7 @@ function collect(){
     sections: parseInt($('sections').value)||1,
     complexity: $('complexity').value,
     obstacles: $('obstacles').value,
+    night: $('add_night').checked,
     urgent: $('add_urgent').checked,
     deadline: $('deadline').value,
     comment: $('comment').value.trim(),

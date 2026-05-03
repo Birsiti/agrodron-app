@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Админ | AgroDron.BY</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -112,6 +112,47 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .hidden{display:none}
+
+@media(max-width:640px){
+  .hdr{padding:0 12px;height:48px}
+  .hlm{width:28px;height:28px;border-radius:6px}
+  .hlm svg{width:14px;height:14px}
+  .hln{font-size:13px}
+  .adm-badge{font-size:9px;padding:3px 7px}
+
+  .wrap{padding:12px 10px 20px}
+
+  .tabs{gap:3px;padding:3px}
+  .tab{font-size:11px;padding:8px 5px}
+
+  .top-bar{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px}
+  .top-title{font-size:14px}
+  .top-actions{width:100%;flex-wrap:wrap;gap:6px}
+  .btn{padding:8px 11px;font-size:12px}
+  .changes-badge{font-size:10px}
+
+  .section-hdr{padding:10px 12px;font-size:9px}
+  .vrow{grid-template-columns:1fr 88px;padding:8px 12px}
+  .vrow-orig{display:none}
+  .vrow-label{font-size:12px}
+  .vrow-note{font-size:9px}
+  .vrow-key{font-size:8px}
+  .vrow-input{padding:5px 7px;font-size:16px}
+
+  .save-bar{padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));flex-wrap:wrap;gap:8px}
+  .save-bar-msg{width:100%;font-size:12px}
+  .btn-save-bar{flex:1}
+  .btn-cancel-bar{padding:10px 12px}
+
+  .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px));font-size:12px;padding:9px 14px}
+
+  .pin-box{width:calc(100vw - 32px);max-width:320px;padding:32px 20px}
+  .pin-icon{width:48px;height:48px;font-size:20px}
+  .pin-title{font-size:17px}
+  .pin-input{font-size:20px;padding:12px}
+
+  .status-bar{font-size:10px;padding:6px 12px}
+}
 </style>
 </head>
 <body>
@@ -276,11 +317,8 @@ function reloadData(){
 
 /* ── RENDER ── */
 // Группировка — ищем строки-разделители (key пустой) как заголовки секций
-async function renderTable(){
+function renderTable(){
   const tab=currentTab;
-  const url=`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tab==='coef'?'КЭФ':'ПЕРЕМЕННЫЕ')}`;
-
-  // Перестраиваем с разделителями — читаем raw снова из sheetData + добавляем секции
   const items=sheetData[tab];
   if(!items||!items.length){
     $('content').innerHTML='<div class="loading">Нет данных</div>';
@@ -401,10 +439,9 @@ async function saveChanges(){
   if(!n) return;
 
   const rows=Object.entries(changes).map(([key,value])=>{
-    const [rowIndex,sheet]=key.split('_',2);
-    // sheet может содержать "_" поэтому берём после первого "_"
+    const rowIndex=parseInt(key.split('_')[0]);
     const sheetName=key.substring(key.indexOf('_')+1);
-    return{row:parseInt(rowIndex), sheet:sheetName, value};
+    return{row:rowIndex, sheet:sheetName, value};
   });
 
   setStatus('loading',`Сохранение ${n} значений...`);
@@ -422,14 +459,12 @@ async function saveChanges(){
     });
 
     if(res.ok){
-      // Применяем изменения как новые оригинальные значения
       Object.entries(changes).forEach(([key,val])=>{
-        const [rowIndexStr]=key.split('_');
-        const rowIndex=parseInt(rowIndexStr);
-        ['coef','vars'].forEach(t=>{
-          const item=sheetData[t].find(r=>r.rowIndex===rowIndex);
-          if(item) item.origValue=val;
-        });
+        const rowIndex=parseInt(key.split('_')[0]);
+        const sheetName=key.substring(key.indexOf('_')+1);
+        const tabKey=sheetName==='КЭФ'?'coef':'vars';
+        const item=sheetData[tabKey].find(r=>r.rowIndex===rowIndex);
+        if(item) item.origValue=val;
       });
       changes={};
       renderTable();
