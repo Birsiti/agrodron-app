@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -205,10 +206,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .cv-base{background:#f5f8fc;color:var(--muted)}
 .cv-total{background:var(--navy2);color:white;padding:3px 10px;border-radius:6px;font-size:12px}
 </style>
+
 </head>
 <body>
 
 <!-- PIN OVERLAY -->
+
 <div class="ov" id="pinOv">
   <div class="pbox">
     <div class="pt">Переменные</div>
@@ -222,6 +225,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="toast" id="toast"></div>
 
 <!-- HEADER -->
+
 <div class="hdr">
   <div class="hlogo">
     <div class="hlm"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v6c0 5 3.5 9.74 8 11 4.5-1.26 8-6 8-11V7L12 2z"/></svg></div>
@@ -231,6 +235,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 
 <!-- СПИСОК ЗАЯВОК -->
+
 <div class="rp" id="requestsPanel">
   <div class="rt-hdr">
     <span class="rt-title">📋 Заявки на обработку</span>
@@ -253,6 +258,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 
 <!-- CLIENT STRIP -->
+
 <div class="client-strip hidden" id="clientStrip">
   <div class="cs-left">
     <div class="cs-avatar" id="csAvatar">?</div>
@@ -273,6 +279,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 
 <!-- SAVE BAR (фиксированная) -->
+
 <div class="save-bar" id="saveBar">
   <span class="save-bar-msg">⚠️ Статус изменён — сохраните перед выходом</span>
   <button class="btn-save-status" onclick="saveStatus()">Сохранить статус</button>
@@ -282,6 +289,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="main hidden" id="mainPanel">
 
   <!-- ═══ LEFT ═══ -->
+
   <div>
 
     <div class="card">
@@ -341,10 +349,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <label class="fl">Сложность поля</label>
             <div class="sw">
               <select id="complexity" onchange="calc()">
-                <option value="1">Простое</option>
-                <option value="1.02">Среднее</option>
-                <option value="1.04">Сложное</option>
-                <option value="1.06">Очень сложное</option>
+                <option value="1" data-key="complexity_simple">Простое</option>
+                <option value="1.02" data-key="complexity_medium">Среднее</option>
+                <option value="1.04" data-key="complexity_hard">Сложное</option>
+                <option value="1.06" data-key="complexity_very_hard">Очень сложное</option>
               </select>
             </div>
           </div>
@@ -352,8 +360,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <label class="fl">Препятствия</label>
             <div class="sw">
               <select id="obstacles" onchange="calc()">
-                <option value="1">Нет</option>
-                <option value="1.02">Есть</option>
+                <option value="1" data-key="obstacles_no">Нет</option>
+                <option value="1.02" data-key="obstacles_yes">Есть</option>
               </select>
             </div>
           </div>
@@ -444,6 +452,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 
   <!-- ═══ RIGHT ═══ -->
+
   <div>
 
     <!-- PRICE -->
@@ -507,6 +516,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
     <div class="istrip">Препараты и вода — за счёт клиента. Цена без стоимости препаратов.</div>
     <button onclick="backToList()" style="width:100%;margin-top:10px;padding:10px;background:#f0f3f7;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--navy)">← Вернуться к списку заявок</button>
+
   </div>
 
 </div>
@@ -525,13 +535,60 @@ let clientData={};
 let currentStatus='new';
 let calcResult={};
 
+/* ─── КОЭФФИЦИЕНТЫ ИЗ SHEETS ─── */
+const COEF_SHEET='КЭФ';
+let CF={}; // {key: value} — загружается из листа КЭФ
+
+async function loadCoefs(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(COEF_SHEET)}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    json.table.rows.forEach(r=>{
+      const key=(r.c[0]?.v||'').toString().trim();
+      if(!key) return;
+      const cell=r.c[2]; // колонка C = Коэф
+      if(!cell||cell.v===null||cell.v===undefined) return;
+      let val=null;
+      const v=cell.v;
+      if(typeof v==='number'){
+        // обычное число — берём как есть
+        val=v;
+      } else if(typeof v==='string'&&v.startsWith('Date(')){
+        // Sheets сохранил как дату: 1.02 → Date(year,1,1)
+        // month 0-indexed, day=1 → коэф = day + (month+1)/100
+        const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
+        const month0=parts[1]; // 0-indexed
+        const day=parts[2];
+        val=parseFloat((day+((month0+1)/100)).toFixed(4));
+      } else {
+        // текст с запятой (русская локаль: "1,02") или обычный
+        const n=parseFloat(v.toString().replace(',','.'));
+        if(!isNaN(n)) val=n;
+      }
+      if(val!==null) CF[key]=val;
+    });
+    console.log('Коэффициенты загружены из КЭФ:',CF);
+    // обновляем value у чекбоксов
+    ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>{
+      const cb=$(id);if(cb&&CF[id])cb.value=CF[id];
+    });
+    calc();
+  }catch(e){
+    console.warn('Не удалось загрузить лист КЭФ, используем дефолты:',e);
+  }
+}
+
+function cf(key,def){return CF[key]??def;}
+
 /* ─── COEFFICIENTS ─── */
 function distCoef(km){
-  if(km<=20)return{c:1.00,l:'≤20 км'};
-  if(km<=50)return{c:1.02,l:'≤50 км'};
-  if(km<=100)return{c:1.04,l:'≤100 км'};
-  if(km<=150)return{c:1.05,l:'100–150 км'};
-  return{c:1.06,l:'>150 км'};
+  if(km<=20)return{c:cf('dist_20',1.00),l:'≤20 км'};
+  if(km<=50)return{c:cf('dist_50',1.02),l:'≤50 км'};
+  if(km<=100)return{c:cf('dist_100',1.04),l:'≤100 км'};
+  if(km<=150)return{c:cf('dist_150',1.05),l:'100–150 км'};
+  return{c:cf('dist_over',1.06),l:'>150 км'};
 }
 function droneP(t){
   return{
@@ -551,15 +608,16 @@ function setFrag(v,id){
 /* ─── CALC ─── */
 function calc(){
   const area=gv('area',100);
-  const km=gv('km',75);
-  const kCmplx=gv('complexity',1);
-  const kObs=gv('obstacles',1);
-  const kTreat=gv('treatment',1);
+  const km=gv('km',0);
+  const kCmplx=parseFloat($('complexity')?.value)||1;
+  const kObs=parseFloat($('obstacles')?.value)||1;
+  const kTreat=parseFloat($('treatment')?.value)||1;
   const kFrag=parseFloat($('frag').value)||1;
 
   let kAdd=1;
-  ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>{
-    const cb=$(id);if(cb?.checked)kAdd*=parseFloat(cb.value);
+  const addKeys={add_night:cf('add_night',1.1),add_urgent:cf('add_urgent',1.02),add_nps:cf('add_nps',1.04),add_wind:cf('add_wind',1.02)};
+  Object.entries(addKeys).forEach(([id,v])=>{
+    const cb=$(id);if(cb?.checked)kAdd*=v;
   });
 
   const di=distCoef(km);
@@ -567,7 +625,9 @@ function calc(){
   const kTotal=kCmplx*kObs*kTreat*kFrag*kAdd*kDist;
   const effArea=area*kTotal;
 
-  $('distTag').textContent='От ВК: '+km+' км · Коэф.: ×'+fmt(kDist,2)+' ('+di.l+')';
+  $('distTag').textContent=km>0
+    ?'От ВК: '+km+' км · Коэф.: ×'+fmt(kDist,2)+' ('+di.l+')'
+    :'Расстояние не указано — транспорт не начислен';
   $('pWarn').classList.toggle('hidden',kTotal<=2);
 
   const nd=gv('v_nd',2);
@@ -612,7 +672,10 @@ function calc(){
   const actM=actP/noVat*100;
   const droneLabel=($('droneType')?.value||'a70').toUpperCase();
 
-  calcResult={area,km,kTotal,effArea,tripDays,shifts,cost,profit:actP,marg:actM,noVat,vat,total,ppa,usd,droneLabel,prod,nd,materials,labour,salOp,salTech,fsz,daily,ovh,transport,droneAmt,carAmt,trAmt,matSub,mm};
+  // FIX: сохраняем transportFull — долю транспорта в итоге с учётом mm, margin, VAT
+  const transportFull=km>0 ? transport*mm*(1+margR)*(1+vatR) : 0;
+
+  calcResult={area,km,kTotal,effArea,tripDays,shifts,cost,profit:actP,marg:actM,noVat,vat,total,ppa,usd,droneLabel,prod,nd,materials,labour,salOp,salTech,fsz,daily,ovh,transport,transportFull,rate,droneAmt,carAmt,trAmt,matSub,mm};
 
   // RESULT DISPLAY
   $('r_ppa').textContent=fmt(ppa);
@@ -633,7 +696,6 @@ function calc(){
   ];
   const active=coefs.filter(x=>Math.abs(x.v-1)>0.001);
 
-  // Coef visual block
   const cv=$('coefVisual');
   const allRows=[...coefs,{icon:'🔢',n:'Итоговый коэффициент',v:kTotal,total:true}];
   cv.innerHTML=allRows.map(r=>{
@@ -673,12 +735,6 @@ function calc(){
     return`<tr class="${r.t}"><td>${r.n}</td><td>${fmt(r.v)}</td><td style="color:var(--muted)">${pct}</td></tr>`;
   }).join('');
   $('btNote').textContent=`${droneLabel}, ${prod} га/смена, ${nd} дрона. Эфф. площадь: ${fmt(effArea,1)} га. Коэф.: ${coefLines}`;
-
-  // MARKET
-  const ourUsd=ppa/usd,diff=ourUsd-10,sign=diff>=0?'+':'';
-  $('m_ours').textContent=fmt(ourUsd);
-  $('mktDiff').style.cssText='border-radius:7px;padding:6px 9px;font-size:12px;font-weight:500;background:'+(diff>=0?'var(--gl)':'var(--red-bg)')+';color:'+(diff>=0?'var(--green)':'var(--red)');
-  $('mktDiff').textContent=(diff>=0?'▲':'▼')+' '+sign+fmt(diff,2)+' $/га ('+sign+fmt(diff/10*100,1)+'%) vs рынок';
 }
 
 /* ─── LOAD FROM URL ─── */
@@ -686,11 +742,9 @@ function loadFromURL(){
   const p=new URLSearchParams(window.location.search);
   if(!p.toString()) return;
 
-  // Функция декодирования (Make может передать как закодированным, так и нет)
-  const decode = (val) => {
+  const decode=(val)=>{
     if(!val) return '';
-    try { return decodeURIComponent(val); }
-    catch(e) { return val; }
+    try{return decodeURIComponent(val);}catch(e){return val;}
   };
 
   clientData={
@@ -709,11 +763,7 @@ function loadFromURL(){
     comment: decode(p.get('comment'))||'',
     ts: decode(p.get('ts'))||'',
   };
-  
-  // Отладка (можно удалить позже)
-  console.log('URL params loaded:', clientData);
 
-  // Fill form
   if(clientData.area) $('area').value=clientData.area;
   if(clientData.location) $('location').value=clientData.location;
   if(clientData.treatment){
@@ -737,7 +787,6 @@ function loadFromURL(){
   if(clientData.night) $('add_night').checked=true;
   if(clientData.urgent) $('add_urgent').checked=true;
 
-  // Client strip
   const org=clientData.org||(clientData.unp?'УНП '+clientData.unp:'Клиент');
   $('csAvatar').textContent=org.charAt(0).toUpperCase();
   $('csOrg').textContent=org;
@@ -787,7 +836,6 @@ async function loadRequests(){
     const rows=json.table.rows;
     allRequests=rows.map((r,i)=>{
       const raw=r.c.map(c=>c?.v??'');
-      // Парсинг дат из формата Date(2026,0,1)
       const parseVal=(v)=>{
         if(typeof v==='string'&&v.startsWith('Date(')){
           const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
@@ -819,8 +867,7 @@ async function loadRequests(){
         date_status:v[17]||'',
       };
     }).filter(r=>r.org);
-    // Сортировка: новые заявки сверху
-    allRequests.sort((a,b)=>b.row - a.row);
+    allRequests.sort((a,b)=>b.row-a.row);
     updateCounts();
     applyFilter();
   }catch(e){
@@ -891,7 +938,6 @@ function selectRequest(row){
   if(!currentRequest)return;
   statusChanged=false;
 
-  // Синхронизируем clientData с текущей заявкой
   clientData={
     org: currentRequest.org,
     unp: currentRequest.unp,
@@ -905,11 +951,11 @@ function selectRequest(row){
     tg_id: currentRequest.tg_id,
   };
 
-  // Заполняем форму
   if(currentRequest.area) $('area').value=currentRequest.area;
   if(currentRequest.location) $('location').value=currentRequest.location;
+  // FIX: сбрасываем km при открытии новой заявки
+  $('km').value='';
 
-  // Культура — ищем по названию (data-name), fallback по коэффициенту
   const s=$('treatment');
   let matched=false;
   if(currentRequest.treatment){
@@ -925,11 +971,9 @@ function selectRequest(row){
     }
   }
 
-  // Статус
   const sk=STATUS_LABELS[currentRequest.status]||'new';
   setStatus(sk,false);
 
-  // Client strip
   const org=currentRequest.org||'Клиент';
   $('csAvatar').textContent=org.charAt(0).toUpperCase();
   $('csOrg').textContent=org;
@@ -943,7 +987,6 @@ function selectRequest(row){
 
   if(currentRequest.comment) $('notes').value='💬 Комментарий: '+currentRequest.comment;
 
-  // Показать форму
   $('requestsPanel').classList.add('hidden');
   $('clientStrip').classList.remove('hidden');
   $('mainPanel').classList.remove('hidden');
@@ -954,9 +997,7 @@ function selectRequest(row){
 function backToList(){
   if(statusChanged){
     showToast('⚠️ Статус не сохранён');
-    // Показываем save bar, но через 3 сек всё равно выпускаем если повторно нажали
     if($('saveBar').classList.contains('show')){
-      // Второй клик — выходим без сохранения
       showList();
       return;
     }
@@ -1015,6 +1056,7 @@ function setStatus(s,markChanged=true){
     $('saveBar').classList.add('show');
   }
 }
+
 /* ─── ACTIONS ─── */
 function sendKP(){
   if(!calcResult.total){ showToast('Сначала рассчитайте стоимость'); return; }
@@ -1023,10 +1065,15 @@ function sendKP(){
   const loc=clientData.location||$('location').value||'';
   const treatName=$('treatment').options[$('treatment').selectedIndex].dataset.name;
 
-  // Разделяем: обработка и дорога
-  const treatTotal=r.total - r.transport*1.2; // итого без транспорта с НДС
-  const transportTotal=r.transport*1.2;       // транспорт с НДС
+  // FIX: используем transportFull — реальная доля транспорта в итоге (с mm, margin, VAT)
+  const transportTotal=r.transportFull;
+  const treatTotal=r.total-transportTotal;
   const ppaTreat=treatTotal/r.area;
+
+  // FIX: строка дороги только если km > 0
+  const roadLine=r.km>0
+    ?`🚗 *Дорога:*\n   ${r.km} км × ${fmt(r.rate,2)} BYN/км = *${fmtB(transportTotal)} BYN*\n\n`
+    :'';
 
   const msg=
 `🌿 *AgroDron.BY | ЗАО «АТК»*\n\n`+
@@ -1037,8 +1084,7 @@ function sendKP(){
 `─────────────────────\n`+
 `✈️ *Обработка:*\n`+
 `   ${fmt(ppaTreat)} BYN/га × ${r.area} га = *${fmtB(treatTotal)} BYN*\n\n`+
-`🚗 *Дорога:*\n`+
-`   ${r.km} км × ${r.km>0?fmt(r.transport/r.km,2):'0'} BYN/км = *${fmtB(transportTotal)} BYN*\n`+
+roadLine+
 `─────────────────────\n`+
 `💰 *ИТОГО с НДС: ${fmtB(r.total)} BYN*\n\n`+
 `Препараты и вода — за счёт заказчика.\n`+
@@ -1131,7 +1177,20 @@ function showToast(msg){
 ['treatment','complexity','obstacles'].forEach(id=>$(id)?.addEventListener('change',calc));
 ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>$(id)?.addEventListener('change',calc));
 
-loadRequests();
+// Обновляем value в select'ах по data-key после загрузки CF
+function applyCoefToSelects(){
+  ['complexity','obstacles'].forEach(selId=>{
+    const sel=$(selId);if(!sel)return;
+    for(let i=0;i<sel.options.length;i++){
+      const key=sel.options[i].dataset.key;
+      if(key&&CF[key]!==undefined) sel.options[i].value=CF[key];
+    }
+  });
+}
+
+// Загружаем коэффициенты, потом заявки
+loadCoefs().then(()=>{applyCoefToSelects();}).finally(()=>loadRequests());
 </script>
+
 </body>
 </html>
