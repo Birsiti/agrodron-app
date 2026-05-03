@@ -31,9 +31,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 /* ── СПИСОК ЗАЯВОК ── */
 .rp{max-width:1200px;margin:0 auto;padding:14px}
-.tabs-w{background:#fff;border-radius:11px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
-.tabs-row{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.tabs-row::-webkit-scrollbar{display:none}
+.tabs-w{background:#fff;border-radius:11px;border:1px solid var(--border);margin-bottom:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-w::-webkit-scrollbar{display:none}
+.tabs-row{display:flex;flex-wrap:nowrap}
 .tab{flex:0 0 auto;min-width:90px;padding:11px 8px;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:#fff;transition:.2s;text-align:center;white-space:nowrap}
 .tab:hover{background:#f9fafb}
 .tab.active{color:var(--green);border-bottom-color:var(--green);background:var(--gl)}
@@ -112,6 +112,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .card{border-radius:9px}
 .btn-open{padding:4px 8px;font-size:10px}
 .rt td,.rt th{padding:7px 8px;font-size:12px}
+.rt{min-width:0}
+.rt th:nth-child(1),.rt td:nth-child(1){display:none}
+.rt th:nth-child(3),.rt td:nth-child(3){display:none}
+.rt th:nth-child(5),.rt td:nth-child(5){display:none}
 }
 
 /* ── CARDS ── */
