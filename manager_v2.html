@@ -32,14 +32,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* ── СПИСОК ЗАЯВОК ── */
 .rp{max-width:1200px;margin:0 auto;padding:14px}
 .tabs-w{background:#fff;border-radius:11px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
-.tabs-row{display:flex;flex-wrap:wrap}
-.tab{flex:1;min-width:110px;padding:11px 6px;border:none;border-bottom:3px solid transparent;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--muted);background:#fff;transition:.2s;text-align:center}
+.tabs-row{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-row::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;min-width:90px;padding:11px 8px;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:#fff;transition:.2s;text-align:center;white-space:nowrap}
 .tab:hover{background:#f9fafb}
 .tab.active{color:var(--green);border-bottom-color:var(--green);background:var(--gl)}
 .tc{font-size:10px;font-weight:700;opacity:.6}
-.rt{width:100%;border-collapse:collapse;background:#fff;border-radius:11px;border:1px solid var(--border);overflow:hidden}
-.rt th{background:#f5f8fc;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
-.rt td{padding:9px 12px;border-bottom:1px solid #f0f3f8;font-size:13px}
+.rt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:11px;border:1px solid var(--border)}
+.rt{width:100%;border-collapse:collapse;background:#fff;min-width:480px}
+.rt th{background:#f5f8fc;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+.rt td{padding:9px 10px;border-bottom:1px solid #f0f3f8;font-size:13px}
 .rt tr:hover td{background:#f9fafb;cursor:pointer}
 .rt tr:last-child td{border-bottom:none}
 .st-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
@@ -89,6 +91,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* ── LAYOUT ── */
 .main{max-width:1080px;margin:0 auto;padding:14px 12px;display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
 @media(max-width:720px){.main{grid-template-columns:1fr}}
+@media(max-width:600px){
+.rp{padding:10px 8px}
+.rt-hdr{flex-direction:column;align-items:flex-start;gap:6px}
+.client-strip{flex-direction:column;align-items:flex-start}
+.status-wrap{width:100%}
+.stat{font-size:10px;padding:4px 7px}
+.fi,.sw select{font-size:13px}
+.pbig{font-size:32px}
+.actions{grid-template-columns:1fr}
+.btn-send{grid-column:auto}
+.frow{grid-template-columns:1fr}
+.save-bar{padding:10px 12px}
+.save-bar-msg{font-size:11px}
+}
 
 /* ── CARDS ── */
 .card{background:var(--card);border-radius:11px;border:1px solid var(--border);margin-bottom:12px}
@@ -537,7 +553,9 @@ let calcResult={};
 
 /* ─── КОЭФФИЦИЕНТЫ ИЗ SHEETS ─── */
 const COEF_SHEET='КЭФ';
-let CF={}; // {key: value} — загружается из листа КЭФ
+const VARS_SHEET='ПЕРЕМЕННЫЕ';
+let CF={}; // коэффициенты
+let VR={}; // производственные переменные
 
 async function loadCoefs(){
   try{
@@ -553,24 +571,19 @@ async function loadCoefs(){
       let val=null;
       const v=cell.v;
       if(typeof v==='number'){
-        // обычное число — берём как есть
         val=v;
       } else if(typeof v==='string'&&v.startsWith('Date(')){
-        // Sheets сохранил как дату: 1.02 → Date(year,1,1)
-        // month 0-indexed, day=1 → коэф = day + (month+1)/100
         const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
-        const month0=parts[1]; // 0-indexed
+        const month0=parts[1];
         const day=parts[2];
         val=parseFloat((day+((month0+1)/100)).toFixed(4));
       } else {
-        // текст с запятой (русская локаль: "1,02") или обычный
         const n=parseFloat(v.toString().replace(',','.'));
         if(!isNaN(n)) val=n;
       }
       if(val!==null) CF[key]=val;
     });
     console.log('Коэффициенты загружены из КЭФ:',CF);
-    // обновляем value у чекбоксов
     ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>{
       const cb=$(id);if(cb&&CF[id])cb.value=CF[id];
     });
@@ -581,8 +594,51 @@ async function loadCoefs(){
 }
 
 function cf(key,def){return CF[key]??def;}
+function vr(key,def){return VR[key]??def;}
 
-/* ─── COEFFICIENTS ─── */
+async function loadVars(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(VARS_SHEET)}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    json.table.rows.forEach(r=>{
+      const key=(r.c[0]?.v||'').toString().trim();
+      if(!key) return;
+      const cell=r.c[2];
+      if(!cell||cell.v===null||cell.v===undefined) return;
+      const v=cell.v;
+      let val=null;
+      if(typeof v==='number') val=v;
+      else{const n=parseFloat(v.toString().replace(',','.'));if(!isNaN(n))val=n;}
+      if(val!==null) VR[key]=val;
+    });
+    console.log('Переменные загружены из ПЕРЕМЕННЫЕ:',VR);
+    const map={
+      v_rate:'transport_rate',v_matmult:'mat_mult',
+      v_d60:'drone_a60_amort',v_p60:'drone_a60_prod',
+      v_d70:'drone_a70_amort',v_p70:'drone_a70_prod',
+      v_d99:'drone_a99_amort',v_p99:'drone_a99_prod',
+      v_car:'car_amort',v_trail:'trailer_amort',
+      v_hpd:'hpd',v_nd:'nd',
+      v_opsal:'op_salary',v_oppc:'op_piecework',
+      v_tsal:'tech_salary',v_tpc:'tech_piecework',
+      v_nop:'n_operators',v_ntech:'n_technicians',
+      v_fsz:'fsz_pct',v_ovh:'overhead_pct',
+      v_daily:'daily_rate',v_margin:'margin_pct',
+      v_vat:'vat_pct',v_usd:'usd_rate',
+    };
+    Object.entries(map).forEach(([inputId,vrKey])=>{
+      const el=$(inputId);
+      if(el&&VR[vrKey]!==undefined) el.value=VR[vrKey];
+    });
+    calc();
+  }catch(e){
+    console.warn('Не удалось загрузить ПЕРЕМЕННЫЕ, используем дефолты:',e);
+  }
+}
+
+
 function distCoef(km){
   if(km<=20)return{c:cf('dist_20',1.00),l:'≤20 км'};
   if(km<=50)return{c:cf('dist_50',1.02),l:'≤50 км'};
@@ -592,9 +648,9 @@ function distCoef(km){
 }
 function droneP(t){
   return{
-    a60:{amort:gv('v_d60',40.74),prod:gv('v_p60',100)},
-    a70:{amort:gv('v_d70',50.93),prod:gv('v_p70',150)},
-    a99:{amort:gv('v_d99',65.28),prod:gv('v_p99',200)},
+    a60:{amort:vr('drone_a60_amort',gv('v_d60',40.74)),prod:vr('drone_a60_prod',gv('v_p60',100))},
+    a70:{amort:vr('drone_a70_amort',gv('v_d70',50.93)),prod:vr('drone_a70_prod',gv('v_p70',150))},
+    a99:{amort:vr('drone_a99_amort',gv('v_d99',65.28)),prod:vr('drone_a99_prod',gv('v_p99',200))},
   }[t]||{amort:50.93,prod:150};
 }
 
@@ -630,21 +686,29 @@ function calc(){
     :'Расстояние не указано — транспорт не начислен';
   $('pWarn').classList.toggle('hidden',kTotal<=2);
 
-  const nd=gv('v_nd',2);
-  const hpd=gv('v_hpd',50);
+  const nd=vr('nd',gv('v_nd',2));
+  const hpd=vr('hpd',gv('v_hpd',50));
   const dp=droneP($('droneType')?.value||'a70');
   const prod=dp.prod;
   const tripDays=Math.ceil(area/(hpd*nd));
   const shifts=Math.ceil(effArea/prod*2)/2;
 
-  const rate=gv('v_rate',2.6),mm=gv('v_matmult',1.1);
-  const carA=gv('v_car',35.71),trA=gv('v_trail',33.33);
-  const opSal=gv('v_opsal',2777.78),opPc=gv('v_oppc',2);
-  const tSal=gv('v_tsal',2222.22),tPc=gv('v_tpc',1.5);
-  const nOp=gv('v_nop',1),nTech=gv('v_ntech',1);
-  const fszR=gv('v_fsz',34.6)/100,ovhR=gv('v_ovh',198.3)/100;
-  const dailyR=gv('v_daily',6);
-  const margR=gv('v_margin',70)/100,vatR=gv('v_vat',20)/100,usd=gv('v_usd',3.34);
+  const rate=vr('transport_rate',gv('v_rate',2.6));
+  const mm=vr('mat_mult',gv('v_matmult',1.1));
+  const carA=vr('car_amort',gv('v_car',35.71));
+  const trA=vr('trailer_amort',gv('v_trail',33.33));
+  const opSal=vr('op_salary',gv('v_opsal',2777.78));
+  const opPc=vr('op_piecework',gv('v_oppc',2));
+  const tSal=vr('tech_salary',gv('v_tsal',2222.22));
+  const tPc=vr('tech_piecework',gv('v_tpc',1.5));
+  const nOp=vr('n_operators',gv('v_nop',1));
+  const nTech=vr('n_technicians',gv('v_ntech',1));
+  const fszR=vr('fsz_pct',gv('v_fsz',34.6))/100;
+  const ovhR=vr('overhead_pct',gv('v_ovh',198.3))/100;
+  const dailyR=vr('daily_rate',gv('v_daily',6));
+  const margR=vr('margin_pct',gv('v_margin',70))/100;
+  const vatR=vr('vat_pct',gv('v_vat',20))/100;
+  const usd=vr('usd_rate',gv('v_usd',3.34));
 
   const transport=km*rate;
   const droneAmt=dp.amort*nd*shifts;
@@ -672,7 +736,6 @@ function calc(){
   const actM=actP/noVat*100;
   const droneLabel=($('droneType')?.value||'a70').toUpperCase();
 
-  // FIX: сохраняем transportFull — долю транспорта в итоге с учётом mm, margin, VAT
   const transportFull=km>0 ? transport*mm*(1+margR)*(1+vatR) : 0;
 
   calcResult={area,km,kTotal,effArea,tripDays,shifts,cost,profit:actP,marg:actM,noVat,vat,total,ppa,usd,droneLabel,prod,nd,materials,labour,salOp,salTech,fsz,daily,ovh,transport,transportFull,rate,droneAmt,carAmt,trAmt,matSub,mm};
@@ -915,6 +978,7 @@ function renderTable(list){
     return;
   }
   $('requestsList').innerHTML=`
+    <div class="rt-wrap">
     <table class="rt">
       <thead><tr>
         <th>ID</th><th>Организация</th><th>Площадь</th><th>Культура</th><th>Сроки</th><th>Статус</th><th></th>
@@ -930,7 +994,8 @@ function renderTable(list){
           <td><button class="btn-open" onclick="selectRequest(${r.row});event.stopPropagation()">Открыть</button></td>
         </tr>`).join('')}
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 function selectRequest(row){
@@ -953,7 +1018,6 @@ function selectRequest(row){
 
   if(currentRequest.area) $('area').value=currentRequest.area;
   if(currentRequest.location) $('location').value=currentRequest.location;
-  // FIX: сбрасываем km при открытии новой заявки
   $('km').value='';
 
   const s=$('treatment');
@@ -1065,12 +1129,10 @@ function sendKP(){
   const loc=clientData.location||$('location').value||'';
   const treatName=$('treatment').options[$('treatment').selectedIndex].dataset.name;
 
-  // FIX: используем transportFull — реальная доля транспорта в итоге (с mm, margin, VAT)
   const transportTotal=r.transportFull;
   const treatTotal=r.total-transportTotal;
   const ppaTreat=treatTotal/r.area;
 
-  // FIX: строка дороги только если km > 0
   const roadLine=r.km>0
     ?`🚗 *Дорога:*\n   ${r.km} км × ${fmt(r.rate,2)} BYN/км = *${fmtB(transportTotal)} BYN*\n\n`
     :'';
@@ -1177,7 +1239,6 @@ function showToast(msg){
 ['treatment','complexity','obstacles'].forEach(id=>$(id)?.addEventListener('change',calc));
 ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>$(id)?.addEventListener('change',calc));
 
-// Обновляем value в select'ах по data-key после загрузки CF
 function applyCoefToSelects(){
   ['complexity','obstacles'].forEach(selId=>{
     const sel=$(selId);if(!sel)return;
@@ -1188,8 +1249,10 @@ function applyCoefToSelects(){
   });
 }
 
-// Загружаем коэффициенты, потом заявки
-loadCoefs().then(()=>{applyCoefToSelects();}).finally(()=>loadRequests());
+Promise.all([
+  loadCoefs().then(()=>{applyCoefToSelects();}),
+  loadVars()
+]).finally(()=>loadRequests());
 </script>
 
 </body>
