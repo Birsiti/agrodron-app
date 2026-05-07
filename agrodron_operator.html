@@ -38,56 +38,48 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── OP SELECT ── */
+/* SELECT PAGE */
 .sel-page{padding:20px 16px}
 .sel-title{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:4px}
 .sel-sub{font-size:13px;color:var(--t3);margin-bottom:16px}
+.sel-section{margin-bottom:20px}
+.sel-section-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
 .op-item{background:var(--card);border-radius:var(--rs);padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:8px;border:1.5px solid transparent;transition:all .2s;animation:up .3s ease both}
-.op-item:nth-child(2){animation-delay:.05s}.op-item:nth-child(3){animation-delay:.1s}
-.op-item:nth-child(4){animation-delay:.15s}.op-item:nth-child(5){animation-delay:.2s}
-.op-item:nth-child(6){animation-delay:.25s}.op-item:nth-child(7){animation-delay:.3s}
 .op-item:active{transform:scale(.98);border-color:var(--ga)}
 .av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
 .av-db{background:rgba(27,89,53,.15);color:var(--green)}
 .av-kg{background:rgba(58,122,255,.15);color:#2a6aff}
 .av-lb{background:rgba(200,130,0,.15);color:#b07800}
 .av-au{background:rgba(180,40,40,.15);color:#b02020}
-.av-bi{background:rgba(100,100,100,.12);color:#555}
-.av-le{background:rgba(100,100,100,.12);color:#555}
 .op-nm{font-size:14px;font-weight:700;color:var(--t1)}
 .op-rl{font-size:11px;color:var(--t3);margin-top:1px}
-.sep-line{height:1px;background:var(--border);margin:10px 0 8px}
-.vet-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
 
-/* ── MAIN MENU ── */
+/* ROLE SELECT */
+.role-sel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.role-card{background:var(--card);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;box-shadow:var(--sh);border:2px solid transparent;transition:all .2s}
+.role-card:active{transform:scale(.97);border-color:var(--ga)}
+.role-ico{font-size:36px;margin-bottom:8px}
+.role-name{font-size:15px;font-weight:700;color:var(--t1)}
+.role-desc{font-size:11px;color:var(--t3);margin-top:4px}
+
+/* MAIN MENU */
 .menu-wrap{padding:8px 12px 24px}
-.shift-banner{background:linear-gradient(135deg,#1b5935,#2a7a4a);color:#fff;border-radius:var(--rs);padding:10px 14px;margin:0 0 8px;display:none}
-.shift-banner.show{display:flex;align-items:center;gap:10px}
-.sb-dot{width:8px;height:8px;border-radius:50%;background:#5dff9f;flex-shrink:0;box-shadow:0 0 8px #5dff9f;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.sb-info{flex:1}
-.sb-title{font-size:12px;font-weight:700}
-.sb-time{font-size:11px;opacity:.8;margin-top:1px}
-
-.field-banner{background:var(--green);color:#fff;border-radius:var(--rs);padding:12px 14px;margin:0 0 8px;display:none}
-.field-banner.show{display:flex;align-items:center;gap:10px}
-.fb-ico{font-size:20px}
-.fb-info{flex:1}
-.fb-name{font-size:13px;font-weight:700}
-.fb-meta{font-size:11px;opacity:.8;margin-top:1px}
-.fb-time{font-size:12px;font-weight:700;opacity:.9;white-space:nowrap}
+.role-banner{border-radius:var(--rs);padding:10px 14px;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.rb-ico{font-size:18px}
+.rb-info{flex:1}
+.rb-title{font-size:13px;font-weight:700;color:#fff}
+.rb-sub{font-size:11px;opacity:.8;color:#fff;margin-top:1px}
 
 .sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
 .mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent}
 .mi:active{transform:scale(.98);border-color:var(--ga)}
-.mi.disabled{opacity:.4;pointer-events:none}
 .mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
 .mi-info{flex:1}
 .mi-title{font-size:14px;font-weight:700;color:var(--t1)}
 .mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
 .mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
 
-/* ── SUB SCREENS ── */
+/* SUB SCREENS */
 .sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
 .sub-back{font-size:22px;cursor:pointer;color:var(--green);line-height:1}
 .sub-title{font-size:16px;font-weight:800;color:var(--t1)}
@@ -101,571 +93,525 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ic-val{font-size:13px;font-weight:700;color:var(--t1)}
 .ic-val.green{color:var(--green)}
 
-.big-stat{text-align:center;padding:20px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px}
-.bs-num{font-size:52px;font-weight:800;color:var(--green);line-height:1}
-.bs-unit{font-size:14px;color:var(--t3);margin-top:4px}
-.bs-cap{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
-
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.sg{background:var(--card);border-radius:var(--rs);padding:14px 12px;box-shadow:var(--sh)}
-.sg-num{font-size:24px;font-weight:800;color:var(--green)}
-.sg-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
-
-/* FLOW STEPS */
-.flow-step{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
-.flow-n{width:26px;height:26px;border-radius:50%;background:var(--gl);color:var(--green);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.flow-t{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:6px}
-.flow-s{font-size:13px;color:var(--t2);line-height:1.5}
-
-.photo-zone{border:2px dashed var(--border);border-radius:var(--rs);padding:22px;text-align:center;cursor:pointer;transition:all .2s;margin-top:12px}
-.photo-zone.has{border-color:var(--ga);background:var(--gl);border-style:solid}
-.pz-ico{font-size:28px;margin-bottom:6px}
-.pz-t{font-size:13px;font-weight:700;color:var(--t2)}
-.pz-s{font-size:11px;color:var(--t3);margin-top:3px}
-.photo-preview{width:100%;border-radius:8px;max-height:160px;object-fit:cover;display:none;margin-top:10px}
-
-.split-box{background:var(--gl);border-radius:var(--rs);padding:14px;margin-top:12px;display:none}
-.split-title{font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
-.split-row{display:flex;justify-content:space-between;padding:5px 0}
-.split-name{font-size:13px;font-weight:600;color:var(--green)}
-.split-ha{font-size:14px;font-weight:800;color:var(--green)}
-
-/* FORM */
-.frow{margin-bottom:12px}
-.frow label{font-size:13px;font-weight:600;color:var(--t2);display:block;margin-bottom:6px}
-.frow input,.frow select,.frow textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
-.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--ga);background:#fff}
-.frow textarea{resize:none;min-height:68px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* BUTTONS */
-.btn{width:100%;padding:15px;border:none;border-radius:var(--r);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px}
-.btn:active{transform:scale(.98)}
-.btn-g{background:var(--green);color:#fff}
-.btn-g:active{background:var(--gm)}
-.btn-r{background:#e74c3c;color:#fff}
-.btn-out{background:transparent;border:2px solid var(--border);color:var(--t2)}
-.btn-dis{background:var(--border);color:var(--t3);pointer-events:none}
-
-/* DOCS */
-.doc-item{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:8px;cursor:pointer;transition:all .2s}
-.doc-item:active{transform:scale(.98)}
-
-/* INCIDENT */
-.inc-item{background:var(--card);border-radius:var(--rs);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:8px;cursor:pointer;border-left:4px solid transparent;transition:all .2s}
-.inc-item:active{transform:scale(.98)}
-.inc-red{border-left-color:#e74c3c}
-.inc-yel{border-left-color:#f39c12}
-.inc-blu{border-left-color:#3a6aee}
-
-/* CONTACT */
-.contact-card{background:var(--card);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh);margin-bottom:8px;cursor:pointer;transition:all .2s}
-.contact-card:active{transform:scale(.98)}
-.c-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-
-/* MODAL */
-.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
-.modal-ov.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:0 0 30px;animation:shUp .3s cubic-bezier(.32,.72,0,1);max-height:80vh;overflow-y:auto}
-@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
-.modal-hdr{padding:14px 16px 12px;border-bottom:1px solid var(--border);text-align:center}
-.modal-title{font-size:17px;font-weight:800;color:var(--t1)}
-.modal-sub{font-size:12px;color:var(--t3);margin-top:2px}
-.modal-body{padding:16px}
+.empty{text-align:center;padding:50px 20px}
+.empty-ico{font-size:42px;margin-bottom:10px;opacity:.5}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+.empty-s{font-size:12px;color:var(--t3)}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(27,89,53,.4);max-width:calc(100% - 32px);text-align:center}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.pb{height:24px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
+<!-- TG CHROME -->
 <div class="tg">
-  <span class="tg-l" onclick="goTo('select')">‹ Сменить</span>
-  <div class="tg-m"><div class="tg-t">AgroDron_BY_bot</div><div class="tg-s">Оператор</div></div>
-  <span class="tg-r">···</span>
+  <div class="tg-l" onclick="logout()">‹ Сменить</div>
+  <div class="tg-m">
+    <div class="tg-t">AgroDron.BY</div>
+    <div class="tg-s">@AgroDron_BY_Bot</div>
+  </div>
+  <div class="tg-r">⋮</div>
 </div>
 
+<!-- APP HEADER -->
 <div class="app-hdr">
   <div class="brand">
     <div class="brand-ico">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L3 12l9 9 9-9z" fill="white" opacity=".9"/><circle cx="12" cy="12" r="2.5" fill="white"/><path d="M8.5 12h7M12 8.5v7" stroke="var(--green)" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/></svg>
     </div>
     <div>
       <div class="brand-name">Agro<em>Dron</em>.BY</div>
-      <div class="brand-sub" id="hdr-sub">ЗАО «АТК» · Оператор</div>
+      <div class="brand-sub">ЗАО «АТК» · Оператор</div>
     </div>
   </div>
-  <div class="op-chip" id="op-chip" onclick="goTo('select')" style="display:none">—</div>
+  <div class="op-chip" id="op-chip" onclick="logout()" style="display:none">—</div>
 </div>
 
+<!-- SCROLL -->
 <div class="scroll">
 
-<!-- SELECT -->
-<div class="screen active" id="screen-select">
+<!-- SELECT OPERATOR -->
+<div id="select" class="screen active">
   <div class="sel-page">
     <div class="sel-title">Кто летит?</div>
     <div class="sel-sub">Выберите своё имя</div>
-    <div class="op-item" onclick="login('db')"><div class="av av-db">ДБ</div><div><div class="op-nm">Бруй Д.А.</div><div class="op-rl">Оператор АТК</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="op-item" onclick="login('kg')"><div class="av av-kg">КГ</div><div><div class="op-nm">Грибов К.М.</div><div class="op-rl">Оператор АТК</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="op-item" onclick="login('lb')"><div class="av av-lb">ЛБ</div><div><div class="op-nm">Борисенок Л.И.</div><div class="op-rl">Оператор WR</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="op-item" onclick="login('au')"><div class="av av-au">АУ</div><div><div class="op-nm">Уманец А.И.</div><div class="op-rl">Оператор WR</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="sep-line"></div>
-    <div class="vet-label">⭐ Наставники</div>
-    <div class="op-item" onclick="login('bi')"><div class="av av-bi">⭐</div><div><div class="op-nm">Бич И.М.</div><div class="op-rl">Инструктор · офис</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="op-item" onclick="login('le')"><div class="av av-le">⭐</div><div><div class="op-nm">Ленский А.</div><div class="op-rl">Наставник · офис</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="pb"></div>
+    
+    <div class="sel-section">
+      <div class="op-item" onclick="selectOp('db','Бруй Д.А.','Оператор АТК')">
+        <div class="av av-db">ДБ</div>
+        <div style="flex:1">
+          <div class="op-nm">Бруй Д.А.</div>
+          <div class="op-rl">Оператор АТК</div>
+        </div>
+        <span style="color:var(--t3);font-size:18px">›</span>
+      </div>
+      <div class="op-item" onclick="selectOp('kg','Грибов К.М.','Оператор АТК')">
+        <div class="av av-kg">КГ</div>
+        <div style="flex:1">
+          <div class="op-nm">Грибов К.М.</div>
+          <div class="op-rl">Оператор АТК</div>
+        </div>
+        <span style="color:var(--t3);font-size:18px">›</span>
+      </div>
+      <div class="op-item" onclick="selectOp('lb','Борисенок Л.И.','Оператор WR')">
+        <div class="av av-lb">ЛБ</div>
+        <div style="flex:1">
+          <div class="op-nm">Борисенок Л.И.</div>
+          <div class="op-rl">Оператор WR</div>
+        </div>
+        <span style="color:var(--t3);font-size:18px">›</span>
+      </div>
+      <div class="op-item" onclick="selectOp('au','Уманец А.И.','Оператор WR')">
+        <div class="av av-au">АУ</div>
+        <div style="flex:1">
+          <div class="op-nm">Уманец А.И.</div>
+          <div class="op-rl">Оператор WR</div>
+        </div>
+        <span style="color:var(--t3);font-size:18px">›</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SELECT ROLE -->
+<div id="role-select" class="screen">
+  <div class="sel-page">
+    <div class="sel-title">Выберите роль</div>
+    <div class="sel-sub" id="role-sub">Как вы сегодня работаете?</div>
+    
+    <div class="role-sel">
+      <div class="role-card" onclick="selectRole('senior')">
+        <div class="role-ico">⚡</div>
+        <div class="role-name">Старший</div>
+        <div class="role-desc">Полный доступ</div>
+      </div>
+      <div class="role-card" onclick="selectRole('regular')">
+        <div class="role-ico">👤</div>
+        <div class="role-name">Обычный</div>
+        <div class="role-desc">Базовое меню</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- MAIN MENU -->
-<div class="screen" id="screen-main">
+<div id="main" class="screen">
   <div class="menu-wrap">
-
-    <div class="shift-banner" id="shift-banner">
-      <div class="sb-dot"></div>
-      <div class="sb-info"><div class="sb-title">Выезд активен</div><div class="sb-time" id="shift-time">—</div></div>
-      <span style="font-size:12px;font-weight:700;opacity:.8" id="shift-dur">0 мин</span>
+    
+    <!-- ROLE BANNER -->
+    <div class="role-banner" id="role-banner" style="display:none">
+      <div class="rb-ico" id="rb-ico">⚡</div>
+      <div class="rb-info">
+        <div class="rb-title" id="rb-title">Старший бригады</div>
+        <div class="rb-sub" id="rb-sub">Полный доступ к управлению</div>
+      </div>
     </div>
 
-    <div class="field-banner" id="field-banner">
-      <div class="fb-ico">🌾</div>
-      <div class="fb-info"><div class="fb-name" id="fb-name">—</div><div class="fb-meta" id="fb-meta">—</div></div>
-      <div class="fb-time" id="fb-time">—</div>
+    <!-- SENIOR ONLY -->
+    <div id="senior-menu" style="display:none">
+      <div class="sep">Мой выезд</div>
+      <div class="mi" onclick="nav('shift-start')">
+        <div class="mi-ico">▶️</div>
+        <div class="mi-info">
+          <div class="mi-title">Начать выезд</div>
+          <div class="mi-sub">Фиксирует время отправления</div>
+        </div>
+        <div class="mi-arr">›</div>
+      </div>
+      <div class="mi" onclick="nav('accept')">
+        <div class="mi-ico">📥</div>
+        <div class="mi-info">
+          <div class="mi-title">Принять поле</div>
+          <div class="mi-sub">Фото с пульта + открытие</div>
+        </div>
+        <div class="mi-arr">›</div>
+      </div>
+      <div class="mi" onclick="nav('close')">
+        <div class="mi-ico">✅</div>
+        <div class="mi-info">
+          <div class="mi-title">Поле отработано</div>
+          <div class="mi-sub">Закрыть и записать га</div>
+        </div>
+        <div class="mi-arr">›</div>
+      </div>
     </div>
 
-    <div class="sep">Мой выезд</div>
-    <div class="mi" id="mi-start" onclick="startShift()">
-      <div class="mi-ico">▶️</div><div class="mi-info"><div class="mi-title">Начать выезд</div><div class="mi-sub">Фиксирует время отправления</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi disabled" id="mi-end" onclick="endShift()">
-      <div class="mi-ico">⏹</div><div class="mi-info"><div class="mi-title">Завершить выезд</div><div class="mi-sub">Итог дня</div></div><span class="mi-arr">›</span>
-    </div>
-
+    <!-- COMMON MENU -->
     <div class="sep">Мои поля</div>
-    <div class="mi disabled" id="mi-fields" onclick="goTo('fields')">
-      <div class="mi-ico">🌾</div><div class="mi-info"><div class="mi-title">Мои поля на сегодня</div><div class="mi-sub">Список объектов</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi disabled" id="mi-accept" onclick="goTo('accept')">
-      <div class="mi-ico">📥</div><div class="mi-info"><div class="mi-title">Принять поле</div><div class="mi-sub">Фото с пульта + открытие</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi disabled" id="mi-close" onclick="goTo('close-field')">
-      <div class="mi-ico">✅</div><div class="mi-info"><div class="mi-title">Поле отработано</div><div class="mi-sub" id="mi-close-sub">Нет открытых полей</div></div><span class="mi-arr">›</span>
-    </div>
-
-    <div class="sep">Техника и прицеп</div>
-    <div class="mi" onclick="goTo('equip')">
-      <div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">Состояние дрона</div><div class="mi-sub">А-60, А-70, А1-Х</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi" onclick="goTo('trailer')">
-      <div class="mi-ico">🛢</div><div class="mi-info"><div class="mi-title">Прицеп / генератор</div><div class="mi-sub">Состояние оборудования</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi" onclick="goTo('breakdown')">
-      <div class="mi-ico">⚠️</div><div class="mi-info"><div class="mi-title">Сообщить о поломке</div><div class="mi-sub">Отправить координатору</div></div><span class="mi-arr">›</span>
+    <div class="mi" onclick="nav('fields')">
+      <div class="mi-ico">🌾</div>
+      <div class="mi-info">
+        <div class="mi-title">Поля на сегодня</div>
+        <div class="mi-sub">Культура, норма, дозировка</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
 
-    <div class="sep">Инцидент</div>
-    <div class="mi" onclick="goTo('incident')">
-      <div class="mi-ico">⚠️</div><div class="mi-info"><div class="mi-title">Инцидент</div><div class="mi-sub">Поломка, ошибка, вопрос</div></div><span class="mi-arr">›</span>
+    <div class="sep">Техника</div>
+    <div class="mi" onclick="nav('equip')">
+      <div class="mi-ico">🚁</div>
+      <div class="mi-info">
+        <div class="mi-title">Состояние дрона</div>
+        <div class="mi-sub">А-60, А-70, А1-Х</div>
+      </div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="nav('trailer')">
+      <div class="mi-ico">🛢</div>
+      <div class="mi-info">
+        <div class="mi-title">Прицеп / генератор</div>
+        <div class="mi-sub">Состояние оборудования</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
 
     <div class="sep">Информация</div>
-    <div class="mi" onclick="goTo('stats')">
-      <div class="mi-ico">📊</div><div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га за сезон, выезды</div></div><span class="mi-arr">›</span>
+    <div class="mi" onclick="nav('stats')">
+      <div class="mi-ico">📊</div>
+      <div class="mi-info">
+        <div class="mi-title">Моя статистика</div>
+        <div class="mi-sub">Га, часы, выезды</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="goTo('weather')">
-      <div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">По точке выезда</div></div><span class="mi-arr">›</span>
+    <div class="mi" onclick="nav('weather')">
+      <div class="mi-ico">🌤</div>
+      <div class="mi-info">
+        <div class="mi-title">Погода</div>
+        <div class="mi-sub">Заказинец / Косино</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="goTo('docs')">
-      <div class="mi-ico">📄</div><div class="mi-info"><div class="mi-title">Документы</div><div class="mi-sub">Шпаргалки, чеклист, фонетика</div></div><span class="mi-arr">›</span>
+    <div class="mi" onclick="nav('docs')">
+      <div class="mi-ico">📋</div>
+      <div class="mi-info">
+        <div class="mi-title">Документы</div>
+        <div class="mi-sub">Правила, инструкции, памятки</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="goTo('contact')">
-      <div class="mi-ico">💬</div><div class="mi-info"><div class="mi-title">Связь с координатором</div><div class="mi-sub">РП, команда АТК</div></div><span class="mi-arr">›</span>
+    <div class="mi" onclick="nav('contacts')">
+      <div class="mi-ico">📞</div>
+      <div class="mi-info">
+        <div class="mi-title">Связь</div>
+        <div class="mi-sub">РП, координаторы, АТК</div>
+      </div>
+      <div class="mi-arr">›</div>
     </div>
-    <div class="pb"></div>
-  </div>
-</div>
 
-<!-- ПРИНЯТЬ ПОЛЕ -->
-<div class="screen" id="screen-accept">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Принять поле</span></div>
-  <div class="sub-wrap">
-    <div class="flow-step">
-      <div class="flow-n">1</div>
-      <div class="flow-t">Данные поля</div>
-      <div class="frow" style="margin-top:10px"><label>Место / НП</label><input type="text" id="af-name" placeholder="Ганцевичский р-н, д. Вулька"></div>
-      <div class="fgrid">
-        <div class="frow"><label>Культура</label>
-          <select id="af-crop"><option>Залежь / расчистка</option><option>Зерновые</option><option>Рапс</option><option>Кукуруза</option><option>Картофель</option><option>Клубника</option><option>Другое</option></select>
+    <!-- SENIOR ONLY: CURATOR -->
+    <div id="senior-curator" style="display:none">
+      <div class="sep">Куратор</div>
+      <div class="mi" onclick="nav('curator-new')">
+        <div class="mi-ico">📝</div>
+        <div class="mi-info">
+          <div class="mi-title">Обратиться к куратору</div>
+          <div class="mi-sub">Создать обращение</div>
         </div>
-        <div class="frow"><label>Обработка</label>
-          <select id="af-treat"><option>Гербицид</option><option>Фунгицид</option><option>Инсектицид</option><option>Удобрение</option><option>Дефолиант</option></select>
-        </div>
+        <div class="mi-arr">›</div>
       </div>
     </div>
-    <div class="flow-step">
-      <div class="flow-n">2</div>
-      <div class="flow-t">Фото с пульта после оцифровки</div>
-      <div class="flow-s">Сфотографируй экран пульта с картой поля</div>
-      <input type="file" accept="image/*" id="af-photo-input" style="display:none" onchange="handlePhoto(this)">
-      <div class="photo-zone" id="af-zone" onclick="document.getElementById('af-photo-input').click()">
-        <div class="pz-ico">📷</div>
-        <div class="pz-t">Прикрепить фото</div>
-        <div class="pz-s">Нажми чтобы выбрать</div>
+
+    <!-- CURATOR VIEW (ALL) -->
+    <div class="mi" onclick="nav('curator-list')">
+      <div class="mi-ico">👔</div>
+      <div class="mi-info">
+        <div class="mi-title">Мои обращения</div>
+        <div class="mi-sub">История запросов</div>
       </div>
-      <img class="photo-preview" id="af-preview">
+      <div class="mi-arr">›</div>
     </div>
-    <button class="btn btn-g btn-dis" id="af-submit" onclick="acceptField()">Принять поле ✓</button>
-    <div class="pb"></div>
+
   </div>
 </div>
 
-<!-- ПОЛЕ ОТРАБОТАНО -->
-<div class="screen" id="screen-close-field">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Поле отработано</span></div>
+<!-- FIELDS -->
+<div id="fields" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Поля на сегодня</div>
+  </div>
   <div class="sub-wrap">
     <div class="info-card">
-      <div class="ic-title">Активное поле</div>
-      <div class="ic-row"><span class="ic-label">Место</span><span class="ic-val" id="cf-name">—</span></div>
-      <div class="ic-row"><span class="ic-label">Культура</span><span class="ic-val" id="cf-crop">—</span></div>
-      <div class="ic-row"><span class="ic-label">Открыто в</span><span class="ic-val" id="cf-time">—</span></div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-n">1</div>
-      <div class="flow-t">Фактическая площадь</div>
-      <div class="flow-s">Смотри на экран пульта — введи итоговые га</div>
-      <div class="frow" style="margin-top:12px"><label>Отработано, га</label><input type="number" id="cf-area" placeholder="58" oninput="calcSplit()"></div>
-      <div class="split-box" id="split-box">
-        <div class="split-title">Разбивка по операторам</div>
-        <div id="split-rows"></div>
-        <div style="font-size:10px;color:var(--green);margin-top:6px;opacity:.7">Общая сумма записывается как есть · <b id="split-total">—</b> га</div>
+      <div class="ic-title">Сезон 2026</div>
+      <div class="ic-row">
+        <span class="ic-label">🌾 Ганцевичский р-н<br><span style="font-size:10px;color:var(--t3)">Залежь / расчистка · 04.05.2026</span></span>
+        <span class="ic-val green">60 га ✓</span>
+      </div>
+      <div class="ic-row">
+        <span class="ic-label">🌾 Ганцевичский р-н<br><span style="font-size:10px;color:var(--t3)">Залежь / расчистка · 05.05.2026</span></span>
+        <span class="ic-val green">85 га ✓</span>
+      </div>
+      <div class="ic-row" style="border-top:2px solid var(--border);margin-top:4px">
+        <span class="ic-label" style="font-weight:700">Итого</span>
+        <span class="ic-val green">145 га</span>
       </div>
     </div>
-    <div class="flow-step">
-      <div class="flow-n">2</div>
-      <div class="flow-t">Замечания (если есть)</div>
-      <div class="frow" style="margin-top:10px"><textarea id="cf-notes" placeholder="Опционально: особенности, отклонения..."></textarea></div>
-    </div>
-    <button class="btn btn-g" onclick="closeField()">Закрыть поле ✓</button>
-    <div class="pb"></div>
   </div>
 </div>
 
-<!-- МОИ ПОЛЯ -->
-<div class="screen" id="screen-fields">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Мои поля на сегодня</span></div>
+<!-- STATS -->
+<div id="stats" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Моя статистика</div>
+  </div>
   <div class="sub-wrap">
-    <div id="fields-list"></div>
-    <div class="pb"></div>
+    <div class="empty">
+      <div class="empty-ico">📊</div>
+      <div class="empty-t">Статистика</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
   </div>
 </div>
 
-<!-- СТАТИСТИКА -->
-<div class="screen" id="screen-stats">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Моя статистика</span></div>
+<!-- EQUIP -->
+<div id="equip" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Состояние дрона</div>
+  </div>
   <div class="sub-wrap">
-    <div class="big-stat">
-      <div class="bs-cap">Мои га · сезон 2026</div>
-      <div class="bs-num" id="my-ha">—</div>
-      <div class="bs-unit">личных га за сезон</div>
+    <div class="empty">
+      <div class="empty-ico">🚁</div>
+      <div class="empty-t">Техника</div>
+      <div class="empty-s">Функция в разработке</div>
     </div>
-    <div class="stat-grid">
-      <div class="sg"><div class="sg-num" id="my-trips">—</div><div class="sg-lbl">Выездов</div></div>
-      <div class="sg"><div class="sg-num" id="my-fields-cnt">—</div><div class="sg-lbl">Полей</div></div>
+  </div>
+</div>
+
+<!-- TRAILER -->
+<div id="trailer" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Прицеп / генератор</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">🛢</div>
+      <div class="empty-t">Оснащение</div>
+      <div class="empty-s">Функция в разработке</div>
     </div>
+  </div>
+</div>
+
+<!-- WEATHER -->
+<div id="weather" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Погода</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">🌤</div>
+      <div class="empty-t">Метео</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCS -->
+<div id="docs" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Документы</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">📋</div>
+      <div class="empty-t">Документы</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACTS -->
+<div id="contacts" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Связь</div>
+  </div>
+  <div class="sub-wrap">
     <div class="info-card">
-      <div class="ic-title">Бригада · сезон 2026</div>
-      <div class="ic-row"><span class="ic-label">Бруй Д.А.</span><span class="ic-val green">36 га</span></div>
-      <div class="ic-row"><span class="ic-label">Грибов К.М.</span><span class="ic-val green">36 га</span></div>
-      <div class="ic-row"><span class="ic-label">Борисенок WR</span><span class="ic-val" style="color:#b07800">36 га</span></div>
-      <div class="ic-row"><span class="ic-label">Уманец WR</span><span class="ic-val" style="color:#b07800">36 га</span></div>
-      <div class="ic-row"><span class="ic-label">Всего бригада</span><span class="ic-val">145 га · 2 выезда</span></div>
-    </div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ТЕХНИКА -->
-<div class="screen" id="screen-equip">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Состояние дронов</span></div>
-  <div class="sub-wrap">
-    <div class="info-card"><div class="ic-title">А-60 · EW-X154-R</div><div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div><div class="ic-row"><span class="ic-label">Последний ТО</span><span class="ic-val">04.05.2026</span></div></div>
-    <div class="info-card"><div class="ic-title">А-70</div><div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div><div class="ic-row"><span class="ic-label">Последний ТО</span><span class="ic-val">04.05.2026</span></div></div>
-    <div class="info-card"><div class="ic-title">А1-Х · Оцифровщик</div><div class="ic-row"><span class="ic-label">Роль</span><span class="ic-val green">Всегда в бригаде</span></div></div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ПРИЦЕП -->
-<div class="screen" id="screen-trailer">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Прицеп / генератор</span></div>
-  <div class="sub-wrap">
-    <div class="info-card"><div class="ic-title">Прицеп</div><div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div></div>
-    <div class="info-card"><div class="ic-title">Генератор</div><div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div></div>
-    <button class="btn btn-out" onclick="openIncident('Поломка прицепа / генератора')">⚠️ Сообщить о проблеме</button>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ПОЛОМКА -->
-<div class="screen" id="screen-breakdown">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Сообщить о поломке</span></div>
-  <div class="sub-wrap">
-    <div class="frow"><label>Что сломалось</label><select><option>Дрон А-60</option><option>Дрон А-70</option><option>А1-Х</option><option>Прицеп</option><option>Генератор</option><option>Другое</option></select></div>
-    <div class="frow"><label>Описание</label><textarea placeholder="Опиши что произошло..."></textarea></div>
-    <button class="btn btn-r" onclick="toast('⚠️ Сообщение отправлено координатору');goTo('main')">Отправить координатору</button>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ИНЦИДЕНТ -->
-<div class="screen" id="screen-incident">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Инцидент</span></div>
-  <div class="sub-wrap">
-    <div class="inc-item inc-red" onclick="openIncident('Поломка дрона')"><div class="mi-ico">💥</div><div><div class="mi-title">Поломка дрона</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Срочно · уведомит координатора</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="inc-item inc-yel" onclick="openIncident('Вопрос по смешиванию')"><div class="mi-ico">💧</div><div><div class="mi-title">Вопрос по смешиванию</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Норма, пропорции, препарат</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="inc-item inc-blu" onclick="openIncident('Ошибка / сбой')"><div class="mi-ico">❌</div><div><div class="mi-title">Ошибка / сбой</div><div style="font-size:11px;color:var(--t3);margin-top:2px">GPS, связь, программная ошибка</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ПОГОДА -->
-<div class="screen" id="screen-weather">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Погода</span></div>
-  <div class="sub-wrap">
-    <div class="info-card" style="text-align:center;padding:24px">
-      <div style="font-size:48px;margin-bottom:8px">⛅</div>
-      <div style="font-size:36px;font-weight:800;color:var(--t1)">+16°C</div>
-      <div style="font-size:14px;color:var(--t3);margin-top:4px">Переменная облачность</div>
-      <div style="font-size:13px;color:var(--t2);margin-top:10px">💨 СЗ 4 м/с · 👁 18 км · 💧 62%</div>
-    </div>
-    <div class="info-card">
-      <div class="ic-title">Прогноз на день</div>
-      <div class="ic-row"><span class="ic-label">Утро</span><span class="ic-val">+12°C · 3 м/с</span></div>
-      <div class="ic-row"><span class="ic-label">День</span><span class="ic-val">+18°C · 5 м/с</span></div>
-      <div class="ic-row"><span class="ic-label">Вечер</span><span class="ic-val">+14°C · 4 м/с</span></div>
-    </div>
-    <div style="text-align:center;font-size:11px;color:var(--t3);padding:8px">gismeteo.by · обновлено только что</div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- ДОКУМЕНТЫ -->
-<div class="screen" id="screen-docs">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Документы</span></div>
-  <div class="sub-wrap">
-    <div class="doc-item" onclick="toast('Открываю шпаргалку радиообмена...')"><div style="font-size:22px;width:28px;text-align:center">📻</div><div><div style="font-size:14px;font-weight:700;color:var(--t1)">Радиообмен</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Шпаргалка · EW-X154-R · 123.450 МГц</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="doc-item" onclick="toast('Открываю чеклист...')"><div style="font-size:22px;width:28px;text-align:center">✅</div><div><div style="font-size:14px;font-weight:700;color:var(--t1)">Чеклист оператора</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Перед каждым полётом · А60-Х</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="doc-item" onclick="toast('Открываю фонетический алфавит...')"><div style="font-size:22px;width:28px;text-align:center">🔤</div><div><div style="font-size:14px;font-weight:700;color:var(--t1)">Фонетический алфавит</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Русский РТА + ИКАО НАТО</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="doc-item" onclick="toast('Открываю заявку ИВП...')"><div style="font-size:22px;width:28px;text-align:center">📋</div><div><div style="font-size:14px;font-weight:700;color:var(--t1)">Заявка ИВП</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Инструкция · контакты ЦЕС ОрВД</div></div><span style="margin-left:auto;color:var(--t3);font-size:18px">›</span></div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-<!-- КОНТАКТЫ -->
-<div class="screen" id="screen-contact">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Связь с координатором</span></div>
-  <div class="sub-wrap">
-    <div class="contact-card" onclick="toast('Открываю Telegram...')"><div class="c-av" style="background:var(--gl)">👩‍✈️</div><div><div style="font-size:15px;font-weight:700;color:var(--t1)">Костко Л.В.</div><div style="font-size:12px;color:var(--t3);margin-top:2px">РП · Руководитель полётов</div></div><span style="margin-left:auto;font-size:20px;color:var(--green)">✈️</span></div>
-    <div class="contact-card" onclick="toast('Открываю Telegram...')"><div class="c-av" style="background:#e8eef8">👨‍💼</div><div><div style="font-size:15px;font-weight:700;color:var(--t1)">Менеджер АТК</div><div style="font-size:12px;color:var(--t3);margin-top:2px">Координация выездов</div></div><span style="margin-left:auto;font-size:20px;color:#3a6aee">💬</span></div>
-    <div class="contact-card" onclick="toast('Открываю Telegram...')"><div class="c-av" style="background:var(--gl)">👨‍✈️</div><div><div style="font-size:15px;font-weight:700;color:var(--t1)">Бич И.М.</div><div style="font-size:12px;color:var(--t3);margin-top:2px">⭐ Наставник · инструктор</div></div><span style="margin-left:auto;font-size:20px;color:var(--green)">📞</span></div>
-    <div class="pb"></div>
-  </div>
-</div>
-
-</div><!-- /scroll -->
-
-<!-- INCIDENT MODAL -->
-<div class="modal-ov" id="inc-modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-hdr"><div class="modal-title" id="inc-title">Инцидент</div><div class="modal-sub">Будет отправлено координатору</div></div>
-    <div class="modal-body">
-      <div class="frow"><label>Описание</label><textarea id="inc-desc" placeholder="Что произошло? Где? Когда?"></textarea></div>
-      <button class="btn btn-r" onclick="submitIncident()">Отправить координатору</button>
-      <button class="btn btn-out" onclick="closeModal()" style="margin-bottom:0">Отмена</button>
+      <div class="ic-title">Контакты АТК</div>
+      <div class="ic-row">
+        <span class="ic-label">📡 РП (Костко Л.В.)</span>
+        <span class="ic-val">+375 XX XXX-XX-XX</span>
+      </div>
+      <div class="ic-row">
+        <span class="ic-label">👔 Координатор</span>
+        <span class="ic-val">+375 XX XXX-XX-XX</span>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast-el"></div>
+<!-- CURATOR LIST -->
+<div id="curator-list" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Мои обращения</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">👔</div>
+      <div class="empty-t">Обращения</div>
+      <div class="empty-s">У вас пока нет обращений</div>
+    </div>
+  </div>
+</div>
+
+<!-- CURATOR NEW (SENIOR ONLY) -->
+<div id="curator-new" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Куратор</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">📝</div>
+      <div class="empty-t">Создать обращение</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACCEPT (SENIOR ONLY) -->
+<div id="accept" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Принять поле</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">📥</div>
+      <div class="empty-t">Принятие поля</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE (SENIOR ONLY) -->
+<div id="close" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Поле отработано</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">✅</div>
+      <div class="empty-t">Закрытие поля</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+<!-- SHIFT START (SENIOR ONLY) -->
+<div id="shift-start" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Начать выезд</div>
+  </div>
+  <div class="sub-wrap">
+    <div class="empty">
+      <div class="empty-ico">▶️</div>
+      <div class="empty-t">Старт выезда</div>
+      <div class="empty-s">Функция в разработке</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
 
 <script>
-const OPS = {
-  db:{name:'Бруй Д.А.',   init:'ДБ', ha:36, trips:2, fields:2},
-  kg:{name:'Грибов К.М.', init:'КГ', ha:36, trips:2, fields:2},
-  lb:{name:'Борисенок Л.И.',init:'ЛБ',ha:36,trips:2, fields:2},
-  au:{name:'Уманец А.И.', init:'АУ', ha:36, trips:2, fields:2},
-  bi:{name:'Бич И.М.',    init:'⭐', ha:0,  trips:0, fields:0},
-  le:{name:'Ленский А.',  init:'⭐', ha:0,  trips:0, fields:0},
+// STATE
+let STATE = {
+  operator: null,
+  opName: '',
+  opRole: '',
+  role: null // 'senior' or 'regular'
 };
+let history = ['select'];
 
-const TEAM = ['Бруй Д.А.','Грибов К.М.','Борисенок WR','Уманец WR'];
-
-let S = {op:null, shiftOn:false, shiftStart:null, activeField:null, completedFields:[]};
-let shiftTimer = null;
-
-function goTo(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
-  document.querySelector('.scroll').scrollTop = 0;
+// SELECT OPERATOR
+function selectOp(id, name, role) {
+  STATE.operator = id;
+  STATE.opName = name;
+  STATE.opRole = role;
+  
+  document.getElementById('role-sub').textContent = name + ', как вы сегодня работаете?';
+  
+  nav('role-select');
 }
 
-function login(id) {
-  const op = OPS[id];
-  S.op = op;
-  document.getElementById('op-chip').textContent = op.name.split(' ')[0];
+// SELECT ROLE
+function selectRole(role) {
+  STATE.role = role;
+  
+  document.getElementById('op-chip').textContent = STATE.opName;
   document.getElementById('op-chip').style.display = 'block';
-  document.getElementById('hdr-sub').textContent = op.name + ' · Оператор';
-  document.getElementById('my-ha').textContent = op.ha;
-  document.getElementById('my-trips').textContent = op.trips;
-  document.getElementById('my-fields-cnt').textContent = op.fields;
-  buildFieldsList();
-  goTo('main');
+  
+  const isSenior = role === 'senior';
+  
+  // Show role banner
+  document.getElementById('role-banner').style.display = 'flex';
+  document.getElementById('role-banner').style.background = isSenior 
+    ? 'linear-gradient(135deg,#d97706,#b45309)' 
+    : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
+  
+  document.getElementById('rb-ico').textContent = isSenior ? '⚡' : '👤';
+  document.getElementById('rb-title').textContent = isSenior ? 'Старший бригады' : 'Обычный оператор';
+  document.getElementById('rb-sub').textContent = isSenior ? 'Полный доступ к управлению' : 'Базовый функционал';
+  
+  // Show/hide senior menu
+  document.getElementById('senior-menu').style.display = isSenior ? 'block' : 'none';
+  document.getElementById('senior-curator').style.display = isSenior ? 'block' : 'none';
+  
+  showToast(isSenior ? '⚡ Старший: полный доступ' : '👤 Обычный: базовое меню');
+  
+  nav('main');
 }
 
-function startShift() {
-  if (S.shiftOn) return;
-  S.shiftOn = true;
-  S.shiftStart = new Date();
-  document.getElementById('shift-banner').classList.add('show');
-  document.getElementById('shift-time').textContent = 'Начат в ' + fmt(S.shiftStart);
-  document.getElementById('mi-start').classList.add('disabled');
-  document.getElementById('mi-end').classList.remove('disabled');
-  document.getElementById('mi-fields').classList.remove('disabled');
-  document.getElementById('mi-accept').classList.remove('disabled');
-  shiftTimer = setInterval(updateShiftDur, 60000);
-  updateShiftDur();
-  toast('✓ Выезд начат · ' + fmt(S.shiftStart));
+// LOGOUT
+function logout() {
+  STATE = { operator: null, opName: '', opRole: '', role: null };
+  document.getElementById('op-chip').style.display = 'none';
+  history = ['select'];
+  showScreen('select');
 }
 
-function updateShiftDur() {
-  if (!S.shiftStart) return;
-  const min = Math.round((new Date() - S.shiftStart) / 60000);
-  document.getElementById('shift-dur').textContent = min + ' мин';
+// NAVIGATION
+function nav(screen) {
+  showScreen(screen);
+  history.push(screen);
 }
 
-function endShift() {
-  if (!S.shiftOn) return;
-  if (S.activeField) { toast('Сначала закрой активное поле'); return; }
-  S.shiftOn = false;
-  clearInterval(shiftTimer);
-  document.getElementById('shift-banner').classList.remove('show');
-  document.getElementById('mi-start').classList.remove('disabled');
-  document.getElementById('mi-end').classList.add('disabled');
-  document.getElementById('mi-fields').classList.add('disabled');
-  document.getElementById('mi-accept').classList.add('disabled');
-  toast('✓ Выезд завершён · ' + fmt(new Date()));
+function back() {
+  if (history.length > 1) {
+    history.pop();
+    const prev = history[history.length - 1];
+    showScreen(prev);
+  }
 }
 
-// ACCEPT FIELD
-function handlePhoto(input) {
-  if (!input.files||!input.files[0]) return;
-  const r = new FileReader();
-  r.onload = e => {
-    const prev = document.getElementById('af-preview');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    document.getElementById('af-zone').classList.add('has');
-    document.querySelector('#af-zone .pz-t').textContent = '✓ Фото прикреплено';
-    document.querySelector('#af-zone .pz-s').textContent = 'Нажми чтобы заменить';
-    document.getElementById('af-submit').classList.remove('btn-dis');
-  };
-  r.readAsDataURL(input.files[0]);
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function acceptField() {
-  const name = document.getElementById('af-name').value || 'Поле без названия';
-  const crop = document.getElementById('af-crop').value;
-  const treat = document.getElementById('af-treat').value;
-  S.activeField = {name, crop, treat, openedAt: new Date()};
-
-  document.getElementById('field-banner').classList.add('show');
-  document.getElementById('fb-name').textContent = name;
-  document.getElementById('fb-meta').textContent = crop + ' · ' + treat;
-  document.getElementById('fb-time').textContent = fmt(S.activeField.openedAt);
-
-  document.getElementById('mi-close').classList.remove('disabled');
-  document.getElementById('mi-close-sub').textContent = name;
-  document.getElementById('mi-accept').classList.add('disabled');
-
-  document.getElementById('cf-name').textContent = name;
-  document.getElementById('cf-crop').textContent = crop + ' · ' + treat;
-  document.getElementById('cf-time').textContent = fmt(S.activeField.openedAt);
-
-  // reset form
-  document.getElementById('af-name').value = '';
-  document.getElementById('af-preview').style.display = 'none';
-  document.getElementById('af-zone').classList.remove('has');
-  document.querySelector('#af-zone .pz-t').textContent = 'Прикрепить фото';
-  document.getElementById('af-submit').classList.add('btn-dis');
-
-  toast('✓ Поле принято · ' + fmt(S.activeField.openedAt));
-  goTo('main');
-}
-
-// CLOSE FIELD
-function calcSplit() {
-  const area = parseInt(document.getElementById('cf-area').value)||0;
-  const box = document.getElementById('split-box');
-  if (area > 0) {
-    const ha = Math.floor(area / TEAM.length);
-    document.getElementById('split-rows').innerHTML = TEAM.map(o =>
-      `<div class="split-row"><span class="split-name">${o}</span><span class="split-ha">${ha} га</span></div>`
-    ).join('');
-    document.getElementById('split-total').textContent = area;
-    box.style.display = 'block';
-  } else { box.style.display = 'none'; }
-}
-
-function closeField() {
-  const area = parseInt(document.getElementById('cf-area').value)||0;
-  if (!area) { toast('Укажи площадь в га'); return; }
-  S.completedFields.push({...S.activeField, area, closedAt: new Date()});
-  S.activeField = null;
-
-  document.getElementById('field-banner').classList.remove('show');
-  document.getElementById('mi-close').classList.add('disabled');
-  document.getElementById('mi-close-sub').textContent = 'Нет открытых полей';
-  document.getElementById('mi-accept').classList.remove('disabled');
-  document.getElementById('cf-area').value = '';
-  document.getElementById('split-box').style.display = 'none';
-  document.getElementById('cf-notes').value = '';
-
-  buildFieldsList();
-  toast('✓ ' + area + ' га записано');
-  goTo('main');
-}
-
-function buildFieldsList() {
-  const el = document.getElementById('fields-list');
-  const all = [
-    {name:'Ганцевичский р-н', crop:'Залежь / расчистка', area:60, date:'04.05.2026', done:true},
-    {name:'Ганцевичский р-н', crop:'Залежь / расчистка', area:85, date:'05.05.2026', done:true},
-    ...S.completedFields.map(f=>({name:f.name, crop:f.crop, area:f.area, date:fmt(f.openedAt), done:true}))
-  ];
-  if (!all.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--t3)">Нет записей за сегодня</div>'; return; }
-  el.innerHTML = '<div class="info-card"><div class="ic-title">Сезон 2026</div>' +
-    all.map(f=>`<div class="ic-row"><span class="ic-label">🌾 ${f.name}<br><span style="font-size:10px;color:var(--t3)">${f.crop} · ${f.date}</span></span><span class="ic-val green">${f.area} га ✓</span></div>`).join('') +
-    `<div class="ic-row" style="border-top:2px solid var(--border);margin-top:4px"><span class="ic-label" style="font-weight:700">Итого</span><span class="ic-val green">${all.reduce((s,f)=>s+f.area,0)} га</span></div></div>`;
-}
-
-function openIncident(title) {
-  document.getElementById('inc-title').textContent = title;
-  document.getElementById('inc-modal').classList.add('open');
-}
-function closeModal() { document.getElementById('inc-modal').classList.remove('open'); }
-function submitIncident() { toast('⚠️ Отправлено координатору'); closeModal(); goTo('main'); }
-
-function fmt(d) { return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
-
-function toast(msg) {
-  const t = document.getElementById('toast-el');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2500);
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 </script>
+
 </body>
 </html>
