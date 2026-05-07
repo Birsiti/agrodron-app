@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDron.BY · Менеджер</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--acc:#1a3a6b;--acm:#15306a;--acl:#e8eef8;--aca:#3a6aee;
+  --green:#1b5935;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.tg{background:#1c2733;padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tg-l{font-size:14px;color:#5aadff;font-weight:500}
+.tg-m{text-align:center}
+.tg-t{font-size:15px;font-weight:600;color:#fff}
+.tg-s{font-size:11px;color:#8fa9be;margin-top:1px}
+.tg-r{color:#5aadff;font-size:20px}
+
+.app-hdr{background:var(--card);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{width:36px;height:36px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-ico svg{width:20px;height:20px}
+.brand-name{font-size:17px;font-weight:800;color:var(--t1);line-height:1.1}
+.brand-name em{font-style:normal;color:var(--aca)}
+.brand-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:1px}
+.mgr-chip{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--acl);color:var(--acc)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none;animation:fadeIn .25s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.menu-wrap{padding:8px 12px 24px}
+.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
+
+.mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent;position:relative}
+.mi:active{transform:scale(.98);border-color:var(--aca)}
+.mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.mi-info{flex:1}
+.mi-title{font-size:14px;font-weight:700;color:var(--t1)}
+.mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
+.mi-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.badge-red{background:#fdecea;color:#e74c3c;border:1px solid rgba(231,76,60,.2)}
+.badge-green{background:var(--gl);color:var(--green);border:1px solid rgba(27,89,53,.15)}
+.badge-blue{background:var(--acl);color:var(--acc);border:1px solid rgba(58,106,238,.2)}
+
+.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.sub-back{font-size:22px;cursor:pointer;color:var(--acc)}
+.sub-title{font-size:16px;font-weight:800;color:var(--t1)}
+.sub-wrap{padding:12px}
+
+.info-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.ic-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.ic-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.ic-row:last-child{border-bottom:none}
+.ic-label{font-size:13px;color:var(--t2)}
+.ic-val{font-size:13px;font-weight:700;color:var(--t1)}
+.ic-val.green{color:var(--green)}
+.ic-val.blue{color:var(--acc)}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sg{background:var(--card);border-radius:var(--rs);padding:14px 12px;box-shadow:var(--sh)}
+.sg-num{font-size:26px;font-weight:800;color:var(--acc)}
+.sg-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* Active field cards */
+.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--green);animation:up .3s ease both}
+.fc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.fc-loc{font-size:15px;font-weight:700;color:var(--t1)}
+.fc-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.fc-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.st-active{background:var(--gl);color:var(--green)}
+.fc-ops{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.op-pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--acl);color:var(--acc)}
+
+/* FORM */
+.frow{margin-bottom:12px}
+.frow label{font-size:13px;font-weight:600;color:var(--t2);display:block;margin-bottom:6px}
+.frow input,.frow select,.frow textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca);background:#fff}
+.frow textarea{resize:none;min-height:68px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.tog-g{display:flex;gap:6px;flex-wrap:wrap}
+.tog{flex:1;min-width:80px;padding:9px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-family:var(--f);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.tog.active{background:var(--acl);border-color:var(--aca);color:var(--acc)}
+.tog:active{transform:scale(.96)}
+
+.btn{width:100%;padding:15px;border:none;border-radius:var(--r);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.btn:active{transform:scale(.98)}
+.btn-acc{background:var(--acc);color:#fff}
+.btn-out{background:transparent;border:2px solid var(--border);color:var(--t2)}
+
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:0 0 30px;animation:shUp .3s cubic-bezier(.32,.72,0,1);max-height:90vh;overflow-y:auto}
+@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+.sh-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);text-align:center}
+.sh-title{font-size:17px;font-weight:800;color:var(--t1)}
+.sh-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.sh-body{padding:16px}
+.sh-sec{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;margin-top:16px}
+.sh-sec:first-child{margin-top:0}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--acc);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(26,58,107,.4);max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.pb{height:24px}
+</style>
+</head>
+<body>
+
+<div class="tg">
+  <span class="tg-l">‹ Назад</span>
+  <div class="tg-m"><div class="tg-t">AgroDron_BY_bot</div><div class="tg-s">Менеджер</div></div>
+  <span class="tg-r">···</span>
+</div>
+
+<div class="app-hdr">
+  <div class="brand">
+    <div class="brand-ico">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L3 12l9 9 9-9z" fill="white" opacity=".9"/><circle cx="12" cy="12" r="2.5" fill="white"/><path d="M8.5 12h7M12 8.5v7" stroke="var(--acc)" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Agro<em>Dron</em>.BY</div>
+      <div class="brand-sub">ЗАО «АТК» · Менеджер</div>
+    </div>
+  </div>
+  <div class="mgr-chip">Менеджер</div>
+</div>
+
+<div class="scroll">
+
+<!-- MAIN -->
+<div class="screen active" id="screen-main">
+  <div class="menu-wrap">
+
+    <div class="sep">Заявки и выезды</div>
+    <div class="mi" onclick="openSheet()">
+      <div class="mi-ico">📋</div><div class="mi-info"><div class="mi-title">Новая заявка</div><div class="mi-sub">Создать выезд и назначить бригаду</div></div><span class="mi-arr">›</span>
+    </div>
+    <div class="mi" onclick="goTo('active')">
+      <div class="mi-ico">🔴</div><div class="mi-info"><div class="mi-title">Активные выезды</div><div class="mi-sub">Кто где сейчас работает</div></div><span class="mi-arr">›</span>
+      <span class="mi-badge badge-red">1</span>
+    </div>
+    <div class="mi" onclick="goTo('queue')">
+      <div class="mi-ico">📅</div><div class="mi-info"><div class="mi-title">Очередь выездов</div><div class="mi-sub">Запланированные задания</div></div><span class="mi-arr">›</span>
+    </div>
+
+    <div class="sep">Операторы</div>
+    <div class="mi" onclick="goTo('operators')">
+      <div class="mi-ico">👥</div><div class="mi-info"><div class="mi-title">Операторы</div><div class="mi-sub">Бригада · статистика · га</div></div><span class="mi-arr">›</span>
+    </div>
+
+    <div class="sep">Аналитика</div>
+    <div class="mi" onclick="goTo('journal')">
+      <div class="mi-ico">📊</div><div class="mi-info"><div class="mi-title">Журнал обработок</div><div class="mi-sub">Все записи сезона 2026</div></div><span class="mi-arr">›</span>
+    </div>
+    <div class="mi" onclick="goTo('stats')">
+      <div class="mi-ico">📈</div><div class="mi-info"><div class="mi-title">Статистика</div><div class="mi-sub">Га, выезды, операторы</div></div><span class="mi-arr">›</span>
+    </div>
+
+    <div class="sep">Техника</div>
+    <div class="mi" onclick="goTo('equipment')">
+      <div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">Техника</div><div class="mi-sub">А-60, А-70, А1-Х · состояние</div></div><span class="mi-arr">›</span>
+    </div>
+    <div class="mi" onclick="goTo('incidents')">
+      <div class="mi-ico">⚠️</div><div class="mi-info"><div class="mi-title">Инциденты</div><div class="mi-sub">Поломки и нештатные ситуации</div></div><span class="mi-arr">›</span>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- АКТИВНЫЕ ВЫЕЗДЫ -->
+<div class="screen" id="screen-active">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Активные выезды</span></div>
+  <div class="sub-wrap">
+    <div class="field-card">
+      <div class="fc-top">
+        <div><div class="fc-loc">Ганцевичский р-н</div><div class="fc-meta">Залежь / расчистка · Гербицид · А-60 + А-70</div></div>
+        <span class="fc-status st-active">В работе</span>
+      </div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:6px">⏱ Открыто в 08:14 · А1-Х в бригаде</div>
+      <div class="fc-ops">
+        <span class="op-pill">Бруй Д.А.</span>
+        <span class="op-pill">Грибов К.М.</span>
+        <span class="op-pill">Борисенок WR</span>
+        <span class="op-pill">Уманец WR</span>
+      </div>
+    </div>
+    <div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Других активных выездов нет</div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- ОЧЕРЕДЬ -->
+<div class="screen" id="screen-queue">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Очередь выездов</span></div>
+  <div class="sub-wrap">
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:36px;margin-bottom:10px">📅</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px">Нет запланированных выездов</div>
+      <div style="font-size:12px;color:var(--t3)">Создайте новую заявку</div>
+    </div>
+    <button class="btn btn-acc" onclick="openSheet()">+ Создать заявку</button>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- ОПЕРАТОРЫ -->
+<div class="screen" id="screen-operators">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Операторы</span></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">АТК · личные га · сезон 2026</div>
+      <div class="ic-row"><span class="ic-label"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(27,89,53,.4);display:inline-block"></span>Бруй Д.А.</span></span><span class="ic-val green">36 га · 2 выезда</span></div>
+      <div class="ic-row"><span class="ic-label"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(58,106,238,.3);display:inline-block"></span>Грибов К.М.</span></span><span class="ic-val green">36 га · 2 выезда</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Вайсрусланд WR · подряд</div>
+      <div class="ic-row"><span class="ic-label">Борисенок Л.И. WR</span><span class="ic-val" style="color:#b07800">36 га · 2 выезда</span></div>
+      <div class="ic-row"><span class="ic-label">Уманец А.И. WR</span><span class="ic-val" style="color:#b07800">36 га · 2 выезда</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">⭐ Наставники · офис</div>
+      <div class="ic-row"><span class="ic-label">Бич И.М.</span><span class="ic-val" style="color:var(--t3)">— (не летал)</span></div>
+      <div class="ic-row"><span class="ic-label">Ленский А.</span><span class="ic-val" style="color:var(--t3)">— (не летал)</span></div>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- ЖУРНАЛ -->
+<div class="screen" id="screen-journal">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Журнал обработок</span></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">2026-001 · 04.05.2026</div>
+      <div class="ic-row"><span class="ic-label">Место</span><span class="ic-val">Ганцевичский р-н</span></div>
+      <div class="ic-row"><span class="ic-label">Площадь</span><span class="ic-val green">60 га</span></div>
+      <div class="ic-row"><span class="ic-label">Культура</span><span class="ic-val">Залежь / расчистка</span></div>
+      <div class="ic-row"><span class="ic-label">Обработка</span><span class="ic-val">Гербицид · Торнадо</span></div>
+      <div class="ic-row"><span class="ic-label">Борт</span><span class="ic-val">А-60 + А-70</span></div>
+      <div class="ic-row"><span class="ic-label">На оператора</span><span class="ic-val">15 га × 4</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">2026-002 · 05.05.2026</div>
+      <div class="ic-row"><span class="ic-label">Место</span><span class="ic-val">Ганцевичский р-н</span></div>
+      <div class="ic-row"><span class="ic-label">Площадь</span><span class="ic-val green">85 га</span></div>
+      <div class="ic-row"><span class="ic-label">Культура</span><span class="ic-val">Залежь / расчистка</span></div>
+      <div class="ic-row"><span class="ic-label">Обработка</span><span class="ic-val">Гербицид</span></div>
+      <div class="ic-row"><span class="ic-label">Борт</span><span class="ic-val">А-60 + А-70</span></div>
+      <div class="ic-row"><span class="ic-label">На оператора</span><span class="ic-val">21 га × 4</span></div>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- СТАТИСТИКА -->
+<div class="screen" id="screen-stats">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Статистика</span></div>
+  <div class="sub-wrap">
+    <div class="stat-grid">
+      <div class="sg"><div class="sg-num">145</div><div class="sg-lbl">Га за сезон</div></div>
+      <div class="sg"><div class="sg-num">2</div><div class="sg-lbl">Выездов</div></div>
+      <div class="sg"><div class="sg-num">4</div><div class="sg-lbl">Операторов</div></div>
+      <div class="sg"><div class="sg-num">72</div><div class="sg-lbl">Ср. выезд, га</div></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">По месяцам · 2026</div>
+      <div class="ic-row"><span class="ic-label">Март</span><span class="ic-val">— (учебные)</span></div>
+      <div class="ic-row"><span class="ic-label">Апрель</span><span class="ic-val">0 га</span></div>
+      <div class="ic-row"><span class="ic-label">Май</span><span class="ic-val green">145 га</span></div>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- ТЕХНИКА -->
+<div class="screen" id="screen-equipment">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Техника</span></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">А-60 · EW-X154-R</div>
+      <div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div>
+      <div class="ic-row"><span class="ic-label">Последний ТО</span><span class="ic-val">04.05.2026</span></div>
+      <div class="ic-row"><span class="ic-label">Выездов в сезоне</span><span class="ic-val">2</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">А-70</div>
+      <div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Исправен</span></div>
+      <div class="ic-row"><span class="ic-label">Выездов в сезоне</span><span class="ic-val">2</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">А1-Х · Оцифровщик</div>
+      <div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Всегда в бригаде</span></div>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+<!-- ИНЦИДЕНТЫ -->
+<div class="screen" id="screen-incidents">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Инциденты</span></div>
+  <div class="sub-wrap">
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:36px;margin-bottom:10px">✅</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px">Инцидентов нет</div>
+      <div style="font-size:12px;color:var(--t3)">Всё работает штатно</div>
+    </div>
+    <div class="pb"></div>
+  </div>
+</div>
+
+</div><!-- /scroll -->
+
+<!-- NEW REQUEST SHEET -->
+<div class="modal-ov" id="new-req-modal" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head"><div class="sh-title">Новая заявка</div><div class="sh-sub">Полевой выезд · назначение бригады</div></div>
+    <div class="sh-body">
+      <div class="sh-sec">📍 Место и площадь</div>
+      <div class="fgrid">
+        <div class="frow"><label>Дата выезда</label><input type="date" id="nf-date"></div>
+        <div class="frow"><label>Площадь, га</label><input type="number" id="nf-area" placeholder="60"></div>
+      </div>
+      <div class="frow"><label>Район / НП</label><input type="text" id="nf-loc" placeholder="Ганцевичский р-н, д. Вулька"></div>
+
+      <div class="sh-sec">🌱 Культура и обработка</div>
+      <div class="fgrid">
+        <div class="frow"><label>Культура</label>
+          <select id="nf-crop"><option>Залежь / расчистка</option><option>Зерновые</option><option>Рапс</option><option>Кукуруза</option><option>Картофель</option><option>Клубника</option><option>Другое</option></select>
+        </div>
+        <div class="frow"><label>Обработка</label>
+          <select id="nf-treat"><option>Гербицид</option><option>Фунгицид</option><option>Инсектицид</option><option>Удобрение</option><option>Дефолиант</option></select>
+        </div>
+      </div>
+
+      <div class="sh-sec">🚁 Техника</div>
+      <div class="frow">
+        <div class="tog-g" id="nf-bak">
+          <div class="tog active" onclick="ts(this,'nf-bak')">А-60</div>
+          <div class="tog" onclick="ts(this,'nf-bak')">А-70</div>
+          <div class="tog" onclick="ts(this,'nf-bak')">А-60 + А-70</div>
+        </div>
+      </div>
+
+      <div class="sh-sec">👤 Бригада</div>
+      <div class="frow">
+        <div class="tog-g" id="nf-ops">
+          <div class="tog" onclick="tm(this)">Бруй Д.А.</div>
+          <div class="tog" onclick="tm(this)">Грибов К.М.</div>
+          <div class="tog" onclick="tm(this)">Борисенок WR</div>
+          <div class="tog" onclick="tm(this)">Уманец WR</div>
+        </div>
+      </div>
+
+      <div class="sh-sec">📝 Примечание</div>
+      <div class="frow"><textarea id="nf-notes" placeholder="Особенности поля, контакт заказчика..."></textarea></div>
+
+      <button class="btn btn-acc" onclick="createRequest()">Создать заявку →</button>
+      <button class="btn btn-out" onclick="closeSheet()" style="margin-bottom:0">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelector('.scroll').scrollTop=0;
+}
+function openSheet(){
+  document.getElementById('new-req-modal').classList.add('open');
+  document.getElementById('nf-date').value=new Date().toISOString().split('T')[0];
+}
+function closeSheet(){document.getElementById('new-req-modal').classList.remove('open')}
+function ts(el,g){document.querySelectorAll('#'+g+' .tog').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+function tm(el){el.classList.toggle('active')}
+function createRequest(){
+  toast('✓ Заявка создана · операторы уведомлены');
+  closeSheet();
+  document.getElementById('nf-loc').value='';
+  document.getElementById('nf-area').value='';
+  document.getElementById('nf-notes').value='';
+  document.querySelectorAll('#nf-ops .tog').forEach(t=>t.classList.remove('active'));
+}
+function toast(msg){
+  const t=document.getElementById('toast-el');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
