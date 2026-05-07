@@ -112,6 +112,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .hidden{display:none}
+@media(max-width:600px){
+  .wrap{padding:12px 10px}
+  .tabs{flex-direction:column;gap:3px}
+  .tab{text-align:left;padding:9px 12px}
+  .top-bar{flex-direction:column;align-items:flex-start}
+  .top-actions{width:100%;justify-content:flex-end}
+  .vrow{grid-template-columns:1fr 80px 90px;gap:0;padding:8px 12px}
+  .vrow-input{font-size:14px;padding:7px 6px}
+  .save-bar{padding:10px 12px;gap:8px}
+  .save-bar-msg{font-size:11px}
+  .btn-save-bar{padding:10px 14px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -225,17 +237,30 @@ async function loadSheet(name){
   const res=await fetch(url);
   const txt=await res.text();
   const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+  const colType=(json.table.cols[2]?.type||'number');
+  const isDateCol=colType==='date';
   const rows=[];
   json.table.rows.forEach((r,i)=>{
     const key=(r.c[0]?.v||'').toString().trim();
-    if(!key) return; // разделители пропускаем
+    if(!key) return;
     const label=(r.c[1]?.v||'').toString().trim();
     const cell=r.c[2];
     const note=(r.c[3]?.v||'').toString().trim();
     if(!cell||cell.v===null||cell.v===undefined) return;
     let val=null;
     const v=cell.v;
-    if(typeof v==='number'){
+    if(isDateCol){
+      if(typeof v==='string'&&v.startsWith('Date(')){
+        const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
+        const day=parts[2],month=parts[1]+1;
+        val=parseFloat(`${day}.${(day===1&&month<10)?'0'+month:month}`);
+      } else if(typeof v==='number'){
+        // Серийный номер даты — конвертируем через JS Date
+        const d=new Date(Math.round((v-25569)*86400000));
+        const day=d.getUTCDate(),month=d.getUTCMonth()+1;
+        val=parseFloat(`${day}.${(day===1&&month<10)?'0'+month:month}`);
+      }
+    } else if(typeof v==='number'){
       val=v;
     } else if(typeof v==='string'&&v.startsWith('Date(')){
       const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
@@ -244,20 +269,24 @@ async function loadSheet(name){
       const n=parseFloat(v.toString().replace(',','.'));
       if(!isNaN(n)) val=n;
     }
-    if(val!==null) rows.push({rowIndex:i+2, key, label, value:val, origValue:val, note, sheet:name});
+    if(val!==null) rows.push({rowIndex:i+2,key,label,value:val,origValue:val,note,sheet:name,dateCol:isDateCol});
   });
-  return rows;
+  return{rows,isDateCol};
 }
 
 async function loadAll(){
   setStatus('loading','Загрузка данных...');
   try{
-    const [coef,vars]=await Promise.all([
+    const [res1,res2]=await Promise.all([
       loadSheet('КЭФ'),
       loadSheet('ПЕРЕМЕННЫЕ')
     ]);
-    sheetData.coef=coef;
-    sheetData.vars=vars;
+    sheetData.coef=res1.rows;
+    sheetData.vars=res2.rows;
+    // Предупреждение если колонка C — дата
+    if(res1.isDateCol||res2.isDateCol){
+      showToast('⚠️ Колонка С в Sheets — формат Дата. Проверьте значения!','err');
+    }
     changes={};
     renderTable();
     updateChangeBadge();
