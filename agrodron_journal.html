@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AgroDron.BY — Журнал</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #eef0f5;
+  --card:     #ffffff;
+  --green:    #1b5935;
+  --green-m:  #2a7a4a;
+  --green-lt: #e8f4ed;
+  --green-a:  #3aaa5e;
+  --border:   #e2e6ef;
+  --t1:       #1a1f2e;
+  --t2:       #5a6476;
+  --t3:       #9aa3b2;
+  --sh:       0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --sh-sm:    0 1px 3px rgba(0,0,0,.08);
+  --r:        14px;
+  --rs:       10px;
+  --f:        'Manrope',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+
+/* ── TG CHROME ── */
+.tg{background:#1c2733;padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tg-close{font-size:14px;color:#5aadff;font-weight:500}
+.tg-mid{text-align:center}
+.tg-title{font-size:15px;font-weight:600;color:#fff}
+.tg-sub{font-size:11px;color:#8fa9be;margin-top:1px}
+.tg-more{color:#5aadff;font-size:20px;letter-spacing:1px}
+
+/* ── APP HEADER ── */
+.app-hdr{background:var(--card);padding:12px 16px 0;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:12px}
+.brand-ico{width:38px;height:38px;background:var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-ico svg{width:22px;height:22px}
+.brand-name{font-size:18px;font-weight:800;color:var(--t1);line-height:1.1}
+.brand-name em{font-style:normal;color:var(--green-a)}
+.brand-sub{font-size:11px;color:var(--t3);font-weight:500;margin-top:1px}
+
+/* ── TABS ── */
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border)}
+.tab{padding:11px 0 9px;text-align:center;font-size:13px;font-weight:700;color:var(--t3);cursor:pointer;position:relative;transition:color .2s;user-select:none}
+.tab.active{color:var(--green)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:12px;right:12px;height:2.5px;background:var(--green);border-radius:2px 2px 0 0}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── LABELS ── */
+.s-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 14px 8px}
+
+/* ── CHIPS ── */
+.chips{padding:0 14px 4px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--card);border:1.5px solid var(--border);border-radius:30px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .18s;user-select:none;white-space:nowrap}
+.chip .av{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;flex-shrink:0}
+.chip.active{background:var(--green-lt);border-color:var(--green-a);color:var(--green)}
+.chip:active{transform:scale(.95)}
+
+.av-db{background:rgba(27,89,53,.15);color:var(--green)}
+.av-kg{background:rgba(58,122,255,.15);color:#2a6aff}
+.av-lb{background:rgba(200,130,0,.15);color:#b07800}
+.av-au{background:rgba(180,40,40,.15);color:#b02020}
+.av-bi{background:rgba(100,100,100,.12);color:#555}
+.av-le{background:rgba(100,100,100,.12);color:#555}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border);margin:12px 14px 0}
+
+/* ── RESULT ROW ── */
+.res-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px}
+.res-count{font-size:13px;font-weight:600;color:var(--t3)}
+.res-count b{color:var(--green)}
+.btn-add{display:flex;align-items:center;gap:5px;background:var(--green);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-add:active{transform:scale(.97);background:var(--green-m)}
+
+/* ── CARDS ── */
+.cards{padding:0 12px;display:flex;flex-direction:column;gap:8px}
+.f-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden;animation:up .3s ease both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.f-main{padding:13px 14px 11px;cursor:pointer}
+.f-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.f-date{font-size:11px;font-weight:600;color:var(--t3);margin-bottom:3px}
+.f-loc{font-size:15px;font-weight:700;color:var(--t1);line-height:1.2}
+.f-reg{font-size:11px;color:var(--t3);margin-top:1px}
+
+.badge{flex-shrink:0;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.b-done{background:var(--green-lt);color:var(--green)}
+.b-plan{background:#fff8e6;color:#c47f00}
+
+.f-metrics{display:flex;gap:14px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)}
+.m{display:flex;flex-direction:column;gap:1px}
+.mv{font-size:15px;font-weight:800;color:var(--t1);line-height:1}
+.mv.g{color:var(--green)}
+.ml{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px}
+
+/* OPERATORS ROW IN CARD */
+.f-ops{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.op-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--green-lt);color:var(--green)}
+.op-pill.wr{background:#fff3e0;color:#c47f00}
+.op-pill.vet{background:#f5f5f5;color:#666}
+
+.f-tog{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;font-size:11px;font-weight:600;color:var(--t3);border-top:1px solid var(--border);cursor:pointer}
+.arrow{transition:transform .2s;font-size:9px;display:inline-block}
+.arrow.open{transform:rotate(180deg)}
+
+.f-exp{display:none;padding:12px 14px;background:#f8f9fb;border-top:1px solid var(--border)}
+.f-exp.open{display:block}
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ex-item label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+.ex-item value{font-size:13px;font-weight:600;color:var(--t1)}
+.f-note{margin-top:10px;font-size:12px;color:var(--t2);background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;border:1px solid var(--border)}
+
+/* ── HA PER OPERATOR ── */
+.ha-split{margin-top:8px;padding:8px 10px;background:var(--green-lt);border-radius:8px}
+.ha-split-title{font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.ha-rows{display:flex;flex-direction:column;gap:4px}
+.ha-row{display:flex;justify-content:space-between;align-items:center}
+.ha-name{font-size:11px;font-weight:600;color:var(--green)}
+.ha-val{font-size:12px;font-weight:800;color:var(--green)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:40px 20px;display:none}
+.empty.show{display:block}
+.empty-ico{font-size:36px;margin-bottom:8px}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+.empty-s{font-size:12px;color:var(--t3)}
+
+/* ── STATS TAB ── */
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 12px 0}
+.s-card{background:var(--card);border-radius:var(--rs);padding:14px 12px;box-shadow:var(--sh);animation:up .35s ease both}
+.s-card:nth-child(2){animation-delay:.05s}
+.s-card:nth-child(3){animation-delay:.1s}
+.s-card:nth-child(4){animation-delay:.15s}
+.s-cap{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.s-num{font-size:28px;font-weight:800;color:var(--green);line-height:1}
+.s-unit{font-size:12px;color:var(--t3);font-weight:600;margin-top:3px}
+
+/* BAR CHART */
+.bar-wrap{padding:0 12px}
+.bar-card{background:var(--card);border-radius:var(--rs);padding:14px 12px;box-shadow:var(--sh)}
+.bc{display:flex;align-items:flex-end;gap:5px;height:72px;margin-bottom:6px}
+.bc-g{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bc-b{width:100%;background:linear-gradient(180deg,var(--green-a),var(--green));border-radius:4px 4px 0 0;min-height:3px;position:relative}
+.bc-tip{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--green);white-space:nowrap}
+.bc-lbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.5px}
+
+/* OP STATS */
+.op-list{display:flex;flex-direction:column;gap:7px;padding:0 12px}
+.op-row{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--rs);padding:10px 12px;box-shadow:var(--sh);animation:up .35s ease both}
+.op-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.op-nm{font-size:13px;font-weight:700;color:var(--t1)}
+.op-rl{font-size:11px;color:var(--t3);font-weight:500}
+.op-ha{font-size:16px;font-weight:800;color:var(--green);text-align:right}
+.op-fl{font-size:10px;color:var(--t3);font-weight:600;text-align:right}
+
+/* ── BOTTOM SHEET ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding-bottom:30px;animation:shUp .3s cubic-bezier(.32,.72,0,1)}
+@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+.sh-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);text-align:center}
+.sh-title{font-size:17px;font-weight:800;color:var(--t1)}
+.sh-sub{font-size:12px;color:var(--t3);margin-top:2px}
+
+.fsec{padding:14px 16px 0}
+.fsec-t{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.frow{margin-bottom:12px}
+.frow label{font-size:13px;font-weight:600;color:var(--t2);display:block;margin-bottom:6px}
+.frow input,.frow select,.frow textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--green-a);background:#fff}
+.frow textarea{resize:none;min-height:68px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.tog-g{display:flex;gap:7px;flex-wrap:wrap}
+.tog{flex:1;min-width:60px;padding:9px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-family:var(--f);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.tog.active{background:var(--green-lt);border-color:var(--green-a);color:var(--green)}
+.tog:active{transform:scale(.96)}
+.tog.wr-tog.active{background:#fff3e0;border-color:#f5a623;color:#c47f00}
+
+.sh-foot{padding:16px 16px 0}
+.btn-sub{width:100%;padding:15px;background:var(--green);border:none;border-radius:var(--r);color:#fff;font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-sub:active{transform:scale(.98);background:var(--green-m)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--green);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(27,89,53,.4)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+.pb{height:24px}
+</style>
+</head>
+<body>
+
+<!-- TG CHROME -->
+<div class="tg">
+  <span class="tg-close">Закрыть</span>
+  <div class="tg-mid">
+    <div class="tg-title">AgroDron_BY_bot</div>
+    <div class="tg-sub">мини-приложение</div>
+  </div>
+  <span class="tg-more">···</span>
+</div>
+
+<!-- APP HEADER -->
+<div class="app-hdr">
+  <div class="brand">
+    <div class="brand-ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 3L3 12l9 9 9-9z" fill="white" opacity=".9"/>
+        <circle cx="12" cy="12" r="2.5" fill="white"/>
+        <path d="M8.5 12h7M12 8.5v7" stroke="var(--green)" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Agro<em>Dron</em>.BY</div>
+      <div class="brand-sub">ЗАО «АТК» · Журнал обработок полей</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('journal',this)">📋 Журнал</div>
+    <div class="tab" onclick="switchTab('stats',this)">📊 Статистика</div>
+  </div>
+</div>
+
+<!-- SCROLL -->
+<div class="scroll">
+
+  <!-- ══ ЖУРНАЛ ══ -->
+  <div class="panel active" id="panel-journal">
+
+    <!-- Операторы -->
+    <div class="s-lbl">Операторы</div>
+    <div class="chips" id="op-chips">
+      <div class="chip active" data-val="all" onclick="fc(this,'op')">Все</div>
+      <div class="chip" data-val="Бруй Д.А." onclick="fc(this,'op')"><div class="av av-db">ДБ</div>Бруй Д.А.</div>
+      <div class="chip" data-val="Грибов К.М." onclick="fc(this,'op')"><div class="av av-kg">КГ</div>Грибов К.М.</div>
+      <div class="chip" data-val="Борисенок Л.И. WR" onclick="fc(this,'op')"><div class="av av-lb">ЛБ</div>Борисенок WR</div>
+      <div class="chip" data-val="Уманец А.И. WR" onclick="fc(this,'op')"><div class="av av-au">АУ</div>Уманец WR</div>
+      <div class="chip" data-val="Бич И.М." onclick="fc(this,'op')"><div class="av av-bi">⭐</div>Бич И.М.</div>
+      <div class="chip" data-val="Ленский А." onclick="fc(this,'op')"><div class="av av-le">⭐</div>Ленский А.</div>
+    </div>
+
+    <!-- Культура -->
+    <div class="s-lbl" style="padding-top:10px">Культура</div>
+    <div class="chips" id="cult-chips">
+      <div class="chip active" data-val="all" onclick="fc(this,'cult')">Все</div>
+    </div>
+
+    <div class="div"></div>
+
+    <div class="res-row">
+      <div class="res-count">Записей: <b id="cnt">—</b></div>
+      <button class="btn-add" onclick="openSheet()">+ Добавить</button>
+    </div>
+
+    <div class="cards" id="cards"></div>
+    <div class="empty" id="empty">
+      <div class="empty-ico">🌾</div>
+      <div class="empty-t">Нет записей</div>
+      <div class="empty-s">Попробуйте изменить фильтр</div>
+    </div>
+    <div class="pb"></div>
+  </div>
+
+  <!-- ══ СТАТИСТИКА ══ -->
+  <div class="panel" id="panel-stats">
+    <div class="stat-cards">
+      <div class="s-card"><div class="s-cap">Выездов</div><div class="s-num" id="st-n">—</div><div class="s-unit">обработок</div></div>
+      <div class="s-card"><div class="s-cap">Площадь</div><div class="s-num" id="st-a">—</div><div class="s-unit">га за сезон</div></div>
+      <div class="s-card"><div class="s-cap">Операторов</div><div class="s-num" id="st-o">—</div><div class="s-unit">активных</div></div>
+      <div class="s-card"><div class="s-cap">Сред. выезд</div><div class="s-num" id="st-av">—</div><div class="s-unit">га на выезд</div></div>
+    </div>
+
+    <div class="s-lbl" style="padding-top:18px">Площадь по месяцам, га</div>
+    <div class="bar-wrap">
+      <div class="bar-card">
+        <div class="bc" id="bc"></div>
+        <div style="display:flex;gap:5px" id="bl"></div>
+      </div>
+    </div>
+
+    <div class="s-lbl" style="padding-top:18px">Личная статистика операторов</div>
+    <div class="op-list" id="op-stat"></div>
+
+    <div class="pb"></div>
+  </div>
+
+</div><!-- /scroll -->
+
+<!-- BOTTOM SHEET -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <div class="sh-title">Новая обработка</div>
+      <div class="sh-sub">Полевой выезд · ЗАО «АТК»</div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">📍 Место и площадь</div>
+      <div class="fgrid">
+        <div class="frow"><label>Дата</label><input type="date" id="f-date"></div>
+        <div class="frow"><label>Площадь, га</label><input type="number" id="f-area" placeholder="60"></div>
+      </div>
+      <div class="frow"><label>Район / населённый пункт</label><input type="text" id="f-loc" placeholder="Ганцевичский р-н"></div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">🌱 Культура и обработка</div>
+      <div class="fgrid">
+        <div class="frow">
+          <label>Культура</label>
+          <select id="f-crop">
+            <option value="">— выбрать —</option>
+            <option>Залежь / расчистка</option>
+            <option>Зерновые</option>
+            <option>Рапс</option>
+            <option>Кукуруза</option>
+            <option>Картофель</option>
+            <option>Клубника</option>
+            <option>Сенокос</option>
+            <option>Другое</option>
+          </select>
+        </div>
+        <div class="frow">
+          <label>Тип обработки</label>
+          <select id="f-treat">
+            <option>Гербицид</option>
+            <option>Фунгицид</option>
+            <option>Инсектицид</option>
+            <option>Удобрение</option>
+            <option>Дефолиант</option>
+            <option>Десикант</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">🚁 Техника (БАК)</div>
+      <div class="frow">
+        <div class="tog-g" id="f-bak">
+          <div class="tog active" onclick="ts(this,'f-bak')">А-60</div>
+          <div class="tog" onclick="ts(this,'f-bak')">А-70</div>
+          <div class="tog" onclick="ts(this,'f-bak')">А-60 + А-70</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">👤 Операторы в бригаде</div>
+      <div class="frow">
+        <div class="tog-g" id="f-ops">
+          <div class="tog" onclick="tm(this)">Бруй Д.А.</div>
+          <div class="tog" onclick="tm(this)">Грибов К.М.</div>
+          <div class="tog wr-tog" onclick="tm(this)">Борисенок WR</div>
+          <div class="tog wr-tog" onclick="tm(this)">Уманец WR</div>
+          <div class="tog" style="opacity:.6" onclick="tm(this)">⭐ Бич И.М.</div>
+          <div class="tog" style="opacity:.6" onclick="tm(this)">⭐ Ленский А.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">⛰️ Особенности поля</div>
+      <div class="fgrid">
+        <div class="frow">
+          <label>Рельеф</label>
+          <div class="tog-g" id="f-rel" style="flex-direction:column">
+            <div class="tog active" onclick="ts(this,'f-rel')">Ровное</div>
+            <div class="tog" onclick="ts(this,'f-rel')">Среднее</div>
+            <div class="tog" onclick="ts(this,'f-rel')">Сложное</div>
+          </div>
+        </div>
+        <div class="frow">
+          <label>Препятствия</label>
+          <div class="tog-g" id="f-obs" style="flex-direction:column">
+            <div class="tog active" onclick="ts(this,'f-obs')">Нет</div>
+            <div class="tog" onclick="ts(this,'f-obs')">Да, есть</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fsec-t">📝 Примечание</div>
+      <div class="frow"><textarea id="f-notes" placeholder="Особенности, погода, препарат..."></textarea></div>
+    </div>
+
+    <div class="sh-foot">
+      <button class="btn-sub" onclick="save()">Сохранить запись →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ DATA ══
+const DB = [
+  {
+    id:'2026-001', date:'2026-05-04',
+    loc:'Ганцевичский р-н', reg:'Брестская обл.',
+    area:60, crop:'Залежь / расчистка', treat:'Гербицид', bak:'А-60 + А-70',
+    ops:['Бруй Д.А.','Грибов К.М.','Борисенок Л.И. WR','Уманец А.И. WR'],
+    relief:'Сложное', obs:'Да, есть', status:'done',
+    notes:'Гербицид Торнадо. Два борта одновременно.'
+  },
+  {
+    id:'2026-002', date:'2026-05-05',
+    loc:'Ганцевичский р-н', reg:'Брестская обл.',
+    area:85, crop:'Залежь / расчистка', treat:'Гербицид', bak:'А-60 + А-70',
+    ops:['Бруй Д.А.','Грибов К.М.','Борисенок Л.И. WR','Уманец А.И. WR'],
+    relief:'Сложное', obs:'Да, есть', status:'done',
+    notes:''
+  }
+];
+
+// ══ FILTER STATE ══
+const F = { op:'all', cult:'all' };
+
+// ══ HA SPLIT ══
+function splitHa(rec) {
+  const n = rec.ops.length;
+  return n ? Math.floor(rec.area / n) : 0;
+}
+
+// ══ TABS ══
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name === 'stats') renderStats();
+}
+
+// ══ CULTURE CHIPS (dynamic) ══
+function buildCultChips() {
+  const crops = [...new Set(DB.map(r => r.crop))];
+  const wrap = document.getElementById('cult-chips');
+  wrap.innerHTML = '<div class="chip active" data-val="all" onclick="fc(this,\'cult\')">Все</div>';
+  crops.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'chip';
+    d.dataset.val = c;
+    d.setAttribute('onclick', "fc(this,'cult')");
+    d.textContent = c;
+    wrap.appendChild(d);
+  });
+}
+
+// ══ CHIP FILTER ══
+function fc(el, type) {
+  const val = el.dataset.val;
+  const group = type === 'op' ? 'op-chips' : 'cult-chips';
+  if (val === 'all') {
+    document.querySelectorAll('#'+group+' .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    F[type] = 'all';
+  } else {
+    document.querySelector('#'+group+' .chip[data-val="all"]').classList.remove('active');
+    el.classList.toggle('active');
+    const active = [...document.querySelectorAll('#'+group+' .chip.active')].map(c => c.dataset.val);
+    if (!active.length) {
+      document.querySelector('#'+group+' .chip[data-val="all"]').classList.add('active');
+      F[type] = 'all';
+    } else {
+      F[type] = active;
+    }
+  }
+  renderJournal();
+}
+
+// ══ RENDER JOURNAL ══
+function renderJournal() {
+  let data = DB.filter(r => {
+    const opOk = F.op === 'all' || (Array.isArray(F.op) ? F.op.some(o => r.ops.includes(o)) : r.ops.includes(F.op));
+    const cOk  = F.cult === 'all' || (Array.isArray(F.cult) ? F.cult.includes(r.crop) : r.crop === F.cult);
+    return opOk && cOk;
+  });
+
+  document.getElementById('cnt').textContent = data.length;
+  const list  = document.getElementById('cards');
+  const empty = document.getElementById('empty');
+  list.innerHTML = '';
+
+  if (!data.length) { empty.classList.add('show'); return; }
+  empty.classList.remove('show');
+
+  data.forEach((r, i) => {
+    const el = document.createElement('div');
+    el.className = 'f-card';
+    el.style.animationDelay = (i*.05)+'s';
+    el.innerHTML = cardHTML(r);
+    list.appendChild(el);
+  });
+}
+
+function cardHTML(r) {
+  const haEach = splitHa(r);
+  const opPills = r.ops.map(o => {
+    const isWR = o.includes('WR');
+    const isVet = o.includes('Бич') || o.includes('Ленский');
+    const cls = isWR ? 'op-pill wr' : isVet ? 'op-pill vet' : 'op-pill';
+    const label = o.replace(' WR','') + (isWR ? ' WR' : '');
+    return `<span class="${cls}">${label}</span>`;
+  }).join('');
+
+  const haRows = r.ops.map(o => {
+    const short = o.replace('Борисенок Л.И. WR','Борисенок WR').replace('Уманец А.И. WR','Уманец WR');
+    return `<div class="ha-row"><span class="ha-name">${short}</span><span class="ha-val">${haEach} га</span></div>`;
+  }).join('');
+
+  return `
+    <div class="f-main" onclick="toggleExp('${r.id}')">
+      <div class="f-top">
+        <div>
+          <div class="f-date">${fmtD(r.date)} · ${r.id}</div>
+          <div class="f-loc">${r.loc}</div>
+          <div class="f-reg">${r.reg}</div>
+        </div>
+        <span class="badge ${r.status==='done'?'b-done':'b-plan'}">${r.status==='done'?'Выполнено':'Запланировано'}</span>
+      </div>
+      <div class="f-metrics">
+        <div class="m"><div class="mv g">${r.area}</div><div class="ml">га</div></div>
+        <div class="m"><div class="mv">${r.crop}</div><div class="ml">культура</div></div>
+        <div class="m"><div class="mv">${r.treat}</div><div class="ml">обработка</div></div>
+        <div class="m"><div class="mv">${r.bak}</div><div class="ml">борт</div></div>
+      </div>
+      <div class="f-ops">${opPills}</div>
+    </div>
+    <div class="f-tog" onclick="toggleExp('${r.id}')">
+      <span id="tl-${r.id}" style="font-size:11px;font-weight:600;color:var(--t3)">Подробнее</span>
+      <span class="arrow" id="ar-${r.id}">▼</span>
+    </div>
+    <div class="f-exp" id="exp-${r.id}">
+      <div class="ex-grid">
+        <div class="ex-item"><label>Рельеф</label><value>${r.relief}</value></div>
+        <div class="ex-item"><label>Препятствия</label><value>${r.obs}</value></div>
+        <div class="ex-item"><label>Борт</label><value>${r.bak} + А1-Х</value></div>
+        <div class="ex-item"><label>ID записи</label><value>${r.id}</value></div>
+      </div>
+      <div class="ha-split">
+        <div class="ha-split-title">Разбивка га по операторам</div>
+        <div class="ha-rows">${haRows}</div>
+      </div>
+      ${r.notes ? `<div class="f-note">💬 ${r.notes}</div>` : ''}
+    </div>
+  `;
+}
+
+function toggleExp(id) {
+  const exp = document.getElementById('exp-'+id);
+  const arr = document.getElementById('ar-'+id);
+  const lbl = document.getElementById('tl-'+id);
+  const open = exp.classList.toggle('open');
+  arr.classList.toggle('open', open);
+  lbl.textContent = open ? 'Свернуть' : 'Подробнее';
+}
+
+function fmtD(d) {
+  const [y,m,day] = d.split('-');
+  const mn=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  return `${parseInt(day)} ${mn[+m-1]} ${y}`;
+}
+
+// ══ STATS ══
+function renderStats() {
+  const done = DB.filter(r => r.status !== 'cancelled');
+  const total = done.reduce((s,r) => s+r.area, 0);
+  const ops = [...new Set(done.flatMap(r => r.ops))];
+
+  document.getElementById('st-n').textContent  = done.length;
+  document.getElementById('st-a').textContent  = total;
+  document.getElementById('st-o').textContent  = ops.length;
+  document.getElementById('st-av').textContent = done.length ? Math.round(total/done.length) : 0;
+
+  // Bar chart
+  const months = ['МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН'];
+  const vals   = [0, 0, 145, 0, 0, 0, 0]; // май: 60+85
+  const maxV   = Math.max(...vals, 1);
+  const bc = document.getElementById('bc');
+  const bl = document.getElementById('bl');
+  bc.innerHTML = '';
+  bl.innerHTML = '';
+  vals.forEach((v,i) => {
+    const h = Math.max((v/maxV)*60, v>0?3:3);
+    bc.innerHTML += `
+      <div class="bc-g">
+        <div class="bc-b" style="height:${h}px;${v===0?'background:var(--border);':''}">
+          ${v>0?`<span class="bc-tip">${v}</span>`:''}
+        </div>
+      </div>`;
+    bl.innerHTML += `<div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.5px">${months[i]}</div>`;
+  });
+
+  // Per-operator ha
+  const opMap = {};
+  const opMeta = {
+    'Бруй Д.А.':         {av:'av-db', init:'ДБ', role:'Оператор АТК'},
+    'Грибов К.М.':       {av:'av-kg', init:'КГ', role:'Оператор АТК'},
+    'Борисенок Л.И. WR': {av:'av-lb', init:'ЛБ', role:'Оператор WR'},
+    'Уманец А.И. WR':    {av:'av-au', init:'АУ', role:'Оператор WR'},
+    'Бич И.М.':          {av:'av-bi', init:'⭐', role:'Наставник'},
+    'Ленский А.':        {av:'av-le', init:'⭐', role:'Наставник'},
+  };
+
+  done.forEach(r => {
+    const ha = Math.floor(r.area / r.ops.length);
+    r.ops.forEach(o => {
+      if (!opMap[o]) opMap[o] = {ha:0, cnt:0};
+      opMap[o].ha  += ha;
+      opMap[o].cnt += 1;
+    });
+  });
+
+  const opEl = document.getElementById('op-stat');
+  opEl.innerHTML = Object.entries(opMap)
+    .sort((a,b) => b[1].ha - a[1].ha)
+    .map(([name, stat], i) => {
+      const meta = opMeta[name] || {av:'av-db', init:'??', role:'Оператор'};
+      const shortName = name.replace(' WR','');
+      const tag = name.includes('WR') ? ' <span style="font-size:10px;color:#c47f00">WR</span>' : '';
+      const star = (name.includes('Бич')||name.includes('Ленский')) ? '⭐ ' : '';
+      return `
+      <div class="op-row" style="animation-delay:${i*.05}s">
+        <div class="op-av ${meta.av}">${meta.init}</div>
+        <div style="flex:1">
+          <div class="op-nm">${star}${shortName}${tag}</div>
+          <div class="op-rl">${meta.role} · ${stat.cnt} выезд(а)</div>
+        </div>
+        <div>
+          <div class="op-ha">${stat.ha} га</div>
+          <div class="op-fl">личная</div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ══ SHEET ══
+function openSheet() {
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+}
+function closeSheet() { document.getElementById('overlay').classList.remove('open'); }
+
+function ts(el, gid) {
+  document.querySelectorAll('#'+gid+' .tog').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function tm(el) { el.classList.toggle('active'); }
+
+// ══ SAVE ══
+function save() {
+  const date  = document.getElementById('f-date').value;
+  const area  = parseInt(document.getElementById('f-area').value)||0;
+  const loc   = document.getElementById('f-loc').value||'—';
+  const crop  = document.getElementById('f-crop').value||'—';
+  const treat = document.getElementById('f-treat').value;
+  const bak   = document.querySelector('#f-bak .tog.active')?.textContent||'А-60';
+  const relief= document.querySelector('#f-rel .tog.active')?.textContent||'Ровное';
+  const obs   = document.querySelector('#f-obs .tog.active')?.textContent||'Нет';
+  const notes = document.getElementById('f-notes').value;
+
+  const opMap = {
+    'Бруй Д.А.':'Бруй Д.А.', 'Грибов К.М.':'Грибов К.М.',
+    'Борисенок WR':'Борисенок Л.И. WR', 'Уманец WR':'Уманец А.И. WR',
+    '⭐ Бич И.М.':'Бич И.М.', '⭐ Ленский А.':'Ленский А.'
+  };
+  const ops = [...document.querySelectorAll('#f-ops .tog.active')]
+    .map(e => opMap[e.textContent.trim()]||e.textContent.trim());
+
+  const num  = String(DB.length+1).padStart(3,'0');
+  const year = date ? date.split('-')[0] : '2026';
+
+  DB.unshift({
+    id:`${year}-${num}`, date, loc, reg:'—',
+    area, crop, treat, bak,
+    ops: ops.length ? ops : ['Бруй Д.А.'],
+    relief, obs, status:'done', notes
+  });
+
+  buildCultChips();
+  renderJournal();
+  if (document.getElementById('panel-stats').classList.contains('active')) renderStats();
+  closeSheet();
+  showToast('✓ Обработка добавлена');
+
+  ['f-area','f-loc','f-notes'].forEach(id => document.getElementById(id).value='');
+  document.querySelectorAll('#f-ops .tog').forEach(t => t.classList.remove('active'));
+  document.getElementById('f-crop').value='';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ══ INIT ══
+buildCultChips();
+renderJournal();
+</script>
+</body>
+</html>
