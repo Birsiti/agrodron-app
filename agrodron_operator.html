@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDron.BY · Оператор</title>
+<title>AgroDrone.BY · Оператор</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -109,7 +109,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="tg">
   <div class="tg-l" onclick="logout()">‹ Сменить</div>
   <div class="tg-m">
-    <div class="tg-t">AgroDron.BY</div>
+    <div class="tg-t">AgroDrone.BY</div>
     <div class="tg-s">@AgroDron_BY_Bot</div>
   </div>
   <div class="tg-r">⋮</div>
@@ -122,7 +122,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       <svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/></svg>
     </div>
     <div>
-      <div class="brand-name">Agro<em>Dron</em>.BY</div>
+      <div class="brand-name">Agro<em>Drone</em>.BY</div>
       <div class="brand-sub">ЗАО «АТК» · Оператор</div>
     </div>
   </div>
@@ -132,8 +132,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <!-- SCROLL -->
 <div class="scroll">
 
-<!-- SELECT OPERATOR -->
-<div id="select" class="screen active">
+<!-- SELECT OPERATOR (REMOVED - direct login) -->
+<div id="select" class="screen" style="display:none">
   <div class="sel-page">
     <div class="sel-title">Кто летит?</div>
     <div class="sel-sub">Выберите своё имя</div>
@@ -175,21 +175,21 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 </div>
 
-<!-- SELECT ROLE -->
-<div id="role-select" class="screen">
+<!-- SELECT ROLE (REMOVED - role assigned automatically) -->
+<div id="role-select" class="screen" style="display:none">
   <div class="sel-page">
     <div class="sel-title">Выберите роль</div>
     <div class="sel-sub" id="role-sub">Как вы сегодня работаете?</div>
     
     <div class="role-sel">
-      <div class="role-card" onclick="selectRole('senior')">
+      <div class="role-card" onclick="selectRole('brigadier')">
         <div class="role-ico">⚡</div>
-        <div class="role-name">Старший</div>
+        <div class="role-name">Бригадир</div>
         <div class="role-desc">Полный доступ</div>
       </div>
-      <div class="role-card" onclick="selectRole('regular')">
+      <div class="role-card" onclick="selectRole('operator')">
         <div class="role-ico">👤</div>
-        <div class="role-name">Обычный</div>
+        <div class="role-name">Оператор</div>
         <div class="role-desc">Базовое меню</div>
       </div>
     </div>
@@ -197,20 +197,20 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 
 <!-- MAIN MENU -->
-<div id="main" class="screen">
+<div id="main" class="screen active">
   <div class="menu-wrap">
     
     <!-- ROLE BANNER -->
     <div class="role-banner" id="role-banner" style="display:none">
       <div class="rb-ico" id="rb-ico">⚡</div>
       <div class="rb-info">
-        <div class="rb-title" id="rb-title">Старший бригады</div>
+        <div class="rb-title" id="rb-title">Бригадир</div>
         <div class="rb-sub" id="rb-sub">Полный доступ к управлению</div>
       </div>
     </div>
 
-    <!-- SENIOR ONLY -->
-    <div id="senior-menu" style="display:none">
+    <!-- BRIGADIER ONLY -->
+    <div id="brigadier-menu" style="display:none">
       <div class="sep">Мой выезд</div>
       <div class="mi" onclick="nav('shift-start')">
         <div class="mi-ico">▶️</div>
@@ -301,8 +301,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       <div class="mi-arr">›</div>
     </div>
 
-    <!-- SENIOR ONLY: CURATOR -->
-    <div id="senior-curator" style="display:none">
+    <!-- BRIGADIER ONLY: CURATOR -->
+    <div id="brigadier-curator" style="display:none">
       <div class="sep">Куратор</div>
       <div class="mi" onclick="nav('curator-new')">
         <div class="mi-ico">📝</div>
@@ -529,14 +529,57 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div id="toast" class="toast"></div>
 
 <script>
+// GOOGLE SHEETS API CONFIG
+const SPREADSHEET_ID = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SHEET_OPERATORS = 'Операторы';
+const SHEET_TECHNICIANS = 'Техники';
+const SHEET_FLIGHTS = 'Полёты';
+
+// Google Sheets API endpoint
+function getSheetURL(sheetName) {
+  return `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+}
+
 // STATE
 let STATE = {
-  operator: null,
-  opName: '',
-  opRole: '',
-  role: null // 'senior' or 'regular'
+  operator: 'current', // Оператор определяется при входе через бот
+  opName: 'Оператор',
+  opRole: 'Оператор АТК',
+  role: 'operator' // 'brigadier' or 'operator'
 };
-let history = ['select'];
+let history = ['main'];
+
+// LOAD OPERATORS FROM GOOGLE SHEETS
+async function loadOperators() {
+  try {
+    const response = await fetch(getSheetURL(SHEET_OPERATORS));
+    const data = await response.json();
+    
+    if (!data.values || data.values.length < 2) {
+      console.error('No operators data found');
+      return [];
+    }
+    
+    // Первая строка — заголовки, пропускаем
+    const rows = data.values.slice(1);
+    
+    // Формат: ID, ФИО, Инициалы, Роль, Статус
+    const operators = rows.map(row => ({
+      id: row[0] || '',
+      name: row[1] || '',
+      initials: row[2] || '',
+      role: row[3] || 'Оператор',
+      status: row[4] || 'Активен'
+    })).filter(op => op.status === 'Активен');
+    
+    return operators;
+  } catch (error) {
+    console.error('Error loading operators:', error);
+    showToast('❌ Ошибка загрузки данных');
+    return [];
+  }
+}
 
 // SELECT OPERATOR
 function selectOp(id, name, role) {
@@ -556,33 +599,33 @@ function selectRole(role) {
   document.getElementById('op-chip').textContent = STATE.opName;
   document.getElementById('op-chip').style.display = 'block';
   
-  const isSenior = role === 'senior';
+  const isBrigadier = role === 'brigadier';
   
   // Show role banner
   document.getElementById('role-banner').style.display = 'flex';
-  document.getElementById('role-banner').style.background = isSenior 
+  document.getElementById('role-banner').style.background = isBrigadier 
     ? 'linear-gradient(135deg,#d97706,#b45309)' 
     : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
   
-  document.getElementById('rb-ico').textContent = isSenior ? '⚡' : '👤';
-  document.getElementById('rb-title').textContent = isSenior ? 'Старший бригады' : 'Обычный оператор';
-  document.getElementById('rb-sub').textContent = isSenior ? 'Полный доступ к управлению' : 'Базовый функционал';
+  document.getElementById('rb-ico').textContent = isBrigadier ? '⚡' : '👤';
+  document.getElementById('rb-title').textContent = isBrigadier ? 'Бригадир' : 'Оператор';
+  document.getElementById('rb-sub').textContent = isBrigadier ? 'Полный доступ к управлению' : 'Базовый функционал';
   
-  // Show/hide senior menu
-  document.getElementById('senior-menu').style.display = isSenior ? 'block' : 'none';
-  document.getElementById('senior-curator').style.display = isSenior ? 'block' : 'none';
+  // Show/hide brigadier menu
+  document.getElementById('brigadier-menu').style.display = isBrigadier ? 'block' : 'none';
+  document.getElementById('brigadier-curator').style.display = isBrigadier ? 'block' : 'none';
   
-  showToast(isSenior ? '⚡ Старший: полный доступ' : '👤 Обычный: базовое меню');
+  showToast(isBrigadier ? '⚡ Бригадир: полный доступ' : '👤 Оператор: базовое меню');
   
   nav('main');
 }
 
 // LOGOUT
 function logout() {
-  STATE = { operator: null, opName: '', opRole: '', role: null };
+  STATE = { operator: 'current', opName: 'Оператор', opRole: 'Оператор АТК', role: 'operator' };
   document.getElementById('op-chip').style.display = 'none';
-  history = ['select'];
-  showScreen('select');
+  history = ['main'];
+  showScreen('main');
 }
 
 // NAVIGATION
@@ -611,6 +654,39 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
+
+// INIT ON PAGE LOAD
+window.addEventListener('DOMContentLoaded', async () => {
+  // Загружаем операторов из таблицы
+  const operators = await loadOperators();
+  
+  if (operators.length > 0) {
+    // Для демонстрации — берём первого оператора
+    // В реальном боте — оператор определяется по Telegram ID
+    const currentOperator = operators[0];
+    
+    STATE.operator = currentOperator.id;
+    STATE.opName = currentOperator.name;
+    STATE.opRole = currentOperator.role;
+    
+    // Показываем имя в чипе
+    document.getElementById('op-chip').textContent = currentOperator.name;
+    document.getElementById('op-chip').style.display = 'block';
+    
+    // Определяем роль (для демо — все операторы)
+    STATE.role = 'operator';
+    
+    // Показываем баннер роли
+    document.getElementById('role-banner').style.display = 'flex';
+    document.getElementById('role-banner').style.background = 'linear-gradient(135deg,#1b5935,#2a7a4a)';
+    document.getElementById('rb-ico').textContent = '👤';
+    document.getElementById('rb-title').textContent = 'Оператор';
+    document.getElementById('rb-sub').textContent = 'Базовый функционал';
+    
+    console.log('Loaded operator:', currentOperator);
+  }
+});
+
 </script>
 
 </body>
