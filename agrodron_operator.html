@@ -532,9 +532,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 // GOOGLE SHEETS API CONFIG
 const SPREADSHEET_ID = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
 const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
-const SHEET_OPERATORS = 'Операторы';
-const SHEET_TECHNICIANS = 'Техники';
-const SHEET_FLIGHTS = 'Полёты';
+const SHEET_OPERATORS = 'ОПЕРАТОРЫ';
+const SHEET_TECHNICIANS = 'ТЕХНИКИ';
+const SHEET_FLIGHTS = 'ПОЛЁТЫ';
 
 // Google Sheets API endpoint
 function getSheetURL(sheetName) {
@@ -564,15 +564,26 @@ async function loadOperators() {
     // Первая строка — заголовки, пропускаем
     const rows = data.values.slice(1);
     
-    // Формат: ID, ФИО, Инициалы, Роль, Статус
+    // Формат колонок:
+    // A: ID, B: ФИО, C: Телефон, D: Район РБ, E: Сертификат БАК,
+    // F: Часов налёта, G: Статус, H: Дата регистрации, I: Telegram ID,
+    // J: Тип, K: Га за сезон, L: Выездов
     const operators = rows.map(row => ({
       id: row[0] || '',
       name: row[1] || '',
-      initials: row[2] || '',
-      role: row[3] || 'Оператор',
-      status: row[4] || 'Активен'
-    })).filter(op => op.status === 'Активен');
+      phone: row[2] || '',
+      region: row[3] || '',
+      cert: row[4] || '',
+      hours: row[5] || '0',
+      status: row[6] || 'Активен',
+      regDate: row[7] || '',
+      telegramId: row[8] || '',
+      type: row[9] || 'Оператор',
+      hectares: row[10] || '0',
+      trips: row[11] || '0'
+    })).filter(op => op.status === 'Активен' && op.name);
     
+    console.log('Loaded operators from Sheets:', operators);
     return operators;
   } catch (error) {
     console.error('Error loading operators:', error);
@@ -667,7 +678,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     STATE.operator = currentOperator.id;
     STATE.opName = currentOperator.name;
-    STATE.opRole = currentOperator.role;
+    STATE.opRole = currentOperator.type;
     
     // Показываем имя в чипе
     document.getElementById('op-chip').textContent = currentOperator.name;
@@ -681,9 +692,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('role-banner').style.background = 'linear-gradient(135deg,#1b5935,#2a7a4a)';
     document.getElementById('rb-ico').textContent = '👤';
     document.getElementById('rb-title').textContent = 'Оператор';
-    document.getElementById('rb-sub').textContent = 'Базовый функционал';
+    document.getElementById('rb-sub').textContent = `${currentOperator.hours} ч налёта · ${currentOperator.hectares} га за сезон`;
     
-    console.log('Loaded operator:', currentOperator);
+    console.log('✅ Loaded operator:', currentOperator);
+    showToast(`👋 Привет, ${currentOperator.name.split(' ')[0]}!`);
+  } else {
+    console.error('❌ No operators found in the table');
+    showToast('❌ Операторы не найдены');
   }
 });
 
