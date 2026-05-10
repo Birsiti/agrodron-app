@@ -502,6 +502,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <div class="prow"><span class="pl">Дней работы</span><span class="pv" id="r_days">—</span></div>
       <div class="prow"><span class="pl">Себестоимость</span><span class="pv" id="r_cost">—</span></div>
       <div class="prow"><span class="pl">Прибыль / маржа</span><span class="pv" id="r_profit">—</span></div>
+      <div class="prow hidden" id="r_road_row"><span class="pl" id="r_road_label">Дорога</span><span class="pv" id="r_road">—</span></div>
       <hr class="pdiv">
       <div class="prow">
         <span style="font-size:13px">Итого с НДС</span>
@@ -792,6 +793,15 @@ function calc(){
   $('r_cost').textContent=fmtB(cost)+' BYN';
   $('r_profit').textContent=fmtB(actP)+' BYN · '+fmt(actM,1)+'%';
   $('r_total').textContent=fmtB(total)+' BYN';
+  // строка дороги
+  const roadRow=$('r_road_row');
+  if(km>0&&roadRow){
+    $('r_road_label').textContent='🚗 Дорога ('+km+' км)';
+    $('r_road').textContent=fmtB(transportFull)+' BYN';
+    roadRow.classList.remove('hidden');
+  } else if(roadRow){
+    roadRow.classList.add('hidden');
+  }
 
   // COEFFICIENTS
   const coefs=[
