@@ -696,6 +696,8 @@ function calc(){
   const kCmplx=parseFloat($('complexity')?.value)||1;
   const kObs=parseFloat($('obstacles')?.value)||1;
   const kTreat=parseFloat($('treatment')?.value)||1;
+  // защита: коэффициент не может быть > 4 или < 0.5
+  const kTreatSafe=(kTreat>0.5&&kTreat<=4)?kTreat:1;
   const kFrag=parseFloat($('frag').value)||1;
 
   let kAdd=1;
@@ -706,7 +708,7 @@ function calc(){
 
   const di=distCoef(km);
   const kDist=di.c;
-  const kTotal=kCmplx*kObs*kTreat*kFrag*kAdd*kDist;
+  const kTotal=kCmplx*kObs*kTreatSafe*kFrag*kAdd*kDist;
   const effArea=area*kTotal;
 
   $('distTag').textContent=km>0
@@ -779,7 +781,7 @@ function calc(){
 
   // COEFFICIENTS
   const coefs=[
-    {icon:'🌾', n:'Тип поля / культура', v:kTreat},
+    {icon:'🌾', n:'Тип поля / культура', v:kTreatSafe},
     {icon:'🏔', n:'Сложность рельефа',   v:kCmplx},
     {icon:'⚡', n:'Препятствия (ЛЭП)',   v:kObs},
     {icon:'📍', n:'Удалённость ('+km+' км)', v:kDist},
@@ -1086,14 +1088,18 @@ function selectRequest(row){
     const tName=currentRequest.treatment.toLowerCase().trim();
     for(let i=0;i<s.options.length;i++){
       const dn=(s.options[i].dataset.name||'').toLowerCase().trim();
-      if(dn&&tName.includes(dn)||dn&&dn.includes(tName)){s.selectedIndex=i;matched=true;break;}
+      if(dn&&(tName.includes(dn)||dn.includes(tName))){s.selectedIndex=i;matched=true;break;}
     }
   }
   if(!matched&&currentRequest.coef){
-    for(let i=0;i<s.options.length;i++){
-      if(Math.abs(parseFloat(s.options[i].value)-parseFloat(currentRequest.coef))<0.001){s.selectedIndex=i;break;}
+    const coefNum=parseFloat(String(currentRequest.coef).replace(',','.'));
+    if(!isNaN(coefNum)){
+      for(let i=0;i<s.options.length;i++){
+        if(Math.abs(parseFloat(s.options[i].value)-coefNum)<0.001){s.selectedIndex=i;matched=true;break;}
+      }
     }
   }
+  if(!matched) s.selectedIndex=0; // дефолт — Зерновые ×1.0
 
   const sk=STATUS_LABELS[currentRequest.status]||'new';
   setStatus(sk,false);
