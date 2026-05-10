@@ -729,12 +729,13 @@ function calc(){
     :'Расстояние не указано — транспорт не начислен';
   $('pWarn').classList.toggle('hidden',kTotal<=2);
 
-  const nd=vr('nd',gv('v_nd',2));
-  const hpd=vr('hpd',gv('v_hpd',50));
+  const nd=Math.max(1, vr('nd',gv('v_nd',2)));
+  const hpd=Math.max(1, vr('hpd',gv('v_hpd',50)));
   const dp=droneP($('droneType')?.value||'a70');
-  const prod=dp.prod;
-  const tripDays=Math.ceil(area/(hpd*nd));
-  const shifts=Math.ceil(effArea/prod*2)/2;
+  const prod=Math.max(1, dp.prod);
+  const tripDays=Math.max(1, Math.ceil(area/(hpd*nd)));
+  const shifts=Math.max(0.5, Math.ceil(effArea/prod*2)/2);
+  console.log('CALC DEBUG: area='+area+' kTotal='+kTotal.toFixed(3)+' effArea='+effArea.toFixed(1)+' prod='+prod+' nd='+nd+' shifts='+shifts.toFixed(1));
 
   const rate=vr('transport_rate',gv('v_rate',2.6));
   const mm=vr('mat_mult',gv('v_matmult',1.1));
@@ -972,6 +973,12 @@ async function loadRequests(){
         comment:v[15]||'',
         status:v[16]||'Новая',
         date_status:v[17]||'',
+        kTotal:v[18]||'',
+        treat_total:v[19]||'',
+        transport_total:v[20]||'',
+        total_nds:v[21]||'',
+        ppa:v[22]||'',
+        km:v[23]||'',
       };
     }).filter(r=>r.org);
     allRequests.sort((a,b)=>b.row-a.row);
@@ -1092,8 +1099,8 @@ function selectRequest(row){
 
   if(currentRequest.area) $('area').value=currentRequest.area;
   if(currentRequest.location) $('location').value=currentRequest.location;
-  // FIX: сбрасываем km при открытии новой заявки
-  $('km').value='';
+  // км — берём из Sheets если уже сохранён, иначе сбрасываем
+  $('km').value=currentRequest.km||'';
 
   const s=$('treatment');
   let matched=false;
@@ -1163,6 +1170,9 @@ function showList(){
 async function saveStatus(){
   if(!currentRequest)return;
   const newStatus=STATUS_NAMES[currentStatus]||'Новая';
+  const km=gv('km',0);
+  const loc=$('location')?.value||currentRequest.location||'';
+  const r=calcResult;
   try{
     await fetch(WEBHOOK_URL,{
       method:'POST',
@@ -1174,9 +1184,18 @@ async function saveStatus(){
         status:newStatus,
         org:currentRequest.org,
         ts:new Date().toISOString(),
+        // расчётные данные
+        location:loc,
+        km:km||'',
+        kTotal:r.kTotal?parseFloat(r.kTotal.toFixed(3)):'',
+        treat_total:r.total&&r.transportFull?parseFloat((r.total-r.transportFull).toFixed(2)):'',
+        transport_total:r.transportFull?parseFloat(r.transportFull.toFixed(2)):'',
+        total:r.total?parseFloat(r.total.toFixed(2)):'',
+        ppa:r.ppa?parseFloat(r.ppa.toFixed(2)):'',
+        notes:$('notes')?.value||'',
       })
     });
-    showToast('Статус обновлён ✓');
+    showToast('Статус и расчёт сохранены ✓');
     statusChanged=false;
     $('saveBar').classList.remove('show');
     currentRequest.status=newStatus;
