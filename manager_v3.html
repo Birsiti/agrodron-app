@@ -978,7 +978,8 @@ async function loadRequests(){
         transport_total:v[20]||'',
         total_nds:v[21]||'',
         ppa:v[22]||'',
-        km:v[23]||'',
+        notes_saved:v[23]||'',
+        km:v[24]||'',
       };
     }).filter(r=>r.org);
     allRequests.sort((a,b)=>b.row-a.row);
@@ -1135,7 +1136,14 @@ function selectRequest(row){
   if(currentRequest.urgent&&currentRequest.urgent!=='Обычный')meta.push('⚡ '+currentRequest.urgent);
   $('csMeta').textContent=meta.join(' · ')||'Данные клиента';
 
-  if(currentRequest.comment) $('notes').value='💬 Комментарий: '+currentRequest.comment;
+  // заметки: если есть сохранённые — показываем их, иначе комментарий клиента
+  if(currentRequest.notes_saved){
+    $('notes').value=currentRequest.notes_saved;
+  } else if(currentRequest.comment){
+    $('notes').value='💬 Комментарий: '+currentRequest.comment;
+  } else {
+    $('notes').value='';
+  }
 
   $('requestsPanel').classList.add('hidden');
   $('clientStrip').classList.remove('hidden');
