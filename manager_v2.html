@@ -357,27 +357,27 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
           <div class="sw">
             <select id="treatment" onchange="calc()">
               <optgroup label="── Сельхоз культуры ──">
-                <option value="1" data-name="Зерновые">Зерновые (пшеница, ячмень, рожь)</option>
-                <option value="1.05" data-name="Рапс">Рапс</option>
-                <option value="1.1" data-name="Кукуруза">Кукуруза</option>
-                <option value="1.1" data-name="Соя">Соя</option>
-                <option value="1.15" data-name="Картофель">Картофель</option>
-                <option value="1.2" data-name="Свекла сахарная">Свекла сахарная</option>
-                <option value="1.25" data-name="Подсолнечник">Подсолнечник</option>
-                <option value="1.3" data-name="Овощные культуры">Овощные (капуста, морковь, лук)</option>
+                <option value="culture_grain"  data-name="Зерновые">Зерновые (пшеница, ячмень, рожь)</option>
+                <option value="culture_rape"   data-name="Рапс">Рапс</option>
+                <option value="culture_corn"   data-name="Кукуруза">Кукуруза</option>
+                <option value="culture_soy"    data-name="Соя">Соя</option>
+                <option value="culture_potato" data-name="Картофель">Картофель</option>
+                <option value="culture_beet"   data-name="Свекла сахарная">Свекла сахарная</option>
+                <option value="culture_sunflower" data-name="Подсолнечник">Подсолнечник</option>
+                <option value="culture_vegetables" data-name="Овощные культуры">Овощные (капуста, морковь, лук)</option>
               </optgroup>
               <optgroup label="── Ягодники и сады ──">
-                <option value="1.5" data-name="Ягодники">Ягодники (клубника, голубика)</option>
-                <option value="1.6" data-name="Сады">Сады (яблони, груши...)</option>
-                <option value="1.7" data-name="Виноградники">Виноградники</option>
+                <option value="culture_berries"  data-name="Ягодники">Ягодники (клубника, голубика)</option>
+                <option value="culture_orchards" data-name="Сады">Сады (яблони, груши...)</option>
+                <option value="culture_vineyards" data-name="Виноградники">Виноградники</option>
               </optgroup>
               <optgroup label="── Специальные объекты ──">
-                <option value="1.8" data-name="Заброшенные земли">Заброшенные земли / бурьян</option>
-                <option value="2" data-name="Каналы / мелиорация">Каналы / мелиорация</option>
-                <option value="2.2" data-name="Борщевик">Борщевик</option>
-                <option value="2.2" data-name="ЛЭП">ЛЭП (расчистка)</option>
-                <option value="3.5" data-name="Лесные массивы">Лесные массивы</option>
-                <option value="4" data-name="Склоны / рельеф">Склоны / сложный рельеф</option>
+                <option value="culture_wasteland"  data-name="Заброшенные земли">Заброшенные земли / бурьян</option>
+                <option value="culture_channels"   data-name="Каналы / мелиорация">Каналы / мелиорация</option>
+                <option value="culture_hogweed"    data-name="Борщевик">Борщевик</option>
+                <option value="culture_powerline"  data-name="ЛЭП">ЛЭП (расчистка)</option>
+                <option value="culture_forest"     data-name="Лесные массивы">Лесные массивы</option>
+                <option value="culture_slopes"     data-name="Склоны / рельеф">Склоны / сложный рельеф</option>
               </optgroup>
             </select>
           </div>
@@ -693,10 +693,23 @@ function setFrag(v,id){
 function calc(){
   const area=gv('area',100);
   const km=gv('km',0);
-  const kCmplx=parseFloat($('complexity')?.value)||1;
-  const kObs=parseFloat($('obstacles')?.value)||1;
-  const kTreat=parseFloat($('treatment')?.value)||1;
-  // защита: коэффициент не может быть > 4 или < 0.5
+  const complexityEl=$('complexity');
+  const complexityKey=complexityEl?.options[complexityEl.selectedIndex]?.dataset.key||'complexity_simple';
+  const kCmplx=cf(complexityKey, parseFloat(complexityEl?.value)||1);
+
+  const obstaclesEl=$('obstacles');
+  const obstaclesKey=obstaclesEl?.options[obstaclesEl.selectedIndex]?.dataset.key||'obstacles_no';
+  const kObs=cf(obstaclesKey, parseFloat(obstaclesEl?.value)||1);
+  const treatKey=$('treatment')?.value||'culture_grain';
+  // Дефолтные значения на случай если CF не загрузился
+  const treatDefaults={
+    culture_grain:1,culture_rape:1.05,culture_corn:1.1,culture_soy:1.1,
+    culture_potato:1.15,culture_beet:1.2,culture_sunflower:1.25,culture_vegetables:1.3,
+    culture_berries:1.5,culture_orchards:1.6,culture_vineyards:1.7,
+    culture_wasteland:1.8,culture_channels:2,culture_hogweed:2.2,
+    culture_powerline:2.2,culture_forest:3.5,culture_slopes:4
+  };
+  const kTreat=cf(treatKey, treatDefaults[treatKey]||1);
   const kTreatSafe=(kTreat>0.5&&kTreat<=4)?kTreat:1;
   const kFrag=parseFloat($('frag').value)||1;
 
@@ -1307,20 +1320,9 @@ function showToast(msg){
 ['treatment','complexity','obstacles'].forEach(id=>$(id)?.addEventListener('change',calc));
 ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>$(id)?.addEventListener('change',calc));
 
-// Обновляем value в select'ах по data-key после загрузки CF
-function applyCoefToSelects(){
-  ['complexity','obstacles'].forEach(selId=>{
-    const sel=$(selId);if(!sel)return;
-    for(let i=0;i<sel.options.length;i++){
-      const key=sel.options[i].dataset.key;
-      if(key&&CF[key]!==undefined) sel.options[i].value=CF[key];
-    }
-  });
-}
-
 // Загружаем коэффициенты и переменные параллельно, потом заявки
 Promise.all([
-  loadCoefs().then(()=>{applyCoefToSelects();}),
+  loadCoefs(),
   loadVars()
 ]).finally(()=>loadRequests());
 </script>
