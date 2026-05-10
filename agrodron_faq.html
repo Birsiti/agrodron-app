@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Вопросы | AgroDrone.BY</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--navy:#0f2847;--navy2:#1a3a6b;--green:#1a6b4a;--gl:#e8f4ee;--gm:#3dbf8a;--bg:#f0f3f7;--card:#fff;--border:#e2e8f0;--text:#1a1a2e;--muted:#64748b;}
+html,body{min-height:100vh}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding-bottom:40px}
+.hero{background:linear-gradient(160deg,#0a1e35 0%,#1a3a6b 60%,#1a4a35 100%);padding:28px 20px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(61,191,138,.08);pointer-events:none}
+.hero-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.hero-ico{width:32px;height:32px;background:var(--gm);border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.hero-ico svg{width:16px;height:16px;fill:#fff}
+.hero-brand{font-size:15px;font-weight:800;color:#fff}
+.hero-brand span{color:var(--gm)}
+.hero-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500;margin-top:1px}
+.hero-title{font-size:22px;font-weight:900;color:#fff;line-height:1.2;letter-spacing:-0.5px;margin-bottom:6px}
+.hero-title span{color:var(--gm)}
+.hero-desc{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+.wrap{padding:14px 14px 0}
+.sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:0 2px}
+.faq-item{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
+.faq-q{width:100%;padding:14px 16px;background:transparent;border:none;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:var(--text);text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;line-height:1.4}
+.faq-q:active{background:#f9fafb}
+.faq-arr{font-size:16px;color:var(--muted);flex-shrink:0;transition:.25s;display:inline-block}
+.faq-arr.open{transform:rotate(180deg);color:var(--green)}
+.faq-a{display:none;padding:0 16px 14px;font-size:13px;color:var(--muted);line-height:1.6;border-top:1px solid #f5f8fc}
+.faq-a.open{display:block}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">
+    <div class="hero-ico"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v6c0 5 3.5 9.74 8 11 4.5-1.26 8-6 8-11V7L12 2z"/></svg></div>
+    <div><div class="hero-brand">Agro<span>Drone</span>.BY</div><div class="hero-sub">ЗАО «АТК» · Беларусь</div></div>
+  </div>
+  <div class="hero-title">Частые <span>вопросы</span></div>
+  <div class="hero-desc">Отвечаем на самые популярные вопросы кандидатов</div>
+</div>
+
+<div class="wrap">
+  <div class="sec-title">Часто задаваемые вопросы</div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Нужен ли опыт работы с дронами? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">Опыт приветствуется, но не обязателен. Первый выезд — просто смотришь. Потом едешь помощником. Обучение на оператора БЛА проходишь уже в процессе работы с командой.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Это постоянная работа или сезонная? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">Основной сезон — весна-осень. Работа интенсивная, без простоев. При хороших результатах возможно сотрудничество и в межсезонье.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Как оформляется работа? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">Договор подряда. Работаете как физическое лицо или ИП. Все условия прописываются официально.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Нужно ли своё авто? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">Желательно. Основная техника и прицеп — наши. Дорога до объекта оплачивается отдельно. Наличие авто влияет на условия сотрудничества.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Где проходят выезды? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">По всей Беларуси — туда, где есть заказы. Нужна готовность к командировкам. Дорога оплачивается отдельно.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Как проходит отбор? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">Заполняешь анкету → получаешь уведомления о выездах → приезжаешь посмотреть как работаем → следующий раз едешь помощником оператора → после рекомендации оператора проходишь обучение на БЛА и получаешь допуск. Никаких собеседований — только реальная работа.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Можно ли совмещать с основной работой? <span class="faq-arr">▼</span></button>
+    <div class="faq-a">В сезон — сложно, работа интенсивная. В межсезонье — возможно. Обсуждается индивидуально.</div>
+  </div>
+
+  <div style="height:20px"></div>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+function toggleFaq(btn){
+  const arr=btn.querySelector('.faq-arr');
+  const ans=btn.nextElementSibling;
+  arr.classList.toggle('open');
+  ans.classList.toggle('open');
+}
+</script>
+</body>
+</html>

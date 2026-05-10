@@ -143,7 +143,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);fon
 <!-- NAV -->
 <div class="nav">
   <button class="nav-tab active" onclick="showTab('conditions',this)">🚁 Условия</button>
-  <button class="nav-tab locked" id="tab-faq" onclick="showTab('faq',this)">💬 Вопросы</button>
   <button class="nav-tab locked" id="tab-form" onclick="showTab('form',this)">📋 Анкета</button>
 </div>
 
@@ -262,49 +261,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);fon
 </div>
 
 <!-- FAQ -->
-<div class="screen" id="screen-faq">
-  <div class="wrap">
-    <div class="sec-title">Часто задаваемые вопросы</div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Нужен ли опыт работы с дронами? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">Опыт приветствуется, но не обязателен. Первый выезд — просто смотришь. Потом едешь помощником. Обучение на оператора БЛА проходишь уже в процессе работы с командой.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Это постоянная работа или сезонная? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">Основной сезон — весна-осень. Работа интенсивная, без простоев. При хороших результатах возможно сотрудничество и в межсезонье.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Как оформляется работа? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">Договор подряда. Работаете как физическое лицо или ИП. Все условия прописываются официально.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Нужно ли своё авто? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">Желательно. Основная техника и прицеп — наши. Дорога до объекта оплачивается отдельно. Наличие авто влияет на условия сотрудничества.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Где проходят выезды? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">По всей Беларуси — туда, где есть заказы. Нужна готовность к командировкам. Дорога оплачивается отдельно.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Как проходит отбор? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">Заполняешь анкету → получаешь уведомления о выездах → приезжаешь посмотреть как работаем → следующий раз едешь помощником оператора → после рекомендации оператора проходишь обучение на БЛА и получаешь допуск. Никаких собеседований — только реальная работа.</div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Можно ли совмещать с основной работой? <span class="faq-arr">▼</span></button>
-      <div class="faq-a">В сезон — сложно, работа интенсивная. В межсезонье — возможно. Обсуждается индивидуально.</div>
-    </div>
-
-    <div style="height:14px"></div>
-  </div>
-</div>
-
 <!-- FORM -->
 <div class="screen" id="screen-form">
   <div class="wrap" id="formWrap">
@@ -426,10 +382,7 @@ let accepted=false;
 
 function acceptAndGo(){
   accepted=true;
-  // Разблокируем вкладки
-  document.getElementById('tab-faq').classList.remove('locked');
   document.getElementById('tab-form').classList.remove('locked');
-  // Переходим на анкету
   const formTab=document.getElementById('tab-form');
   showTab('form', formTab);
   window.scrollTo(0,0);
