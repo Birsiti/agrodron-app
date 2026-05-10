@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Работа | AgroDrone.BY</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#0f2847;--navy2:#1a3a6b;
+  --green:#1a6b4a;--gl:#e8f4ee;--gm:#3dbf8a;
+  --bg:#f0f3f7;--card:#fff;--border:#e2e8f0;
+  --text:#1a1a2e;--muted:#64748b;
+  --danger:#dc2626;--danger-bg:#fef2f2;
+}
+html,body{min-height:100vh}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding-bottom:40px}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#0a1e35 0%,#1a3a6b 60%,#1a4a35 100%);padding:32px 20px 28px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(61,191,138,.08);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:150px;height:150px;border-radius:50%;background:rgba(61,191,138,.05);pointer-events:none}
+.hero-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.hero-ico{width:36px;height:36px;background:var(--gm);border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.hero-ico svg{width:18px;height:18px;fill:#fff}
+.hero-brand{font-size:16px;font-weight:800;color:#fff}
+.hero-brand span{color:var(--gm)}
+.hero-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500;margin-top:1px}
+.hero-title{font-size:26px;font-weight:900;color:#fff;line-height:1.2;letter-spacing:-0.5px;margin-bottom:10px}
+.hero-title span{color:var(--gm)}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+
+/* NAV TABS */
+.nav{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-tab{flex:1;min-width:80px;padding:13px 8px;border:none;border-bottom:3px solid transparent;font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;color:var(--muted);background:transparent;cursor:pointer;transition:.2s;white-space:nowrap;text-align:center}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.nav-tab.locked{opacity:.35;cursor:not-allowed}
+
+/* SCREENS */
+.screen{display:none;animation:fadeIn .2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* WRAP */
+.wrap{padding:14px 14px 0}
+
+/* SECTION TITLE */
+.sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:0 2px}
+
+/* CONDITIONS */
+.cond-card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
+.cond-hdr{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:14px 16px;color:#fff}
+.cond-hdr-title{font-size:15px;font-weight:800}
+.cond-hdr-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
+.cond-list{padding:6px 0}
+.cond-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:1px solid #f5f8fc}
+.cond-item:last-child{border-bottom:none}
+.cond-emoji{font-size:18px;flex-shrink:0;width:24px;text-align:center;margin-top:1px}
+.cond-text{font-size:13px;font-weight:600;color:var(--text);line-height:1.4}
+.cond-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:400}
+
+/* ROLES */
+.roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.role-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:16px;text-align:center}
+.role-emoji{font-size:32px;margin-bottom:8px}
+.role-title{font-size:14px;font-weight:800;color:var(--navy)}
+.role-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+/* FAQ */
+.faq-item{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
+.faq-q{width:100%;padding:14px 16px;background:transparent;border:none;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:var(--text);text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;line-height:1.4}
+.faq-q:active{background:#f9fafb}
+.faq-arr{font-size:16px;color:var(--muted);flex-shrink:0;transition:.25s;display:inline-block}
+.faq-arr.open{transform:rotate(180deg);color:var(--green)}
+.faq-a{display:none;padding:0 16px 14px;font-size:13px;color:var(--muted);line-height:1.6;border-top:1px solid #f5f8fc}
+.faq-a.open{display:block}
+.faq-a strong{color:var(--text)}
+
+/* FORM */
+.form-card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
+.form-hdr{padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.form-body{padding:12px 16px 16px}
+.fg{margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.fi{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);background:#fafbfd;transition:.15s;-webkit-appearance:none}
+.fi:focus{outline:none;border-color:var(--green);background:#fff}
+.fi.err{border-color:var(--danger);background:var(--danger-bg)}
+.ferr{font-size:11px;color:var(--danger);margin-top:3px;display:none}
+.ferr.on{display:block}
+.sw{position:relative}
+.sw select{width:100%;padding:10px 34px 10px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);background:#fafbfd;-webkit-appearance:none;appearance:none;transition:.15s}
+.sw select:focus{outline:none;border-color:var(--green);background:#fff}
+.sw::after{content:'';position:absolute;right:12px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--muted);pointer-events:none}
+.tbg{display:flex;gap:6px}
+.tb{flex:1;padding:9px 6px;border:1.5px solid var(--border);border-radius:9px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:500;text-align:center;cursor:pointer;color:var(--muted);background:#fafbfd;transition:.15s;user-select:none}
+.tb.on{border-color:var(--green);background:var(--gl);color:var(--green);font-weight:700}
+.ftextarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Manrope',sans-serif;font-size:13.5px;color:var(--text);background:#fafbfd;resize:none;line-height:1.5;transition:.15s}
+.ftextarea:focus{outline:none;border-color:var(--green);background:#fff}
+
+/* PHONE */
+.ph-wrap{display:flex;align-items:stretch;border:1.5px solid var(--border);border-radius:9px;background:#fafbfd;overflow:hidden;transition:.15s}
+.ph-wrap:focus-within{border-color:var(--green);background:#fff}
+.ph-prefix{padding:10px 10px 10px 12px;font-size:14px;font-weight:700;color:var(--navy);border-right:1.5px solid var(--border);white-space:nowrap;display:flex;align-items:center}
+.ph-input{flex:1;padding:10px 12px 10px 8px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);background:transparent;border:none;outline:none;min-width:0}
+
+/* SUBMIT */
+.btn-submit{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:12px;font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;margin-bottom:10px}
+.btn-submit:active{background:#145a3d;transform:scale(.99)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.btn-accept{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),#2a8a5e);color:#fff;border:none;border-radius:12px;font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;margin-bottom:10px;box-shadow:0 4px 16px rgba(26,107,74,.3)}
+.btn-accept:active{transform:scale(.99)}
+.form-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.5;padding:0 10px}
+
+/* SUCCESS */
+.success{text-align:center;padding:48px 20px 20px}
+.s-icon{font-size:56px;margin-bottom:16px}
+.s-title{font-size:21px;font-weight:900;color:var(--navy);margin-bottom:10px}
+.s-msg{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;z-index:200;transition:.3s;opacity:0;white-space:nowrap;max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-logo">
+    <div class="hero-ico"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v6c0 5 3.5 9.74 8 11 4.5-1.26 8-6 8-11V7L12 2z"/></svg></div>
+    <div><div class="hero-brand">Agro<span>Drone</span>.BY</div><div class="hero-sub">ЗАО «АТК» · Беларусь</div></div>
+  </div>
+  <div class="hero-title">Работа<br>в <span>поле</span> с нами</div>
+  <div class="hero-desc">Набираем операторов и техников агродронов на сезон 2026</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-tab active" onclick="showTab('conditions',this)">🚁 Условия</button>
+  <button class="nav-tab locked" id="tab-faq" onclick="showTab('faq',this)">💬 Вопросы</button>
+  <button class="nav-tab locked" id="tab-form" onclick="showTab('form',this)">📋 Анкета</button>
+</div>
+
+<!-- CONDITIONS -->
+<div class="screen active" id="screen-conditions">
+  <div class="wrap">
+
+    <div class="cond-card">
+      <div class="cond-hdr">
+        <div class="cond-hdr-title">Кого ищем</div>
+        <div class="cond-hdr-sub">Два направления в команде</div>
+      </div>
+      <div class="cond-list">
+        <div class="cond-item">
+          <div class="cond-emoji">👨‍✈️</div>
+          <div><div class="cond-text">Оператор БЛА</div><div class="cond-sub">Управление агродроном, обработка поля, ответственность за результат</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🧑‍🔧</div>
+          <div><div class="cond-text">Техник бригады</div><div class="cond-sub">Обслуживание техники, подготовка смесей, поддержка оператора в поле</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-hdr">
+        <div class="cond-hdr-title">Что важно для нас</div>
+        <div class="cond-hdr-sub">Честно о требованиях</div>
+      </div>
+      <div class="cond-list">
+        <div class="cond-item">
+          <div class="cond-emoji">⏱</div>
+          <div><div class="cond-text">Работа в сезон без простоев</div><div class="cond-sub">Интенсивный режим — поля не ждут</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🛠</div>
+          <div><div class="cond-text">Дисциплина и ответственность</div><div class="cond-sub">За технику стоимостью десятки тысяч долларов</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">💪</div>
+          <div><div class="cond-text">Физическая готовность</div><div class="cond-sub">Полевые условия, жара, ранние подъёмы</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🧠</div>
+          <div><div class="cond-text">Хладнокровие в нештатных ситуациях</div><div class="cond-sub">Техника ломается, погода меняется — нужна голова</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🚚</div>
+          <div><div class="cond-text">Готовность к выездам по всей РБ</div><div class="cond-sub">Работаем там, где поля — дорога оплачивается отдельно</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-hdr">
+        <div class="cond-hdr-title">Что даём мы</div>
+        <div class="cond-hdr-sub">Наша часть договора</div>
+      </div>
+      <div class="cond-list">
+        <div class="cond-item">
+          <div class="cond-emoji">🔧</div>
+          <div><div class="cond-text">Всё оборудование наше</div><div class="cond-sub">БЛА, прицеп, генератор, смешивающая станция</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">💵</div>
+          <div><div class="cond-text">Сдельная оплата</div><div class="cond-sub">Больше обработал — больше заработал. Дорога — отдельно</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">📍</div>
+          <div><div class="cond-text">Реальные объёмы с первого сезона</div><div class="cond-sub">Загрузка есть — простоев нет</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🎓</div>
+          <div><div class="cond-text">Обучение и допуск к технике</div><div class="cond-sub">Опыт не обязателен — важна мотивация</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🤝</div>
+          <div><div class="cond-text">Поддержка команды в поле</div><div class="cond-sub">Не один на один с проблемами</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПУТЬ КАНДИДАТА -->
+    <div class="cond-card">
+      <div class="cond-hdr">
+        <div class="cond-hdr-title">Как попасть в команду</div>
+        <div class="cond-hdr-sub">Путь от незнакомца до оператора</div>
+      </div>
+      <div class="cond-list">
+        <div class="cond-item">
+          <div class="cond-emoji">📋</div>
+          <div><div class="cond-text">Шаг 1 — Заполняешь анкету</div><div class="cond-sub">Мы получаем твои данные и берём на заметку</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">📲</div>
+          <div><div class="cond-text">Шаг 2 — Получаешь уведомления</div><div class="cond-sub">Когда есть выезд рядом с тобой — приходит сообщение</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">👀</div>
+          <div><div class="cond-text">Шаг 3 — Первый выезд: смотришь</div><div class="cond-sub">Приезжаешь на объект, видишь работу изнутри — без обязательств</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🙌</div>
+          <div><div class="cond-text">Шаг 4 — Едешь помощником</div><div class="cond-sub">Следующий выезд — уже в роли техника рядом с оператором</div></div>
+        </div>
+        <div class="cond-item">
+          <div class="cond-emoji">🚁</div>
+          <div><div class="cond-text">Шаг 5 — Обучение на оператора</div><div class="cond-sub">После рекомендации оператора — проходишь обучение и получаешь допуск</div></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-accept" onclick="acceptAndGo()">✅ Принять и заполнить анкету</button>
+    <div style="height:14px"></div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="screen" id="screen-faq">
+  <div class="wrap">
+    <div class="sec-title">Часто задаваемые вопросы</div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Нужен ли опыт работы с дронами? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">Опыт приветствуется, но не обязателен. Первый выезд — просто смотришь. Потом едешь помощником. Обучение на оператора БЛА проходишь уже в процессе работы с командой.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Это постоянная работа или сезонная? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">Основной сезон — весна-осень. Работа интенсивная, без простоев. При хороших результатах возможно сотрудничество и в межсезонье.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Как оформляется работа? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">Договор подряда. Работаете как физическое лицо или ИП. Все условия прописываются официально.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Нужно ли своё авто? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">Желательно. Основная техника и прицеп — наши. Дорога до объекта оплачивается отдельно. Наличие авто влияет на условия сотрудничества.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Где проходят выезды? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">По всей Беларуси — туда, где есть заказы. Нужна готовность к командировкам. Дорога оплачивается отдельно.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Как проходит отбор? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">Заполняешь анкету → получаешь уведомления о выездах → приезжаешь посмотреть как работаем → следующий раз едешь помощником оператора → после рекомендации оператора проходишь обучение на БЛА и получаешь допуск. Никаких собеседований — только реальная работа.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Можно ли совмещать с основной работой? <span class="faq-arr">▼</span></button>
+      <div class="faq-a">В сезон — сложно, работа интенсивная. В межсезонье — возможно. Обсуждается индивидуально.</div>
+    </div>
+
+    <div style="height:14px"></div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="screen" id="screen-form">
+  <div class="wrap" id="formWrap">
+
+    <div class="form-card">
+      <div class="form-hdr">Личные данные</div>
+      <div class="form-body">
+        <div class="fg">
+          <label class="fl">ФИО *</label>
+          <input class="fi" type="text" id="fio" placeholder="Фамилия Имя Отчество">
+          <div class="ferr" id="err-fio">Укажите ФИО</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Возраст *</label>
+          <input class="fi" type="number" id="age" placeholder="Например: 28" min="18" max="65" inputmode="numeric">
+          <div class="ferr" id="err-age">Укажите возраст</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Район / город *</label>
+          <input class="fi" type="text" id="location" placeholder="Например: Минск, Пинский район">
+          <div class="ferr" id="err-location">Укажите район или город</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Телефон *</label>
+          <div class="ph-wrap">
+            <div class="ph-prefix">🇧🇾 +375</div>
+            <input class="ph-input" type="tel" id="phone" placeholder="29 123 45 67" inputmode="tel">
+          </div>
+          <div class="ferr" id="err-phone">Укажите телефон</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-hdr">Роль и опыт</div>
+      <div class="form-body">
+        <div class="fg">
+          <label class="fl">Кем хотите работать? *</label>
+          <div class="tbg">
+            <div class="tb on" id="role_op" onclick="setRole('Оператор','role_op')">👨‍✈️ Оператор</div>
+            <div class="tb" id="role_tech" onclick="setRole('Техник','role_tech')">🧑‍🔧 Техник</div>
+          </div>
+          <input type="hidden" id="role" value="Оператор">
+        </div>
+        <div class="fg">
+          <label class="fl">Опыт работы с дронами</label>
+          <div class="sw">
+            <select id="experience">
+              <option value="Нет опыта">Нет опыта, готов учиться</option>
+              <option value="До 50 часов">До 50 часов налёта</option>
+              <option value="50-200 часов">50–200 часов налёта</option>
+              <option value="Более 200 часов">Более 200 часов налёта</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Готовность к выездам *</label>
+          <div class="tbg">
+            <div class="tb on" id="travel_yes" onclick="setTravel('Да','travel_yes')">✅ Готов</div>
+            <div class="tb" id="travel_no" onclick="setTravel('Нет','travel_no')">❌ Не готов</div>
+          </div>
+          <input type="hidden" id="travel" value="Да">
+        </div>
+        <div class="fg">
+          <label class="fl">Наличие автомобиля</label>
+          <div class="tbg">
+            <div class="tb on" id="car_yes" onclick="setCar('Есть','car_yes')">🚗 Есть</div>
+            <div class="tb" id="car_no" onclick="setCar('Нет','car_no')">🚶 Нет</div>
+          </div>
+          <input type="hidden" id="car" value="Есть">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-hdr">Дополнительно</div>
+      <div class="form-body">
+        <div class="fg">
+          <label class="fl">Откуда узнали о нас?</label>
+          <div class="sw">
+            <select id="source">
+              <option value="Telegram группа">Telegram группа AgroDrone.BY</option>
+              <option value="Сайт">Сайт agrodrone.by</option>
+              <option value="Знакомые">От знакомых</option>
+              <option value="Социальные сети">Социальные сети</option>
+              <option value="Другое">Другое</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Коротко о себе</label>
+          <textarea class="ftextarea" id="about" rows="3" placeholder="Расскажите что-нибудь — опыт, мотивация, вопросы..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btnSubmit" onclick="submitForm()">📨 Отправить анкету</button>
+    <div class="form-note">Нажимая кнопку, вы соглашаетесь на обработку персональных данных. Мы свяжемся с вами в течение 1–2 рабочих дней.</div>
+    <div style="height:20px"></div>
+
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success hidden" id="successScreen">
+    <div class="s-icon">✅</div>
+    <div class="s-title">Анкета отправлена!</div>
+    <div class="s-msg">Мы получили вашу заявку и свяжемся с вами в ближайшее время.<br><br>Пока можете вступить в нашу группу<br><strong>@AgroDrone_BY</strong> — там публикуем новости и видео с полётов.</div>
+  </div>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const WEBHOOK_URL='https://hook.eu2.make.com/nvgwuuo4vf50clenoyojkn9lll6cy0eg';
+const $=id=>document.getElementById(id);
+
+let accepted=false;
+
+function acceptAndGo(){
+  accepted=true;
+  // Разблокируем вкладки
+  document.getElementById('tab-faq').classList.remove('locked');
+  document.getElementById('tab-form').classList.remove('locked');
+  // Переходим на анкету
+  const formTab=document.getElementById('tab-form');
+  showTab('form', formTab);
+  window.scrollTo(0,0);
+}
+
+function showTab(id,el){
+  if(el.classList.contains('locked')){
+    showToast('Сначала ознакомьтесь с условиями 👆');
+    return;
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function toggleFaq(btn){
+  const arr=btn.querySelector('.faq-arr');
+  const ans=btn.nextElementSibling;
+  arr.classList.toggle('open');
+  ans.classList.toggle('open');
+}
+
+function setRole(val,id){
+  $('role').value=val;
+  ['role_op','role_tech'].forEach(x=>$(x).classList.remove('on'));
+  $(id).classList.add('on');
+}
+function setTravel(val,id){
+  $('travel').value=val;
+  ['travel_yes','travel_no'].forEach(x=>$(x).classList.remove('on'));
+  $(id).classList.add('on');
+}
+function setCar(val,id){
+  $('car').value=val;
+  ['car_yes','car_no'].forEach(x=>$(x).classList.remove('on'));
+  $(id).classList.add('on');
+}
+
+function showToast(msg){
+  const t=$('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function validate(){
+  let ok=true;
+  const checks=[
+    {id:'fio',err:'err-fio',check:v=>v.trim().length>3},
+    {id:'age',err:'err-age',check:v=>v&&parseInt(v)>=18&&parseInt(v)<=65},
+    {id:'location',err:'err-location',check:v=>v.trim().length>2},
+    {id:'phone',err:'err-phone',check:v=>v.replace(/\D/g,'').length>=9},
+  ];
+  checks.forEach(({id,err,check})=>{
+    const el=$(id),errEl=$(err);
+    const val=el.value||'';
+    if(!check(val)){
+      el.classList.add('err');
+      errEl.classList.add('on');
+      ok=false;
+    } else {
+      el.classList.remove('err');
+      errEl.classList.remove('on');
+    }
+  });
+  return ok;
+}
+
+async function submitForm(){
+  if(!validate()){showToast('Заполните обязательные поля');return;}
+  const btn=$('btnSubmit');
+  btn.disabled=true;
+  btn.textContent='Отправляю...';
+
+  const data={
+    action:'new_candidate',
+    fio:$('fio').value.trim(),
+    age:$('age').value,
+    location:$('location').value.trim(),
+    phone:'+375'+$('phone').value.replace(/\D/g,''),
+    role:$('role').value,
+    experience:$('experience').value,
+    travel:$('travel').value,
+    car:$('car').value,
+    source:$('source').value,
+    about:$('about').value.trim(),
+    tg_id:tg?.initDataUnsafe?.user?.id||'',
+    tg_name:tg?.initDataUnsafe?.user?.first_name||'',
+    ts:new Date().toISOString(),
+  };
+
+  try{
+    await fetch(WEBHOOK_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+  }catch(e){console.error(e);}
+
+  $('formWrap').classList.add('hidden');
+  $('successScreen').classList.remove('hidden');
+  window.scrollTo(0,0);
+  setTimeout(()=>{if(tg)tg.close();},5000);
+}
+
+['fio','age','location','phone'].forEach(id=>{
+  $(id)?.addEventListener('input',()=>{
+    $(id).classList.remove('err');
+    const errMap={fio:'err-fio',age:'err-age',location:'err-location',phone:'err-phone'};
+    $(errMap[id])?.classList.remove('on');
+  });
+});
+</script>
+</body>
+</html>
