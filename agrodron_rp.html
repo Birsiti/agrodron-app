@@ -118,6 +118,19 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--acc);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(123,45,0,.4);max-width:calc(100% - 32px);text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .pb{height:24px}
+
+/* ТЕХНИКА */
+.eq-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:4px solid #cbd5e1}
+.eq-card.eq-base{border-left-color:#3aaa5e}
+.eq-card.eq-work{border-left-color:#f59e0b}
+.eq-card.eq-repair{border-left-color:#e74c3c}
+.eq-ico{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.eq-name{font-size:14px;font-weight:700;color:var(--t1)}
+.eq-type{font-size:11px;color:var(--t3);margin-top:1px}
+.eq-st{margin-left:auto;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.eq-st-base{background:#e8f4ed;color:#1b5935}
+.eq-st-work{background:#fef3c7;color:#92400e}
+.eq-st-repair{background:#fdecea;color:#c0392b}
 </style>
 </head>
 <body>
@@ -178,10 +191,12 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       <div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Зоны полётов</div><div class="mi-sub">Заказинец · 5359C02810 · r=1 км</div></div><span class="mi-arr">›</span>
     </div>
 
-    <div class="sep">Связь</div>
-    <div class="mi" onclick="goTo('radio')">
-      <div class="mi-ico">📡</div><div class="mi-info"><div class="mi-title">Радиосвязь</div><div class="mi-sub">123.450 МГц · позывные</div></div><span class="mi-arr">›</span>
+    <div class="sep">Техника</div>
+    <div class="mi" onclick="goTo('equipment')">
+      <div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">Техника</div><div class="mi-sub">Дроны, прицеп, генератор, авто</div></div><span class="mi-arr">›</span>
     </div>
+
+    <div class="sep">Связь</div>
     <div class="mi" onclick="goTo('contacts')">
       <div class="mi-ico">📞</div><div class="mi-info"><div class="mi-title">Контакты</div><div class="mi-sub">ЦЕС ОрВД, менеджер, операторы</div></div><span class="mi-arr">›</span>
     </div>
@@ -310,20 +325,43 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 </div>
 
-<!-- РАДИО -->
-<div class="screen" id="screen-radio">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Радиосвязь</span></div>
+
+<!-- ТЕХНИКА -->
+<div class="screen" id="screen-equipment">
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Техника</span></div>
   <div class="sub-wrap">
-    <div class="radio-card">
-      <div class="rc-freq">123.450 МГц</div>
-      <div class="rc-call">РП позывной: ПЛОЩАДКА · Icom A16</div>
-      <div class="rc-ops">
-        <div class="rc-op"><span class="rc-op-name">Бруй Д.А. / Грибов К.М.</span><span class="rc-op-call">ЭКО ВИСКИ</span></div>
-        <div class="rc-op"><span class="rc-op-name">БАК EW-X154-R</span><span class="rc-op-call">ЭКО ВИСКИ · X154R</span></div>
-      </div>
+    <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Дроны</div>
+    <div class="eq-card eq-work">
+      <div class="eq-ico">🚁</div>
+      <div><div class="eq-name">А60-ХМ</div><div class="eq-type">Агродрон · EW-X154-R</div></div>
+      <span class="eq-st eq-st-work">В работе</span>
     </div>
-    <div class="frow"><label>Передать сообщение оператору</label><textarea placeholder="Эко Виски, Площадка, доложите положение и высоту..."></textarea></div>
-    <button class="btn btn-acc" onclick="toast('📡 Сообщение передано')">Передать</button>
+    <div class="eq-card eq-base">
+      <div class="eq-ico">🚁</div>
+      <div><div class="eq-name">А70-ХМ</div><div class="eq-type">Агродрон</div></div>
+      <span class="eq-st eq-st-base">На базе</span>
+    </div>
+    <div class="eq-card eq-base">
+      <div class="eq-ico">🚁</div>
+      <div><div class="eq-name">А1-Х</div><div class="eq-type">Вспомогательный</div></div>
+      <span class="eq-st eq-st-base">На базе</span>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin:14px 0 8px">Транспорт и оборудование</div>
+    <div class="eq-card eq-work">
+      <div class="eq-ico">🚗</div>
+      <div><div class="eq-name">Автомобиль</div><div class="eq-type">Транспортное средство</div></div>
+      <span class="eq-st eq-st-work">В работе</span>
+    </div>
+    <div class="eq-card eq-work">
+      <div class="eq-ico">🚛</div>
+      <div><div class="eq-name">Прицеп</div><div class="eq-type">Транспортировка техники</div></div>
+      <span class="eq-st eq-st-work">В работе</span>
+    </div>
+    <div class="eq-card eq-work">
+      <div class="eq-ico">⚡</div>
+      <div><div class="eq-name">Генератор</div><div class="eq-type">ЁмкАсия · питание</div></div>
+      <span class="eq-st eq-st-work">В работе</span>
+    </div>
     <div class="pb"></div>
   </div>
 </div>
