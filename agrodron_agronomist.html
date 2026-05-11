@@ -11,6 +11,7 @@
   --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
   --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
   --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--blue:#2563eb;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -23,33 +24,23 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .tg-s{font-size:11px;color:#8fa9be;margin-top:1px}
 .tg-r{color:#5aadff;font-size:20px}
 
-.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
+.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .brand{display:flex;align-items:center;gap:10px}
-.brand-ico{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(10px)}
+.brand-ico{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand-ico svg{width:24px;height:24px}
 .brand-name{font-size:18px;font-weight:800;color:#fff;line-height:1.1}
-.brand-name em{font-style:normal;color:#d1fae5;text-shadow:0 0 10px rgba(209,250,229,.4)}
+.brand-name em{font-style:normal;color:#d1fae5}
 .brand-sub{font-size:11px;color:rgba(255,255,255,.8);font-weight:500;margin-top:2px}
-.role-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff;backdrop-filter:blur(10px)}
+.role-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff}
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.screen{display:none;animation:fadeIn .25s ease}
+.screen{display:none;animation:fadeIn .22s ease}
 .screen.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* STATUS BANNER */
-.status-banner{background:linear-gradient(135deg,#1b5935,#2a7a4a);color:#fff;padding:12px 16px;margin:8px 12px;border-radius:var(--r);display:flex;align-items:center;gap:12px;box-shadow:var(--sh)}
-.sb-ico{font-size:24px;flex-shrink:0}
-.sb-info{flex:1}
-.sb-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.sb-stats{font-size:11px;opacity:.9}
-.sb-arr{font-size:18px;opacity:.8}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* MENU */
 .menu-wrap{padding:8px 12px 24px}
 .sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
-
 .mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent;position:relative}
 .mi:active{transform:scale(.98);border-color:var(--aca)}
 .mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
@@ -57,32 +48,65 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .mi-title{font-size:14px;font-weight:700;color:var(--t1)}
 .mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
 .mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
-.mi-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
-.badge-green{background:var(--acl);color:var(--acc);border:1px solid rgba(4,120,87,.2)}
+.mi-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:8px;flex-shrink:0}
+.badge-green{background:var(--acl);color:var(--acc)}
 .badge-yellow{background:#fef3c7;color:#d97706}
-.badge-gray{background:#f5f5f5;color:#666}
+.badge-gray{background:#f1f3f7;color:var(--t3)}
+.badge-blue{background:#eff6ff;color:#2563eb}
 
-.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
-.sub-back{font-size:22px;cursor:pointer;color:var(--acc)}
-.sub-title{font-size:16px;font-weight:800;color:var(--t1)}
-.sub-wrap{padding:12px}
+/* STATS BANNER */
+.stats-banner{background:linear-gradient(135deg,var(--acc),var(--acm));border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff}
+.sb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.sb-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
+.sb-val{font-size:16px;font-weight:800}
+.sb-lbl{font-size:10px;opacity:.8;margin-top:2px}
 
-/* FIELD CARD */
-.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--acc);animation:up .3s ease both}
-.fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+/* SUB HEADER */
+.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
+.sub-back{font-size:22px;cursor:pointer;color:var(--acc);padding-right:4px}
+.sub-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
+.sub-wrap{padding:12px 12px 24px}
+
+/* FIELD CARDS */
+.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--border);transition:all .2s}
+.field-card.st-wait{border-left-color:#f59e0b}
+.field-card.st-work{border-left-color:#2563eb}
+.field-card.st-partial{border-left-color:#8b5cf6}
+.field-card.st-done{border-left-color:var(--aca)}
+.fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .fc-name{font-size:15px;font-weight:800;color:var(--t1)}
 .fc-meta{font-size:11px;color:var(--t3);margin-top:2px}
-.fc-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
-.st-wait{background:#fff8e6;color:#c47f00}
-.st-work{background:#e0f2fe;color:#0284c7}
-.st-done{background:var(--acl);color:var(--acc)}
-.fc-data{display:flex;gap:14px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)}
-.fc-d{display:flex;flex-direction:column;gap:1px}
+.fc-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.fc-badge.st-wait{background:#fef3c7;color:#92400e}
+.fc-badge.st-work{background:#eff6ff;color:#1d4ed8}
+.fc-badge.st-partial{background:#f5f3ff;color:#6d28d9}
+.fc-badge.st-done{background:var(--acl);color:var(--acc)}
+.fc-data{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--border);margin-top:6px}
+.fc-d{display:flex;flex-direction:column;gap:2px}
 .fc-dv{font-size:14px;font-weight:800;color:var(--t1)}
-.fc-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px}
-.fc-photo{margin-top:8px;padding:8px;background:#f8f9fb;border-radius:var(--rs);text-align:center}
-.fc-photo img{max-width:100%;border-radius:var(--rs);box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.fc-photo-placeholder{padding:20px;color:var(--t3);font-size:12px}
+.fc-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
+
+/* PROGRESS */
+.progress-wrap{margin:8px 0 0}
+.progress-bar{height:5px;background:#e2e6ef;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:3px}
+
+/* FORMS */
+.frow{margin-bottom:12px}
+.frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.frow input,.frow select,.frow textarea{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca)}
+.frow textarea{resize:none;min-height:68px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.ic-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+
+/* BUTTONS */
+.btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-sec{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
 
 /* ACT CARD */
 .act-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid #6366f1}
@@ -92,484 +116,431 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ac-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 .st-draft{background:#f5f5f5;color:#666}
 .st-signed{background:var(--acl);color:var(--acc)}
-.ac-data{display:flex;gap:14px;flex-wrap:wrap}
-.ac-d{display:flex;flex-direction:column;gap:1px}
+.ac-data{display:flex;gap:16px;flex-wrap:wrap}
+.ac-d{display:flex;flex-direction:column;gap:2px}
 .ac-dv{font-size:16px;font-weight:800;color:var(--t1)}
-.ac-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px}
+.ac-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase}
 
-/* FORM */
-.frow{margin-bottom:12px}
-.frow label{font-size:13px;font-weight:600;color:var(--t2);display:block;margin-bottom:6px}
-.frow input,.frow select,.frow textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
-.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca);background:#fff}
-.frow textarea{resize:none;min-height:68px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-.btn{width:100%;padding:15px;border:none;border-radius:var(--r);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px}
-.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
-.btn-primary:active{transform:scale(.98)}
-.btn-sec{background:var(--card);color:var(--t2);border:1.5px solid var(--border)}
-.btn-sec:active{transform:scale(.98)}
+/* LOADING */
+.loading{text-align:center;padding:30px 20px;color:var(--t3)}
+.loading-spinner{font-size:28px;animation:spin 1s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* EMPTY */
-.empty{text-align:center;padding:50px 20px}
-.empty-ico{font-size:42px;margin-bottom:10px;opacity:.5}
+.empty{text-align:center;padding:40px 20px}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
 .empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
 .empty-s{font-size:12px;color:var(--t3)}
 
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- TG CHROME -->
-<div class="tg">
-  <div class="tg-l">Назад</div>
-  <div class="tg-m">
-    <div class="tg-t">AgroDrone.BY</div>
-    <div class="tg-s">@AgroDrone_BY_Bot</div>
-  </div>
-  <div class="tg-r">⋮</div>
-</div>
-
-<!-- APP HEADER -->
 <div class="app-hdr">
   <div class="brand">
-    <div class="brand-ico">
-      <svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
-    </div>
-    <div>
-      <div class="brand-name">Agro<em>Drone</em>.BY</div>
-      <div class="brand-sub">Кабинет агронома</div>
-    </div>
+    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub">Кабинет агронома</div></div>
   </div>
   <div class="role-chip">🌱 Агроном</div>
 </div>
 
-<!-- SCROLL -->
 <div class="scroll">
 
-<!-- MAIN MENU -->
+<!-- ══════════════════════════════════
+     ГЛАВНОЕ МЕНЮ
+══════════════════════════════════ -->
 <div id="menu-main" class="screen active">
   <div class="menu-wrap">
-    
-    <!-- STATUS BANNER -->
-    <div class="status-banner" onclick="nav('my-fields')">
-      <div class="sb-ico">🗺️</div>
-      <div class="sb-info">
-        <div class="sb-title">Мои поля</div>
-        <div class="sb-stats">5 полей · 287 га · 3 в работе</div>
+
+    <!-- Статус-баннер -->
+    <div class="stats-banner">
+      <div style="font-size:13px;font-weight:800;opacity:.9">🗺️ Мои поля · Сезон 2026</div>
+      <div class="sb-grid">
+        <div class="sb-stat"><div class="sb-val" id="cnt-wait">—</div><div class="sb-lbl">Ждут</div></div>
+        <div class="sb-stat"><div class="sb-val" id="cnt-work">—</div><div class="sb-lbl">В работе</div></div>
+        <div class="sb-stat"><div class="sb-val" id="cnt-done">—</div><div class="sb-lbl">Готово</div></div>
       </div>
-      <div class="sb-arr">›</div>
     </div>
 
-    <!-- ПОЛЯ -->
     <div class="sep">🗺️ Мои поля</div>
     <div class="mi" onclick="nav('field-new')">
       <div class="mi-ico">➕</div>
-      <div class="mi-info">
-        <div class="mi-title">Добавить поле</div>
-        <div class="mi-sub">Новое поле для обработки</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Добавить поле</div><div class="mi-sub">Внести поле для обработки</div></div>
       <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="nav('my-fields')">
+    <div class="mi" onclick="navFields('all')">
       <div class="mi-ico">🗺️</div>
-      <div class="mi-info">
-        <div class="mi-title">Все мои поля</div>
-        <div class="mi-sub">Список всех полей · 5 полей</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Все мои поля</div><div class="mi-sub">Полный список</div></div>
+      <div class="mi-badge badge-gray" id="badge-all">—</div>
       <div class="mi-arr">›</div>
     </div>
 
-    <!-- СТАТУСЫ -->
     <div class="sep">📊 По статусам</div>
-    <div class="mi" onclick="nav('fields-wait')">
+    <div class="mi" onclick="navFields('ждёт')">
       <div class="mi-ico">⏳</div>
-      <div class="mi-info">
-        <div class="mi-title">Ждёт обработки</div>
-        <div class="mi-sub">Поля в очереди</div>
-      </div>
-      <div class="mi-badge badge-yellow">2</div>
+      <div class="mi-info"><div class="mi-title">Ждёт обработки</div><div class="mi-sub">Поля в очереди</div></div>
+      <div class="mi-badge badge-yellow" id="badge-wait">—</div>
       <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="nav('fields-work')">
+    <div class="mi" onclick="navFields('в работе')">
       <div class="mi-ico">🔄</div>
-      <div class="mi-info">
-        <div class="mi-title">В работе</div>
-        <div class="mi-sub">Обрабатываются сейчас</div>
-      </div>
-      <div class="mi-badge badge-green">3</div>
+      <div class="mi-info"><div class="mi-title">В работе</div><div class="mi-sub">Обрабатываются сейчас</div></div>
+      <div class="mi-badge badge-blue" id="badge-work">—</div>
       <div class="mi-arr">›</div>
     </div>
-    <div class="mi" onclick="nav('fields-done')">
+    <div class="mi" onclick="navFields('частично')">
+      <div class="mi-ico">⏩</div>
+      <div class="mi-info"><div class="mi-title">Частично</div><div class="mi-sub">Перенесённые поля</div></div>
+      <div class="mi-badge badge-gray" id="badge-partial">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="navFields('готово')">
       <div class="mi-ico">✅</div>
-      <div class="mi-info">
-        <div class="mi-title">Обработано</div>
-        <div class="mi-sub">Готовые поля с фото</div>
-      </div>
-      <div class="mi-badge badge-gray">12</div>
+      <div class="mi-info"><div class="mi-title">Обработано</div><div class="mi-sub">Готовые поля</div></div>
+      <div class="mi-badge badge-green" id="badge-done">—</div>
       <div class="mi-arr">›</div>
     </div>
 
-    <!-- АКТЫ -->
     <div class="sep">📄 Документы</div>
     <div class="mi" onclick="nav('acts')">
       <div class="mi-ico">📄</div>
-      <div class="mi-info">
-        <div class="mi-title">Акты выполненных работ</div>
-        <div class="mi-sub">Все акты и документы</div>
-      </div>
-      <div class="mi-badge badge-green">3</div>
+      <div class="mi-info"><div class="mi-title">Акты выполненных работ</div><div class="mi-sub">Все акты и документы</div></div>
       <div class="mi-arr">›</div>
     </div>
-
   </div>
 </div>
 
-<!-- MY FIELDS -->
+<!-- ══════════════════════════════════
+     СПИСОК ПОЛЕЙ (универсальный)
+══════════════════════════════════ -->
 <div id="my-fields" class="screen">
   <div class="sub-hdr">
     <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Все мои поля</div>
+    <div class="sub-title" id="fields-screen-title">Все поля</div>
+    <button onclick="loadFields(currentFilter)" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--acc)" title="Обновить">↻</button>
   </div>
-  <div class="sub-wrap">
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №1 «Центральное»</div>
-          <div class="fc-meta">Картофель · Фунгицид</div>
-        </div>
-        <div class="fc-status st-work">В работе</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">85 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">1.5 л/га</div>
-          <div class="fc-dl">Норма</div>
-        </div>
-      </div>
-    </div>
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №2 «Восточное»</div>
-          <div class="fc-meta">Свекла · Гербицид</div>
-        </div>
-        <div class="fc-status st-work">В работе</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">60 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">2.0 л/га</div>
-          <div class="fc-dl">Норма</div>
-        </div>
-      </div>
-    </div>
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №3 «Южное»</div>
-          <div class="fc-meta">Кукуруза · Инсектицид</div>
-        </div>
-        <div class="fc-status st-wait">Ждёт</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">142 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">1.2 л/га</div>
-          <div class="fc-dl">Норма</div>
-        </div>
-      </div>
-    </div>
+  <div class="sub-wrap" id="fields-list-wrap">
+    <div class="loading"><div class="loading-spinner">🌿</div><div>Загрузка полей...</div></div>
   </div>
 </div>
 
-<!-- FIELD NEW -->
+<!-- ══════════════════════════════════
+     ДОБАВИТЬ ПОЛЕ
+══════════════════════════════════ -->
 <div id="field-new" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Добавить поле</div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Добавить поле</div></div>
   <div class="sub-wrap">
-    <div class="frow">
-      <label>Название поля</label>
-      <input type="text" id="f-name" placeholder="Например: Центральное">
-    </div>
-    <div class="frow">
-      <label>Ссылка на карту (Google Maps / Яндекс)</label>
-      <input type="text" id="f-map" placeholder="Вставьте ссылку">
-    </div>
-    <div class="frow">
-      <label>Культура</label>
-      <select id="f-crop">
-        <option>Выберите культуру</option>
-        <option>Картофель</option>
-        <option>Свекла сахарная</option>
-        <option>Кукуруза</option>
-        <option>Соя</option>
-        <option>Рапс</option>
-        <option>Зерновые</option>
-      </select>
-    </div>
-    <div class="frow">
-      <label>Препарат</label>
-      <input type="text" id="f-prep" placeholder="Название препарата">
-    </div>
-    <div class="fgrid">
+    <div class="info-card">
       <div class="frow">
-        <label>Норма л/га</label>
-        <input type="number" id="f-norm" step="0.1" placeholder="1.5">
+        <label>Название поля *</label>
+        <input type="text" id="f-name" placeholder="Ур. Залежь, Поле №3">
       </div>
       <div class="frow">
-        <label>Площадь га</label>
-        <input type="number" id="f-area" placeholder="85">
+        <label>Культура *</label>
+        <select id="f-crop">
+          <option value="">Выберите культуру</option>
+          <option>Картофель</option>
+          <option>Свекла сахарная</option>
+          <option>Кукуруза</option>
+          <option>Соя</option>
+          <option>Рапс</option>
+          <option>Зерновые</option>
+          <option>Лён</option>
+          <option>Подсолнечник</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="frow">
+        <label>Препарат *</label>
+        <input type="text" id="f-prep" placeholder="Название препарата">
+      </div>
+      <div class="fgrid">
+        <div class="frow">
+          <label>Норма л/га</label>
+          <input type="number" id="f-norm" step="0.1" placeholder="1.5" inputmode="decimal">
+        </div>
+        <div class="frow">
+          <label>Площадь га *</label>
+          <input type="number" id="f-area" placeholder="85" inputmode="decimal">
+        </div>
+      </div>
+      <div class="frow" style="margin-bottom:0">
+        <label>Координаты (необязательно)</label>
+        <input type="text" id="f-coords" placeholder="53.1234, 26.5678">
       </div>
     </div>
-    <button class="btn btn-primary" onclick="saveField()">✓ Добавить поле</button>
+    <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd;margin-bottom:10px">
+      <div style="font-size:12px;color:#1d4ed8;font-weight:600;text-align:center">📋 Поле появится в списке оператора автоматически</div>
+    </div>
+    <button class="btn btn-primary" onclick="saveField()" id="save-btn">✓ Добавить поле</button>
     <button class="btn btn-sec" onclick="back()">Отмена</button>
   </div>
 </div>
 
-<!-- FIELDS WAIT -->
-<div id="fields-wait" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Ждёт обработки</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №3 «Южное»</div>
-          <div class="fc-meta">Кукуруза · Инсектицид</div>
-        </div>
-        <div class="fc-status st-wait">Ждёт</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">142 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">1.2 л/га</div>
-          <div class="fc-dl">Норма</div>
-        </div>
-      </div>
-    </div>
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №4 «Западное»</div>
-          <div class="fc-meta">Рапс · Фунгицид</div>
-        </div>
-        <div class="fc-status st-wait">Ждёт</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">78 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">1.8 л/га</div>
-          <div class="fc-dl">Норма</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FIELDS WORK -->
-<div id="fields-work" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">В работе</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №1 «Центральное»</div>
-          <div class="fc-meta">Картофель · Фунгицид · Бруй Д.А.</div>
-        </div>
-        <div class="fc-status st-work">В работе</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">85 га</div>
-          <div class="fc-dl">Площадь</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">62%</div>
-          <div class="fc-dl">Готово</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FIELDS DONE -->
-<div id="fields-done" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Обработано</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="field-card">
-      <div class="fc-head">
-        <div>
-          <div class="fc-name">Поле №12 «Первомайское»</div>
-          <div class="fc-meta">Зерновые · Гербицид · 07.05.2026</div>
-        </div>
-        <div class="fc-status st-done">Готово</div>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d">
-          <div class="fc-dv">125 га</div>
-          <div class="fc-dl">Обработано</div>
-        </div>
-        <div class="fc-d">
-          <div class="fc-dv">Грибов К.М.</div>
-          <div class="fc-dl">Оператор</div>
-        </div>
-      </div>
-      <div class="fc-photo">
-        <div class="fc-photo-placeholder">📷 Фото будет доступно после загрузки оператором</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ACTS -->
+<!-- ══════════════════════════════════
+     АКТЫ
+══════════════════════════════════ -->
 <div id="acts" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Акты работ</div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Акты работ</div></div>
   <div class="sub-wrap">
     <div class="act-card">
       <div class="ac-head">
-        <div>
-          <div class="ac-id">Акт #2026-003</div>
-          <div class="ac-date">Создан: 05 мая 2026</div>
-        </div>
+        <div><div class="ac-id">Акт #2026-003</div><div class="ac-date">05 мая 2026</div></div>
         <div class="ac-status st-signed">Подписан</div>
       </div>
       <div class="ac-data">
-        <div class="ac-d">
-          <div class="ac-dv">287 га</div>
-          <div class="ac-dl">Обработано</div>
-        </div>
-        <div class="ac-d">
-          <div class="ac-dv">8 040 BYN</div>
-          <div class="ac-dl">Сумма с НДС</div>
-        </div>
+        <div class="ac-d"><div class="ac-dv">287 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">8 040 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
       </div>
     </div>
     <div class="act-card">
       <div class="ac-head">
-        <div>
-          <div class="ac-id">Акт #2026-002</div>
-          <div class="ac-date">Создан: 28 апреля 2026</div>
-        </div>
+        <div><div class="ac-id">Акт #2026-002</div><div class="ac-date">28 апреля 2026</div></div>
         <div class="ac-status st-signed">Подписан</div>
       </div>
       <div class="ac-data">
-        <div class="ac-d">
-          <div class="ac-dv">145 га</div>
-          <div class="ac-dl">Обработано</div>
-        </div>
-        <div class="ac-d">
-          <div class="ac-dv">4 060 BYN</div>
-          <div class="ac-dl">Сумма с НДС</div>
-        </div>
+        <div class="ac-d"><div class="ac-dv">145 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">4 060 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
       </div>
     </div>
     <div class="act-card">
       <div class="ac-head">
-        <div>
-          <div class="ac-id">Акт #2026-001</div>
-          <div class="ac-date">Создан: 15 апреля 2026</div>
-        </div>
+        <div><div class="ac-id">Акт #2026-001</div><div class="ac-date">15 апреля 2026</div></div>
         <div class="ac-status st-draft">Черновик</div>
       </div>
       <div class="ac-data">
-        <div class="ac-d">
-          <div class="ac-dv">60 га</div>
-          <div class="ac-dl">Обработано</div>
-        </div>
-        <div class="ac-d">
-          <div class="ac-dv">1 680 BYN</div>
-          <div class="ac-dl">Сумма с НДС</div>
-        </div>
+        <div class="ac-d"><div class="ac-dv">60 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">1 680 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
       </div>
     </div>
   </div>
 </div>
 
-</div>
-
-<!-- TOAST -->
+</div><!-- /scroll -->
 <div id="toast" class="toast"></div>
 
 <script>
+// ══════════════════════════════════
+// CONFIG — Google Sheets
+// ══════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+const AGRO_ID = 'agro_001'; // В боте — из Telegram ID агронома
+
+// ══════════════════════════════════
 // NAVIGATION
-let history = ['menu-main'];
+// ══════════════════════════════════
+let navHistory = ['menu-main'];
+let currentFilter = 'all';
+let allFields = [];
 
 function nav(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screen).classList.add('active');
-  history.push(screen);
+  navHistory.push(screen);
 }
 
 function back() {
-  if (history.length > 1) {
-    history.pop();
-    const prev = history[history.length - 1];
+  if (navHistory.length > 1) {
+    navHistory.pop();
+    const prev = navHistory[navHistory.length - 1];
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(prev).classList.add('active');
   }
 }
 
-// SAVE FIELD
-function saveField() {
-  const name = document.getElementById('f-name').value;
-  const map = document.getElementById('f-map').value;
-  const crop = document.getElementById('f-crop').value;
-  const prep = document.getElementById('f-prep').value;
-  const norm = document.getElementById('f-norm').value;
-  const area = document.getElementById('f-area').value;
-  
-  if (!name || !crop || !prep) {
-    showToast('❌ Заполните обязательные поля');
-    return;
-  }
-  
-  showToast('✓ Поле добавлено');
-  setTimeout(() => {
-    back();
-    nav('my-fields');
-  }, 1000);
+function navFields(filter) {
+  currentFilter = filter;
+  const titles = {
+    'all':      'Все поля',
+    'ждёт':     'Ждёт обработки',
+    'в работе': 'В работе',
+    'частично': 'Частично',
+    'готово':   'Готово'
+  };
+  document.getElementById('fields-screen-title').textContent = titles[filter] || 'Поля';
+  nav('my-fields');
+  loadFields(filter);
 }
 
+// ══════════════════════════════════
+// ЗАГРУЗКА ПОЛЕЙ ИЗ SHEETS
+// ══════════════════════════════════
+async function loadFields(filter) {
+  const wrap = document.getElementById('fields-list-wrap');
+  wrap.innerHTML = '<div class="loading"><div class="loading-spinner">🌿</div><div>Загрузка...</div></div>';
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { agroId: AGRO_ID } })
+    });
+    const json = await resp.json();
+
+    if (!json.ok || !json.result.fields || json.result.fields.length === 0) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">Добавьте первое поле</div></div>';
+      return;
+    }
+
+    allFields = json.result.fields;
+
+    // Фильтрация
+    const filtered = filter === 'all'
+      ? allFields
+      : allFields.filter(f => f.status === filter);
+
+    updateBadges();
+    renderFieldsList(filtered, wrap);
+
+  } catch(e) {
+    console.error(e);
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Ошибка загрузки</div><div class="empty-s">Проверьте подключение</div></div>';
+  }
+}
+
+function renderFieldsList(fields, wrap) {
+  if (fields.length === 0) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">В этом разделе пусто</div></div>';
+    return;
+  }
+
+  const statusMap = {
+    'ждёт':     { cls:'st-wait',    label:'Ждёт' },
+    'в работе': { cls:'st-work',    label:'В работе' },
+    'частично': { cls:'st-partial', label:'Частично' },
+    'готово':   { cls:'st-done',    label:'Готово' }
+  };
+
+  let html = '';
+  fields.forEach(f => {
+    const st = statusMap[f.status] || { cls:'st-wait', label:'Ждёт' };
+    const pct = f.haPlan > 0 ? Math.round(f.haFact / f.haPlan * 100) : 0;
+    const showProgress = f.status === 'в работе' || f.status === 'частично' || f.status === 'готово';
+
+    html += `<div class="field-card ${st.cls}">
+      <div class="fc-head">
+        <div style="flex:1;min-width:0">
+          <div class="fc-name">${f.name}</div>
+          <div class="fc-meta">${f.crop}${f.prep ? ' · ' + f.prep : ''}</div>
+        </div>
+        <span class="fc-badge ${st.cls}" style="margin-left:8px">${st.label}</span>
+      </div>
+      <div class="fc-data">
+        <div class="fc-d"><div class="fc-dv">${f.haPlan} га</div><div class="fc-dl">План</div></div>
+        <div class="fc-d"><div class="fc-dv">${f.haPlan} га</div><div class="fc-dl">Факт</div></div>
+        <div class="fc-d"><div class="fc-dv">${f.norm && !isNaN(parseFloat(f.norm)) ? parseFloat(f.norm).toFixed(1) + ' л/га' : '—'}</div><div class="fc-dl">Норма</div></div>
+      </div>
+      ${showProgress ? `<div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${f.status==='готово'?'var(--aca)':'#8b5cf6'}"></div></div>
+        <div class="progress-label"><span>${f.status==='готово'?'✅ Готово':pct+'% обработано'}</span><span>${f.haFact}/${f.haPlan} га</span></div>
+      </div>` : ''}
+      ${f.coords ? `<div style="font-size:11px;color:var(--t3);margin-top:6px">📍 ${f.coords}</div>` : ''}
+      ${f.tripId ? `<div style="font-size:11px;color:var(--t3);margin-top:2px">🚐 Командировка: ${f.tripId}</div>` : ''}
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function updateBadges() {
+  const cnt = { wait:0, work:0, partial:0, done:0, all:allFields.length };
+  allFields.forEach(f => {
+    if (f.status === 'ждёт')     cnt.wait++;
+    if (f.status === 'в работе') cnt.work++;
+    if (f.status === 'частично') cnt.partial++;
+    if (f.status === 'готово')   cnt.done++;
+  });
+  document.getElementById('cnt-wait').textContent    = cnt.wait;
+  document.getElementById('cnt-work').textContent    = cnt.work;
+  document.getElementById('cnt-done').textContent    = cnt.done;
+  document.getElementById('badge-all').textContent   = cnt.all;
+  document.getElementById('badge-wait').textContent  = cnt.wait;
+  document.getElementById('badge-work').textContent  = cnt.work;
+  document.getElementById('badge-partial').textContent = cnt.partial;
+  document.getElementById('badge-done').textContent  = cnt.done;
+}
+
+// ══════════════════════════════════
+// ЗАПИСЬ ПОЛЯ В SHEETS
+// ══════════════════════════════════
+async function saveField() {
+  const name   = document.getElementById('f-name').value.trim();
+  const crop   = document.getElementById('f-crop').value;
+  const prep   = document.getElementById('f-prep').value.trim();
+  const norm   = document.getElementById('f-norm').value.replace(',', '.');
+  const area   = document.getElementById('f-area').value;
+  const coords = document.getElementById('f-coords').value.trim();
+
+  if (!name)   { showToast('⚠️ Укажите название поля'); return; }
+  if (!crop)   { showToast('⚠️ Выберите культуру'); return; }
+  if (!prep)   { showToast('⚠️ Укажите препарат'); return; }
+  if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '⏳ Сохраняю...';
+  btn.disabled = true;
+
+
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'add_field',
+        data: { name, crop, prep, norm, haPlan: parseFloat(area), coords, agroId: AGRO_ID }
+      })
+    });
+    const json = await resp.json();
+
+    if (json.ok) {
+      ['f-name','f-prep','f-norm','f-area','f-coords'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-crop').value = '';
+      showToast('✅ Поле добавлено!');
+      setTimeout(() => { back(); navFields('ждёт'); }, 800);
+    } else {
+      showToast('❌ ' + (json.error || 'Ошибка'));
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка. Попробуйте ещё раз');
+  } finally {
+    btn.textContent = '✓ Добавить поле';
+    btn.disabled = false;
+  }
+}
+
+// Запись через Apps Script — см. SCRIPT_URL
+
+// ══════════════════════════════════
+// TOAST
+// ══════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-</script>
 
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // Загружаем статистику для баннера
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { agroId: AGRO_ID } })
+    });
+    const json = await resp.json();
+    if (json.ok && json.result.fields) {
+      allFields = json.result.fields;
+      updateBadges();
+    }
+  } catch(e) {
+    console.log('Init load failed:', e);
+  }
+});
+</script>
 </body>
 </html>

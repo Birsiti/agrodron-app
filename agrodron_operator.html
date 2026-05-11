@@ -11,11 +11,14 @@
   --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
   --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
   --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 
+/* TG CHROME */
 .tg{background:#1c2733;padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .tg-l{font-size:14px;color:#5aadff;font-weight:500;cursor:pointer}
 .tg-m{text-align:center}
@@ -23,6 +26,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .tg-s{font-size:11px;color:#8fa9be;margin-top:1px}
 .tg-r{color:#5aadff;font-size:20px}
 
+/* APP HEADER */
 .app-hdr{background:var(--card);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-ico{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -32,44 +36,19 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .brand-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:1px}
 .op-chip{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--gl);color:var(--green);cursor:pointer}
 
+/* SCROLL & SCREENS */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.screen{display:none;animation:fadeIn .25s ease}
+.screen{display:none;animation:fadeIn .22s ease}
 .screen.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* SELECT PAGE */
-.sel-page{padding:20px 16px}
-.sel-title{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:4px}
-.sel-sub{font-size:13px;color:var(--t3);margin-bottom:16px}
-.sel-section{margin-bottom:20px}
-.sel-section-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
-.op-item{background:var(--card);border-radius:var(--rs);padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:8px;border:1.5px solid transparent;transition:all .2s;animation:up .3s ease both}
-.op-item:active{transform:scale(.98);border-color:var(--ga)}
-.av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.av-db{background:rgba(27,89,53,.15);color:var(--green)}
-.av-kg{background:rgba(58,122,255,.15);color:#2a6aff}
-.av-lb{background:rgba(200,130,0,.15);color:#b07800}
-.av-au{background:rgba(180,40,40,.15);color:#b02020}
-.op-nm{font-size:14px;font-weight:700;color:var(--t1)}
-.op-rl{font-size:11px;color:var(--t3);margin-top:1px}
-
-/* ROLE SELECT */
-.role-sel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.role-card{background:var(--card);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;box-shadow:var(--sh);border:2px solid transparent;transition:all .2s}
-.role-card:active{transform:scale(.97);border-color:var(--ga)}
-.role-ico{font-size:36px;margin-bottom:8px}
-.role-name{font-size:15px;font-weight:700;color:var(--t1)}
-.role-desc{font-size:11px;color:var(--t3);margin-top:4px}
-
-/* MAIN MENU */
+/* MENU */
 .menu-wrap{padding:8px 12px 24px}
 .role-banner{border-radius:var(--rs);padding:10px 14px;margin:0 0 8px;display:flex;align-items:center;gap:10px}
 .rb-ico{font-size:18px}
 .rb-info{flex:1}
 .rb-title{font-size:13px;font-weight:700;color:#fff}
 .rb-sub{font-size:11px;opacity:.8;color:#fff;margin-top:1px}
-
 .sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
 .mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent}
 .mi:active{transform:scale(.98);border-color:var(--ga)}
@@ -79,12 +58,13 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
 .mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
 
-/* SUB SCREENS */
-.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
-.sub-back{font-size:22px;cursor:pointer;color:var(--green);line-height:1}
+/* SUB HEADER */
+.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
+.sub-back{font-size:22px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px}
 .sub-title{font-size:16px;font-weight:800;color:var(--t1)}
-.sub-wrap{padding:12px}
+.sub-wrap{padding:12px 12px 24px}
 
+/* CARDS */
 .info-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
 .ic-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
 .ic-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
@@ -92,14 +72,115 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ic-label{font-size:13px;color:var(--t2)}
 .ic-val{font-size:13px;font-weight:700;color:var(--t1)}
 .ic-val.green{color:var(--green)}
+.ic-val.amber{color:var(--amber)}
+.ic-val.red{color:var(--red)}
 
-.empty{text-align:center;padding:50px 20px}
-.empty-ico{font-size:42px;margin-bottom:10px;opacity:.5}
+/* FORMS */
+.form-group{margin-bottom:12px}
+.form-label{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--ga)}
+textarea.form-input{resize:none;min-height:70px}
+
+/* CHECKBOXES */
+.check-group{display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:var(--rs);border:1.5px solid var(--border);cursor:pointer;transition:all .2s}
+.check-item.selected{border-color:var(--ga);background:var(--gl)}
+.check-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;transition:all .2s;color:transparent}
+.check-item.selected .check-box{background:var(--ga);border-color:var(--ga);color:#fff}
+.check-label{font-size:13px;font-weight:600;color:var(--t1)}
+.check-sub{font-size:11px;color:var(--t3)}
+
+/* BUTTONS */
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
+.btn:active{transform:scale(.98)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+/* BANNERS */
+.trip-banner{background:linear-gradient(135deg,#d97706,#b45309);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
+.day-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
+.tb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tb-title{font-size:13px;font-weight:800}
+.tb-sub{font-size:11px;opacity:.8;margin-top:2px}
+.tb-badge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.tb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.tb-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
+.tb-stat-val{font-size:15px;font-weight:800}
+.tb-stat-lbl{font-size:10px;opacity:.75;margin-top:1px}
+
+/* ФИНАНСЫ */
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.sum-row:last-child{border-bottom:none}
+.sum-label{font-size:13px;color:var(--t2)}
+.sum-val{font-size:14px;font-weight:800;color:var(--t1)}
+.sum-val.green{color:var(--green)}
+.sum-val.red{color:var(--red)}
+.sum-val.amber{color:var(--amber)}
+.sum-val.blue{color:var(--blue)}
+
+/* ПОЛЯ */
+.field-card{background:var(--card);border-radius:var(--rs);padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--border)}
+.field-card.status-pending{border-left-color:#f59e0b}
+.field-card.status-active{border-left-color:#2563eb}
+.field-card.status-partial{border-left-color:#8b5cf6}
+.field-card.status-done{border-left-color:var(--ga)}
+.field-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.field-name{font-size:14px;font-weight:700;color:var(--t1)}
+.field-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-active{background:#eff6ff;color:#1d4ed8}
+.badge-partial{background:#f5f3ff;color:#6d28d9}
+.badge-done{background:var(--gl);color:var(--green)}
+.field-row{display:flex;gap:12px;font-size:12px;color:var(--t3)}
+.field-row span{font-weight:600;color:var(--t2)}
+.field-actions{display:flex;gap:6px;margin-top:10px}
+.fa-btn{flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .2s}
+.fa-btn:active{transform:scale(.97)}
+.fa-btn-blue{background:var(--blue-light);color:var(--blue)}
+.fa-btn-green{background:var(--gl);color:var(--green)}
+.fa-btn-amber{background:var(--amber-light);color:#92400e}
+
+/* РАСХОДЫ */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cat-pill{padding:12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .2s}
+.cat-pill.selected{border-color:var(--amber);background:var(--amber-light)}
+.cat-pill-ico{font-size:22px;margin-bottom:4px}
+.cat-pill-name{font-size:11px;font-weight:700;color:var(--t2)}
+.exp-item{background:#fff;border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.exp-cat{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.exp-info{flex:1}
+.exp-name{font-size:13px;font-weight:700;color:var(--t1)}
+.exp-date{font-size:11px;color:var(--t3);margin-top:1px}
+.exp-sum{font-size:14px;font-weight:800;color:var(--red)}
+
+/* CLOSE OPTIONS */
+.close-opt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.close-card{padding:16px;border-radius:var(--rs);border:2px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .2s}
+.close-card.selected{border-color:var(--green);background:var(--gl)}
+.close-card-ico{font-size:26px;margin-bottom:6px}
+.close-card-name{font-size:12px;font-weight:700;color:var(--t2)}
+
+/* PROGRESS BAR */
+.progress-wrap{margin:8px 0}
+.progress-bar{height:6px;background:#e2e6ef;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:4px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
 .empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
 .empty-s{font-size:12px;color:var(--t3)}
 
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:12px 0}
+
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -108,557 +189,1049 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <!-- TG CHROME -->
 <div class="tg">
   <div class="tg-l" onclick="logout()">‹ Сменить</div>
-  <div class="tg-m">
-    <div class="tg-t">AgroDrone.BY</div>
-    <div class="tg-s">@AgroDron_BY_Bot</div>
-  </div>
+  <div class="tg-m"><div class="tg-t">AgroDrone.BY</div><div class="tg-s">@AgroDron_BY_Bot</div></div>
   <div class="tg-r">⋮</div>
 </div>
 
 <!-- APP HEADER -->
 <div class="app-hdr">
   <div class="brand">
-    <div class="brand-ico">
-      <svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/></svg>
-    </div>
-    <div>
-      <div class="brand-name">Agro<em>Drone</em>.BY</div>
-      <div class="brand-sub">ЗАО «АТК» · Оператор</div>
-    </div>
+    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/></svg></div>
+    <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub">ЗАО «АТК» · Оператор</div></div>
   </div>
-  <div class="op-chip" id="op-chip" onclick="logout()" style="display:none">—</div>
+  <div class="op-chip" id="op-chip" style="display:none">—</div>
 </div>
 
-<!-- SCROLL -->
 <div class="scroll">
 
-<!-- SELECT OPERATOR (REMOVED - direct login) -->
-<div id="select" class="screen" style="display:none">
-  <div class="sel-page">
-    <div class="sel-title">Кто летит?</div>
-    <div class="sel-sub">Выберите своё имя</div>
-    
-    <div class="sel-section">
-      <div class="op-item" onclick="selectOp('db','Бруй Д.А.','Оператор АТК')">
-        <div class="av av-db">ДБ</div>
-        <div style="flex:1">
-          <div class="op-nm">Бруй Д.А.</div>
-          <div class="op-rl">Оператор АТК</div>
-        </div>
-        <span style="color:var(--t3);font-size:18px">›</span>
-      </div>
-      <div class="op-item" onclick="selectOp('kg','Грибов К.М.','Оператор АТК')">
-        <div class="av av-kg">КГ</div>
-        <div style="flex:1">
-          <div class="op-nm">Грибов К.М.</div>
-          <div class="op-rl">Оператор АТК</div>
-        </div>
-        <span style="color:var(--t3);font-size:18px">›</span>
-      </div>
-      <div class="op-item" onclick="selectOp('lb','Борисенок Л.И.','Оператор WR')">
-        <div class="av av-lb">ЛБ</div>
-        <div style="flex:1">
-          <div class="op-nm">Борисенок Л.И.</div>
-          <div class="op-rl">Оператор WR</div>
-        </div>
-        <span style="color:var(--t3);font-size:18px">›</span>
-      </div>
-      <div class="op-item" onclick="selectOp('au','Уманец А.И.','Оператор WR')">
-        <div class="av av-au">АУ</div>
-        <div style="flex:1">
-          <div class="op-nm">Уманец А.И.</div>
-          <div class="op-rl">Оператор WR</div>
-        </div>
-        <span style="color:var(--t3);font-size:18px">›</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SELECT ROLE (REMOVED - role assigned automatically) -->
-<div id="role-select" class="screen" style="display:none">
-  <div class="sel-page">
-    <div class="sel-title">Выберите роль</div>
-    <div class="sel-sub" id="role-sub">Как вы сегодня работаете?</div>
-    
-    <div class="role-sel">
-      <div class="role-card" onclick="selectRole('brigadier')">
-        <div class="role-ico">⚡</div>
-        <div class="role-name">Бригадир</div>
-        <div class="role-desc">Полный доступ</div>
-      </div>
-      <div class="role-card" onclick="selectRole('operator')">
-        <div class="role-ico">👤</div>
-        <div class="role-name">Оператор</div>
-        <div class="role-desc">Базовое меню</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN MENU -->
+<!-- ══════════════════════════════════
+     ГЛАВНОЕ МЕНЮ
+══════════════════════════════════ -->
 <div id="main" class="screen active">
   <div class="menu-wrap">
-    
-    <!-- ROLE BANNER -->
+
+    <!-- Баннер роли -->
     <div class="role-banner" id="role-banner" style="display:none">
-      <div class="rb-ico" id="rb-ico">⚡</div>
+      <div class="rb-ico" id="rb-ico">👤</div>
       <div class="rb-info">
-        <div class="rb-title" id="rb-title">Бригадир</div>
-        <div class="rb-sub" id="rb-sub">Полный доступ к управлению</div>
+        <div class="rb-title" id="rb-title">Оператор</div>
+        <div class="rb-sub" id="rb-sub">Загрузка...</div>
       </div>
     </div>
 
-    <!-- BRIGADIER ONLY -->
+    <!-- Баннер активной командировки -->
+    <div id="main-trip-banner" style="display:none" onclick="nav('trip-active')">
+      <div class="trip-banner">
+        <div class="tb-top">
+          <div><div class="tb-title">🚐 Командировка</div><div class="tb-sub" id="tb-direction">—</div></div>
+          <div class="tb-badge" id="tb-day-badge">День 1</div>
+        </div>
+        <div class="tb-stats">
+          <div class="tb-stat"><div class="tb-stat-val" id="tb-balance">—</div><div class="tb-stat-lbl">Остаток BYN</div></div>
+          <div class="tb-stat"><div class="tb-stat-val" id="tb-ha-total">0</div><div class="tb-stat-lbl">Га всего</div></div>
+          <div class="tb-stat"><div class="tb-stat-val" id="tb-exp-cnt">0</div><div class="tb-stat-lbl">Расходов</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Баннер активного дня -->
+    <div id="main-day-banner" style="display:none" onclick="nav('day-active')">
+      <div class="day-banner">
+        <div class="tb-top">
+          <div><div class="tb-title">☀️ День открыт</div><div class="tb-sub" id="db-date">—</div></div>
+          <div class="tb-badge" id="db-fields-badge">0 полей</div>
+        </div>
+        <div class="tb-stats">
+          <div class="tb-stat"><div class="tb-stat-val" id="db-ha-done">0</div><div class="tb-stat-lbl">Га сделано</div></div>
+          <div class="tb-stat"><div class="tb-stat-val" id="db-ha-left">0</div><div class="tb-stat-lbl">Га осталось</div></div>
+          <div class="tb-stat"><div class="tb-stat-val" id="db-fields-done">0/0</div><div class="tb-stat-lbl">Полей</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Меню бригадира -->
     <div id="brigadier-menu" style="display:none">
-      <div class="sep">Мой выезд</div>
-      <div class="mi" onclick="nav('shift-start')">
-        <div class="mi-ico">▶️</div>
-        <div class="mi-info">
-          <div class="mi-title">Начать выезд</div>
-          <div class="mi-sub">Фиксирует время отправления</div>
-        </div>
+      <div class="sep">Командировка</div>
+      <div class="mi" id="trip-open-btn" onclick="nav('trip-open')">
+        <div class="mi-ico">🚐</div>
+        <div class="mi-info"><div class="mi-title">Открыть командировку</div><div class="mi-sub">Выезд, состав, аванс</div></div>
         <div class="mi-arr">›</div>
       </div>
-      <div class="mi" onclick="nav('accept')">
-        <div class="mi-ico">📥</div>
-        <div class="mi-info">
-          <div class="mi-title">Принять поле</div>
-          <div class="mi-sub">Фото с пульта + открытие</div>
-        </div>
+      <div class="mi" id="day-open-btn" onclick="nav('day-open')" style="display:none">
+        <div class="mi-ico">☀️</div>
+        <div class="mi-info"><div class="mi-title">Открыть день</div><div class="mi-sub">Едем в поле</div></div>
         <div class="mi-arr">›</div>
       </div>
-      <div class="mi" onclick="nav('close')">
-        <div class="mi-ico">✅</div>
-        <div class="mi-info">
-          <div class="mi-title">Поле отработано</div>
-          <div class="mi-sub">Закрыть и записать га</div>
-        </div>
+      <div class="mi" id="expense-btn" onclick="nav('trip-expense')" style="display:none">
+        <div class="mi-ico">💸</div>
+        <div class="mi-info"><div class="mi-title">Внести расход</div><div class="mi-sub">По командировке</div></div>
         <div class="mi-arr">›</div>
       </div>
     </div>
 
-    <!-- COMMON MENU -->
-    <div class="sep">Мои поля</div>
-    <div class="mi" onclick="nav('fields')">
-      <div class="mi-ico">🌾</div>
-      <div class="mi-info">
-        <div class="mi-title">Поля на сегодня</div>
-        <div class="mi-sub">Культура, норма, дозировка</div>
-      </div>
-      <div class="mi-arr">›</div>
-    </div>
-
-    <div class="sep">Техника</div>
-    <div class="mi" onclick="nav('equip')">
-      <div class="mi-ico">🚁</div>
-      <div class="mi-info">
-        <div class="mi-title">Состояние дрона</div>
-        <div class="mi-sub">А-60, А-70, А1-Х</div>
-      </div>
-      <div class="mi-arr">›</div>
-    </div>
-    <div class="mi" onclick="nav('trailer')">
-      <div class="mi-ico">🛢</div>
-      <div class="mi-info">
-        <div class="mi-title">Прицеп / генератор</div>
-        <div class="mi-sub">Состояние оборудования</div>
-      </div>
-      <div class="mi-arr">›</div>
-    </div>
-
+    <!-- Общее меню -->
     <div class="sep">Информация</div>
     <div class="mi" onclick="nav('stats')">
       <div class="mi-ico">📊</div>
-      <div class="mi-info">
-        <div class="mi-title">Моя статистика</div>
-        <div class="mi-sub">Га, часы, выезды</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды</div></div>
       <div class="mi-arr">›</div>
     </div>
     <div class="mi" onclick="nav('weather')">
       <div class="mi-ico">🌤</div>
-      <div class="mi-info">
-        <div class="mi-title">Погода</div>
-        <div class="mi-sub">Заказинец / Косино</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">Заказинец / Косино</div></div>
       <div class="mi-arr">›</div>
     </div>
     <div class="mi" onclick="nav('docs')">
       <div class="mi-ico">📋</div>
-      <div class="mi-info">
-        <div class="mi-title">Документы</div>
-        <div class="mi-sub">Правила, инструкции, памятки</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Документы</div><div class="mi-sub">Правила, инструкции, памятки</div></div>
       <div class="mi-arr">›</div>
     </div>
     <div class="mi" onclick="nav('contacts')">
       <div class="mi-ico">📞</div>
-      <div class="mi-info">
-        <div class="mi-title">Связь</div>
-        <div class="mi-sub">РП, координаторы, АТК</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Связь</div><div class="mi-sub">РП, координаторы, АТК</div></div>
       <div class="mi-arr">›</div>
     </div>
-
-    <!-- BRIGADIER ONLY: CURATOR -->
-    <div id="brigadier-curator" style="display:none">
-      <div class="sep">Куратор</div>
-      <div class="mi" onclick="nav('curator-new')">
-        <div class="mi-ico">📝</div>
-        <div class="mi-info">
-          <div class="mi-title">Обратиться к куратору</div>
-          <div class="mi-sub">Создать обращение</div>
-        </div>
-        <div class="mi-arr">›</div>
-      </div>
-    </div>
-
-    <!-- CURATOR VIEW (ALL) -->
     <div class="mi" onclick="nav('curator-list')">
       <div class="mi-ico">👔</div>
-      <div class="mi-info">
-        <div class="mi-title">Мои обращения</div>
-        <div class="mi-sub">История запросов</div>
-      </div>
+      <div class="mi-info"><div class="mi-title">Мои обращения</div><div class="mi-sub">История запросов</div></div>
       <div class="mi-arr">›</div>
     </div>
-
   </div>
 </div>
 
-<!-- FIELDS -->
-<div id="fields" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Поля на сегодня</div>
-  </div>
+<!-- ══════════════════════════════════
+     ОТКРЫТЬ КОМАНДИРОВКУ
+══════════════════════════════════ -->
+<div id="trip-open" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Открыть командировку</div></div>
   <div class="sub-wrap">
     <div class="info-card">
-      <div class="ic-title">Сезон 2026</div>
-      <div class="ic-row">
-        <span class="ic-label">🌾 Ганцевичский р-н<br><span style="font-size:10px;color:var(--t3)">Залежь / расчистка · 04.05.2026</span></span>
-        <span class="ic-val green">60 га ✓</span>
+      <div class="form-group">
+        <label class="form-label">Район / направление</label>
+        <input class="form-input" id="trip-direction" type="text" placeholder="Ганцевичский р-н">
       </div>
-      <div class="ic-row">
-        <span class="ic-label">🌾 Ганцевичский р-н<br><span style="font-size:10px;color:var(--t3)">Залежь / расчистка · 05.05.2026</span></span>
-        <span class="ic-val green">85 га ✓</span>
+      <div class="form-group">
+        <label class="form-label">Дата выезда</label>
+        <input class="form-input" id="trip-date" type="date">
       </div>
-      <div class="ic-row" style="border-top:2px solid var(--border);margin-top:4px">
-        <span class="ic-label" style="font-weight:700">Итого</span>
-        <span class="ic-val green">145 га</span>
+      <div class="form-group">
+        <label class="form-label">Аванс / командировочные (BYN)</label>
+        <input class="form-input" id="trip-advance" type="number" placeholder="500" inputmode="decimal">
       </div>
     </div>
+    <div class="info-card">
+      <div class="ic-title">Состав бригады</div>
+      <div class="check-group" id="trip-crew-list">
+        <div class="check-item selected" onclick="toggleCheck(this)"><div class="check-box">✓</div><div><div class="check-label">Бруй Д.А.</div><div class="check-sub">op_001</div></div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-label">Грибов К.М.</div><div class="check-sub">op_002</div></div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-label">Борисенок Л.И.</div><div class="check-sub">op_003 · WR</div></div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-label">Уманец А.И.</div><div class="check-sub">op_004 · WR</div></div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Техника</div>
+      <div class="check-group">
+        <div class="check-item selected" onclick="toggleCheck(this)"><div class="check-box">✓</div><div><div class="check-label">А60-ХМ</div><div class="check-sub">Основной борт</div></div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-label">А70-ХМ</div><div class="check-sub">Основной борт</div></div></div>
+        <div class="check-item selected" onclick="toggleCheck(this)"><div class="check-box">✓</div><div><div class="check-label">А1-Х</div><div class="check-sub">Оцифровщик</div></div></div>
+      </div>
+    </div>
+    <button class="btn btn-amber" onclick="openTrip()">🚐 Выехали!</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
   </div>
 </div>
 
-<!-- STATS -->
+<!-- ══════════════════════════════════
+     АКТИВНАЯ КОМАНДИРОВКА
+══════════════════════════════════ -->
+<div id="trip-active" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title" id="ta-title">Командировка</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">Финансы</div>
+      <div class="sum-row"><span class="sum-label">Аванс выдан</span><span class="sum-val" id="ta-advance">—</span></div>
+      <div class="sum-row"><span class="sum-label">Потрачено</span><span class="sum-val red" id="ta-spent">0 BYN</span></div>
+      <div class="sum-row"><span class="sum-label" style="font-weight:700">Остаток</span><span class="sum-val green" id="ta-balance" style="font-size:16px">—</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Статистика поездки</div>
+      <div class="sum-row"><span class="sum-label">📅 Дней в выезде</span><span class="sum-val" id="ta-days">1</span></div>
+      <div class="sum-row"><span class="sum-label">🌾 Га обработано</span><span class="sum-val green" id="ta-ha">0 га</span></div>
+      <div class="sum-row"><span class="sum-label">👥 Состав</span><span class="sum-val" id="ta-crew" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+      <div class="sum-row"><span class="sum-label">🚁 Техника</span><span class="sum-val" id="ta-equip" style="font-size:12px">—</span></div>
+    </div>
+    <button class="btn btn-blue" onclick="nav('day-open')" id="ta-open-day-btn">☀️ Открыть день</button>
+    <button class="btn btn-outline" onclick="nav('trip-expenses-list')">📋 Расходы командировки</button>
+    <button class="btn btn-outline" onclick="nav('trip-expense')">+ Внести расход</button>
+    <div style="height:4px"></div>
+    <button class="btn btn-red" onclick="nav('trip-close')">🏁 Закрыть командировку</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ОТКРЫТЬ ДЕНЬ
+══════════════════════════════════ -->
+<div id="day-open" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Открыть день</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="form-group">
+        <label class="form-label">Дата</label>
+        <input class="form-input" id="day-date" type="date">
+      </div>
+    </div>
+
+    <!-- Поля из командировки -->
+    <div class="info-card">
+      <div class="ic-title">Поля на сегодня</div>
+      <div id="day-fields-list">
+        <!-- Заполняется из данных командировки -->
+      </div>
+      <button class="btn btn-outline" style="margin-top:8px;margin-bottom:0" onclick="showAddFieldForm()">+ Добавить поле</button>
+    </div>
+
+    <!-- Форма добавления поля (скрыта) -->
+    <div class="info-card" id="add-field-form" style="display:none">
+      <div class="ic-title">Новое поле</div>
+      <div class="form-group">
+        <label class="form-label">Название / ориентир</label>
+        <input class="form-input" id="new-field-name" type="text" placeholder="Ур. Залежь, к-з Рассвет">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Площадь план (га)</label>
+        <input class="form-input" id="new-field-ha" type="number" placeholder="50" inputmode="decimal">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Координаты (необязательно)</label>
+        <input class="form-input" id="new-field-coords" type="text" placeholder="53.123, 26.456">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" style="margin:0" onclick="addFieldToDay()">✓ Добавить</button>
+        <button class="btn btn-outline" style="margin:0" onclick="hideAddFieldForm()">Отмена</button>
+      </div>
+    </div>
+
+    <button class="btn btn-blue" onclick="openDay()" style="margin-top:4px">☀️ Открыть день!</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     АКТИВНЫЙ ДЕНЬ
+══════════════════════════════════ -->
+<div id="day-active" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title" id="da-title">День</div></div>
+  <div class="sub-wrap">
+
+    <!-- Прогресс дня -->
+    <div class="info-card">
+      <div class="ic-title">Прогресс дня</div>
+      <div class="sum-row"><span class="sum-label">Га план</span><span class="sum-val" id="da-ha-plan">0</span></div>
+      <div class="sum-row"><span class="sum-label">Га сделано</span><span class="sum-val green" id="da-ha-done">0</span></div>
+      <div class="sum-row"><span class="sum-label">Га осталось</span><span class="sum-val amber" id="da-ha-left">0</span></div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="da-progress" style="width:0%;background:var(--ga)"></div></div>
+        <div class="progress-label"><span>0%</span><span id="da-progress-pct">0%</span></div>
+      </div>
+    </div>
+
+    <!-- Список полей -->
+    <div class="ic-title" style="padding:0 2px 8px">Поля</div>
+    <div id="da-fields-wrap"></div>
+
+    <div style="height:8px"></div>
+    <button class="btn btn-outline" onclick="nav('trip-expense')">💸 Внести расход</button>
+    <button class="btn btn-red" onclick="nav('day-close')">🌙 Закрыть день</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ЗАКРЫТЬ ПОЛЕ (модальный экран)
+══════════════════════════════════ -->
+<div id="field-close" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Закрыть поле</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title" id="fc-field-name">Поле</div>
+      <div class="sum-row"><span class="sum-label">План</span><span class="sum-val" id="fc-plan">— га</span></div>
+      <div class="sum-row"><span class="sum-label">Уже сделано</span><span class="sum-val green" id="fc-done-prev">0 га</span></div>
+      <div class="sum-row"><span class="sum-label">Осталось</span><span class="sum-val amber" id="fc-left">— га</span></div>
+    </div>
+    <div class="info-card">
+      <div class="form-group">
+        <label class="form-label">Обработано сегодня (га)</label>
+        <input class="form-input" id="fc-ha-today" type="number" placeholder="0" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center" oninput="updateFieldCloseCalc()">
+      </div>
+      <div id="fc-result" style="display:none">
+        <div class="divider"></div>
+        <div class="sum-row"><span class="sum-label">Итого будет сделано</span><span class="sum-val" id="fc-total-done">—</span></div>
+        <div class="sum-row"><span class="sum-label">Остаток на завтра</span><span class="sum-val amber" id="fc-remainder">—</span></div>
+      </div>
+    </div>
+    <div id="fc-full-section" style="display:none">
+      <div class="info-card" style="background:#e8f4ed;border:1.5px solid var(--ga)">
+        <div style="text-align:center;font-size:14px;font-weight:700;color:var(--green)">✅ Поле будет закрыто полностью</div>
+        <div style="text-align:center;font-size:12px;color:var(--gm);margin-top:4px">Уведомление агроному будет отправлено</div>
+      </div>
+    </div>
+    <div id="fc-partial-section" style="display:none">
+      <div class="info-card" style="background:#f5f3ff;border:1.5px solid #8b5cf6">
+        <div style="text-align:center;font-size:14px;font-weight:700;color:#6d28d9">⏩ Остаток перейдёт на следующий день</div>
+        <div style="text-align:center;font-size:12px;color:#7c3aed;margin-top:4px">Поле появится в списке завтра автоматически</div>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="confirmFieldClose()" id="fc-confirm-btn">✓ Подтвердить</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ЗАКРЫТЬ ДЕНЬ
+══════════════════════════════════ -->
+<div id="day-close" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Закрыть день</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">Итог дня</div>
+      <div class="sum-row"><span class="sum-label">📅 Дата</span><span class="sum-val" id="dc-date">—</span></div>
+      <div class="sum-row"><span class="sum-label">🌾 Га обработано</span><span class="sum-val green" id="dc-ha">0 га</span></div>
+      <div class="sum-row"><span class="sum-label">📋 Полей закрыто</span><span class="sum-val" id="dc-fields">0</span></div>
+      <div class="sum-row"><span class="sum-label">⏩ Полей перенесено</span><span class="sum-val amber" id="dc-carried">0</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Расходы за день</div>
+      <div class="sum-row"><span class="sum-label">Потрачено сегодня</span><span class="sum-val red" id="dc-exp-today">0 BYN</span></div>
+      <div class="sum-row"><span class="sum-label">Итого по командировке</span><span class="sum-val" id="dc-exp-total">0 BYN</span></div>
+    </div>
+    <div class="info-card">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Примечание для группы (необязательно)</label>
+        <textarea class="form-input" id="dc-note" placeholder="Доп. информация по дню..."></textarea>
+      </div>
+    </div>
+    <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd">
+      <div style="font-size:12px;color:#1d4ed8;font-weight:600;text-align:center">📢 Итог дня будет отправлен в группу «Агрообработки 2026»</div>
+    </div>
+    <button class="btn btn-blue" onclick="closeDay()">🌙 Закрыть день</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ВНЕСТИ РАСХОД
+══════════════════════════════════ -->
+<div id="trip-expense" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Внести расход</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">Категория</div>
+      <div class="cat-grid">
+        <div class="cat-pill selected" onclick="selectCat(this,'diesel','⛽ Солярка')"><div class="cat-pill-ico">⛽</div><div class="cat-pill-name">Солярка</div></div>
+        <div class="cat-pill" onclick="selectCat(this,'petrol','🪣 Бензин')"><div class="cat-pill-ico">🪣</div><div class="cat-pill-name">Бензин (генератор)</div></div>
+        <div class="cat-pill" onclick="selectCat(this,'food','🍽 Питание')"><div class="cat-pill-ico">🍽</div><div class="cat-pill-name">Питание</div></div>
+        <div class="cat-pill" onclick="selectCat(this,'hotel','🏨 Проживание')"><div class="cat-pill-ico">🏨</div><div class="cat-pill-name">Проживание</div></div>
+        <div class="cat-pill" onclick="selectCat(this,'repair','🔧 Ремонт')"><div class="cat-pill-ico">🔧</div><div class="cat-pill-name">Ремонт</div></div>
+        <div class="cat-pill" onclick="selectCat(this,'other','📦 Прочее')"><div class="cat-pill-ico">📦</div><div class="cat-pill-name">Прочее</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="form-group">
+        <label class="form-label">Сумма (BYN)</label>
+        <input class="form-input" id="exp-amount" type="number" placeholder="0.00" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Комментарий (необязательно)</label>
+        <input class="form-input" id="exp-comment" type="text" placeholder="АЗС Белнефтехим, 30л">
+      </div>
+    </div>
+    <button class="btn btn-amber" onclick="addExpense()">✓ Записать расход</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ВСЕ РАСХОДЫ
+══════════════════════════════════ -->
+<div id="trip-expenses-list" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Расходы командировки</div></div>
+  <div class="sub-wrap"><div id="expenses-list-wrap"></div></div>
+</div>
+
+<!-- ══════════════════════════════════
+     ЗАКРЫТЬ КОМАНДИРОВКУ
+══════════════════════════════════ -->
+<div id="trip-close" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Закрыть командировку</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="ic-title">Итог командировки</div>
+      <div class="sum-row"><span class="sum-label">Направление</span><span class="sum-val" id="tc-direction">—</span></div>
+      <div class="sum-row"><span class="sum-label">Дней в выезде</span><span class="sum-val" id="tc-days">—</span></div>
+      <div class="sum-row"><span class="sum-label">Га обработано</span><span class="sum-val green" id="tc-ha">0 га</span></div>
+      <div class="sum-row"><span class="sum-label">Полей закрыто</span><span class="sum-val" id="tc-fields">—</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Финансовый итог</div>
+      <div class="sum-row"><span class="sum-label">Аванс выдан</span><span class="sum-val" id="tc-advance">—</span></div>
+      <div class="sum-row"><span class="sum-label">Итого потрачено</span><span class="sum-val red" id="tc-spent">—</span></div>
+      <div class="sum-row" style="border-top:2px solid var(--border);margin-top:4px"><span class="sum-label" style="font-weight:700">Остаток</span><span class="sum-val" id="tc-balance" style="font-size:18px">—</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">Остаток средств</div>
+      <div class="close-opt">
+        <div class="close-card selected" id="opt-return" onclick="selectCloseOpt('return')"><div class="close-card-ico">💰</div><div class="close-card-name">Сдал в кассу</div></div>
+        <div class="close-card" id="opt-carry" onclick="selectCloseOpt('carry')"><div class="close-card-ico">➡️</div><div class="close-card-name">Перенос на следующий</div></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Примечание</label>
+        <textarea class="form-input" id="tc-note" placeholder="Дополнительная информация..."></textarea>
+      </div>
+    </div>
+    <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd">
+      <div style="font-size:12px;color:#1d4ed8;font-weight:600;text-align:center">📢 Итог будет отправлен в «Агрообработки 2026»</div>
+    </div>
+    <button class="btn btn-green" onclick="closeTrip()">✅ Закрыть командировку</button>
+    <button class="btn btn-outline" onclick="back()">Отмена</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     СТАНДАРТНЫЕ ЭКРАНЫ
+══════════════════════════════════ -->
 <div id="stats" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Моя статистика</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">📊</div>
-      <div class="empty-t">Статистика</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Моя статистика</div></div>
+  <div class="sub-wrap"><div class="empty"><div class="empty-ico">📊</div><div class="empty-t">Статистика</div><div class="empty-s">Функция в разработке</div></div></div>
 </div>
-
-<!-- EQUIP -->
-<div id="equip" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Состояние дрона</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">🚁</div>
-      <div class="empty-t">Техника</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-<!-- TRAILER -->
-<div id="trailer" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Прицеп / генератор</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">🛢</div>
-      <div class="empty-t">Оснащение</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-<!-- WEATHER -->
 <div id="weather" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Погода</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">🌤</div>
-      <div class="empty-t">Метео</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Погода</div></div>
+  <div class="sub-wrap"><div class="empty"><div class="empty-ico">🌤</div><div class="empty-t">Метео</div><div class="empty-s">Функция в разработке</div></div></div>
 </div>
-
-<!-- DOCS -->
 <div id="docs" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Документы</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">📋</div>
-      <div class="empty-t">Документы</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Документы</div></div>
+  <div class="sub-wrap"><div class="empty"><div class="empty-ico">📋</div><div class="empty-t">Документы</div><div class="empty-s">Функция в разработке</div></div></div>
 </div>
-
-<!-- CONTACTS -->
 <div id="contacts" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Связь</div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Связь</div></div>
   <div class="sub-wrap">
     <div class="info-card">
       <div class="ic-title">Контакты АТК</div>
-      <div class="ic-row">
-        <span class="ic-label">📡 РП (Костко Л.В.)</span>
-        <span class="ic-val">+375 XX XXX-XX-XX</span>
-      </div>
-      <div class="ic-row">
-        <span class="ic-label">👔 Координатор</span>
-        <span class="ic-val">+375 XX XXX-XX-XX</span>
-      </div>
+      <div class="ic-row"><span class="ic-label">📡 РП (Костко Л.В.)</span><span class="ic-val">+375 XX XXX-XX-XX</span></div>
+      <div class="ic-row"><span class="ic-label">👔 Координатор</span><span class="ic-val">+375 XX XXX-XX-XX</span></div>
     </div>
   </div>
 </div>
-
-<!-- CURATOR LIST -->
 <div id="curator-list" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Мои обращения</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">👔</div>
-      <div class="empty-t">Обращения</div>
-      <div class="empty-s">У вас пока нет обращений</div>
-    </div>
-  </div>
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Мои обращения</div></div>
+  <div class="sub-wrap"><div class="empty"><div class="empty-ico">👔</div><div class="empty-t">Обращения</div><div class="empty-s">Нет обращений</div></div></div>
 </div>
 
-<!-- CURATOR NEW (SENIOR ONLY) -->
-<div id="curator-new" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Куратор</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">📝</div>
-      <div class="empty-t">Создать обращение</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-<!-- ACCEPT (SENIOR ONLY) -->
-<div id="accept" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Принять поле</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">📥</div>
-      <div class="empty-t">Принятие поля</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-<!-- CLOSE (SENIOR ONLY) -->
-<div id="close" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Поле отработано</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">✅</div>
-      <div class="empty-t">Закрытие поля</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-<!-- SHIFT START (SENIOR ONLY) -->
-<div id="shift-start" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">Начать выезд</div>
-  </div>
-  <div class="sub-wrap">
-    <div class="empty">
-      <div class="empty-ico">▶️</div>
-      <div class="empty-t">Старт выезда</div>
-      <div class="empty-s">Функция в разработке</div>
-    </div>
-  </div>
-</div>
-
-</div>
-
-<!-- TOAST -->
+</div><!-- /scroll -->
 <div id="toast" class="toast"></div>
 
 <script>
-// GOOGLE SHEETS API CONFIG
+// ══════════════════════════════════
+// CONFIG
+// ══════════════════════════════════
 const SPREADSHEET_ID = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
 const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
-const SHEET_OPERATORS = 'ОПЕРАТОРЫ';
-const SHEET_TECHNICIANS = 'ТЕХНИКИ';
-const SHEET_FLIGHTS = 'ПОЛЁТЫ';
 
-// Google Sheets API endpoint
-function getSheetURL(sheetName) {
-  return `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let STATE = { opName:'Оператор', opId:'op_001', isBrigadier:true };
+let navHistory = ['main'];
+let selectedCatData = { key:'diesel', label:'⛽ Солярка' };
+let closeOption = 'return';
+let currentFieldId = null; // для закрытия поля
+
+// ══════════════════════════════════
+// STORAGE
+// ══════════════════════════════════
+function getTrip() { try { return JSON.parse(localStorage.getItem('atk_trip')||'null'); } catch(e){ return null; } }
+function saveTrip(t) { localStorage.setItem('atk_trip', JSON.stringify(t)); }
+function clearTrip() { localStorage.removeItem('atk_trip'); }
+function getDay() { try { return JSON.parse(localStorage.getItem('atk_day')||'null'); } catch(e){ return null; } }
+function saveDay(d) { localStorage.setItem('atk_day', JSON.stringify(d)); }
+function clearDay() { localStorage.removeItem('atk_day'); }
+
+// ══════════════════════════════════
+// ОТКРЫТЬ КОМАНДИРОВКУ
+// ══════════════════════════════════
+function openTrip() {
+  const direction = document.getElementById('trip-direction').value.trim();
+  const dateVal   = document.getElementById('trip-date').value;
+  const advance   = parseFloat(document.getElementById('trip-advance').value);
+  if (!direction) { showToast('⚠️ Укажите направление'); return; }
+  if (!dateVal)   { showToast('⚠️ Укажите дату'); return; }
+  if (!advance || advance <= 0) { showToast('⚠️ Укажите аванс'); return; }
+
+  const crew = Array.from(document.querySelectorAll('#trip-crew-list .check-item.selected'))
+                    .map(el => el.querySelector('.check-label').textContent);
+  const equip = ['А60-ХМ','А70-ХМ','А1-Х'].filter(name => {
+    return Array.from(document.querySelectorAll('.check-item.selected'))
+                .some(el => el.querySelector('.check-label').textContent === name);
+  });
+
+  const trip = {
+    id: 'TRIP-' + Date.now(),
+    direction, dateStart: dateVal, advance,
+    spent: 0, ha: 0,
+    crew, equip,
+    expenses: [], days: [],
+    status: 'active', closeOption: 'return',
+    pendingFields: [] // поля перенесённые из предыдущих дней
+  };
+  saveTrip(trip);
+  updateMainBanner();
+  showToast('🚐 Командировка открыта!');
+  // → уведомление в группу (Make)
+  logNotify('trip_open', trip);
+  goHome();
 }
 
-// STATE
-let STATE = {
-  operator: 'current', // Оператор определяется при входе через бот
-  opName: 'Оператор',
-  opRole: 'Оператор АТК',
-  role: 'operator' // 'brigadier' or 'operator'
-};
-let history = ['main'];
+// ══════════════════════════════════
+// ОТКРЫТЬ ДЕНЬ
+// ══════════════════════════════════
+let dayFields = []; // временный список полей при открытии дня
 
-// LOAD OPERATORS FROM GOOGLE SHEETS
-async function loadOperators() {
-  try {
-    const response = await fetch(getSheetURL(SHEET_OPERATORS));
-    const data = await response.json();
-    
-    if (!data.values || data.values.length < 2) {
-      console.error('No operators data found');
-      return [];
+function renderDayFieldsList() {
+  const wrap = document.getElementById('day-fields-list');
+  const trip = getTrip();
+
+  // Собираем поля: перенесённые из прошлых дней + добавленные вручную
+  const pending = (trip && trip.pendingFields) ? trip.pendingFields : [];
+
+  let html = '';
+  // Перенесённые поля
+  pending.forEach(f => {
+    html += `<div class="field-card status-partial" style="margin-bottom:8px">
+      <div class="field-top">
+        <div class="field-name">⏩ ${f.name}</div>
+        <span class="field-badge badge-partial">Перенос</span>
+      </div>
+      <div class="field-row">Осталось: <span>${f.haLeft} га</span> из ${f.haPlan} га</div>
+    </div>`;
+  });
+  // Добавленные вручную
+  dayFields.forEach((f, i) => {
+    html += `<div class="field-card status-pending" style="margin-bottom:8px">
+      <div class="field-top">
+        <div class="field-name">${f.name}</div>
+        <span class="field-badge badge-pending">${f.haPlan} га</span>
+      </div>
+      <div class="field-row">Координаты: <span>${f.coords||'—'}</span></div>
+      <div class="field-actions">
+        <button class="fa-btn fa-btn-amber" onclick="removeDayField(${i})">✕ Убрать</button>
+      </div>
+    </div>`;
+  });
+
+  if (!html) {
+    html = '<div style="text-align:center;padding:16px 0;color:var(--t3);font-size:13px">Добавьте поля на сегодня</div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function showAddFieldForm() {
+  document.getElementById('add-field-form').style.display = 'block';
+  document.getElementById('new-field-name').focus();
+}
+function hideAddFieldForm() {
+  document.getElementById('add-field-form').style.display = 'none';
+  document.getElementById('new-field-name').value = '';
+  document.getElementById('new-field-ha').value = '';
+  document.getElementById('new-field-coords').value = '';
+}
+
+function addFieldToDay() {
+  const name = document.getElementById('new-field-name').value.trim();
+  const ha   = parseFloat(document.getElementById('new-field-ha').value);
+  const coords = document.getElementById('new-field-coords').value.trim();
+  if (!name) { showToast('⚠️ Укажите название поля'); return; }
+  if (!ha || ha <= 0) { showToast('⚠️ Укажите площадь'); return; }
+  dayFields.push({ id: 'F-' + Date.now(), name, haPlan: ha, coords, haDone: 0, haLeft: ha, status: 'pending' });
+  hideAddFieldForm();
+  renderDayFieldsList();
+  showToast('✓ Поле добавлено');
+}
+
+function removeDayField(idx) {
+  dayFields.splice(idx, 1);
+  renderDayFieldsList();
+}
+
+function openDay() {
+  const trip = getTrip();
+  if (!trip) { showToast('❌ Нет активной командировки'); return; }
+  const dateVal = document.getElementById('day-date').value;
+  if (!dateVal) { showToast('⚠️ Укажите дату'); return; }
+
+  // Собрать поля: перенесённые + новые
+  const pending = trip.pendingFields || [];
+  const allFields = [
+    ...pending.map(f => ({...f, status:'pending'})),
+    ...dayFields
+  ];
+  if (allFields.length === 0) { showToast('⚠️ Добавьте хотя бы одно поле'); return; }
+
+  const day = {
+    id: 'DAY-' + Date.now(),
+    tripId: trip.id,
+    date: dateVal,
+    dayNum: (trip.days ? trip.days.length : 0) + 1,
+    fields: allFields,
+    haDone: 0, haPlan: allFields.reduce((s,f) => s + f.haLeft, 0),
+    expensesToday: 0,
+    status: 'active'
+  };
+  saveDay(day);
+
+  // Очистить pendingFields в командировке
+  trip.pendingFields = [];
+  saveTrip(trip);
+
+  // Сбросить временный список
+  dayFields = [];
+
+  updateMainBanner();
+  showToast('☀️ День ' + day.dayNum + ' открыт!');
+  // → уведомление в группу (Make)
+  logNotify('day_open', day);
+  goHome();
+}
+
+// ══════════════════════════════════
+// РЕНДЕР АКТИВНОГО ДНЯ
+// ══════════════════════════════════
+function renderDayActive() {
+  const day = getDay();
+  if (!day) return;
+
+  document.getElementById('da-title').textContent = 'День ' + day.dayNum + ' · ' + formatDate(day.date);
+  document.getElementById('da-ha-plan').textContent = day.haPlan + ' га';
+
+  const haDone = day.fields.reduce((s,f) => s + (f.haDone||0), 0);
+  const haLeft = day.haPlan - haDone;
+  const pct = day.haPlan > 0 ? Math.round(haDone / day.haPlan * 100) : 0;
+
+  document.getElementById('da-ha-done').textContent = haDone + ' га';
+  document.getElementById('da-ha-left').textContent = haLeft + ' га';
+  document.getElementById('da-progress').style.width = pct + '%';
+  document.getElementById('da-progress-pct').textContent = pct + '%';
+  document.querySelector('#da-progress').previousElementSibling && null;
+  document.querySelectorAll('.progress-label span')[0].textContent = '0%';
+  document.querySelectorAll('.progress-label span')[1].textContent = pct + '%';
+
+  // Список полей
+  const catIco = {pending:'🟡',active:'🔵',partial:'🟣',done:'✅'};
+  let html = '';
+  day.fields.forEach(f => {
+    const isDone = f.status === 'done';
+    const isPartial = f.status === 'partial';
+    html += `<div class="field-card status-${f.status}">
+      <div class="field-top">
+        <div class="field-name">${f.name}</div>
+        <span class="field-badge badge-${f.status}">${statusLabel(f.status)}</span>
+      </div>
+      <div class="field-row" style="margin-bottom:6px">
+        План: <span>${f.haPlan} га</span>&nbsp;&nbsp;
+        Сделано: <span>${f.haDone||0} га</span>&nbsp;&nbsp;
+        Осталось: <span>${f.haLeft} га</span>
+      </div>
+      <div class="progress-wrap" style="margin:0 0 8px">
+        <div class="progress-bar"><div class="progress-fill" style="width:${f.haPlan>0?Math.round((f.haDone||0)/f.haPlan*100):0}%;background:${isDone?'var(--ga)':'#8b5cf6'}"></div></div>
+      </div>
+      ${!isDone ? `<div class="field-actions">
+        <button class="fa-btn fa-btn-green" onclick="openFieldClose('${f.id}')">✓ Закрыть поле</button>
+      </div>` : ''}
+    </div>`;
+  });
+  document.getElementById('da-fields-wrap').innerHTML = html;
+}
+
+function statusLabel(s) {
+  return {pending:'Ожидает',active:'В работе',partial:'Частично',done:'Готово'}[s]||s;
+}
+
+// ══════════════════════════════════
+// ЗАКРЫТЬ ПОЛЕ
+// ══════════════════════════════════
+function openFieldClose(fieldId) {
+  const day = getDay();
+  if (!day) return;
+  const field = day.fields.find(f => f.id === fieldId);
+  if (!field) return;
+  currentFieldId = fieldId;
+
+  document.getElementById('fc-field-name').textContent = field.name;
+  document.getElementById('fc-plan').textContent = field.haPlan + ' га';
+  document.getElementById('fc-done-prev').textContent = (field.haDone||0) + ' га';
+  document.getElementById('fc-left').textContent = field.haLeft + ' га';
+  document.getElementById('fc-ha-today').value = '';
+  document.getElementById('fc-result').style.display = 'none';
+  document.getElementById('fc-full-section').style.display = 'none';
+  document.getElementById('fc-partial-section').style.display = 'none';
+
+  nav('field-close');
+}
+
+function updateFieldCloseCalc() {
+  const day = getDay();
+  if (!day || !currentFieldId) return;
+  const field = day.fields.find(f => f.id === currentFieldId);
+  const haToday = parseFloat(document.getElementById('fc-ha-today').value) || 0;
+  if (haToday <= 0) {
+    document.getElementById('fc-result').style.display = 'none';
+    document.getElementById('fc-full-section').style.display = 'none';
+    document.getElementById('fc-partial-section').style.display = 'none';
+    return;
+  }
+  const totalDone = (field.haDone||0) + haToday;
+  const remainder = field.haPlan - totalDone;
+  document.getElementById('fc-total-done').textContent = totalDone.toFixed(1) + ' га';
+  document.getElementById('fc-remainder').textContent = remainder > 0 ? remainder.toFixed(1) + ' га' : '0 га';
+  document.getElementById('fc-result').style.display = 'block';
+  document.getElementById('fc-full-section').style.display = remainder <= 0 ? 'block' : 'none';
+  document.getElementById('fc-partial-section').style.display = remainder > 0 ? 'block' : 'none';
+}
+
+function confirmFieldClose() {
+  const day = getDay();
+  const trip = getTrip();
+  if (!day || !currentFieldId) return;
+  const haToday = parseFloat(document.getElementById('fc-ha-today').value) || 0;
+  if (haToday <= 0) { showToast('⚠️ Введите количество га'); return; }
+
+  const fieldIdx = day.fields.findIndex(f => f.id === currentFieldId);
+  const field = day.fields[fieldIdx];
+  const totalDone = (field.haDone||0) + haToday;
+  const remainder = field.haPlan - totalDone;
+
+  field.haDone = totalDone;
+  field.haLeft = Math.max(0, remainder);
+  field.status = remainder <= 0 ? 'done' : 'partial';
+
+  // Если частично — добавить в pendingFields командировки
+  if (remainder > 0 && trip) {
+    const already = trip.pendingFields.findIndex(p => p.id === field.id);
+    const carried = { ...field, haLeft: remainder, haDone: totalDone, status:'pending' };
+    if (already >= 0) trip.pendingFields[already] = carried;
+    else trip.pendingFields.push(carried);
+    saveTrip(trip);
+    showToast('⏩ ' + remainder.toFixed(1) + ' га перенесено на завтра');
+    // → уведомление агроному (Make)
+    logNotify('field_partial', { field, haToday, remainder });
+  } else {
+    showToast('✅ Поле закрыто: ' + totalDone.toFixed(1) + ' га');
+    // → уведомление агроному (Make)
+    logNotify('field_done', { field, haToday });
+    // Убрать из pending если было там
+    if (trip) {
+      trip.pendingFields = trip.pendingFields.filter(p => p.id !== field.id);
+      saveTrip(trip);
     }
-    
-    // Первая строка — заголовки, пропускаем
-    const rows = data.values.slice(1);
-    
-    // Формат колонок:
-    // A: ID, B: ФИО, C: Телефон, D: Район РБ, E: Сертификат БАК,
-    // F: Часов налёта, G: Статус, H: Дата регистрации, I: Telegram ID,
-    // J: Тип, K: Га за сезон, L: Выездов
-    const operators = rows.map(row => ({
-      id: row[0] || '',
-      name: row[1] || '',
-      phone: row[2] || '',
-      region: row[3] || '',
-      cert: row[4] || '',
-      hours: row[5] || '0',
-      status: row[6] || 'Активен',
-      regDate: row[7] || '',
-      telegramId: row[8] || '',
-      type: row[9] || 'Оператор',
-      hectares: row[10] || '0',
-      trips: row[11] || '0'
-    })).filter(op => op.status === 'Активен' && op.name);
-    
-    console.log('Loaded operators from Sheets:', operators);
-    return operators;
-  } catch (error) {
-    console.error('Error loading operators:', error);
-    showToast('❌ Ошибка загрузки данных');
-    return [];
+  }
+
+  saveDay(day);
+  updateMainBanner();
+  back(); // вернуться в день
+  setTimeout(() => renderDayActive(), 100);
+}
+
+// ══════════════════════════════════
+// ЗАКРЫТЬ ДЕНЬ
+// ══════════════════════════════════
+function renderDayClose() {
+  const day = getDay();
+  const trip = getTrip();
+  if (!day) return;
+  const haDone = day.fields.reduce((s,f) => s + (f.haDone||0), 0);
+  const fieldsDone = day.fields.filter(f => f.status === 'done').length;
+  const fieldsCarried = day.fields.filter(f => f.status === 'partial').length;
+
+  // Расходы за день (с момента открытия дня)
+  const expToday = trip ? (trip.expenses || []).filter(e => e.dayId === day.id).reduce((s,e) => s + e.amount, 0) : 0;
+  const expTotal = trip ? trip.spent : 0;
+
+  document.getElementById('dc-date').textContent = formatDate(day.date);
+  document.getElementById('dc-ha').textContent = haDone + ' га';
+  document.getElementById('dc-fields').textContent = fieldsDone;
+  document.getElementById('dc-carried').textContent = fieldsCarried;
+  document.getElementById('dc-exp-today').textContent = expToday.toFixed(2) + ' BYN';
+  document.getElementById('dc-exp-total').textContent = expTotal.toFixed(2) + ' BYN';
+}
+
+function closeDay() {
+  const day = getDay();
+  const trip = getTrip();
+  if (!day) return;
+
+  const haDone = day.fields.reduce((s,f) => s + (f.haDone||0), 0);
+  day.haDone = haDone;
+  day.status = 'closed';
+  day.note = document.getElementById('dc-note').value.trim();
+  day.closedAt = new Date().toISOString();
+
+  // Добавить день в историю командировки
+  if (trip) {
+    if (!trip.days) trip.days = [];
+    trip.days.push({ ...day });
+    trip.ha = (trip.ha||0) + haDone;
+    saveTrip(trip);
+  }
+
+  clearDay();
+  updateMainBanner();
+  showToast('🌙 День ' + day.dayNum + ' закрыт!');
+  // → уведомление в группу (Make)
+  logNotify('day_close', day);
+  goHome();
+}
+
+// ══════════════════════════════════
+// РАСХОДЫ
+// ══════════════════════════════════
+function selectCat(el, key, label) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCatData = { key, label };
+}
+
+function addExpense() {
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const comment = document.getElementById('exp-comment').value.trim();
+  if (!amount || amount <= 0) { showToast('⚠️ Введите сумму'); return; }
+  const trip = getTrip();
+  if (!trip) { showToast('❌ Нет активной командировки'); return; }
+  const day = getDay();
+
+  const expense = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('ru-RU'),
+    time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+    cat: selectedCatData.key, label: selectedCatData.label,
+    amount, comment,
+    dayId: day ? day.id : null
+  };
+  trip.expenses = trip.expenses || [];
+  trip.expenses.push(expense);
+  trip.spent = trip.expenses.reduce((s,e) => s + e.amount, 0);
+  saveTrip(trip);
+
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-comment').value = '';
+  updateMainBanner();
+  showToast('✓ Расход: ' + amount.toFixed(2) + ' BYN');
+  back();
+}
+
+function renderExpensesList() {
+  const trip = getTrip();
+  const wrap = document.getElementById('expenses-list-wrap');
+  const catIco = { diesel:'⛽', petrol:'🪣', food:'🍽', hotel:'🏨', repair:'🔧', other:'📦' };
+  if (!trip || !trip.expenses || trip.expenses.length === 0) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>';
+    return;
+  }
+  let html = '';
+  trip.expenses.slice().reverse().forEach(e => {
+    html += `<div class="exp-item">
+      <div class="exp-cat">${catIco[e.cat]||'📦'}</div>
+      <div class="exp-info"><div class="exp-name">${e.label}${e.comment?' · '+e.comment:''}</div><div class="exp-date">${e.date} ${e.time}</div></div>
+      <div class="exp-sum">−${e.amount.toFixed(2)}</div>
+    </div>`;
+  });
+  const balance = trip.advance - trip.spent;
+  html += `<div class="info-card" style="margin-top:4px">
+    <div class="sum-row"><span class="sum-label" style="font-weight:700">Итого потрачено</span><span class="sum-val red">${trip.spent.toFixed(2)} BYN</span></div>
+    <div class="sum-row"><span class="sum-label" style="font-weight:700">Остаток</span><span class="sum-val ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>
+  </div>`;
+  wrap.innerHTML = html;
+}
+
+// ══════════════════════════════════
+// ЗАКРЫТЬ КОМАНДИРОВКУ
+// ══════════════════════════════════
+function renderTripActive() {
+  const trip = getTrip();
+  if (!trip) return;
+  const days = daysDiff(trip.dateStart);
+  const balance = trip.advance - trip.spent;
+  document.getElementById('ta-title').textContent = trip.direction;
+  document.getElementById('ta-advance').textContent = trip.advance.toFixed(2) + ' BYN';
+  document.getElementById('ta-spent').textContent = trip.spent.toFixed(2) + ' BYN';
+  document.getElementById('ta-balance').textContent = balance.toFixed(2) + ' BYN';
+  document.getElementById('ta-balance').className = 'sum-val ' + (balance >= 0 ? 'green' : 'red');
+  document.getElementById('ta-days').textContent = days;
+  document.getElementById('ta-ha').textContent = (trip.ha||0) + ' га';
+  document.getElementById('ta-crew').textContent = (trip.crew||[]).join(', ') || '—';
+  document.getElementById('ta-equip').textContent = (trip.equip||[]).join(', ') || '—';
+  // Если день уже открыт — скрыть кнопку
+  const day = getDay();
+  document.getElementById('ta-open-day-btn').style.display = day ? 'none' : 'block';
+}
+
+function renderTripClose() {
+  const trip = getTrip();
+  if (!trip) return;
+  const days = daysDiff(trip.dateStart);
+  const balance = trip.advance - trip.spent;
+  const totalFields = (trip.days||[]).reduce((s,d) => s + (d.fields||[]).filter(f=>f.status==='done').length, 0);
+  document.getElementById('tc-direction').textContent = trip.direction;
+  document.getElementById('tc-days').textContent = days + ' ' + pluralDays(days);
+  document.getElementById('tc-ha').textContent = (trip.ha||0) + ' га';
+  document.getElementById('tc-fields').textContent = totalFields;
+  document.getElementById('tc-advance').textContent = trip.advance.toFixed(2) + ' BYN';
+  document.getElementById('tc-spent').textContent = trip.spent.toFixed(2) + ' BYN';
+  document.getElementById('tc-balance').textContent = balance.toFixed(2) + ' BYN';
+  document.getElementById('tc-balance').className = 'sum-val ' + (balance >= 0 ? 'green' : 'red');
+}
+
+function selectCloseOpt(opt) {
+  closeOption = opt;
+  document.getElementById('opt-return').classList.toggle('selected', opt === 'return');
+  document.getElementById('opt-carry').classList.toggle('selected', opt === 'carry');
+}
+
+function closeTrip() {
+  const trip = getTrip();
+  if (!trip) return;
+  trip.status = 'closed';
+  trip.dateEnd = new Date().toISOString().split('T')[0];
+  trip.closeOption = closeOption;
+  trip.note = document.getElementById('tc-note').value.trim();
+  logNotify('trip_close', trip);
+  clearTrip();
+  clearDay();
+  updateMainBanner();
+  showToast('✅ Командировка закрыта!');
+  goHome();
+}
+
+// ══════════════════════════════════
+// БАННЕРЫ НА ГЛАВНОМ
+// ══════════════════════════════════
+function updateMainBanner() {
+  const trip = getTrip();
+  const day  = getDay();
+
+  // Командировка
+  const tripBanner = document.getElementById('main-trip-banner');
+  const openBtn    = document.getElementById('trip-open-btn');
+  const dayOpenBtn = document.getElementById('day-open-btn');
+  const expBtn     = document.getElementById('expense-btn');
+
+  if (trip) {
+    const balance = trip.advance - trip.spent;
+    document.getElementById('tb-direction').textContent = '📍 ' + trip.direction;
+    document.getElementById('tb-day-badge').textContent = 'День ' + daysDiff(trip.dateStart);
+    document.getElementById('tb-balance').textContent = balance.toFixed(0);
+    document.getElementById('tb-ha-total').textContent = trip.ha||0;
+    document.getElementById('tb-exp-cnt').textContent = (trip.expenses||[]).length;
+    tripBanner.style.display = 'block';
+    openBtn.style.display = 'none';
+    dayOpenBtn.style.display = day ? 'none' : 'flex';
+    expBtn.style.display = 'flex';
+  } else {
+    tripBanner.style.display = 'none';
+    openBtn.style.display = 'flex';
+    dayOpenBtn.style.display = 'none';
+    expBtn.style.display = 'none';
+  }
+
+  // День
+  const dayBanner = document.getElementById('main-day-banner');
+  if (day) {
+    const haDone = (day.fields||[]).reduce((s,f) => s + (f.haDone||0), 0);
+    const haLeft = day.haPlan - haDone;
+    const fieldsDone = (day.fields||[]).filter(f=>f.status==='done').length;
+    document.getElementById('db-date').textContent = formatDate(day.date) + ' · День ' + day.dayNum;
+    document.getElementById('db-fields-badge').textContent = day.fields.length + ' ' + pluralFields(day.fields.length);
+    document.getElementById('db-ha-done').textContent = haDone;
+    document.getElementById('db-ha-left').textContent = haLeft;
+    document.getElementById('db-fields-done').textContent = fieldsDone + '/' + day.fields.length;
+    dayBanner.style.display = 'block';
+    dayOpenBtn.style.display = 'none';
+  } else {
+    dayBanner.style.display = 'none';
   }
 }
 
-// SELECT OPERATOR
-function selectOp(id, name, role) {
-  STATE.operator = id;
-  STATE.opName = name;
-  STATE.opRole = role;
-  
-  document.getElementById('role-sub').textContent = name + ', как вы сегодня работаете?';
-  
-  nav('role-select');
+// ══════════════════════════════════
+// ЛОГИРОВАНИЕ УВЕДОМЛЕНИЙ (заготовка для Make)
+// ══════════════════════════════════
+function logNotify(event, data) {
+  console.log('[NOTIFY]', event, data);
+  // Здесь будет вызов Make webhook
+  // fetch('https://hook.eu2.make.com/...', { method:'POST', body: JSON.stringify({event, data}) })
 }
 
-// SELECT ROLE
-function selectRole(role) {
-  STATE.role = role;
-  
-  document.getElementById('op-chip').textContent = STATE.opName;
-  document.getElementById('op-chip').style.display = 'block';
-  
-  const isBrigadier = role === 'brigadier';
-  
-  // Show role banner
-  document.getElementById('role-banner').style.display = 'flex';
-  document.getElementById('role-banner').style.background = isBrigadier 
-    ? 'linear-gradient(135deg,#d97706,#b45309)' 
-    : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
-  
-  document.getElementById('rb-ico').textContent = isBrigadier ? '⚡' : '👤';
-  document.getElementById('rb-title').textContent = isBrigadier ? 'Бригадир' : 'Оператор';
-  document.getElementById('rb-sub').textContent = isBrigadier ? 'Полный доступ к управлению' : 'Базовый функционал';
-  
-  // Show/hide brigadier menu
-  document.getElementById('brigadier-menu').style.display = isBrigadier ? 'block' : 'none';
-  document.getElementById('brigadier-curator').style.display = isBrigadier ? 'block' : 'none';
-  
-  showToast(isBrigadier ? '⚡ Бригадир: полный доступ' : '👤 Оператор: базовое меню');
-  
-  nav('main');
+// ══════════════════════════════════
+// UTILS
+// ══════════════════════════════════
+function daysDiff(dateStr) {
+  const start = new Date(dateStr);
+  const now = new Date();
+  return Math.max(1, Math.floor((now - start) / 86400000) + 1);
+}
+function pluralDays(n) {
+  if (n%10===1 && n%100!==11) return 'день';
+  if ([2,3,4].includes(n%10) && ![12,13,14].includes(n%100)) return 'дня';
+  return 'дней';
+}
+function pluralFields(n) {
+  if (n%10===1 && n%100!==11) return 'поле';
+  if ([2,3,4].includes(n%10) && ![12,13,14].includes(n%100)) return 'поля';
+  return 'полей';
+}
+function formatDate(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return d + '.' + m + '.' + y;
+}
+function toggleCheck(el) {
+  el.classList.toggle('selected');
+  el.querySelector('.check-box').textContent = el.classList.contains('selected') ? '✓' : '';
 }
 
-// LOGOUT
+// ══════════════════════════════════
+// НАВИГАЦИЯ
+// ══════════════════════════════════
+function nav(screen) {
+  showScreen(screen);
+  navHistory.push(screen);
+  if (screen === 'trip-active')        renderTripActive();
+  if (screen === 'trip-expenses-list') renderExpensesList();
+  if (screen === 'trip-close')         renderTripClose();
+  if (screen === 'day-open')           { dayFields = []; renderDayFieldsList(); document.getElementById('day-date').value = new Date().toISOString().split('T')[0]; }
+  if (screen === 'day-active')         renderDayActive();
+  if (screen === 'day-close')          renderDayClose();
+}
+function back() {
+  if (navHistory.length > 1) {
+    navHistory.pop();
+    const prev = navHistory[navHistory.length - 1];
+    showScreen(prev);
+    if (prev === 'day-active') renderDayActive();
+  }
+}
+function goHome() {
+  navHistory = ['main'];
+  showScreen('main');
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
 function logout() {
-  STATE = { operator: 'current', opName: 'Оператор', opRole: 'Оператор АТК', role: 'operator' };
-  document.getElementById('op-chip').style.display = 'none';
-  history = ['main'];
+  navHistory = ['main'];
   showScreen('main');
 }
 
-// NAVIGATION
-function nav(screen) {
-  showScreen(screen);
-  history.push(screen);
-}
-
-function back() {
-  if (history.length > 1) {
-    history.pop();
-    const prev = history[history.length - 1];
-    showScreen(prev);
-  }
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
+// ══════════════════════════════════
 // TOAST
+// ══════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -666,43 +1239,52 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// INIT ON PAGE LOAD
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+async function loadOperators() {
+  try {
+    const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/ОПЕРАТОРЫ?key=${API_KEY}`);
+    const d = await r.json();
+    if (!d.values || d.values.length < 2) return [];
+    return d.values.slice(1).map(row => ({
+      id:row[0]||'', name:row[1]||'', hours:row[5]||'0',
+      status:row[6]||'Активен', telegramId:row[8]||'',
+      type:row[9]||'Оператор', hectares:row[10]||'0'
+    })).filter(o => o.status==='Активен' && o.name);
+  } catch(e) { return []; }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-  // Загружаем операторов из таблицы
+  document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('day-date').value  = new Date().toISOString().split('T')[0];
+
   const operators = await loadOperators();
-  
-  if (operators.length > 0) {
-    // Для демонстрации — берём первого оператора
-    // В реальном боте — оператор определяется по Telegram ID
-    const currentOperator = operators[0];
-    
-    STATE.operator = currentOperator.id;
-    STATE.opName = currentOperator.name;
-    STATE.opRole = currentOperator.type;
-    
-    // Показываем имя в чипе
-    document.getElementById('op-chip').textContent = currentOperator.name;
-    document.getElementById('op-chip').style.display = 'block';
-    
-    // Определяем роль (для демо — все операторы)
-    STATE.role = 'operator';
-    
-    // Показываем баннер роли
-    document.getElementById('role-banner').style.display = 'flex';
-    document.getElementById('role-banner').style.background = 'linear-gradient(135deg,#1b5935,#2a7a4a)';
-    document.getElementById('rb-ico').textContent = '👤';
-    document.getElementById('rb-title').textContent = 'Оператор';
-    document.getElementById('rb-sub').textContent = `${currentOperator.hours} ч налёта · ${currentOperator.hectares} га за сезон`;
-    
-    console.log('✅ Loaded operator:', currentOperator);
-    showToast(`👋 Привет, ${currentOperator.name.split(' ')[0]}!`);
-  } else {
-    console.error('❌ No operators found in the table');
-    showToast('❌ Операторы не найдены');
+  const op = operators.length > 0 ? operators[0] : { id:'op_001', name:'Бруй Д.А.', type:'Бригадир', hours:'12', hectares:'145' };
+
+  STATE.opId   = op.id;
+  STATE.opName = op.name;
+  STATE.isBrigadier = op.id === 'op_001' || op.type === 'Бригадир';
+
+  document.getElementById('op-chip').textContent = op.name;
+  document.getElementById('op-chip').style.display = 'block';
+
+  const banner = document.getElementById('role-banner');
+  banner.style.display = 'flex';
+  banner.style.background = STATE.isBrigadier
+    ? 'linear-gradient(135deg,#d97706,#b45309)'
+    : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
+  document.getElementById('rb-ico').textContent = STATE.isBrigadier ? '⚡' : '👤';
+  document.getElementById('rb-title').textContent = STATE.isBrigadier ? 'Бригадир' : 'Оператор';
+  document.getElementById('rb-sub').textContent = op.hours + ' ч · ' + op.hectares + ' га за сезон';
+
+  if (STATE.isBrigadier) {
+    document.getElementById('brigadier-menu').style.display = 'block';
+    updateMainBanner();
   }
+
+  showToast('👋 ' + op.name.split(' ')[0] + ', привет!');
 });
-
 </script>
-
 </body>
 </html>
