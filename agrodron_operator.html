@@ -187,11 +187,7 @@ textarea.form-input{resize:none;min-height:70px}
 <body>
 
 <!-- TG CHROME -->
-<div class="tg">
-  <div class="tg-l" onclick="logout()">‹ Сменить</div>
-  <div class="tg-m"><div class="tg-t">AgroDrone.BY</div><div class="tg-s">@AgroDron_BY_Bot</div></div>
-  <div class="tg-r">⋮</div>
-</div>
+
 
 <!-- APP HEADER -->
 <div class="app-hdr">
@@ -383,11 +379,22 @@ textarea.form-input{resize:none;min-height:70px}
 
     <!-- Поля из командировки -->
     <div class="info-card">
-      <div class="ic-title">Поля на сегодня</div>
-      <div id="day-fields-list">
-        <!-- Заполняется из данных командировки -->
+      <div class="ic-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Поля на сегодня</span>
+        <button onclick="loadFieldsFromScript()" style="background:var(--gl);color:var(--green);border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">↻ Из таблицы</button>
       </div>
-      <button class="btn btn-outline" style="margin-top:8px;margin-bottom:0" onclick="showAddFieldForm()">+ Добавить поле</button>
+      <div id="day-fields-list"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="showFieldPicker()">📋 Из списка</button>
+        <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="showAddFieldForm()">✏️ Добавить сам</button>
+      </div>
+    </div>
+
+    <!-- Picker полей из таблицы -->
+    <div class="info-card" id="field-picker" style="display:none">
+      <div class="ic-title">Выбрать поле из таблицы</div>
+      <div id="field-picker-list"><div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Загрузка...</div></div>
+      <button class="btn btn-outline" style="margin-top:8px;margin-bottom:0" onclick="hideFieldPicker()">Закрыть</button>
     </div>
 
     <!-- Форма добавления поля (скрыта) -->
@@ -539,6 +546,19 @@ textarea.form-input{resize:none;min-height:70px}
         <label class="form-label">Сумма (BYN)</label>
         <input class="form-input" id="exp-amount" type="number" placeholder="0.00" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center">
       </div>
+      <div class="form-group">
+        <label class="form-label">Тип оплаты</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div id="pay-cash" class="close-card selected" onclick="selectPay('cash')" style="padding:10px">
+            <div style="font-size:20px;margin-bottom:4px">💵</div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2)">Наличные</div>
+          </div>
+          <div id="pay-card" class="close-card" onclick="selectPay('card')" style="padding:10px">
+            <div style="font-size:20px;margin-bottom:4px">💳</div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2)">Безнал</div>
+          </div>
+        </div>
+      </div>
       <div class="form-group" style="margin-bottom:0">
         <label class="form-label">Комментарий (необязательно)</label>
         <input class="form-input" id="exp-comment" type="text" placeholder="АЗС Белнефтехим, 30л">
@@ -632,8 +652,7 @@ textarea.form-input{resize:none;min-height:70px}
 // ══════════════════════════════════
 // CONFIG
 // ══════════════════════════════════
-const SPREADSHEET_ID = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
-const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
 
 // ══════════════════════════════════
 // STATE
@@ -641,6 +660,13 @@ const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
 let STATE = { opName:'Оператор', opId:'op_001', isBrigadier:true };
 let navHistory = ['main'];
 let selectedCatData = { key:'diesel', label:'⛽ Солярка' };
+let selectedPayType = 'cash'; // 'cash' | 'card'
+
+function selectPay(type) {
+  selectedPayType = type;
+  document.getElementById('pay-cash').classList.toggle('selected', type === 'cash');
+  document.getElementById('pay-card').classList.toggle('selected', type === 'card');
+}
 let closeOption = 'return';
 let currentFieldId = null; // для закрытия поля
 
@@ -684,8 +710,15 @@ function openTrip() {
   saveTrip(trip);
   updateMainBanner();
   showToast('🚐 Командировка открыта!');
-  // → уведомление в группу (Make)
-  logNotify('trip_open', trip);
+  // → запись в таблицу + уведомление
+  logNotify('trip_open', {
+    id: trip.id,
+    direction: trip.direction,
+    dateStart: trip.dateStart,
+    advance: trip.advance,
+    crew: trip.crew,
+    equip: trip.equip
+  });
   goHome();
 }
 
@@ -730,6 +763,132 @@ function renderDayFieldsList() {
     html = '<div style="text-align:center;padding:16px 0;color:var(--t3);font-size:13px">Добавьте поля на сегодня</div>';
   }
   wrap.innerHTML = html;
+}
+
+async function loadFieldsFromScript(tripId) {
+  // Загружает подтверждённые поля для командировки из таблицы
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { status: 'подтверждено' } })
+    });
+    const d = await r.json();
+    if (!d.ok) return [];
+    return (d.result.fields || []).map(f => ({
+      id: f.id,
+      name: f.name,
+      haPlan: parseFloat(f.haPlan) || 0,
+      haLeft: parseFloat(f.haPlan) || 0,
+      haDone: 0,
+      coords: f.mapsUrl || '',
+      crop: f.crop || '',
+      prep: f.prep || '',
+      norm: f.norm || '',
+      status: 'pending'
+    }));
+  } catch(e) { return []; }
+}
+
+let availableFields = []; // поля из таблицы
+
+function showFieldPicker() {
+  const picker = document.getElementById('field-picker');
+  picker.style.display = 'block';
+  const list = document.getElementById('field-picker-list');
+
+  if (availableFields.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Загрузка полей...</div>';
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { status: 'подтверждено' } })
+    })
+    .then(r => r.json())
+    .then(d => {
+      availableFields = d.ok ? (d.result.fields || []) : [];
+      renderFieldPicker();
+    })
+    .catch(() => {
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:13px">Ошибка загрузки</div>';
+    });
+  } else {
+    renderFieldPicker();
+  }
+}
+
+function renderFieldPicker() {
+  const list = document.getElementById('field-picker-list');
+  if (availableFields.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Подтверждённых полей нет</div>';
+    return;
+  }
+  let html = '';
+  availableFields.forEach(f => {
+    const already = dayFields.find(df => df.id === f.id);
+    html += `<div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${f.name}</div>
+        <div style="font-size:11px;color:var(--t3)">${f.crop || ''} · ${f.haPlan} га</div>
+      </div>
+      ${already
+        ? '<span style="font-size:11px;color:var(--green);font-weight:700">✓ Добавлено</span>'
+        : `<button onclick="addFieldFromPicker('${f.id}')" style="background:var(--gl);color:var(--green);border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">+ Добавить</button>`
+      }
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function addFieldFromPicker(fieldId) {
+  const f = availableFields.find(af => af.id === fieldId);
+  if (!f) return;
+  if (dayFields.find(df => df.id === f.id)) { showToast('Поле уже добавлено'); return; }
+  dayFields.push({
+    id: f.id,
+    name: f.name,
+    haPlan: parseFloat(f.haPlan) || 0,
+    haLeft: parseFloat(f.haPlan) || 0,
+    haDone: 0,
+    coords: f.mapsUrl || '',
+    crop: f.crop || '',
+    prep: f.prep || '',
+    norm: f.norm || '',
+    status: 'pending'
+  });
+  renderDayFieldsList();
+  renderFieldPicker(); // обновить список (показать галочку)
+  showToast('✓ ' + f.name + ' добавлено');
+}
+
+function hideFieldPicker() {
+  document.getElementById('field-picker').style.display = 'none';
+}
+
+async function loadFieldsFromScript() {
+  showToast('⏳ Загружаю поля...');
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { status: 'подтверждено' } })
+    });
+    const d = await r.json();
+    if (!d.ok) { showToast('❌ Ошибка загрузки'); return; }
+    availableFields = d.result.fields || [];
+    const newFields = availableFields.filter(f => !dayFields.find(df => df.id === f.id));
+    newFields.forEach(f => {
+      dayFields.push({
+        id: f.id, name: f.name,
+        haPlan: parseFloat(f.haPlan) || 0,
+        haLeft: parseFloat(f.haPlan) || 0,
+        haDone: 0, coords: f.mapsUrl || '',
+        crop: f.crop || '', prep: f.prep || '',
+        norm: f.norm || '', status: 'pending'
+      });
+    });
+    renderDayFieldsList();
+    showToast(newFields.length > 0 ? '✓ Загружено: ' + newFields.length + ' полей' : 'Новых полей нет');
+  } catch(e) {
+    showToast('❌ Нет подключения');
+  }
 }
 
 function showAddFieldForm() {
@@ -795,8 +954,16 @@ function openDay() {
 
   updateMainBanner();
   showToast('☀️ День ' + day.dayNum + ' открыт!');
-  // → уведомление в группу (Make)
-  logNotify('day_open', day);
+  // → запись в таблицу + уведомление
+  logNotify('open_day', {
+    tripId: day.tripId,
+    dayId: day.id,
+    dayNum: day.dayNum,
+    date: day.date,
+    direction: trip ? trip.direction : '',
+    haPlan: day.haPlan,
+    fieldIds: day.fields.map(f => f.id)
+  });
   goHome();
 }
 
@@ -919,8 +1086,13 @@ function confirmFieldClose() {
     else trip.pendingFields.push(carried);
     saveTrip(trip);
     showToast('⏩ ' + remainder.toFixed(1) + ' га перенесено на завтра');
-    // → уведомление агроному (Make)
-    logNotify('field_partial', { field, haToday, remainder });
+    logNotify('close_field', {
+      id: field.id,
+      haToday: haToday,
+      isFullyDone: false,
+      bort: 'А60-ХМ',
+      operatorIds: [STATE.opId]
+    });
   } else {
     showToast('✅ Поле закрыто: ' + totalDone.toFixed(1) + ' га');
     // → уведомление агроному (Make)
@@ -983,8 +1155,21 @@ function closeDay() {
   clearDay();
   updateMainBanner();
   showToast('🌙 День ' + day.dayNum + ' закрыт!');
-  // → уведомление в группу (Make)
-  logNotify('day_close', day);
+  // → запись в таблицу + уведомление
+  const tripNow = getTrip();
+  logNotify('close_day', {
+    dayId: day.id,
+    tripId: day.tripId,
+    dayNum: day.dayNum,
+    date: day.date,
+    haDone: haDone,
+    fieldsDone: day.fields.filter(f=>f.status==='done').length,
+    fieldsCarried: day.fields.filter(f=>f.status==='partial').length,
+    spentToday: 0,
+    totalSpent: tripNow ? tripNow.spent : 0,
+    totalHa: tripNow ? (tripNow.ha||0) + haDone : haDone,
+    note: day.note || ''
+  });
   goHome();
 }
 
@@ -1011,12 +1196,25 @@ function addExpense() {
     time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
     cat: selectedCatData.key, label: selectedCatData.label,
     amount, comment,
+    payType: selectedPayType,
     dayId: day ? day.id : null
   };
   trip.expenses = trip.expenses || [];
   trip.expenses.push(expense);
   trip.spent = trip.expenses.reduce((s,e) => s + e.amount, 0);
   saveTrip(trip);
+
+  // → запись в таблицу РАСХОДЫ
+  logNotify('add_expense', {
+    tripId: trip.id,
+    dayId: day ? day.id : '',
+    label: expense.label,
+    cat: expense.cat,
+    amount: expense.amount,
+    comment: expense.comment,
+    payType: expense.payType,
+    totalSpent: trip.spent
+  });
 
   document.getElementById('exp-amount').value = '';
   document.getElementById('exp-comment').value = '';
@@ -1100,7 +1298,13 @@ function closeTrip() {
   trip.dateEnd = new Date().toISOString().split('T')[0];
   trip.closeOption = closeOption;
   trip.note = document.getElementById('tc-note').value.trim();
-  logNotify('trip_close', trip);
+  logNotify('close_trip', {
+    id: trip.id,
+    spent: trip.spent,
+    ha: trip.ha || 0,
+    closeOption: closeOption,
+    note: trip.note || ''
+  });
   clearTrip();
   clearDay();
   updateMainBanner();
@@ -1160,10 +1364,26 @@ function updateMainBanner() {
 // ══════════════════════════════════
 // ЛОГИРОВАНИЕ УВЕДОМЛЕНИЙ (заготовка для Make)
 // ══════════════════════════════════
-function logNotify(event, data) {
+async function logNotify(event, data) {
   console.log('[NOTIFY]', event, data);
-  // Здесь будет вызов Make webhook
-  // fetch('https://hook.eu2.make.com/...', { method:'POST', body: JSON.stringify({event, data}) })
+  const actionMap = {
+    'trip_open':     'add_trip',
+    'close_trip':    'close_trip',
+    'open_day':      'open_day',
+    'close_day':     'close_day',
+    'close_field':   'close_field',
+    'add_expense':   'add_expense',
+    'field_done':    'close_field',
+    'field_partial': 'close_field'
+  };
+  const action = actionMap[event];
+  if (!action) return;
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, data })
+    });
+  } catch(e) { console.error('Script error:', e); }
 }
 
 // ══════════════════════════════════
@@ -1203,7 +1423,25 @@ function nav(screen) {
   if (screen === 'trip-active')        renderTripActive();
   if (screen === 'trip-expenses-list') renderExpensesList();
   if (screen === 'trip-close')         renderTripClose();
-  if (screen === 'day-open')           { dayFields = []; renderDayFieldsList(); document.getElementById('day-date').value = new Date().toISOString().split('T')[0]; }
+  if (screen === 'day-open') {
+    dayFields = [];
+    document.getElementById('day-date').value = new Date().toISOString().split('T')[0];
+    renderDayFieldsList();
+    // Подгрузить подтверждённые поля из таблицы
+    const trip = getTrip();
+    if (trip) {
+      loadFieldsFromScript(trip.id).then(fields => {
+        if (fields.length > 0) {
+          // Добавить только те которых ещё нет в dayFields
+          fields.forEach(f => {
+            if (!dayFields.find(df => df.id === f.id)) dayFields.push(f);
+          });
+          renderDayFieldsList();
+          if (fields.length > 0) showToast('📋 Загружено полей: ' + fields.length);
+        }
+      });
+    }
+  }
   if (screen === 'day-active')         renderDayActive();
   if (screen === 'day-close')          renderDayClose();
 }
@@ -1244,47 +1482,59 @@ function showToast(msg) {
 // ══════════════════════════════════
 async function loadOperators() {
   try {
-    const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/ОПЕРАТОРЫ?key=${API_KEY}`);
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_operators', data: { status: 'Активен' } })
+    });
     const d = await r.json();
-    if (!d.values || d.values.length < 2) return [];
-    return d.values.slice(1).map(row => ({
-      id:row[0]||'', name:row[1]||'', hours:row[5]||'0',
-      status:row[6]||'Активен', telegramId:row[8]||'',
-      type:row[9]||'Оператор', hectares:row[10]||'0'
-    })).filter(o => o.status==='Активен' && o.name);
+    if (!d.ok || !d.result.operators) return [];
+    return d.result.operators;
   } catch(e) { return []; }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
+
   document.getElementById('trip-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('day-date').value  = new Date().toISOString().split('T')[0];
 
+  // Показать UI сразу с дефолтными данными
+  const defaultOp = { id:'op_001', name:'Бруй Д.А.', type:'Бригадир', role:'Бригадир', hours:'12', hectares:'145' };
+  applyOperator(defaultOp);
+
+  // Загрузить актуальные данные из таблицы
   const operators = await loadOperators();
-  const op = operators.length > 0 ? operators[0] : { id:'op_001', name:'Бруй Д.А.', type:'Бригадир', hours:'12', hectares:'145' };
+  const op = operators.length > 0 ? operators[0] : defaultOp;
 
-  STATE.opId   = op.id;
-  STATE.opName = op.name;
-  STATE.isBrigadier = op.id === 'op_001' || op.type === 'Бригадир';
-
-  document.getElementById('op-chip').textContent = op.name;
-  document.getElementById('op-chip').style.display = 'block';
-
-  const banner = document.getElementById('role-banner');
-  banner.style.display = 'flex';
-  banner.style.background = STATE.isBrigadier
-    ? 'linear-gradient(135deg,#d97706,#b45309)'
-    : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
-  document.getElementById('rb-ico').textContent = STATE.isBrigadier ? '⚡' : '👤';
-  document.getElementById('rb-title').textContent = STATE.isBrigadier ? 'Бригадир' : 'Оператор';
-  document.getElementById('rb-sub').textContent = op.hours + ' ч · ' + op.hectares + ' га за сезон';
-
-  if (STATE.isBrigadier) {
-    document.getElementById('brigadier-menu').style.display = 'block';
-    updateMainBanner();
-  }
-
+  applyOperator(op);
   showToast('👋 ' + op.name.split(' ')[0] + ', привет!');
 });
+
+function applyOperator(op) {
+  STATE.opId   = op.id;
+  STATE.opName = op.name;
+  STATE.isBrigadier = op.role === 'Бригадир' || op.type === 'Бригадир' || op.id === 'op_001';
+
+  const chip = document.getElementById('op-chip');
+  if (chip) { chip.textContent = op.name; chip.style.display = 'block'; }
+
+  const banner = document.getElementById('role-banner');
+  if (banner) {
+    banner.style.display = 'flex';
+    banner.style.background = STATE.isBrigadier
+      ? 'linear-gradient(135deg,#d97706,#b45309)'
+      : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
+  }
+  const ico = document.getElementById('rb-ico');
+  const ttl = document.getElementById('rb-title');
+  const sub = document.getElementById('rb-sub');
+  if (ico) ico.textContent = STATE.isBrigadier ? '⚡' : '👤';
+  if (ttl) ttl.textContent = STATE.isBrigadier ? 'Бригадир' : 'Оператор';
+  if (sub) sub.textContent = (op.hours||'0') + ' ч · ' + (op.hectares||'0') + ' га за сезон';
+
+  const bMenu = document.getElementById('brigadier-menu');
+  if (bMenu) bMenu.style.display = STATE.isBrigadier ? 'block' : 'none';
+  updateMainBanner();
+}
 </script>
 </body>
 </html>

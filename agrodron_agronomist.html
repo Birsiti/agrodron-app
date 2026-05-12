@@ -17,6 +17,13 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 
+.tg{background:#1c2733;padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tg-l{font-size:14px;color:#5aadff;font-weight:500}
+.tg-m{text-align:center}
+.tg-t{font-size:15px;font-weight:600;color:#fff}
+.tg-s{font-size:11px;color:#8fa9be;margin-top:1px}
+.tg-r{color:#5aadff;font-size:20px}
+
 .app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-ico{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -27,69 +34,120 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .role-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff}
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.screen{display:none;padding:16px;animation:fadeIn .22s ease}
+.screen{display:none;animation:fadeIn .22s ease}
 .screen.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;margin:-16px -16px 16px;position:sticky;top:0;z-index:10}
+/* MENU */
+.menu-wrap{padding:8px 12px 24px}
+.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
+.mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent;position:relative}
+.mi:active{transform:scale(.98);border-color:var(--aca)}
+.mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.mi-info{flex:1}
+.mi-title{font-size:14px;font-weight:700;color:var(--t1)}
+.mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
+.mi-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:8px;flex-shrink:0}
+.badge-green{background:var(--acl);color:var(--acc)}
+.badge-yellow{background:#fef3c7;color:#d97706}
+.badge-gray{background:#f1f3f7;color:var(--t3)}
+.badge-blue{background:#eff6ff;color:#2563eb}
+
+/* STATS BANNER */
+.stats-banner{background:linear-gradient(135deg,var(--acc),var(--acm));border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff}
+.sb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.sb-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
+.sb-val{font-size:16px;font-weight:800}
+.sb-lbl{font-size:10px;opacity:.8;margin-top:2px}
+
+/* SUB HEADER */
+.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
 .sub-back{font-size:22px;cursor:pointer;color:var(--acc);padding-right:4px}
 .sub-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
+.sub-wrap{padding:12px 12px 24px}
 
-.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
-.card-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card-desc{font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.5}
-
-.frow{margin-bottom:14px}
-.frow label{font-size:11px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.frow input,.frow select,.frow textarea{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
-.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca)}
-.frow textarea{resize:none;min-height:80px}
-.frow.error input,.frow.error select{border-color:var(--red)}
-
-.btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
-.btn:active{transform:scale(.98)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
-.btn-sec{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
-
-.info-box{background:var(--acl);border-left:4px solid var(--acc);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--acc);margin-bottom:12px;line-height:1.5}
-.warn-box{background:#fef3c7;border-left:4px solid var(--amber);border-radius:var(--rs);padding:12px;font-size:12px;color:#92400e;margin-bottom:12px;line-height:1.5}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
-.toast.show{opacity:1}
-
-.field-list{margin-top:12px}
-.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--border)}
-.field-card.st-new{border-left-color:#f59e0b}
-.field-card.st-conf{border-left-color:#2563eb}
-.field-card.st-work{border-left-color:#8b5cf6}
+/* FIELD CARDS */
+.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--border);transition:all .2s}
+.field-card.st-wait{border-left-color:#f59e0b}
+.field-card.st-work{border-left-color:#2563eb}
+.field-card.st-partial{border-left-color:#8b5cf6}
 .field-card.st-done{border-left-color:var(--aca)}
 .fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .fc-name{font-size:15px;font-weight:800;color:var(--t1)}
-.fc-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0}
-.fc-badge.st-new{background:#fef3c7;color:#92400e}
-.fc-badge.st-conf{background:#eff6ff;color:#1d4ed8}
-.fc-meta{font-size:11px;color:var(--t3);margin-top:3px}
-.fc-data{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:8px;border-top:1px solid var(--border);margin-top:6px}
-.fc-d{text-align:center}
+.fc-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.fc-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.fc-badge.st-wait{background:#fef3c7;color:#92400e}
+.fc-badge.st-work{background:#eff6ff;color:#1d4ed8}
+.fc-badge.st-partial{background:#f5f3ff;color:#6d28d9}
+.fc-badge.st-done{background:var(--acl);color:var(--acc)}
+.fc-data{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--border);margin-top:6px}
+.fc-d{display:flex;flex-direction:column;gap:2px}
 .fc-dv{font-size:14px;font-weight:800;color:var(--t1)}
-.fc-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;margin-top:2px}
+.fc-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
 
-.profile-card{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;border-radius:var(--r);padding:16px;margin-bottom:12px}
-.pc-name{font-size:16px;font-weight:800;margin-bottom:4px}
-.pc-meta{font-size:12px;opacity:.8;display:flex;flex-direction:column;gap:2px}
+/* PROGRESS */
+.progress-wrap{margin:8px 0 0}
+.progress-bar{height:5px;background:#e2e6ef;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:3px}
 
+/* FORMS */
+.frow{margin-bottom:12px}
+.frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.frow input,.frow select,.frow textarea{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca)}
+.frow textarea{resize:none;min-height:68px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.ic-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+
+/* BUTTONS */
+.btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-sec{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+/* ACT CARD */
+.act-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid #6366f1}
+.ac-head{display:flex;justify-content:space-between;margin-bottom:10px}
+.ac-id{font-size:15px;font-weight:800;color:var(--t1)}
+.ac-date{font-size:11px;color:var(--t3);margin-top:2px}
+.ac-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.st-draft{background:#f5f5f5;color:#666}
+.st-signed{background:var(--acl);color:var(--acc)}
+.ac-data{display:flex;gap:16px;flex-wrap:wrap}
+.ac-d{display:flex;flex-direction:column;gap:2px}
+.ac-dv{font-size:16px;font-weight:800;color:var(--t1)}
+.ac-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase}
+
+/* LOADING */
+.loading{text-align:center;padding:30px 20px;color:var(--t3)}
+.loading-spinner{font-size:28px;animation:spin 1s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
 .empty{text-align:center;padding:40px 20px}
 .empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
 .empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
 .empty-s{font-size:12px;color:var(--t3)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
+<div class="tg" id="tg-chrome">
+  <div class="tg-l">Назад</div>
+  <div class="tg-m"><div class="tg-t">AgroDrone.BY</div><div class="tg-s">@AgroDrone_BY_Bot</div></div>
+  <div class="tg-r">⋮</div>
+</div>
+
 <div class="app-hdr">
   <div class="brand">
-    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="2"/></svg></div>
+    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg></div>
     <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub">Кабинет агронома</div></div>
   </div>
   <div class="role-chip">🌱 Агроном</div>
@@ -98,186 +156,374 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="scroll">
 
 <!-- ══════════════════════════════════
-     ЭКРАН 1: РЕГИСТРАЦИЯ
+     ГЛАВНОЕ МЕНЮ
 ══════════════════════════════════ -->
-<div id="screen-register" class="screen active">
-  <div class="card">
-    <div class="card-title">👤 Регистрация агронома</div>
-    <div class="card-desc">Заполните профиль для работы с системой. Данные используются для уведомлений и привязки полей.</div>
-    
-    <div class="frow">
-      <label>Ваш Telegram ID *</label>
-      <input type="text" id="reg-tg" placeholder="Например: 6204739474" />
+<div id="menu-main" class="screen active">
+  <div class="menu-wrap">
+
+    <!-- Статус-баннер -->
+    <div class="stats-banner">
+      <div style="font-size:13px;font-weight:800;opacity:.9">🗺️ Мои поля · Сезон 2026</div>
+      <div class="sb-grid">
+        <div class="sb-stat"><div class="sb-val" id="cnt-wait">—</div><div class="sb-lbl">Ждут</div></div>
+        <div class="sb-stat"><div class="sb-val" id="cnt-work">—</div><div class="sb-lbl">В работе</div></div>
+        <div class="sb-stat"><div class="sb-val" id="cnt-done">—</div><div class="sb-lbl">Готово</div></div>
+      </div>
     </div>
-    
-    <div class="info-box">
-      💡 <strong>Не знаете свой ID?</strong><br>
-      <a href="https://t.me/userinfobot" target="_blank" style="color:var(--acc);font-weight:700;text-decoration:none">
-        → Открыть @userinfobot
-      </a> и написать /start — бот покажет ваш ID
+
+    <div class="sep">🗺️ Мои поля</div>
+    <div class="mi" onclick="nav('field-new')">
+      <div class="mi-ico">➕</div>
+      <div class="mi-info"><div class="mi-title">Добавить поле</div><div class="mi-sub">Внести поле для обработки</div></div>
+      <div class="mi-arr">›</div>
     </div>
-    
-    <div class="frow">
-      <label>ФИО *</label>
-      <input type="text" id="reg-name" placeholder="Иванов Иван Иванович" />
+    <div class="mi" onclick="navFields('all')">
+      <div class="mi-ico">🗺️</div>
+      <div class="mi-info"><div class="mi-title">Все мои поля</div><div class="mi-sub">Полный список</div></div>
+      <div class="mi-badge badge-gray" id="badge-all">—</div>
+      <div class="mi-arr">›</div>
     </div>
-    
-    <div class="frow">
-      <label>Название организации *</label>
-      <input type="text" id="reg-org" placeholder="Например: ЗАО «АТК»" />
+
+    <div class="sep">📊 По статусам</div>
+    <div class="mi" onclick="navFields('ждёт')">
+      <div class="mi-ico">⏳</div>
+      <div class="mi-info"><div class="mi-title">Ждёт обработки</div><div class="mi-sub">Поля в очереди</div></div>
+      <div class="mi-badge badge-yellow" id="badge-wait">—</div>
+      <div class="mi-arr">›</div>
     </div>
-    
-    <div class="frow">
-      <label>УНП организации *</label>
-      <input type="text" id="reg-unp" placeholder="Например: 123456789" />
+    <div class="mi" onclick="navFields('в работе')">
+      <div class="mi-ico">🔄</div>
+      <div class="mi-info"><div class="mi-title">В работе</div><div class="mi-sub">Обрабатываются сейчас</div></div>
+      <div class="mi-badge badge-blue" id="badge-work">—</div>
+      <div class="mi-arr">›</div>
     </div>
-    
-    <div class="frow">
-      <label>Район работы *</label>
-      <input type="text" id="reg-region" placeholder="Например: Любань" />
+    <div class="mi" onclick="navFields('частично')">
+      <div class="mi-ico">⏩</div>
+      <div class="mi-info"><div class="mi-title">Частично</div><div class="mi-sub">Перенесённые поля</div></div>
+      <div class="mi-badge badge-gray" id="badge-partial">—</div>
+      <div class="mi-arr">›</div>
     </div>
-    
-    <button class="btn btn-primary" onclick="saveProfile()">✓ Сохранить профиль</button>
+    <div class="mi" onclick="navFields('готово')">
+      <div class="mi-ico">✅</div>
+      <div class="mi-info"><div class="mi-title">Обработано</div><div class="mi-sub">Готовые поля</div></div>
+      <div class="mi-badge badge-green" id="badge-done">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+
+    <div class="sep">📄 Документы</div>
+    <div class="mi" onclick="nav('acts')">
+      <div class="mi-ico">📄</div>
+      <div class="mi-info"><div class="mi-title">Акты выполненных работ</div><div class="mi-sub">Все акты и документы</div></div>
+      <div class="mi-arr">›</div>
+    </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════
-     ЭКРАН 2: ГЛАВНОЕ МЕНЮ
+     СПИСОК ПОЛЕЙ (универсальный)
 ══════════════════════════════════ -->
-<div id="screen-menu" class="screen">
-  <div class="profile-card" id="profile-banner"></div>
-  
-  <div class="card" onclick="nav('screen-add-field')" style="cursor:pointer">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:28px">➕</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:800;color:var(--t1)">Добавить поле</div>
-        <div style="font-size:12px;color:var(--t3);margin-top:2px">Внести новое поле для обработки</div>
-      </div>
-      <div style="font-size:20px;color:var(--t3)">›</div>
-    </div>
-  </div>
-  
-  <div class="card" onclick="nav('screen-fields')" style="cursor:pointer">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:28px">🗺️</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:800;color:var(--t1)">Мои поля</div>
-        <div style="font-size:12px;color:var(--t3);margin-top:2px">Просмотр всех полей</div>
-      </div>
-      <div style="font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--acl);color:var(--acc)" id="field-count">0</div>
-      <div style="font-size:20px;color:var(--t3)">›</div>
-    </div>
-  </div>
-  
-  <button class="btn btn-sec" onclick="nav('screen-register')">⚙️ Редактировать профиль</button>
-</div>
-
-<!-- ══════════════════════════════════
-     ЭКРАН 3: ДОБАВЛЕНИЕ ПОЛЯ
-══════════════════════════════════ -->
-<div id="screen-add-field" class="screen">
+<div id="my-fields" class="screen">
   <div class="sub-hdr">
     <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">➕ Добавить поле</div>
+    <div class="sub-title" id="fields-screen-title">Все поля</div>
+    <button onclick="loadFields(currentFilter)" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--acc)" title="Обновить">↻</button>
   </div>
-  
-  <div class="card">
-    <div class="frow">
-      <label>Название поля / участка *</label>
-      <input type="text" id="f-name" placeholder="Например: Залежь, Поле №5" />
-    </div>
-    
-    <div class="frow">
-      <label>Культура *</label>
-      <select id="f-crop">
-        <option value="">Выберите культуру</option>
-        <option value="Пшеница">Пшеница</option>
-        <option value="Рапс">Рапс</option>
-        <option value="Кукуруза">Кукуруза</option>
-        <option value="Соя">Соя</option>
-        <option value="Ячмень">Ячмень</option>
-        <option value="Подсолнечник">Подсолнечник</option>
-        <option value="Картофель">Картофель</option>
-        <option value="Свёкла">Свёкла</option>
-        <option value="Другое">Другое</option>
-      </select>
-    </div>
-    
-    <div class="frow">
-      <label>Препарат *</label>
-      <input type="text" id="f-prep" placeholder="Название препарата" />
-    </div>
-    
-    <div class="frow">
-      <label>Норма внесения (л/га)</label>
-      <input type="text" id="f-norm" placeholder="Например: 3.5" />
-    </div>
-    
-    <div class="frow">
-      <label>Площадь (га) *</label>
-      <input type="number" step="0.1" id="f-area" placeholder="Например: 55" />
-    </div>
-    
-    <div class="frow">
-      <label>Координаты / Примечание</label>
-      <textarea id="f-coords" placeholder="Координаты или описание местоположения"></textarea>
-    </div>
-    
-    <button class="btn btn-primary" id="save-btn" onclick="saveField()">✓ Добавить поле</button>
+  <div class="sub-wrap" id="fields-list-wrap">
+    <div class="loading"><div class="loading-spinner">🌿</div><div>Загрузка полей...</div></div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════
-     ЭКРАН 4: СПИСОК ПОЛЕЙ
+     ДОБАВИТЬ ПОЛЕ
 ══════════════════════════════════ -->
-<div id="screen-fields" class="screen">
-  <div class="sub-hdr">
-    <div class="sub-back" onclick="back()">‹</div>
-    <div class="sub-title">🗺️ Мои поля</div>
+<div id="field-new" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Добавить поле</div></div>
+  <div class="sub-wrap">
+    <div class="info-card">
+      <div class="frow">
+        <label>Название поля *</label>
+        <input type="text" id="f-name" placeholder="Ур. Залежь, Поле №3">
+      </div>
+      <div class="frow">
+        <label>Культура *</label>
+        <select id="f-crop">
+          <option value="">Выберите культуру</option>
+          <option>Картофель</option>
+          <option>Свекла сахарная</option>
+          <option>Кукуруза</option>
+          <option>Соя</option>
+          <option>Рапс</option>
+          <option>Зерновые</option>
+          <option>Лён</option>
+          <option>Подсолнечник</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="frow">
+        <label>Препарат *</label>
+        <input type="text" id="f-prep" placeholder="Название препарата">
+      </div>
+      <div class="fgrid">
+        <div class="frow">
+          <label>Норма л/га</label>
+          <input type="number" id="f-norm" step="0.1" placeholder="1.5" inputmode="decimal">
+        </div>
+        <div class="frow">
+          <label>Площадь га *</label>
+          <input type="number" id="f-area" placeholder="85" inputmode="decimal">
+        </div>
+      </div>
+      <div class="frow" style="margin-bottom:0">
+        <label>Координаты (необязательно)</label>
+        <input type="text" id="f-coords" placeholder="53.1234, 26.5678">
+      </div>
+    </div>
+    <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd;margin-bottom:10px">
+      <div style="font-size:12px;color:#1d4ed8;font-weight:600;text-align:center">📋 Поле появится в списке оператора автоматически</div>
+    </div>
+    <button class="btn btn-primary" onclick="saveField()" id="save-btn">✓ Добавить поле</button>
+    <button class="btn btn-sec" onclick="back()">Отмена</button>
   </div>
-  
-  <div class="field-list" id="fields-list"></div>
 </div>
 
+<!-- ══════════════════════════════════
+     АКТЫ
+══════════════════════════════════ -->
+<div id="acts" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Акты работ</div></div>
+  <div class="sub-wrap">
+    <div class="act-card">
+      <div class="ac-head">
+        <div><div class="ac-id">Акт #2026-003</div><div class="ac-date">05 мая 2026</div></div>
+        <div class="ac-status st-signed">Подписан</div>
+      </div>
+      <div class="ac-data">
+        <div class="ac-d"><div class="ac-dv">287 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">8 040 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
+      </div>
+    </div>
+    <div class="act-card">
+      <div class="ac-head">
+        <div><div class="ac-id">Акт #2026-002</div><div class="ac-date">28 апреля 2026</div></div>
+        <div class="ac-status st-signed">Подписан</div>
+      </div>
+      <div class="ac-data">
+        <div class="ac-d"><div class="ac-dv">145 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">4 060 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
+      </div>
+    </div>
+    <div class="act-card">
+      <div class="ac-head">
+        <div><div class="ac-id">Акт #2026-001</div><div class="ac-date">15 апреля 2026</div></div>
+        <div class="ac-status st-draft">Черновик</div>
+      </div>
+      <div class="ac-data">
+        <div class="ac-d"><div class="ac-dv">60 га</div><div class="ac-dl">Обработано</div></div>
+        <div class="ac-d"><div class="ac-dv">1 680 BYN</div><div class="ac-dl">Сумма с НДС</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+</div><!-- /scroll -->
+<div id="toast" class="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════
+// CONFIG — Google Sheets
+// ══════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+const CLIENT_ID = 'CL-001'; // В боте — ID клиента из таблицы КЛИЕНТЫ
+const AGRO_ID = CLIENT_ID; // совместимость
 
-// ══════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════
-let profile = null;
-let fields = [];
-let navHistory = [];
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════════════════════
-function nav(screenId) {
+// ══════════════════════════════════
+let navHistory = ['menu-main'];
+let currentFilter = 'all';
+let allFields = [];
+
+function nav(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
-  navHistory.push(screenId);
-  
-  if (screenId === 'screen-menu') updateMenu();
-  if (screenId === 'screen-fields') loadFields();
+  document.getElementById(screen).classList.add('active');
+  navHistory.push(screen);
 }
 
 function back() {
-  navHistory.pop();
-  const prev = navHistory[navHistory.length - 1] || 'screen-menu';
-  nav(prev);
+  if (navHistory.length > 1) {
+    navHistory.pop();
+    const prev = navHistory[navHistory.length - 1];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(prev).classList.add('active');
+  }
 }
 
-// ══════════════════════════════════════════════════════════
+function navFields(filter) {
+  currentFilter = filter;
+  const titles = {
+    'all':      'Все поля',
+    'ждёт':     'Ждёт обработки',
+    'в работе': 'В работе',
+    'частично': 'Частично',
+    'готово':   'Готово'
+  };
+  document.getElementById('fields-screen-title').textContent = titles[filter] || 'Поля';
+  nav('my-fields');
+  loadFields(filter);
+}
+
+// ══════════════════════════════════
+// ЗАГРУЗКА ПОЛЕЙ ИЗ SHEETS
+// ══════════════════════════════════
+async function loadFields(filter) {
+  const wrap = document.getElementById('fields-list-wrap');
+  wrap.innerHTML = '<div class="loading"><div class="loading-spinner">🌿</div><div>Загрузка...</div></div>';
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { clientId: CLIENT_ID } })
+    });
+    const json = await resp.json();
+
+    if (!json.ok || !json.result.fields || json.result.fields.length === 0) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">Добавьте первое поле</div></div>';
+      return;
+    }
+
+    allFields = json.result.fields;
+
+    // Фильтрация
+    const filtered = filter === 'all'
+      ? allFields
+      : allFields.filter(f => f.status === filter);
+
+    updateBadges();
+    renderFieldsList(filtered, wrap);
+
+  } catch(e) {
+    console.error(e);
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Ошибка загрузки</div><div class="empty-s">Проверьте подключение</div></div>';
+  }
+}
+
+function renderFieldsList(fields, wrap) {
+  if (fields.length === 0) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">В этом разделе пусто</div></div>';
+    return;
+  }
+
+  const statusMap = {
+    'новое':    { cls:'st-wait',    label:'Новое' },
+    'ждёт':     { cls:'st-wait',    label:'Ждёт' },
+    'подтверждено': { cls:'st-work', label:'Подтверждено' },
+    'в работе': { cls:'st-work',    label:'В работе' },
+    'частично': { cls:'st-partial', label:'Частично' },
+    'готово':   { cls:'st-done',    label:'Готово' }
+  };
+
+  let html = '';
+  fields.forEach(f => {
+    const st = statusMap[f.status] || { cls:'st-wait', label:'Ждёт' };
+    const pct = f.haPlan > 0 ? Math.round(f.haFact / f.haPlan * 100) : 0;
+    const showProgress = f.status === 'в работе' || f.status === 'частично' || f.status === 'готово';
+
+    html += `<div class="field-card ${st.cls}">
+      <div class="fc-head">
+        <div style="flex:1;min-width:0">
+          <div class="fc-name">${f.name}</div>
+          <div class="fc-meta">${f.crop}${f.prep ? ' · ' + f.prep : ''}</div>
+        </div>
+        <span class="fc-badge ${st.cls}" style="margin-left:8px">${st.label}</span>
+      </div>
+      <div class="fc-data">
+        <div class="fc-d"><div class="fc-dv">${f.haPlan} га</div><div class="fc-dl">План</div></div>
+        <div class="fc-d"><div class="fc-dv">${f.haFact || 0} га</div><div class="fc-dl">Факт</div></div>
+        <div class="fc-d"><div class="fc-dv">${f.norm && !String(f.norm).includes("T") ? f.norm + ' л/га' : (f.norm || '—')}</div><div class="fc-dl">Норма</div></div>
+      </div>
+      ${showProgress ? `<div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${f.status==='готово'?'var(--aca)':'#8b5cf6'}"></div></div>
+        <div class="progress-label"><span>${f.status==='готово'?'✅ Готово':pct+'% обработано'}</span><span>${f.haFact}/${f.haPlan} га</span></div>
+      </div>` : ''}
+      ${f.coords ? `<div style="font-size:11px;color:var(--t3);margin-top:6px">📍 ${f.coords}</div>` : ''}
+      ${f.tripId ? `<div style="font-size:11px;color:var(--t3);margin-top:2px">🚐 Командировка: ${f.tripId}</div>` : ''}
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function updateBadges() {
+  const cnt = { wait:0, work:0, partial:0, done:0, all:allFields.length };
+  allFields.forEach(f => {
+    if (f.status === 'ждёт')     cnt.wait++;
+    if (f.status === 'в работе') cnt.work++;
+    if (f.status === 'частично') cnt.partial++;
+    if (f.status === 'готово')   cnt.done++;
+  });
+  document.getElementById('cnt-wait').textContent    = cnt.wait;
+  document.getElementById('cnt-work').textContent    = cnt.work;
+  document.getElementById('cnt-done').textContent    = cnt.done;
+  document.getElementById('badge-all').textContent   = cnt.all;
+  document.getElementById('badge-wait').textContent  = cnt.wait;
+  document.getElementById('badge-work').textContent  = cnt.work;
+  document.getElementById('badge-partial').textContent = cnt.partial;
+  document.getElementById('badge-done').textContent  = cnt.done;
+}
+
+// ══════════════════════════════════
+// ЗАПИСЬ ПОЛЯ В SHEETS
+// ══════════════════════════════════
+async function saveField() {
+  const name   = document.getElementById('f-name').value.trim();
+  const crop   = document.getElementById('f-crop').value;
+  const prep   = document.getElementById('f-prep').value.trim();
+  const norm   = document.getElementById('f-norm').value;
+  const area   = document.getElementById('f-area').value;
+  const coords = document.getElementById('f-coords').value.trim();
+
+  if (!name)   { showToast('⚠️ Укажите название поля'); return; }
+  if (!crop)   { showToast('⚠️ Выберите культуру'); return; }
+  if (!prep)   { showToast('⚠️ Укажите препарат'); return; }
+  if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '⏳ Сохраняю...';
+  btn.disabled = true;
+
+
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'add_field',
+        data: { clientId: CLIENT_ID, name, crop, prep, norm: norm.replace(',','.'), haPlan: parseFloat(area.replace(',','.')), mapsUrl: coords }
+      })
+    });
+    const json = await resp.json();
+
+    if (json.ok) {
+      ['f-name','f-prep','f-norm','f-area','f-coords'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-crop').value = '';
+      showToast('✅ Поле добавлено!');
+      setTimeout(() => { back(); navFields('ждёт'); }, 800);
+    } else {
+      showToast('❌ ' + (json.error || 'Ошибка'));
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка. Попробуйте ещё раз');
+  } finally {
+    btn.textContent = '✓ Добавить поле';
+    btn.disabled = false;
+  }
+}
+
+// Запись через Apps Script — см. SCRIPT_URL
+
+// ══════════════════════════════════
 // TOAST
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -285,226 +531,29 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ══════════════════════════════════════════════════════════
-// ПРОФИЛЬ
-// ══════════════════════════════════════════════════════════
-function saveProfile() {
-  const telegramId = document.getElementById('reg-tg').value.trim();
-  const name = document.getElementById('reg-name').value.trim();
-  const orgName = document.getElementById('reg-org').value.trim();
-  const unp = document.getElementById('reg-unp').value.trim();
-  const region = document.getElementById('reg-region').value.trim();
-  
-  if (!telegramId) { showToast('⚠️ Укажите Telegram ID'); return; }
-  if (!name) { showToast('⚠️ Укажите ФИО'); return; }
-  if (!orgName) { showToast('⚠️ Укажите организацию'); return; }
-  if (!unp) { showToast('⚠️ Укажите УНП'); return; }
-  if (!region) { showToast('⚠️ Укажите район'); return; }
-  
-  profile = {
-    telegramId,
-    name,
-    orgName,
-    unp,
-    region,
-    agroId: 'agro_' + telegramId
-  };
-  
-  localStorage.setItem('agroProfile', JSON.stringify(profile));
-  showToast('✅ Профиль сохранён!');
-  
-  setTimeout(() => nav('screen-menu'), 800);
-}
-
-function loadProfile() {
-  const saved = localStorage.getItem('agroProfile');
-  if (saved) {
-    profile = JSON.parse(saved);
-    
-    // Заполнить форму
-    document.getElementById('reg-tg').value = profile.telegramId || '';
-    document.getElementById('reg-name').value = profile.name || '';
-    document.getElementById('reg-org').value = profile.orgName || '';
-    document.getElementById('reg-unp').value = profile.unp || '';
-    document.getElementById('reg-region').value = profile.region || '';
-    
-    // Перейти в меню
-    nav('screen-menu');
-  }
-}
-
-function updateMenu() {
-  if (!profile) return;
-  
-  const banner = document.getElementById('profile-banner');
-  banner.innerHTML = `
-    <div class="pc-name">${profile.name}</div>
-    <div class="pc-meta">
-      <div>🏢 ${profile.orgName} · УНП ${profile.unp}</div>
-      <div>📍 ${profile.region}</div>
-      <div>💬 Telegram ID: ${profile.telegramId}</div>
-    </div>
-  `;
-  
-  document.getElementById('field-count').textContent = fields.length;
-}
-
-// ══════════════════════════════════════════════════════════
-// ПОЛЯ
-// ══════════════════════════════════════════════════════════
-async function saveField() {
-  if (!profile) {
-    showToast('❌ Сначала заполните профиль');
-    nav('screen-register');
-    return;
-  }
-  
-  const name = document.getElementById('f-name').value.trim();
-  const crop = document.getElementById('f-crop').value;
-  const prep = document.getElementById('f-prep').value.trim();
-  const norm = document.getElementById('f-norm').value.replace(',', '.');
-  const area = document.getElementById('f-area').value;
-  const coords = document.getElementById('f-coords').value.trim();
-  
-  if (!name) { showToast('⚠️ Укажите название поля'); return; }
-  if (!crop) { showToast('⚠️ Выберите культуру'); return; }
-  if (!prep) { showToast('⚠️ Укажите препарат'); return; }
-  if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
-  
-  const btn = document.getElementById('save-btn');
-  btn.textContent = '⏳ Сохраняю...';
-  btn.disabled = true;
-  
-  try {
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'add_field',
-        data: {
-          name,
-          crop,
-          prep,
-          norm,
-          haPlan: parseFloat(area),
-          coords,
-          agroId: profile.agroId,
-          agroTelegramId: profile.telegramId,
-          orgName: profile.orgName,
-          unp: profile.unp,
-          region: profile.region
-        }
-      })
-    });
-    
-    const json = await resp.json();
-    console.log('Response:', json);
-    
-    if (json.ok && json.result) {
-      // Очистить форму
-      ['f-name', 'f-prep', 'f-norm', 'f-area', 'f-coords'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-      document.getElementById('f-crop').value = '';
-      
-      showToast('✅ Поле добавлено!');
-      
-      // Вернуться в меню через 800мс
-      setTimeout(() => {
-        back();
-        loadFields();
-      }, 800);
-    } else {
-      showToast('❌ ' + (json.error || json.result?.error || 'Ошибка сохранения'));
-    }
-  } catch (e) {
-    console.error('Error:', e);
-    showToast('❌ Ошибка сети. Проверьте подключение');
-  } finally {
-    btn.textContent = '✓ Добавить поле';
-    btn.disabled = false;
-  }
-}
-
-async function loadFields() {
-  if (!profile) return;
-  
-  const wrap = document.getElementById('fields-list');
-  wrap.innerHTML = '<div class="empty"><div class="empty-ico">⏳</div><div class="empty-t">Загрузка...</div></div>';
-  
-  try {
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'get_fields',
-        data: { agroId: profile.agroId }
-      })
-    });
-    
-    const json = await resp.json();
-    console.log('Fields:', json);
-    
-    if (json.ok && json.result && json.result.fields) {
-      fields = json.result.fields;
-      updateMenu();
-      
-      if (fields.length === 0) {
-        wrap.innerHTML = '<div class="empty"><div class="empty-ico">🗺️</div><div class="empty-t">Пока нет полей</div><div class="empty-s">Добавьте первое поле через главное меню</div></div>';
-        return;
-      }
-      
-      let html = '';
-      fields.forEach(f => {
-        const statusMap = {
-          'новое': 'st-new',
-          'подтверждено': 'st-conf',
-          'в работе': 'st-work',
-          'готово': 'st-done'
-        };
-        const statusClass = statusMap[f.status] || 'st-new';
-        
-        const statusLabel = {
-          'новое': 'Новое',
-          'подтверждено': 'Подтверждено',
-          'в работе': 'В работе',
-          'готово': 'Готово'
-        };
-        
-        html += `
-          <div class="field-card ${statusClass}">
-            <div class="fc-head">
-              <div>
-                <div class="fc-name">${f.name}</div>
-                <div class="fc-meta">${f.crop} · ${f.prep}</div>
-              </div>
-              <div class="fc-badge ${statusClass}">${statusLabel[f.status] || f.status}</div>
-            </div>
-            <div class="fc-data">
-              <div class="fc-d"><div class="fc-dv">${f.haPlan}</div><div class="fc-dl">Га план</div></div>
-              <div class="fc-d"><div class="fc-dv">${f.norm || '—'}</div><div class="fc-dl">Норма</div></div>
-              <div class="fc-d"><div class="fc-dv">${f.dateAdded || '—'}</div><div class="fc-dl">Дата</div></div>
-            </div>
-            ${f.coords ? `<div style="font-size:11px;color:var(--t3);margin-top:8px">📍 ${f.coords}</div>` : ''}
-          </div>
-        `;
-      });
-      
-      wrap.innerHTML = html;
-    } else {
-      wrap.innerHTML = '<div class="empty"><div class="empty-ico">❌</div><div class="empty-t">Ошибка загрузки</div></div>';
-    }
-  } catch (e) {
-    console.error('Error:', e);
-    wrap.innerHTML = '<div class="empty"><div class="empty-ico">❌</div><div class="empty-t">Ошибка сети</div></div>';
-  }
-}
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  loadProfile();
+// ══════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // Скрыть TG-хром если открыто внутри Telegram WebApp
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform !== 'unknown') {
+    const el = document.getElementById('tg-chrome');
+    if (el) el.style.display = 'none';
+  }
+  // Загружаем статистику для баннера
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_fields', data: { clientId: CLIENT_ID } })
+    });
+    const json = await resp.json();
+    if (json.ok && json.result.fields) {
+      allFields = json.result.fields;
+      updateBadges();
+    }
+  } catch(e) {
+    console.log('Init load failed:', e);
+  }
 });
 </script>
 </body>
