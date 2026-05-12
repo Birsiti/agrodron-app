@@ -329,6 +329,14 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
 const AGRO_ID = 'agro_001'; // В боте — из Telegram ID агронома
 
+// Профиль агронома (заполнить реальными данными)
+const AGRO_PROFILE = {
+  telegramId: '6204739474',        // Telegram ID агронома
+  orgName: 'ЗАО «АТК»',            // Название организации
+  unp: '12345678',                 // УНП организации
+  region: 'Любань'                 // Район работы
+};
+
 // ══════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════
@@ -488,7 +496,19 @@ async function saveField() {
       method: 'POST',
       body: JSON.stringify({
         action: 'add_field',
-        data: { name, crop, prep, norm, haPlan: parseFloat(area), coords, agroId: AGRO_ID }
+        data: { 
+          name, 
+          crop, 
+          prep, 
+          norm, 
+          haPlan: parseFloat(area), 
+          coords, 
+          agroId: AGRO_ID,
+          agroTelegramId: AGRO_PROFILE.telegramId,
+          orgName: AGRO_PROFILE.orgName,
+          unp: AGRO_PROFILE.unp,
+          region: AGRO_PROFILE.region
+        }
       })
     });
     const json = await resp.json();
