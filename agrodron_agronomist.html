@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+  AgroDrone.BY · Агроном — Кабинет
+  v2.3 · 2026-05-13
+  Файл: agronomist/agrodron_agronomist.html
+-->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -375,29 +380,58 @@ function navFields(filter) {
 // ══════════════════════════════════
 // ЗАГРУЗКА ПОЛЕЙ ИЗ SHEETS
 // ══════════════════════════════════
+// Колонки ПОЛЯ КЛИЕНТОВ (0-based):
+// A=0 ID, B=1 ID клиента, C=2 Районный центр, D=3 Название поля,
+// E=4 Ссылка Maps, F=5 Культура, G=6 Препарат, H=7 Норма л/га,
+// I=8 Площадь га, J=9 Статус
+const SHEETS_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SHEET_ID   = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+
+function coordsToMapsUrl(raw) {
+  if (!raw) return '';
+  const fixed = raw.toString().replace(/(\d),(\d)/g, '$1.$2').trim();
+  return 'https://maps.google.com/?q=' + encodeURIComponent(fixed);
+}
+
+function parseHa(val) {
+  if (!val) return 0;
+  const s = val.toString().replace(',','.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
 async function loadFields(filter) {
   const wrap = document.getElementById('fields-list-wrap');
   wrap.innerHTML = '<div class="loading"><div class="loading-spinner">🌿</div><div>Загрузка...</div></div>';
 
   try {
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'get_fields', data: { clientId: CLIENT_ID } })
-    });
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!A2:N1000?key=${SHEETS_KEY}`;
+    const resp = await fetch(url);
     const json = await resp.json();
+    const rows = json.values || [];
 
-    if (!json.ok || !json.result.fields || json.result.fields.length === 0) {
+    allFields = rows
+      .filter(row => row[3] && row[3].toString().trim()) // есть название
+      .map(row => ({
+        id:     (row[0]||'').toString().trim(),
+        name:   (row[3]||'').toString().trim(),
+        city:   (row[2]||'').toString().trim(),
+        coords: (row[4]||'').toString().trim(),
+        mapsUrl: coordsToMapsUrl((row[4]||'').toString().trim()),
+        crop:   (row[5]||'').toString().trim(),
+        prep:   (row[6]||'').toString().trim(),
+        norm:   (row[7]||'').toString().trim(),
+        haPlan: parseHa(row[8]),
+        haFact: parseHa(row[10]),  // K=10 Фото URL — пока 0, факт придёт позже
+        status: (row[9]||'новое').toString().trim().toLowerCase()
+      }));
+
+    if (allFields.length === 0) {
       wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">Добавьте первое поле</div></div>';
       return;
     }
 
-    allFields = json.result.fields;
-
-    // Фильтрация
-    const filtered = filter === 'all'
-      ? allFields
-      : allFields.filter(f => f.status === filter);
-
+    const filtered = filter === 'all' ? allFields : allFields.filter(f => f.status === filter);
     updateBadges();
     renderFieldsList(filtered, wrap);
 
@@ -424,29 +458,34 @@ function renderFieldsList(fields, wrap) {
 
   let html = '';
   fields.forEach(f => {
-    const st = statusMap[f.status] || { cls:'st-wait', label:'Ждёт' };
-    const pct = f.haPlan > 0 ? Math.round(f.haFact / f.haPlan * 100) : 0;
-    const showProgress = f.status === 'в работе' || f.status === 'частично' || f.status === 'готово';
+    const st = statusMap[f.status] || { cls:'st-wait', label:'Новое' };
+    const haFact = parseFloat(f.haFact) || 0;
+    const haPlan = parseFloat(f.haPlan) || 0;
+    const pct = haPlan > 0 ? Math.round(haFact / haPlan * 100) : 0;
+    const showProgress = ['в работе','частично','готово'].includes(f.status);
+    const normVal = f.norm && !String(f.norm).includes('T') && !String(f.norm).includes('-') ? f.norm + ' л/га' : '—';
 
     html += `<div class="field-card ${st.cls}">
       <div class="fc-head">
         <div style="flex:1;min-width:0">
           <div class="fc-name">${f.name}</div>
-          <div class="fc-meta">${f.crop}${f.prep ? ' · ' + f.prep : ''}</div>
+          <div class="fc-meta">${f.city ? f.city + ' · ' : ''}${f.crop||''}${f.prep?' · '+f.prep:''}</div>
         </div>
         <span class="fc-badge ${st.cls}" style="margin-left:8px">${st.label}</span>
       </div>
       <div class="fc-data">
-        <div class="fc-d"><div class="fc-dv">${f.haPlan} га</div><div class="fc-dl">План</div></div>
-        <div class="fc-d"><div class="fc-dv">${f.haFact || 0} га</div><div class="fc-dl">Факт</div></div>
-        <div class="fc-d"><div class="fc-dv">${f.norm && !String(f.norm).includes("T") ? f.norm + ' л/га' : (f.norm || '—')}</div><div class="fc-dl">Норма</div></div>
+        <div class="fc-d"><div class="fc-dv">${haPlan} га</div><div class="fc-dl">План</div></div>
+        <div class="fc-d"><div class="fc-dv">${haFact} га</div><div class="fc-dl">Факт</div></div>
+        <div class="fc-d"><div class="fc-dv">${normVal}</div><div class="fc-dl">Норма</div></div>
       </div>
       ${showProgress ? `<div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${f.status==='готово'?'var(--aca)':'#8b5cf6'}"></div></div>
-        <div class="progress-label"><span>${f.status==='готово'?'✅ Готово':pct+'% обработано'}</span><span>${f.haFact}/${f.haPlan} га</span></div>
+        <div class="progress-label"><span>${f.status==='готово'?'✅ Готово':pct+'% обработано'}</span><span>${haFact}/${haPlan} га</span></div>
       </div>` : ''}
-      ${f.coords ? `<div style="font-size:11px;color:var(--t3);margin-top:6px">📍 ${f.coords}</div>` : ''}
-      ${f.tripId ? `<div style="font-size:11px;color:var(--t3);margin-top:2px">🚐 Командировка: ${f.tripId}</div>` : ''}
+      <div style="display:flex;gap:8px;margin-top:10px">
+        ${f.mapsUrl ? `<a href="${f.mapsUrl}" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;background:#eff6ff;color:#2563eb;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">📍 Google Maps</a>` : ''}
+        <button onclick="editField('${f.id}')" style="flex:1;padding:8px;background:#f1f5f9;color:var(--t2);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--f)">✏️ Редактировать</button>
+      </div>
     </div>`;
   });
   wrap.innerHTML = html;
@@ -534,26 +573,33 @@ function showToast(msg) {
 // ══════════════════════════════════
 // INIT
 // ══════════════════════════════════
+// ── Редактирование поля ─────────────────────────────────
+function editField(fieldId) {
+  const f = allFields.find(f => f.id === fieldId);
+  if (!f) return;
+  // Переходим на экран добавления и заполняем данными
+  nav('add-field');
+  setTimeout(() => {
+    document.getElementById('f-name').value  = f.name || '';
+    document.getElementById('f-crop').value  = f.crop || '';
+    document.getElementById('f-prep').value  = f.prep || '';
+    document.getElementById('f-norm').value  = f.norm || '';
+    document.getElementById('f-area').value  = f.haPlan || '';
+    document.getElementById('f-coords').value = f.coords || '';
+    // Запоминаем ID для обновления
+    document.getElementById('save-btn').dataset.editId = fieldId;
+    document.getElementById('save-btn').textContent = '✓ Сохранить изменения';
+  }, 100);
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   // Скрыть TG-хром если открыто внутри Telegram WebApp
   if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform !== 'unknown') {
     const el = document.getElementById('tg-chrome');
     if (el) el.style.display = 'none';
   }
-  // Загружаем статистику для баннера
-  try {
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'get_fields', data: { clientId: CLIENT_ID } })
-    });
-    const json = await resp.json();
-    if (json.ok && json.result.fields) {
-      allFields = json.result.fields;
-      updateBadges();
-    }
-  } catch(e) {
-    console.log('Init load failed:', e);
-  }
+  // Загружаем поля через Sheets API
+  await loadFields('all');
 });
 </script>
 </body>
