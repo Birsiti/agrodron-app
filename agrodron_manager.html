@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>AgroDrone.BY · Менеджер</title>
+<!-- agrodron_manager_v1_2.html | май 2026 -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -276,6 +277,13 @@ let navHistory = ['main'];
 let allFields  = [];
 let currentFieldFilter = 'all';
 
+function coordsToMapsUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('http')) return raw;
+  const fixed = raw.toString().replace(/(\d),(\d)/g, '$1.$2').trim();
+  return 'https://maps.google.com/?q=' + encodeURIComponent(fixed);
+}
+
 // ══════════════════════════════════
 // API
 // ══════════════════════════════════
@@ -295,7 +303,13 @@ async function api(action, data) {
 async function loadAllFields() {
   try {
     const result = await api('get_fields', {});
-    allFields = result.fields || [];
+    allFields = (result.fields || []).map(f => ({
+      ...f,
+      status:     (f.status || 'новое').toString().trim().toLowerCase(),
+      mapsUrl:    coordsToMapsUrl(f.mapsUrl || ''),
+      dateClosed: (f.dateClosed || '').toString().trim(),
+      city:       (f.city || '').toString().trim()
+    }));
     updateBadges();
     // Обновить текущий экран если открыт
     if (navHistory[navHistory.length-1] === 'fields-new') renderNewFields();
@@ -378,16 +392,16 @@ function renderFieldCard(f, showActions) {
     <div class="fc-head">
       <div style="flex:1;min-width:0">
         <div class="fc-name">${f.name || '—'}</div>
-        <div class="fc-crop">${f.crop || ''} ${f.prep ? '· ' + f.prep : ''}</div>
+        <div class="fc-crop">${f.city ? f.city + ' · ' : ''}${f.crop || ''}${f.prep ? ' · ' + f.prep : ''}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${f.dateClosed ? '✅ Закрыто: ' + f.dateClosed : ''}</div>
       </div>
       <span class="fc-badge ${st.badge}">${st.label}</span>
     </div>
     <div class="fc-data">
-      <div>📐 Plan: <span>${f.haPlan || 0} га</span></div>
-      <div>✅ Факт: <span>${f.haFact || 0} га</span></div>
-      ${f.norm ? `<div>💧 <span>${f.norm} л/га</span></div>` : ''}
+      <div>📐 План: <span>${f.haPlan || 0} га</span></div>
+      <div>💧 <span>${f.norm ? f.norm + ' л/га' : '—'}</span></div>
     </div>
-    ${f.mapsUrl ? `<div style="font-size:11px;color:var(--t3);margin-bottom:8px">📍 ${f.mapsUrl}</div>` : ''}
+    ${f.mapsUrl ? `<a href="${f.mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--aca);text-decoration:none;margin-bottom:8px">📍 Открыть в Google Maps</a>` : ''}
     ${pct > 0 ? `<div style="height:4px;background:#e2e6ef;border-radius:2px;margin-bottom:8px"><div style="height:100%;width:${pct}%;background:var(--ga);border-radius:2px"></div></div>` : ''}
     ${showActions ? `<div class="fc-actions">
       <button class="fa-btn fa-accept" onclick="confirmField('${f.id}')">✅ Подтвердить</button>
