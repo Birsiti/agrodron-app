@@ -407,19 +407,29 @@ async function loadFields(filter) {
 
     allFields = rows
       .filter(row => row[3] && row[3].toString().trim())
-      .map(row => ({
-        id:     (row[0]||'').toString().trim(),
-        name:   (row[3]||'').toString().trim(),
-        city:   (row[2]||'').toString().trim(),
-        coords: (row[4]||'').toString().trim(),
-        mapsUrl: coordsToMapsUrl((row[4]||'').toString().trim()),
-        crop:   (row[5]||'').toString().trim(),
-        prep:   (row[6]||'').toString().trim(),
-        norm:   (row[7]||'').toString().trim(),
-        haPlan: parseHa(row[8]),
-        haFact: 0,
-        status: (row[9]||'новое').toString().trim().toLowerCase()
-      }));
+      .map(row => {
+        const idStr   = (row[0]||'').toString().trim();
+        const tsMatch = idStr.match(/PK-(\d+)/);
+        const dateAdded = tsMatch
+          ? new Date(parseInt(tsMatch[1])).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})
+          : '';
+        return {
+          id:         idStr,
+          name:       (row[3]||'').toString().trim(),
+          city:       (row[2]||'').toString().trim(),
+          coords:     (row[4]||'').toString().trim(),
+          mapsUrl:    coordsToMapsUrl((row[4]||'').toString().trim()),
+          crop:       (row[5]||'').toString().trim(),
+          prep:       (row[6]||'').toString().trim(),
+          norm:       (row[7]||'').toString().trim(),
+          haPlan:     parseHa(row[8]),
+          haFact:     0,
+          status:     (row[9]||'новое').toString().trim().toLowerCase(),
+          dateClosed: (row[11]||'').toString().trim(),
+          obrabotkaId:(row[12]||'').toString().trim(),
+          dateAdded
+        };
+      });
 
     if (allFields.length === 0) {
       wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">Добавьте первое поле</div></div>';
@@ -465,6 +475,7 @@ function renderFieldsList(fields, wrap) {
         <div style="flex:1;min-width:0">
           <div class="fc-name">${f.name}</div>
           <div class="fc-meta">${f.city ? f.city + ' · ' : ''}${f.crop||''}${f.prep?' · '+f.prep:''}</div>
+          <div class="fc-meta" style="font-size:10px;margin-top:2px;opacity:.7">${f.dateClosed ? '✅ Закрыто: '+f.dateClosed : (f.dateAdded ? '📅 '+f.dateAdded : '')}</div>
         </div>
         <span class="fc-badge ${st.cls}" style="margin-left:8px">${st.label}</span>
       </div>
@@ -526,21 +537,33 @@ async function saveField() {
 
 
 
+  const editId = btn.dataset.editId || '';
+
   try {
+    const action  = editId ? 'update_field' : 'add_field';
+    const payload = editId
+      ? { id: editId, name, crop, prep,
+          norm: norm.replace(',','.'),
+          haPlan: parseFloat(area.replace(',','.')),
+          mapsUrl: coords }
+      : { clientId: CLIENT_ID, city: CITY, name, crop, prep,
+          norm: norm.replace(',','.'),
+          haPlan: parseFloat(area.replace(',','.')),
+          mapsUrl: coords };
+
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({
-        action: 'add_field',
-        data: { clientId: CLIENT_ID, city: CITY, name, crop, prep, norm: norm.replace(',','.'), haPlan: parseFloat(area.replace(',','.')), mapsUrl: coords }
-      })
+      body: JSON.stringify({ action, data: payload })
     });
     const json = await resp.json();
 
     if (json.ok) {
       ['f-name','f-prep','f-norm','f-area','f-coords'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('f-crop').value = '';
-      showToast('✅ Поле добавлено!');
-      setTimeout(() => { back(); navFields('ждёт'); }, 800);
+      delete btn.dataset.editId;
+      btn.textContent = '✓ Добавить поле';
+      showToast(editId ? '✅ Поле обновлено!' : '✅ Поле добавлено!');
+      setTimeout(() => { back(); navFields(editId ? 'all' : 'ждёт'); }, 800);
     } else {
       showToast('❌ ' + (json.error || 'Ошибка'));
     }
@@ -548,8 +571,8 @@ async function saveField() {
     console.error(e);
     showToast('❌ Ошибка. Попробуйте ещё раз');
   } finally {
-    btn.textContent = '✓ Добавить поле';
     btn.disabled = false;
+    if (!btn.dataset.editId) btn.textContent = '✓ Добавить поле';
   }
 }
 
@@ -582,8 +605,10 @@ function editField(fieldId) {
     document.getElementById('f-area').value  = f.haPlan || '';
     document.getElementById('f-coords').value = f.coords || '';
     // Запоминаем ID для обновления
-    document.getElementById('save-btn').dataset.editId = fieldId;
-    document.getElementById('save-btn').textContent = '✓ Сохранить изменения';
+    const btn2 = document.getElementById('save-btn');
+    btn2.dataset.editId   = fieldId;
+    btn2.dataset.editCity = f.city || '';
+    btn2.textContent = '✓ Сохранить изменения';
   }, 100);
 }
 
