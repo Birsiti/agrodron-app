@@ -195,6 +195,7 @@ textarea.fi{resize:none;min-height:70px}
     </div>
   </div>
 
+  <button class="btn btn-outline" id="btn-route-all" onclick="openRouteAll()" style="display:none">🗺 Маршрут по всем полям</button>
   <button class="btn btn-blue" onclick="openDay()">☀️ Открыть день!</button>
   <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
 
@@ -206,6 +207,10 @@ textarea.fi{resize:none;min-height:70px}
 <div class="wrap">
   <div id="fields-list-wrap"></div>
   <div style="height:8px"></div>
+  <div style="display:flex;gap:8px;margin-bottom:8px">
+    <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="openRouteRemaining()">🗺 Остаток</button>
+    <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="openRouteAll()">🗺 Все поля</button>
+  </div>
   <button class="btn btn-outline" onclick="goTo('op_expenses.html')">💸 Внести расход</button>
 </div>
 </div>
@@ -424,6 +429,7 @@ async function loadFields() {
 
     renderOpenFieldsList();
     if (pendingFields.length > 0) {
+      document.getElementById('btn-route-all').style.display = 'block';
       showToast('✓ Загружено полей: ' + pendingFields.length);
     } else {
       showToast('Полей со статусом «ждёт» для ' + (city||'района') + ' не найдено');
@@ -753,6 +759,49 @@ function closeDay() {
   clearDay();
   showToast('🌙 День '+day.dayNum+' закрыт!');
   setTimeout(goMenu, 800);
+}
+
+
+// ── Маршруты Google Maps ─────────────────────────────────
+function buildRouteUrl(fields) {
+  // Конвертируем координаты: "52,5276925, 26,6100870" → "52.5276925,26.6100870"
+  const coords = fields
+    .map(f => f.coords || f.mapsUrl || '')
+    .filter(c => c && !c.startsWith('http'))
+    .map(c => c.replace(/(\d),(\d)/g, '$1.$2').replace(/\s/g, '').trim())
+    .filter(c => c.match(/\d+\.\d+,\d+\.\d+/));
+
+  if (coords.length === 0) { showToast('⚠️ Нет координат у полей'); return null; }
+  if (coords.length === 1) return 'https://maps.google.com/?q=' + coords[0];
+
+  // Google Maps маршрут: origin + waypoints + destination
+  const origin = coords[0];
+  const dest   = coords[coords.length - 1];
+  const waypts = coords.slice(1, -1);
+  let url = 'https://maps.google.com/maps/dir/?api=1'
+    + '&origin=' + encodeURIComponent(origin)
+    + '&destination=' + encodeURIComponent(dest);
+  if (waypts.length > 0) {
+    url += '&waypoints=' + waypts.map(w => encodeURIComponent(w)).join('|');
+  }
+  return url;
+}
+
+function openRouteAll() {
+  // Из списка при открытии дня
+  const fields = pendingFields.length > 0 ? pendingFields : (getDay() ? getDay().fields : []);
+  const url = buildRouteUrl(fields);
+  if (url) window.open(url, '_blank');
+}
+
+function openRouteRemaining() {
+  // Только не закрытые поля
+  const day = getDay();
+  if (!day) return;
+  const remaining = day.fields.filter(f => f.status !== 'done');
+  if (remaining.length === 0) { showToast('✅ Все поля закрыты!'); return; }
+  const url = buildRouteUrl(remaining);
+  if (url) window.open(url, '_blank');
 }
 
 window.addEventListener('DOMContentLoaded', init);
