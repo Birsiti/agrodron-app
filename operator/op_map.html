@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Карта полей района
+  v1.0 · 2026-05-13
+  Файл: operator/op_map.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Карта полей</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --f:'Manrope',sans-serif;--rs:10px;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--blue:#2563eb;--blue-light:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{background:var(--card);padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;font-weight:300;padding-right:4px}
+.hdr-info{flex:1}
+.hdr-title{font-size:15px;font-weight:800;color:var(--t1)}
+.hdr-sub{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* LEGEND */
+.legend{background:var(--card);padding:8px 14px;display:flex;gap:12px;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);overflow-x:auto}
+.leg-item{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.leg-lbl{font-size:11px;font-weight:600;color:var(--t2)}
+
+/* MAP */
+#map{flex:1;width:100%}
+
+/* LOADING */
+.map-loading{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;color:#fff}
+.map-loading-ico{font-size:36px;margin-bottom:10px}
+.map-loading-txt{font-size:14px;font-weight:600}
+
+/* BOTTOM PANEL */
+.bottom{background:var(--card);padding:10px 12px;flex-shrink:0;border-top:1px solid var(--border)}
+.route-row{display:flex;gap:8px}
+.route-btn{flex:1;padding:10px;border-radius:var(--rs);border:none;font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s}
+.route-btn:active{transform:scale(.98)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+/* INFO POPUP (custom) */
+.field-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:20;min-width:280px;max-width:92%;display:none}
+.fp-name{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px}
+.fp-meta{font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6}
+.fp-btns{display:flex;gap:8px}
+.fp-btn{flex:1;padding:9px;border-radius:8px;border:none;font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;text-decoration:none;text-align:center;display:block}
+.fp-btn-maps{background:var(--blue-light);color:var(--blue)}
+.fp-btn-close{background:#f1f5f9;color:var(--t2)}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="back-btn" onclick="goBack()">‹</div>
+  <div class="hdr-info">
+    <div class="hdr-title" id="hdr-title">Карта полей</div>
+    <div class="hdr-sub" id="hdr-sub">Загрузка...</div>
+  </div>
+  <div style="font-size:11px;font-weight:700;color:var(--t3)" id="fields-count">—</div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div><div class="leg-lbl">Новое</div></div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f97316"></div><div class="leg-lbl">Ждёт</div></div>
+  <div class="leg-item"><div class="leg-dot" style="background:#2563eb"></div><div class="leg-lbl">В работе</div></div>
+  <div class="leg-item"><div class="leg-dot" style="background:#7c3aed"></div><div class="leg-lbl">Частично</div></div>
+  <div class="leg-item"><div class="leg-dot" style="background:#16a34a"></div><div class="leg-lbl">Готово</div></div>
+</div>
+
+<div id="map"></div>
+
+<div class="bottom">
+  <div class="route-row">
+    <button class="route-btn btn-blue" onclick="routeRemaining()">🗺 Маршрут (остаток)</button>
+    <button class="route-btn btn-green" onclick="routeAll()">🗺 Все поля</button>
+  </div>
+</div>
+
+<!-- Popup при нажатии на маркер -->
+<div class="field-popup" id="field-popup">
+  <div class="fp-name" id="fp-name">—</div>
+  <div class="fp-meta" id="fp-meta">—</div>
+  <div class="fp-btns">
+    <a class="fp-btn fp-btn-maps" id="fp-maps-btn" href="#" target="_blank">📍 Google Maps</a>
+    <button class="fp-btn fp-btn-close" onclick="closePopup()">✕ Закрыть</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+const MAPS_KEY  = 'AIzaSyCjxpxSE5noJCigtTYP56_Q6O65awnflwg';
+const SHEETS_KEY= 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SHEET_ID  = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+
+function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
+function getDay() { try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function goBack() { window.location.href='op_day.html'; }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// ── Status colors ────────────────────────────────────────
+const STATUS_COLOR = {
+  'новое':    '#f59e0b',
+  'ждёт':     '#f97316',
+  'в работе': '#2563eb',
+  'частично': '#7c3aed',
+  'готово':   '#16a34a',
+  'done':     '#16a34a',
+  'active':   '#2563eb',
+  'partial':  '#7c3aed',
+  'pending':  '#f97316'
+};
+
+// ── All fields data ──────────────────────────────────────
+let allFields = [];
+let map = null;
+let markers = [];
+let currentField = null;
+
+// ── Fix coords: "52,527, 26,610" → {lat:52.527, lng:26.610} ──
+function parseCoords(raw) {
+  if (!raw) return null;
+  // Заменяем десятичную запятую на точку
+  const fixed = raw.toString().replace(/(\d),(\d)/g, '$1.$2').trim();
+  // Парсим два числа
+  const parts = fixed.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+  if (parts.length >= 2) return { lat: parts[0], lng: parts[1] };
+  return null;
+}
+
+function coordsToUrl(raw) {
+  const c = parseCoords(raw);
+  if (!c) return '';
+  return `https://maps.google.com/?q=${c.lat},${c.lng}`;
+}
+
+// ── Load all fields for district ─────────────────────────
+async function loadAllFields() {
+  const trip = getTrip();
+  const city = trip ? trip.direction : '';
+
+  document.getElementById('hdr-title').textContent = city || 'Карта полей';
+  document.getElementById('hdr-sub').textContent = 'Загрузка полей...';
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!A2:N1000?key=${SHEETS_KEY}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const rows = d.values || [];
+
+    allFields = rows
+      .filter(row => {
+        const rowCity = (row[2]||'').toString().trim();
+        return !city || rowCity === city;
+      })
+      .map(row => ({
+        id:     (row[0]||'').toString().trim(),
+        name:   (row[3]||'').toString().trim(),
+        city:   (row[2]||'').toString().trim(),
+        coords: (row[4]||'').toString().trim(),
+        crop:   (row[5]||'').toString().trim(),
+        prep:   (row[6]||'').toString().trim(),
+        norm:   (row[7]||'').toString().trim(),
+        haPlan: parseFloat((row[8]||'0').toString().replace(',','.')) || 0,
+        status: (row[9]||'новое').toString().trim().toLowerCase()
+      }))
+      .filter(f => f.name && f.coords);
+
+    // Мержим с данными активного дня (если поле в работе — обновляем статус)
+    const day = getDay();
+    if (day && day.fields) {
+      day.fields.forEach(df => {
+        const found = allFields.find(f => f.id === df.id);
+        if (found) found.status = df.status;
+      });
+    }
+
+    document.getElementById('hdr-sub').textContent = city || 'Все районы';
+    document.getElementById('fields-count').textContent = allFields.length + ' полей';
+
+    return allFields;
+  } catch(e) {
+    document.getElementById('hdr-sub').textContent = 'Ошибка загрузки';
+    showToast('❌ Ошибка загрузки полей');
+    return [];
+  }
+}
+
+// ── Init Google Maps ─────────────────────────────────────
+function initMap() {
+  // Центр по умолчанию — Беларусь
+  const defaultCenter = { lat: 53.0, lng: 28.0 };
+
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 10,
+    center: defaultCenter,
+    mapTypeId: 'hybrid',  // спутник + подписи — удобно для полей
+    disableDefaultUI: false,
+    zoomControl: true,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false
+  });
+
+  loadAllFields().then(fields => {
+    if (fields.length === 0) {
+      showToast('Полей не найдено');
+      return;
+    }
+    placeMarkers(fields);
+    fitMapToMarkers();
+  });
+}
+
+// ── Place markers ────────────────────────────────────────
+function placeMarkers(fields) {
+  // Очистить старые
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+
+  fields.forEach(field => {
+    const pos = parseCoords(field.coords);
+    if (!pos) return;
+
+    const color = STATUS_COLOR[field.status] || '#9aa3b2';
+
+    // SVG маркер с цветом статуса
+    const svgMarker = {
+      path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+      fillColor: color,
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 1.5,
+      scale: 1.8,
+      anchor: new google.maps.Point(12, 22)
+    };
+
+    const marker = new google.maps.Marker({
+      position: pos,
+      map: map,
+      icon: svgMarker,
+      title: field.name
+    });
+
+    marker.addListener('click', () => showFieldPopup(field));
+    markers.push(marker);
+    field._marker = marker;
+  });
+}
+
+// ── Fit map to all markers ───────────────────────────────
+function fitMapToMarkers() {
+  if (markers.length === 0) return;
+  if (markers.length === 1) {
+    map.setCenter(markers[0].getPosition());
+    map.setZoom(14);
+    return;
+  }
+  const bounds = new google.maps.LatLngBounds();
+  markers.forEach(m => bounds.extend(m.getPosition()));
+  map.fitBounds(bounds, { top: 20, right: 20, bottom: 20, left: 20 });
+}
+
+// ── Field popup ──────────────────────────────────────────
+function showFieldPopup(field) {
+  currentField = field;
+  const statusLabel = {
+    'новое':'🟡 Новое','ждёт':'🟠 Ждёт','в работе':'🔵 В работе',
+    'частично':'🟣 Частично','готово':'✅ Готово',
+    'pending':'🟠 Ждёт','active':'🔵 В работе','partial':'🟣 Частично','done':'✅ Готово'
+  }[field.status] || field.status;
+
+  document.getElementById('fp-name').textContent = field.name;
+  document.getElementById('fp-meta').innerHTML =
+    `${statusLabel} &nbsp;·&nbsp; ${field.haPlan} га<br>` +
+    `${field.crop||''}${field.prep?' · '+field.prep:''}${field.norm?' · '+field.norm+' л/га':''}`;
+  document.getElementById('fp-maps-btn').href = coordsToUrl(field.coords);
+  document.getElementById('field-popup').style.display = 'block';
+
+  // Центрировать карту на поле
+  const pos = parseCoords(field.coords);
+  if (pos) map.panTo(pos);
+}
+
+function closePopup() {
+  document.getElementById('field-popup').style.display = 'none';
+  currentField = null;
+}
+
+// ── Routes ───────────────────────────────────────────────
+function buildRouteUrl(fields) {
+  const coords = fields
+    .map(f => parseCoords(f.coords))
+    .filter(c => c !== null)
+    .map(c => `${c.lat},${c.lng}`);
+
+  if (coords.length === 0) { showToast('⚠️ Нет координат'); return null; }
+  if (coords.length === 1) return `https://maps.google.com/?q=${coords[0]}`;
+
+  const origin = coords[0];
+  const dest   = coords[coords.length - 1];
+  const waypts = coords.slice(1, -1);
+  let url = `https://maps.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}`;
+  if (waypts.length > 0) url += `&waypoints=${waypts.map(w=>encodeURIComponent(w)).join('|')}`;
+  return url;
+}
+
+function routeAll() {
+  const url = buildRouteUrl(allFields);
+  if (url) window.open(url, '_blank');
+}
+
+function routeRemaining() {
+  const remaining = allFields.filter(f => !['готово','done'].includes(f.status));
+  if (remaining.length === 0) { showToast('✅ Все поля закрыты!'); return; }
+  const url = buildRouteUrl(remaining);
+  if (url) window.open(url, '_blank');
+}
+
+// ── Закрыть popup при клике на карту ────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('map').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('map')) closePopup();
+  });
+});
+</script>
+
+<!-- Google Maps JS API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjxpxSE5noJCigtTYP56_Q6O65awnflwg&callback=initMap" async defer></script>
+
+</body>
+</html>
