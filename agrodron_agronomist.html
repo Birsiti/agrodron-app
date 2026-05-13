@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v2.3 · 2026-05-13
+  v2.4 · 2026-05-13
   Файл: agronomist/agrodron_agronomist.html
 -->
 <html lang="ru">
@@ -395,7 +395,7 @@ function coordsToMapsUrl(raw) {
 
 function parseHa(val) {
   if (!val) return 0;
-  const s = val.toString().replace(',','.');
+  const s = val.toString().replace(/\s/g,'').replace(',','.');
   const n = parseFloat(s);
   return isNaN(n) ? 0 : n;
 }
@@ -411,7 +411,7 @@ async function loadFields(filter) {
     const rows = json.values || [];
 
     allFields = rows
-      .filter(row => row[3] && row[3].toString().trim()) // есть название
+      .filter(row => row[3] && row[3].toString().trim())
       .map(row => ({
         id:     (row[0]||'').toString().trim(),
         name:   (row[3]||'').toString().trim(),
@@ -422,7 +422,7 @@ async function loadFields(filter) {
         prep:   (row[6]||'').toString().trim(),
         norm:   (row[7]||'').toString().trim(),
         haPlan: parseHa(row[8]),
-        haFact: parseHa(row[10]),  // K=10 Фото URL — пока 0, факт придёт позже
+        haFact: 0,
         status: (row[9]||'новое').toString().trim().toLowerCase()
       }));
 
