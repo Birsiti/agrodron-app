@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — День
+  v1.0 · 2026-05-13
+  Файл: operator/op_day.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · День</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
+  --purple:#7c3aed;--purple-light:#f5f3ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.hdr-sub{font-size:11px;color:var(--t3);margin-left:auto}
+
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--green);border-bottom-color:var(--ga)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none}
+.screen.active{display:block}
+.wrap{padding:12px 12px 32px}
+
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.card-action{background:var(--gl);color:var(--green);border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--f)}
+
+.fg{margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--ga)}
+textarea.fi{resize:none;min-height:70px}
+
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13px;color:var(--t2)}
+.rv{font-size:13px;font-weight:700;color:var(--t1)}
+.rv.green{color:var(--green)}
+.rv.amber{color:var(--amber)}
+.rv.red{color:var(--red)}
+.rv.blue{color:var(--blue)}
+
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px;display:block;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn:last-child{margin-bottom:0}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+.btn-sm{padding:8px 14px;font-size:13px;margin-bottom:0}
+
+/* FIELD CARDS */
+.field-card{background:var(--card);border-radius:var(--rs);padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--border)}
+.field-card.pending  {border-left-color:#f59e0b}
+.field-card.active   {border-left-color:var(--blue)}
+.field-card.partial  {border-left-color:var(--purple)}
+.field-card.done     {border-left-color:var(--ga)}
+
+.field-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.field-name{font-size:14px;font-weight:700;color:var(--t1);flex:1;margin-right:8px}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.badge-pending  {background:#fef3c7;color:#92400e}
+.badge-active   {background:var(--blue-light);color:#1d4ed8}
+.badge-partial  {background:var(--purple-light);color:var(--purple)}
+.badge-done     {background:var(--gl);color:var(--green)}
+
+.field-meta{font-size:12px;color:var(--t3);margin-bottom:8px}
+.field-meta span{font-weight:600;color:var(--t2)}
+
+/* PROGRESS */
+.prog-wrap{margin:6px 0 10px}
+.prog-bar{height:6px;background:#e2e6ef;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s ease}
+
+/* FIELD ACTIONS */
+.fa-row{display:flex;gap:6px}
+.fa-btn{flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s}
+.fa-btn:active{transform:scale(.97)}
+.fa-btn-blue  {background:var(--blue-light);color:var(--blue)}
+.fa-btn-green {background:var(--gl);color:var(--green)}
+.fa-btn-amber {background:var(--amber-light);color:#92400e}
+.fa-btn-purple{background:var(--purple-light);color:var(--purple)}
+
+/* FRACTION PICKER */
+.frac-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.frac-btn{padding:14px;border-radius:var(--rs);border:2px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .18s}
+.frac-btn.selected{border-color:var(--ga);background:var(--gl)}
+.frac-val{font-size:22px;font-weight:800;color:var(--t1);margin-bottom:2px}
+.frac-ha{font-size:12px;color:var(--t3)}
+.frac-btn.selected .frac-val{color:var(--green)}
+.frac-btn.selected .frac-ha{color:var(--gm)}
+
+/* ADD FIELD FORM */
+.add-field-form{background:#f8fafc;border:1.5px dashed var(--border);border-radius:var(--rs);padding:14px;margin-top:8px}
+
+/* INFO BOX */
+.info-box{border-radius:var(--rs);padding:12px 14px;font-size:12px;font-weight:600;text-align:center;margin-bottom:8px}
+.info-box.blue{background:var(--blue-light);color:var(--blue);border:1.5px solid #93c5fd}
+.info-box.green{background:var(--gl);color:var(--green);border:1.5px solid var(--ga)}
+.info-box.purple{background:var(--purple-light);color:var(--purple);border:1.5px solid #c4b5fd}
+
+/* OVERLAY (field close modal) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(20px);transition:transform .25s}
+.overlay.show .modal{transform:translateY(0)}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="sub-hdr">
+  <div class="back-btn" onclick="goMenu()">‹</div>
+  <div class="hdr-title" id="hdr-title">День</div>
+  <div class="hdr-sub" id="hdr-sub"></div>
+</div>
+
+<div class="tabs" id="tabs" style="display:none">
+  <div class="tab active" id="tab-fields" onclick="showTab('fields')">🌾 Поля</div>
+  <div class="tab" id="tab-progress" onclick="showTab('progress')">📊 Прогресс</div>
+  <div class="tab" id="tab-close" onclick="showTab('close')">🌙 Закрыть</div>
+</div>
+
+<div class="scroll">
+
+<!-- ══ ОТКРЫТЬ ДЕНЬ ══ -->
+<div id="screen-open" class="screen active">
+<div class="wrap">
+
+  <div class="card">
+    <div class="fg">
+      <label class="fl">Дата</label>
+      <input class="fi" id="day-date" type="date">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>Поля на сегодня</span>
+      <button class="card-action" onclick="loadFields()">↻ Загрузить</button>
+    </div>
+    <div id="open-fields-list">
+      <div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Нажмите «Загрузить» для получения полей из таблицы</div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="toggleAddField()">✏️ Добавить поле вручную</button>
+    </div>
+    <!-- Форма добавления вручную -->
+    <div class="add-field-form" id="add-field-form" style="display:none">
+      <div class="fg">
+        <label class="fl">Название / ориентир</label>
+        <input class="fi" id="new-field-name" type="text" placeholder="Ур. Залежь, к-з Рассвет">
+      </div>
+      <div class="fg">
+        <label class="fl">Площадь план (га)</label>
+        <input class="fi" id="new-field-ha" type="number" placeholder="50" inputmode="decimal">
+      </div>
+      <div class="fg" style="margin-bottom:0">
+        <label class="fl">Координаты (необязательно)</label>
+        <input class="fi" id="new-field-coords" type="text" placeholder="53.123, 26.456">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-green btn-sm" style="flex:1" onclick="addFieldManual()">✓ Добавить</button>
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="toggleAddField()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-blue" onclick="openDay()">☀️ Открыть день!</button>
+  <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
+
+</div>
+</div>
+
+<!-- ══ АКТИВНЫЙ ДЕНЬ — ПОЛЯ ══ -->
+<div id="screen-fields" class="screen">
+<div class="wrap">
+  <div id="fields-list-wrap"></div>
+  <div style="height:8px"></div>
+  <button class="btn btn-outline" onclick="goTo('op_expenses.html')">💸 Внести расход</button>
+</div>
+</div>
+
+<!-- ══ АКТИВНЫЙ ДЕНЬ — ПРОГРЕСС ══ -->
+<div id="screen-progress" class="screen">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">Прогресс дня</div>
+    <div class="row"><span class="rl">Га план</span><span class="rv" id="pr-plan">0</span></div>
+    <div class="row"><span class="rl">Га сделано</span><span class="rv green" id="pr-done">0</span></div>
+    <div class="row"><span class="rl">Га осталось</span><span class="rv amber" id="pr-left">0</span></div>
+    <div class="prog-wrap" style="margin-top:10px">
+      <div class="prog-bar"><div class="prog-fill" id="pr-bar" style="width:0%;background:var(--ga)"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:4px">
+        <span>0%</span><span id="pr-pct">0%</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">По полям</div>
+    <div class="row"><span class="rl">✅ Закрыто</span><span class="rv green" id="pr-done-cnt">0</span></div>
+    <div class="row"><span class="rl">🔵 В работе</span><span class="rv blue" id="pr-active-cnt">0</span></div>
+    <div class="row"><span class="rl">🟣 Частично</span><span class="rv" id="pr-partial-cnt">0</span></div>
+    <div class="row"><span class="rl">🟡 Ожидает</span><span class="rv amber" id="pr-pending-cnt">0</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ ЗАКРЫТЬ ДЕНЬ ══ -->
+<div id="screen-close" class="screen">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">Итог дня</div>
+    <div class="row"><span class="rl">📅 Дата</span><span class="rv" id="dc-date">—</span></div>
+    <div class="row"><span class="rl">🌾 Га обработано</span><span class="rv green" id="dc-ha">0 га</span></div>
+    <div class="row"><span class="rl">✅ Полей закрыто</span><span class="rv" id="dc-done">0</span></div>
+    <div class="row"><span class="rl">⏩ Перенесено</span><span class="rv amber" id="dc-carried">0</span></div>
+  </div>
+  <div class="card">
+    <div class="fg" style="margin-bottom:0">
+      <label class="fl">Примечание для группы</label>
+      <textarea class="fi" id="dc-note" placeholder="Доп. информация по дню..."></textarea>
+    </div>
+  </div>
+  <div class="info-box blue">📢 Итог дня будет отправлен в группу «Агрообработки 2026»</div>
+  <button class="btn btn-blue" onclick="closeDay()">🌙 Закрыть день</button>
+  <button class="btn btn-outline" onclick="showTab('fields')">Назад к полям</button>
+</div>
+</div>
+
+</div><!-- /scroll -->
+
+<!-- ══ МОДАЛ ЗАКРЫТИЯ ПОЛЯ ══ -->
+<div class="overlay" id="field-overlay" onclick="closeOverlayIfBg(event)">
+  <div class="modal">
+    <div class="modal-title" id="mo-field-name">Поле</div>
+    <div class="modal-sub" id="mo-field-meta">—</div>
+
+    <!-- Выбор действия -->
+    <div id="mo-action-select">
+      <div style="font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Действие</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-blue" style="margin:0" onclick="fieldAction('start')">🔵 Начал обработку</button>
+        <button class="btn btn-green" style="margin:0" onclick="fieldAction('close')">✅ Закрыть поле</button>
+      </div>
+    </div>
+
+    <!-- Выбор доли (при закрытии) -->
+    <div id="mo-frac-select" style="display:none">
+      <div style="font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Сколько обработано</div>
+      <div class="frac-grid" id="frac-grid">
+        <!-- заполняется JS -->
+      </div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px;text-align:center" id="mo-frac-hint">Выберите долю</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" style="margin:0;flex:1" onclick="confirmFieldClose()">✓ Подтвердить</button>
+        <button class="btn btn-outline" style="margin:0;flex:1" onclick="showActionSelect()">Назад</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+
+function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
+function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)); }
+function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function saveDay(d){ localStorage.setItem('atk_day', JSON.stringify(d)); }
+function clearDay(){ localStorage.removeItem('atk_day'); }
+function goTo(f){ window.location.href=f; }
+function goMenu(){ window.location.href='op_menu.html'; }
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function formatDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+async function apiCall(action,data={}){
+  try{ await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})}); }
+  catch(e){ console.error(e); }
+}
+
+// ── State ────────────────────────────────────────────────
+let pendingFields = []; // поля при открытии дня (из таблицы + перенос)
+let currentFieldId = null;
+let selectedFrac = null;
+
+// ── Tabs ─────────────────────────────────────────────────
+function showTab(name) {
+  ['fields','progress','close'].forEach(n => {
+    document.getElementById('screen-'+n).classList.toggle('active', n===name);
+    document.getElementById('tab-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='progress') renderProgress();
+  if (name==='close') renderClose();
+  if (name==='fields') renderFieldsList();
+}
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  const day = getDay();
+  document.getElementById('day-date').value = todayISO();
+
+  if (day) {
+    // День открыт — режим активного дня
+    document.getElementById('screen-open').classList.remove('active');
+    document.getElementById('screen-fields').classList.add('active');
+    document.getElementById('tabs').style.display = 'flex';
+    document.getElementById('hdr-title').textContent = 'День ' + day.dayNum;
+    document.getElementById('hdr-sub').textContent = formatDate(day.date);
+    renderFieldsList();
+  } else {
+    // Открываем день
+    const trip = getTrip();
+    if (!trip) { showToast('❌ Нет активной командировки'); setTimeout(goMenu, 1000); return; }
+    document.getElementById('screen-open').classList.add('active');
+    document.getElementById('tabs').style.display = 'none';
+    // Авто-загрузить поля
+    loadFields();
+  }
+}
+
+// ── Load fields from table ───────────────────────────────
+async function loadFields() {
+  const trip = getTrip();
+  const listEl = document.getElementById('open-fields-list');
+  listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">⏳ Загрузка...</div>';
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'get_fields', data:{ city: trip ? trip.direction : '', status:'ждёт' } })
+    });
+    const d = await r.json();
+    const fromTable = d.ok ? (d.result.fields||[]) : [];
+
+    // Добавить перенесённые поля из командировки
+    const carried = (trip && trip.pendingFields) ? trip.pendingFields : [];
+
+    // Объединить
+    carried.forEach(f => {
+      if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push({...f, carried:true});
+    });
+    fromTable.forEach(f => {
+      if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push({
+        id: f.id, name: f.name,
+        haPlan: parseFloat(f.haPlan)||0,
+        haLeft: parseFloat(f.haPlan)||0,
+        haDone: 0, coords: f.mapsUrl||'',
+        crop: f.crop||'', prep: f.prep||'',
+        status: 'pending', carried: false
+      });
+    });
+
+    renderOpenFieldsList();
+    if (pendingFields.length > 0) {
+      showToast('✓ Загружено полей: ' + pendingFields.length);
+    } else {
+      showToast('Полей для района не найдено');
+    }
+  } catch(e) {
+    listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:13px">❌ Ошибка загрузки</div>';
+  }
+}
+
+function renderOpenFieldsList() {
+  const listEl = document.getElementById('open-fields-list');
+  if (pendingFields.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">Полей нет. Добавьте вручную.</div>';
+    return;
+  }
+  listEl.innerHTML = pendingFields.map(f => `
+    <div class="field-card ${f.carried?'partial':'pending'}" style="margin-bottom:6px">
+      <div class="field-top">
+        <div class="field-name">${f.carried?'⏩ ':''} ${f.name}</div>
+        <span class="badge ${f.carried?'badge-partial':'badge-pending'}">${f.carried?'Перенос':'Новое'}</span>
+      </div>
+      <div class="field-meta">${f.carried?'Осталось':'План'}: <span>${f.haLeft} га</span>${f.crop?' · '+f.crop:''}</div>
+    </div>`).join('');
+}
+
+// ── Add field manually ───────────────────────────────────
+function toggleAddField() {
+  const form = document.getElementById('add-field-form');
+  form.style.display = form.style.display==='none' ? 'block' : 'none';
+}
+
+function addFieldManual() {
+  const name   = document.getElementById('new-field-name').value.trim();
+  const ha     = parseFloat(document.getElementById('new-field-ha').value);
+  const coords = document.getElementById('new-field-coords').value.trim();
+  if (!name) { showToast('⚠️ Укажите название'); return; }
+  if (!ha||ha<=0) { showToast('⚠️ Укажите площадь'); return; }
+  pendingFields.push({
+    id: 'F-'+Date.now(), name, haPlan:ha, haLeft:ha,
+    haDone:0, coords, crop:'', prep:'', status:'pending', carried:false
+  });
+  document.getElementById('new-field-name').value='';
+  document.getElementById('new-field-ha').value='';
+  document.getElementById('new-field-coords').value='';
+  document.getElementById('add-field-form').style.display='none';
+  renderOpenFieldsList();
+  showToast('✓ Поле добавлено');
+}
+
+// ── Open day ─────────────────────────────────────────────
+function openDay() {
+  const trip = getTrip();
+  if (!trip) { showToast('❌ Нет командировки'); return; }
+  const date = document.getElementById('day-date').value;
+  if (!date) { showToast('⚠️ Укажите дату'); return; }
+  if (pendingFields.length===0) { showToast('⚠️ Нет полей'); return; }
+
+  const haPlan = pendingFields.reduce((s,f)=>s+f.haLeft,0);
+  const day = {
+    id: 'DAY-'+Date.now(),
+    tripId: trip.id,
+    date, dayNum: (trip.days||[]).length+1,
+    fields: pendingFields.map(f=>({...f})),
+    haPlan, haDone:0, status:'active'
+  };
+  saveDay(day);
+
+  // Очистить pending в командировке
+  trip.pendingFields = [];
+  saveTrip(trip);
+
+  apiCall('open_day', {
+    tripId:day.tripId, dayId:day.id, dayNum:day.dayNum,
+    date:day.date, haPlan:day.haPlan,
+    fieldIds:day.fields.map(f=>f.id)
+  });
+
+  showToast('☀️ День '+day.dayNum+' открыт!');
+  setTimeout(()=>window.location.reload(), 600);
+}
+
+// ── Render fields list (active day) ─────────────────────
+function renderFieldsList() {
+  const day = getDay();
+  if (!day) return;
+  const wrap = document.getElementById('fields-list-wrap');
+  if (!day.fields||day.fields.length===0) {
+    wrap.innerHTML='<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Нет полей</div></div>';
+    return;
+  }
+
+  wrap.innerHTML = day.fields.map(f => {
+    const pct = f.haPlan>0 ? Math.round((f.haDone||0)/f.haPlan*100) : 0;
+    const isDone    = f.status==='done';
+    const isActive  = f.status==='active';
+    const isPartial = f.status==='partial';
+    const isPending = f.status==='pending';
+
+    const badgeClass = {pending:'badge-pending',active:'badge-active',partial:'badge-partial',done:'badge-done'}[f.status]||'';
+    const badgeLabel = {pending:'Ожидает',active:'В работе',partial:'Частично',done:'Готово'}[f.status]||f.status;
+    const barColor = isDone ? 'var(--ga)' : isActive ? 'var(--blue)' : isPartial ? 'var(--purple)' : '#f59e0b';
+
+    return `<div class="field-card ${f.status}">
+      <div class="field-top">
+        <div class="field-name">${f.name}</div>
+        <span class="badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      <div class="field-meta">
+        План: <span>${f.haPlan} га</span> &nbsp;
+        Сделано: <span>${(f.haDone||0)} га</span> &nbsp;
+        Осталось: <span>${f.haLeft} га</span>
+        ${f.crop?' &nbsp; '+f.crop:''}
+      </div>
+      ${f.coords ? `<div class="field-meta" style="margin-bottom:6px"><a href="https://maps.google.com/?q=${encodeURIComponent(f.coords)}" target="_blank" style="color:var(--blue);font-weight:600;text-decoration:none">📍 ${f.coords}</a></div>` : ''}
+      <div class="prog-wrap">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      ${!isDone ? `<div class="fa-row">
+        ${isPending ? `<button class="fa-btn fa-btn-blue" onclick="openFieldModal('${f.id}')">▶ Начал / Закрыть</button>` : ''}
+        ${isActive  ? `<button class="fa-btn fa-btn-green" onclick="openFieldModal('${f.id}')">✓ Закрыть поле</button>` : ''}
+        ${isPartial ? `<button class="fa-btn fa-btn-purple" onclick="openFieldModal('${f.id}')">✓ Продолжить / Закрыть</button>` : ''}
+      </div>` : '<div style="font-size:12px;color:var(--green);font-weight:700;text-align:center">✅ Поле закрыто полностью</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── Field modal ──────────────────────────────────────────
+function openFieldModal(fieldId) {
+  const day = getDay();
+  if (!day) return;
+  const field = day.fields.find(f=>f.id===fieldId);
+  if (!field) return;
+  currentFieldId = fieldId;
+  selectedFrac = null;
+
+  document.getElementById('mo-field-name').textContent = field.name;
+  document.getElementById('mo-field-meta').textContent =
+    'План: '+field.haPlan+' га · Сделано: '+(field.haDone||0)+' га · Осталось: '+field.haLeft+' га';
+
+  // Если поле уже в работе/частично — сразу к закрытию
+  if (field.status==='active'||field.status==='partial') {
+    showFracSelect(field);
+  } else {
+    showActionSelect();
+  }
+
+  document.getElementById('field-overlay').classList.add('show');
+}
+
+function closeOverlayIfBg(e) {
+  if (e.target===document.getElementById('field-overlay')) closeModal();
+}
+function closeModal() {
+  document.getElementById('field-overlay').classList.remove('show');
+  currentFieldId = null;
+  selectedFrac = null;
+}
+
+function showActionSelect() {
+  document.getElementById('mo-action-select').style.display='block';
+  document.getElementById('mo-frac-select').style.display='none';
+}
+
+function fieldAction(action) {
+  if (action==='start') {
+    // Отметить «Начал» — статус active, убрать из pending
+    const day = getDay();
+    const field = day.fields.find(f=>f.id===currentFieldId);
+    if (!field) return;
+    field.status = 'active';
+    saveDay(day);
+    closeModal();
+    renderFieldsList();
+    showToast('🔵 Начал: ' + field.name);
+    apiCall('field_start', { id: field.id, dayId: day.id });
+  } else if (action==='close') {
+    const day = getDay();
+    const field = day.fields.find(f=>f.id===currentFieldId);
+    if (field) showFracSelect(field);
+  }
+}
+
+function showFracSelect(field) {
+  document.getElementById('mo-action-select').style.display='none';
+  document.getElementById('mo-frac-select').style.display='block';
+
+  // Строим кнопки дробей на основе haLeft
+  const left = field.haLeft;
+  const fracs = [
+    { label:'1/3', val: Math.round(left/3*10)/10 },
+    { label:'1/2', val: Math.round(left/2*10)/10 },
+    { label:'2/3', val: Math.round(left*2/3*10)/10 },
+    { label:'Всё', val: left }
+  ];
+
+  document.getElementById('frac-grid').innerHTML = fracs.map(f => `
+    <div class="frac-btn" onclick="selectFrac(this, ${f.val})">
+      <div class="frac-val">${f.label}</div>
+      <div class="frac-ha">${f.val} га</div>
+    </div>`).join('');
+}
+
+function selectFrac(el, val) {
+  document.querySelectorAll('.frac-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFrac = val;
+  const day = getDay();
+  const field = day ? day.fields.find(f=>f.id===currentFieldId) : null;
+  if (field) {
+    const remainder = Math.round((field.haLeft - val)*10)/10;
+    const hint = remainder > 0
+      ? `Остаток: ${remainder} га → перейдёт на следующий день`
+      : `✅ Поле будет закрыто полностью`;
+    document.getElementById('mo-frac-hint').textContent = hint;
+  }
+}
+
+function confirmFieldClose() {
+  if (!selectedFrac) { showToast('⚠️ Выберите долю'); return; }
+  const day = getDay();
+  const trip = getTrip();
+  if (!day||!currentFieldId) return;
+
+  const field = day.fields.find(f=>f.id===currentFieldId);
+  if (!field) return;
+
+  const haToday   = selectedFrac;
+  const totalDone = Math.round(((field.haDone||0)+haToday)*10)/10;
+  const remainder = Math.round((field.haPlan - totalDone)*10)/10;
+
+  field.haDone = totalDone;
+  field.haLeft = Math.max(0, remainder);
+  field.status = remainder <= 0 ? 'done' : 'partial';
+
+  if (remainder > 0 && trip) {
+    // Перенос
+    const idx = trip.pendingFields.findIndex(p=>p.id===field.id);
+    const carried = {...field, haLeft:remainder, haDone:totalDone, status:'pending'};
+    if (idx>=0) trip.pendingFields[idx]=carried;
+    else trip.pendingFields.push(carried);
+    saveTrip(trip);
+    showToast('⏩ '+remainder+' га перенесено на завтра');
+    apiCall('close_field',{id:field.id,haToday,isFullyDone:false,dayId:day.id});
+  } else {
+    showToast('✅ Поле закрыто: '+totalDone+' га');
+    if (trip) {
+      trip.pendingFields = trip.pendingFields.filter(p=>p.id!==field.id);
+      saveTrip(trip);
+    }
+    apiCall('field_done',{id:field.id,haToday,totalDone,dayId:day.id});
+  }
+
+  saveDay(day);
+  closeModal();
+  renderFieldsList();
+}
+
+// ── Render progress ──────────────────────────────────────
+function renderProgress() {
+  const day = getDay();
+  if (!day) return;
+  const fields = day.fields||[];
+  const haDone = fields.reduce((s,f)=>s+(f.haDone||0),0);
+  const haLeft = day.haPlan - haDone;
+  const pct    = day.haPlan>0 ? Math.round(haDone/day.haPlan*100) : 0;
+  document.getElementById('pr-plan').textContent     = day.haPlan + ' га';
+  document.getElementById('pr-done').textContent     = haDone + ' га';
+  document.getElementById('pr-left').textContent     = haLeft + ' га';
+  document.getElementById('pr-bar').style.width      = pct + '%';
+  document.getElementById('pr-pct').textContent      = pct + '%';
+  document.getElementById('pr-done-cnt').textContent    = fields.filter(f=>f.status==='done').length;
+  document.getElementById('pr-active-cnt').textContent  = fields.filter(f=>f.status==='active').length;
+  document.getElementById('pr-partial-cnt').textContent = fields.filter(f=>f.status==='partial').length;
+  document.getElementById('pr-pending-cnt').textContent = fields.filter(f=>f.status==='pending').length;
+}
+
+// ── Render close ─────────────────────────────────────────
+function renderClose() {
+  const day = getDay();
+  if (!day) return;
+  const fields  = day.fields||[];
+  const haDone  = fields.reduce((s,f)=>s+(f.haDone||0),0);
+  const done    = fields.filter(f=>f.status==='done').length;
+  const carried = fields.filter(f=>f.status==='partial').length;
+  document.getElementById('dc-date').textContent    = formatDate(day.date);
+  document.getElementById('dc-ha').textContent      = haDone + ' га';
+  document.getElementById('dc-done').textContent    = done;
+  document.getElementById('dc-carried').textContent = carried;
+}
+
+// ── Close day ────────────────────────────────────────────
+function closeDay() {
+  const day = getDay();
+  const trip = getTrip();
+  if (!day) return;
+
+  const fields  = day.fields||[];
+  const haDone  = fields.reduce((s,f)=>s+(f.haDone||0),0);
+  day.haDone   = haDone;
+  day.status   = 'closed';
+  day.note     = document.getElementById('dc-note').value.trim();
+  day.closedAt = new Date().toISOString();
+
+  if (trip) {
+    trip.days = trip.days||[];
+    trip.days.push({...day});
+    trip.ha = (trip.ha||0) + haDone;
+    saveTrip(trip);
+  }
+
+  apiCall('close_day',{
+    dayId:day.id, tripId:day.tripId, dayNum:day.dayNum,
+    date:day.date, haDone, note:day.note,
+    fieldsDone:fields.filter(f=>f.status==='done').length,
+    fieldsCarried:fields.filter(f=>f.status==='partial').length
+  });
+
+  clearDay();
+  showToast('🌙 День '+day.dayNum+' закрыт!');
+  setTimeout(goMenu, 800);
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

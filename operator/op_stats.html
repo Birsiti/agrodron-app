@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Статистика
+  v1.0 · 2026-05-13
+  Файл: operator/op_stats.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Статистика</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;--border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);--r:14px;--rs:10px;--f:'Manrope',sans-serif;--amber:#d97706;--amber-light:#fef3c7;--blue:#2563eb;--blue-light:#eff6ff;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 32px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat-box{background:var(--gl);border-radius:var(--rs);padding:14px;text-align:center}
+.stat-val{font-size:26px;font-weight:800;color:var(--green)}
+.stat-lbl{font-size:11px;color:var(--gm);margin-top:2px;font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13px;color:var(--t2)}
+.rv{font-size:13px;font-weight:700;color:var(--t1)}
+.rv.green{color:var(--green)} .rv.amber{color:var(--amber)} .rv.blue{color:var(--blue)}
+.loading{text-align:center;padding:40px;color:var(--t3);font-size:13px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="sub-hdr">
+  <div class="back-btn" onclick="window.location.href='op_menu.html'">‹</div>
+  <div class="hdr-title">Моя статистика</div>
+</div>
+<div class="scroll">
+<div class="wrap">
+
+  <div class="loading" id="loading">⏳ Загрузка данных...</div>
+
+  <div id="stats-content" style="display:none">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val" id="s-ha">0</div><div class="stat-lbl">Га за сезон</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-trips">0</div><div class="stat-lbl">Выездов</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-hours">0</div><div class="stat-lbl">Часов налёта</div></div>
+      <div class="stat-box" style="background:var(--blue-light)"><div class="stat-val" id="s-fields" style="color:var(--blue)">0</div><div class="stat-lbl" style="color:var(--blue)">Полей закрыто</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Профиль</div>
+      <div class="row"><span class="rl">ID</span><span class="rv" id="s-id">—</span></div>
+      <div class="row"><span class="rl">Статус</span><span class="rv green" id="s-status">—</span></div>
+      <div class="row"><span class="rl">Сертификат БАК</span><span class="rv" id="s-cert">—</span></div>
+      <div class="row"><span class="rl">Тип</span><span class="rv" id="s-type">—</span></div>
+      <div class="row"><span class="rl">Район</span><span class="rv" id="s-region">—</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Текущая командировка</div>
+      <div id="trip-stats">
+        <div style="text-align:center;padding:12px;color:var(--t3);font-size:13px">Нет активной командировки</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+function getTrip(){try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null}}
+function getOp(){try{return JSON.parse(localStorage.getItem('atk_op')||'null')}catch(e){return null}}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const r = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'get_operators',data:{status:'Активен'}})});
+    const d = await r.json();
+    const op = (d.ok && d.result.operators && d.result.operators.length > 0)
+      ? d.result.operators[0]
+      : getOp() || {id:'op_001',name:'Бруй Д.А.',hours:'0',hectares:'0',status:'Активен',cert:'Есть',type:'Бригадир',region:'—'};
+
+    document.getElementById('s-ha').textContent     = op.hectares||op.ha||'0';
+    document.getElementById('s-trips').textContent  = op.trips||op.vyezdov||'0';
+    document.getElementById('s-hours').textContent  = op.hours||'0';
+    document.getElementById('s-fields').textContent = op.fields||'0';
+    document.getElementById('s-id').textContent     = op.id||'—';
+    document.getElementById('s-status').textContent = op.status||'—';
+    document.getElementById('s-cert').textContent   = op.cert||op.certificate||'—';
+    document.getElementById('s-type').textContent   = op.type||'—';
+    document.getElementById('s-region').textContent = op.region||op.district||'—';
+
+    // Текущая командировка
+    const trip = getTrip();
+    if (trip) {
+      document.getElementById('trip-stats').innerHTML = `
+        <div class="row"><span class="rl">Направление</span><span class="rv">${trip.direction}</span></div>
+        <div class="row"><span class="rl">Га в поездке</span><span class="rv green">${trip.ha||0} га</span></div>
+        <div class="row"><span class="rl">Остаток аванса</span><span class="rv">${(trip.advance-(trip.cashSpent||0)).toFixed(2)} BYN</span></div>`;
+    }
+
+    document.getElementById('loading').style.display='none';
+    document.getElementById('stats-content').style.display='block';
+  } catch(e) {
+    document.getElementById('loading').textContent='❌ Ошибка загрузки';
+  }
+});
+</script>
+</body>
+</html>

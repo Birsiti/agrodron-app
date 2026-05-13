@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Погода
+  v1.0 · 2026-05-13
+  Файл: operator/op_weather.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Погода</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;--border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--r:14px;--rs:10px;--f:'Manrope',sans-serif;--blue:#2563eb;--blue-light:#eff6ff;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 32px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05)}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.city-btn{display:block;width:100%;padding:14px;border-radius:var(--rs);background:var(--blue-light);color:var(--blue);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;margin-bottom:8px;text-align:center;transition:all .18s;text-decoration:none}
+.city-btn:active{transform:scale(.98)}
+.city-meta{font-size:11px;color:var(--t3);text-align:center;margin-top:4px;margin-bottom:12px}
+.info-box{border-radius:var(--rs);padding:12px;background:var(--gl);color:var(--green);font-size:12px;font-weight:600;margin-bottom:8px;border:1.5px solid var(--ga)}
+</style>
+</head>
+<body>
+<div class="sub-hdr">
+  <div class="back-btn" onclick="window.location.href='op_menu.html'">‹</div>
+  <div class="hdr-title">Погода</div>
+</div>
+<div class="scroll">
+<div class="wrap">
+
+  <div class="info-box" id="trip-city-info">Активной командировки нет</div>
+
+  <div class="card">
+    <div class="card-title">Прогноз на gismeteo.by</div>
+    <a id="btn-trip-city" href="#" target="_blank" class="city-btn" style="display:none">🌤 Погода в районе командировки</a>
+    <div class="city-meta" id="city-meta-trip"></div>
+
+    <a href="https://www.gismeteo.by/weather-lyuban-4517/" target="_blank" class="city-btn">🍓 Любань (Ягодное место)</a>
+    <div class="city-meta">Ягодный участок, 120 га</div>
+
+    <a href="https://www.gismeteo.by/weather-minsk-4374/" target="_blank" class="city-btn" style="background:#f0f4ff;color:#334155">🏙 Минск</a>
+    <div class="city-meta">АТК / Великий Камень</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Параметры для полётов</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.7">
+      ✅ <b>Ветер</b> до 7 м/с — норма<br>
+      ⚠️ <b>Ветер</b> 7–10 м/с — ограничения<br>
+      ❌ <b>Ветер</b> >10 м/с — запрет<br>
+      ✅ <b>Видимость</b> от 1500 м<br>
+      ❌ <b>Осадки</b> — запрет полётов<br>
+      ❌ <b>Туман</b> — запрет полётов
+    </div>
+  </div>
+
+</div>
+</div>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const trip = JSON.parse(localStorage.getItem('atk_trip')||'null');
+    if (trip) {
+      document.getElementById('trip-city-info').textContent = '📍 Командировка: ' + trip.direction;
+      // Формируем URL gismeteo по городу (базовый поиск)
+      const btn = document.getElementById('btn-trip-city');
+      btn.href = 'https://www.gismeteo.by/search/#' + encodeURIComponent(trip.direction);
+      btn.textContent = '🌤 Погода: ' + trip.direction;
+      btn.style.display = 'block';
+      document.getElementById('city-meta-trip').textContent = 'Район командировки';
+    }
+  } catch(e){}
+});
+</script>
+</body>
+</html>

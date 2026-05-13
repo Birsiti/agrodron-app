@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Главное меню
+  v1.0 · 2026-05-13
+  Файл: operator/op_menu.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Оператор</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+/* HEADER */
+.app-hdr{background:var(--card);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-ico svg{width:20px;height:20px}
+.brand-name{font-size:17px;font-weight:800;color:var(--t1);line-height:1.1}
+.brand-name em{font-style:normal;color:var(--ga)}
+.brand-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:1px}
+.op-chip{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--gl);color:var(--green)}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* MENU */
+.menu-wrap{padding:8px 12px 24px}
+.role-banner{border-radius:var(--rs);padding:10px 14px;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.rb-ico{font-size:18px}
+.rb-info{flex:1}
+.rb-title{font-size:13px;font-weight:700;color:#fff}
+.rb-sub{font-size:11px;opacity:.8;color:#fff;margin-top:1px}
+
+.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
+
+.mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .18s;border:1.5px solid transparent}
+.mi:active{transform:scale(.98);border-color:var(--ga)}
+.mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.mi-info{flex:1}
+.mi-title{font-size:14px;font-weight:700;color:var(--t1)}
+.mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
+.mi-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--red-light);color:var(--red);margin-left:auto}
+
+/* BANNERS */
+.trip-banner{background:linear-gradient(135deg,#d97706,#b45309);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
+.day-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
+.tb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tb-title{font-size:13px;font-weight:800}
+.tb-sub{font-size:11px;opacity:.8;margin-top:2px}
+.tb-badge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.tb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.tb-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
+.tb-stat-val{font-size:15px;font-weight:800}
+.tb-stat-lbl{font-size:10px;opacity:.75;margin-top:1px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="app-hdr">
+  <div class="brand">
+    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/></svg></div>
+    <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub">ЗАО «АТК» · Оператор</div></div>
+  </div>
+  <div class="op-chip" id="op-chip">—</div>
+</div>
+
+<div class="scroll">
+<div class="menu-wrap">
+
+  <!-- Баннер роли -->
+  <div class="role-banner" id="role-banner" style="background:linear-gradient(135deg,#1b5935,#2a7a4a)">
+    <div class="rb-ico" id="rb-ico">👤</div>
+    <div class="rb-info">
+      <div class="rb-title" id="rb-title">Оператор</div>
+      <div class="rb-sub" id="rb-sub">Загрузка...</div>
+    </div>
+  </div>
+
+  <!-- Баннер активной командировки -->
+  <div id="trip-banner" style="display:none" onclick="goTo('op_trip.html')">
+    <div class="trip-banner">
+      <div class="tb-top">
+        <div><div class="tb-title">🚐 Командировка</div><div class="tb-sub" id="tb-direction">—</div></div>
+        <div class="tb-badge" id="tb-day-badge">День 1</div>
+      </div>
+      <div class="tb-stats">
+        <div class="tb-stat"><div class="tb-stat-val" id="tb-balance">—</div><div class="tb-stat-lbl">Остаток BYN</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="tb-ha">0</div><div class="tb-stat-lbl">Га всего</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="tb-exp-cnt">0</div><div class="tb-stat-lbl">Расходов</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Баннер активного дня -->
+  <div id="day-banner" style="display:none" onclick="goTo('op_day.html')">
+    <div class="day-banner">
+      <div class="tb-top">
+        <div><div class="tb-title">☀️ День открыт</div><div class="tb-sub" id="db-date">—</div></div>
+        <div class="tb-badge" id="db-fields-badge">0 полей</div>
+      </div>
+      <div class="tb-stats">
+        <div class="tb-stat"><div class="tb-stat-val" id="db-ha-done">0</div><div class="tb-stat-lbl">Га сделано</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="db-ha-left">0</div><div class="tb-stat-lbl">Га осталось</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="db-fields-done">0/0</div><div class="tb-stat-lbl">Полей</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Меню бригадира -->
+  <div id="brigadier-menu" style="display:none">
+    <div class="sep">Командировка</div>
+    <div class="mi" id="btn-open-trip" onclick="goTo('op_trip.html')">
+      <div class="mi-ico">🚐</div>
+      <div class="mi-info"><div class="mi-title">Открыть командировку</div><div class="mi-sub">Выезд, состав, аванс</div></div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" id="btn-open-day" onclick="goTo('op_day.html')" style="display:none">
+      <div class="mi-ico">☀️</div>
+      <div class="mi-info"><div class="mi-title">Открыть день</div><div class="mi-sub">Едем в поле</div></div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" id="btn-expense" onclick="goTo('op_expenses.html')" style="display:none">
+      <div class="mi-ico">💸</div>
+      <div class="mi-info"><div class="mi-title">Внести расход</div><div class="mi-sub">По командировке</div></div>
+      <div class="mi-arr">›</div>
+    </div>
+  </div>
+
+  <!-- Общее меню -->
+  <div class="sep">Рабочее</div>
+  <div class="mi" onclick="goTo('op_issues.html')">
+    <div class="mi-ico">🔧</div>
+    <div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div>
+    <div id="issues-badge" style="display:none" class="mi-badge">!</div>
+    <div class="mi-arr">›</div>
+  </div>
+
+  <div class="sep">Информация</div>
+  <div class="mi" onclick="goTo('op_stats.html')">
+    <div class="mi-ico">📊</div>
+    <div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды за сезон</div></div>
+    <div class="mi-arr">›</div>
+  </div>
+  <div class="mi" onclick="goTo('op_weather.html')">
+    <div class="mi-ico">🌤</div>
+    <div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">По месту командировки</div></div>
+    <div class="mi-arr">›</div>
+  </div>
+  <div class="mi" onclick="goTo('op_docs.html')">
+    <div class="mi-ico">📋</div>
+    <div class="mi-info"><div class="mi-title">Документы и связь</div><div class="mi-sub">Правила, контакты, РП</div></div>
+    <div class="mi-arr">›</div>
+  </div>
+
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+
+function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
+function getDay() { try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function getOp()  { try{return JSON.parse(localStorage.getItem('atk_op')||'null')}catch(e){return null} }
+function saveOp(o){ localStorage.setItem('atk_op', JSON.stringify(o)); }
+function goTo(f)  { window.location.href = f; }
+function daysDiff(s){ const st=new Date(s),n=new Date(); return Math.max(1,Math.floor((n-st)/86400000)+1); }
+function formatDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── Render banners ───────────────────────────────────────
+function renderBanners() {
+  const trip = getTrip();
+  const day  = getDay();
+
+  // Командировка
+  const tripBanner  = document.getElementById('trip-banner');
+  const btnOpenTrip = document.getElementById('btn-open-trip');
+  const btnOpenDay  = document.getElementById('btn-open-day');
+  const btnExpense  = document.getElementById('btn-expense');
+
+  if (trip) {
+    const balance = trip.advance - trip.cashSpent;
+    document.getElementById('tb-direction').textContent = '📍 ' + trip.direction;
+    document.getElementById('tb-day-badge').textContent = 'День ' + daysDiff(trip.dateStart);
+    document.getElementById('tb-balance').textContent   = balance.toFixed(0);
+    document.getElementById('tb-ha').textContent        = trip.ha || 0;
+    document.getElementById('tb-exp-cnt').textContent   = (trip.expenses||[]).length;
+    tripBanner.style.display  = 'block';
+    btnOpenTrip.style.display = 'none';
+    btnOpenDay.style.display  = day ? 'none' : 'flex';
+    btnExpense.style.display  = 'flex';
+  } else {
+    tripBanner.style.display  = 'none';
+    btnOpenTrip.style.display = 'flex';
+    btnOpenDay.style.display  = 'none';
+    btnExpense.style.display  = 'none';
+  }
+
+  // День
+  const dayBanner = document.getElementById('day-banner');
+  if (day) {
+    const haDone     = (day.fields||[]).reduce((s,f)=>s+(f.haDone||0),0);
+    const haLeft     = day.haPlan - haDone;
+    const fieldsDone = (day.fields||[]).filter(f=>f.status==='done').length;
+    const total      = (day.fields||[]).length;
+    document.getElementById('db-date').textContent        = formatDate(day.date) + ' · День ' + day.dayNum;
+    document.getElementById('db-fields-badge').textContent= total + ' ' + (total===1?'поле':total<5?'поля':'полей');
+    document.getElementById('db-ha-done').textContent     = haDone;
+    document.getElementById('db-ha-left').textContent     = haLeft;
+    document.getElementById('db-fields-done').textContent = fieldsDone + '/' + total;
+    dayBanner.style.display = 'block';
+    if (btnOpenDay) btnOpenDay.style.display = 'none';
+  } else {
+    dayBanner.style.display = 'none';
+  }
+
+  // Проблемы с техникой — бейдж если есть открытые
+  const issues = JSON.parse(localStorage.getItem('atk_issues')||'[]');
+  const openIssues = issues.filter(i=>i.status!=='resolved');
+  const badge = document.getElementById('issues-badge');
+  if (badge) badge.style.display = openIssues.length > 0 ? 'block' : 'none';
+}
+
+// ── Apply operator ───────────────────────────────────────
+function applyOp(op) {
+  const isBrigadier = op.role==='Бригадир'||op.type==='Бригадир'||op.id==='op_001';
+  document.getElementById('op-chip').textContent = op.name.split(' ')[0] + ' ' + (op.name.split(' ')[1]||'');
+  document.getElementById('rb-title').textContent = isBrigadier ? 'Бригадир' : 'Оператор';
+  document.getElementById('rb-sub').textContent   = (op.hours||'0') + ' ч · ' + (op.hectares||'0') + ' га';
+  document.getElementById('rb-ico').textContent   = isBrigadier ? '⚡' : '👤';
+  document.getElementById('role-banner').style.background = isBrigadier
+    ? 'linear-gradient(135deg,#d97706,#b45309)'
+    : 'linear-gradient(135deg,#1b5935,#2a7a4a)';
+  document.getElementById('brigadier-menu').style.display = isBrigadier ? 'block' : 'none';
+  saveOp({...op, isBrigadier});
+}
+
+// ── Init ─────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // Показать сохранённого оператора сразу
+  const cached = getOp();
+  if (cached) applyOp(cached);
+
+  renderBanners();
+
+  // Загрузить актуальные данные из таблицы
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'get_operators', data:{status:'Активен'} })
+    });
+    const d = await r.json();
+    if (d.ok && d.result.operators && d.result.operators.length > 0) {
+      applyOp(d.result.operators[0]);
+      renderBanners();
+    }
+  } catch(e) { /* offline — работаем с кэшем */ }
+});
+</script>
+</body>
+</html>
