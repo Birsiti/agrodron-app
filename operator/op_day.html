@@ -357,6 +357,26 @@ function init() {
   }
 }
 
+// ── Sheets API config ────────────────────────────────────
+const SHEETS_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SHEET_ID   = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+
+// Колонки ПОЛЯ КЛИЕНТОВ (0-based):
+// A=0 ID, B=1 ID клиента, C=2 Районный центр, D=3 Название поля,
+// E=4 Ссылка Maps, F=5 Культура, G=6 Препарат, H=7 Норма л/га,
+// I=8 Площадь га, J=9 Статус, K=10 Фото URL, L=11 Дата закрытия,
+// M=12 ID обработки, N=13 Примечания
+
+function coordsToMapsUrl(raw) {
+  if (!raw) return '';
+  // Заменяем запятую-разделитель десятичных на точку: "52,527" → "52.527"
+  // Формат в таблице: "52,5276925, 26,6100870"
+  const fixed = raw.toString()
+    .replace(/(\d),(\d)/g, '$1.$2')  // десятичные запятые → точки
+    .trim();
+  return 'https://maps.google.com/?q=' + encodeURIComponent(fixed);
+}
+
 // ── Load fields from table ───────────────────────────────
 async function loadFields() {
   const trip = getTrip();
@@ -364,39 +384,53 @@ async function loadFields() {
   listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--t3);font-size:13px">⏳ Загрузка...</div>';
 
   try {
-    const r = await fetch(SCRIPT_URL, {
-      method:'POST',
-      body: JSON.stringify({ action:'get_fields', data:{ city: trip ? trip.direction : '', status:'ждёт' } })
-    });
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!A2:N1000?key=${SHEETS_KEY}`;
+    const r = await fetch(url);
     const d = await r.json();
-    const fromTable = d.ok ? (d.result.fields||[]) : [];
+    const rows = d.values || [];
+
+    const city   = trip ? trip.direction : '';
+    const fromTable = rows
+      .filter(row => {
+        const rowCity   = (row[2]||'').toString().trim();
+        const rowStatus = (row[9]||'').toString().trim();
+        return rowStatus === 'ждёт' && (!city || rowCity === city);
+      })
+      .map(row => ({
+        id:     (row[0]||'').toString().trim(),
+        name:   (row[3]||'').toString().trim(),
+        city:   (row[2]||'').toString().trim(),
+        coords: (row[4]||'').toString().trim(),
+        mapsUrl: coordsToMapsUrl((row[4]||'').toString().trim()),
+        crop:   (row[5]||'').toString().trim(),
+        prep:   (row[6]||'').toString().trim(),
+        norm:   (row[7]||'').toString().trim(),
+        haPlan: parseFloat((row[8]||'0').toString().replace(',','.')) || 0,
+        haLeft: parseFloat((row[8]||'0').toString().replace(',','.')) || 0,
+        haDone: 0,
+        status: 'pending',
+        carried: false
+      }))
+      .filter(f => f.name); // пропустить пустые строки
 
     // Добавить перенесённые поля из командировки
     const carried = (trip && trip.pendingFields) ? trip.pendingFields : [];
-
-    // Объединить
     carried.forEach(f => {
       if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push({...f, carried:true});
     });
     fromTable.forEach(f => {
-      if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push({
-        id: f.id, name: f.name,
-        haPlan: parseFloat(f.haPlan)||0,
-        haLeft: parseFloat(f.haPlan)||0,
-        haDone: 0, coords: f.mapsUrl||'',
-        crop: f.crop||'', prep: f.prep||'',
-        status: 'pending', carried: false
-      });
+      if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push(f);
     });
 
     renderOpenFieldsList();
     if (pendingFields.length > 0) {
       showToast('✓ Загружено полей: ' + pendingFields.length);
     } else {
-      showToast('Полей для района не найдено');
+      showToast('Полей со статусом «ждёт» для ' + (city||'района') + ' не найдено');
     }
   } catch(e) {
     listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:13px">❌ Ошибка загрузки</div>';
+    console.error(e);
   }
 }
 
@@ -500,11 +534,18 @@ function renderFieldsList() {
       </div>
       <div class="field-meta">
         План: <span>${f.haPlan} га</span> &nbsp;
-        Сделано: <span>${(f.haDone||0)} га</span> &nbsp;
-        Осталось: <span>${f.haLeft} га</span>
+        Сделано: <span>${parseFloat(f.haDone||0)} га</span> &nbsp;
+        Осталось: <span>${parseFloat(f.haLeft||0)} га</span>
         ${f.crop?' &nbsp; '+f.crop:''}
+        ${f.prep?' · '+f.prep:''}
+        ${f.norm?' · '+f.norm+' л/га':''}
       </div>
-      ${f.coords ? `<div class="field-meta" style="margin-bottom:6px"><a href="https://maps.google.com/?q=${encodeURIComponent(f.coords)}" target="_blank" style="color:var(--blue);font-weight:600;text-decoration:none">📍 ${f.coords}</a></div>` : ''}
+      ${f.mapsUrl ? `<div style="margin-bottom:8px">
+        <a href="${f.mapsUrl}" target="_blank"
+           style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--blue);text-decoration:none;background:var(--blue-light);padding:5px 10px;border-radius:8px">
+          📍 Открыть в Google Maps
+        </a>
+      </div>` : ''}
       <div class="prog-wrap">
         <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${barColor}"></div></div>
       </div>
