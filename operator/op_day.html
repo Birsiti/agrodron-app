@@ -446,7 +446,8 @@ function renderOpenFieldsList() {
         <div class="field-name">${f.carried?'⏩ ':''} ${f.name}</div>
         <span class="badge ${f.carried?'badge-partial':'badge-pending'}">${f.carried?'Перенос':'Новое'}</span>
       </div>
-      <div class="field-meta">${f.carried?'Осталось':'План'}: <span>${f.haLeft} га</span>${f.crop?' · '+f.crop:''}</div>
+      <div class="field-meta">${f.carried?'Осталось':'План'}: <span>${f.haLeft} га</span>${f.crop?' · '+f.crop:''}${f.prep?' · '+f.prep:''}${f.norm?' · '+f.norm+' л/га':''}</div>
+      ${f.mapsUrl ? `<a href="${f.mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--blue);text-decoration:none;background:var(--blue-light);padding:5px 10px;border-radius:8px;margin-top:6px">📍 Google Maps</a>` : ''}
     </div>`).join('');
 }
 
