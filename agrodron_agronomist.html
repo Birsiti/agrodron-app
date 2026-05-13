@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v2.4 · 2026-05-13
+  v2.5 · 2026-05-13
   Файл: agronomist/agrodron_agronomist.html
 -->
 <html lang="ru">
@@ -143,12 +143,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </style>
 </head>
 <body>
-
-<div class="tg" id="tg-chrome">
-  <div class="tg-l">Назад</div>
-  <div class="tg-m"><div class="tg-t">AgroDrone.BY</div><div class="tg-s">@AgroDrone_BY_Bot</div></div>
-  <div class="tg-r">⋮</div>
-</div>
 
 <div class="app-hdr">
   <div class="brand">
@@ -339,6 +333,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 // ══════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
 const CLIENT_ID = 'CL-001'; // В боте — ID клиента из таблицы КЛИЕНТЫ
+const CITY = 'Ганцевичи';  // Районный центр агронома — передаётся из бота через URL ?city=...
 const AGRO_ID = CLIENT_ID; // совместимость
 
 // ══════════════════════════════════
@@ -536,7 +531,7 @@ async function saveField() {
       method: 'POST',
       body: JSON.stringify({
         action: 'add_field',
-        data: { clientId: CLIENT_ID, name, crop, prep, norm: norm.replace(',','.'), haPlan: parseFloat(area.replace(',','.')), mapsUrl: coords }
+        data: { clientId: CLIENT_ID, city: CITY, name, crop, prep, norm: norm.replace(',','.'), haPlan: parseFloat(area.replace(',','.')), mapsUrl: coords }
       })
     });
     const json = await resp.json();
