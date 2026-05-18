@@ -386,7 +386,8 @@ function renderFieldCard(f, showActions) {
     'готово':       { cls:'st-done', badge:'b-done', label:'Готово' }
   };
   const st = statusMap[f.status] || statusMap['новое'];
-  const pct = f.haPlan > 0 && f.haFact > 0 ? Math.round(f.haFact / f.haPlan * 100) : 0;
+  // haFact недоступен в ПОЛЯ КЛИЕНТОВ — прогресс не считаем
+  const pct = 0;
 
   return `<div class="field-card ${st.cls}">
     <div class="fc-head">

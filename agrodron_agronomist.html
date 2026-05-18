@@ -9,6 +9,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>AgroDrone.BY · Агроном</title>
+<!-- agrodron_agronomist_v2_7.html | май 2026 | Фиксы: редактирование полей, дата в карточке, статусы -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -541,11 +542,13 @@ async function saveField() {
 
   try {
     const action  = editId ? 'update_field' : 'add_field';
+    const editCity = btn.dataset.editCity || '';
     const payload = editId
       ? { id: editId, name, crop, prep,
           norm: norm.replace(',','.'),
           haPlan: parseFloat(area.replace(',','.')),
-          mapsUrl: coords }
+          mapsUrl: coords,
+          city: editCity }
       : { clientId: CLIENT_ID, city: CITY, name, crop, prep,
           norm: norm.replace(',','.'),
           haPlan: parseFloat(area.replace(',','.')),
