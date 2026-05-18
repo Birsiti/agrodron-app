@@ -124,6 +124,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);fon
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;z-index:200;transition:.3s;opacity:0;white-space:nowrap;max-width:calc(100% - 32px);text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -375,7 +376,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);fon
 const tg=window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();}
 
-const WEBHOOK_URL='https://hook.eu2.make.com/nvgwuuo4vf50clenoyojkn9lll6cy0eg';
+// Make webhook удалён — используем Apps Script
 const $=id=>document.getElementById(id);
 
 let accepted=false;
@@ -459,30 +460,39 @@ async function submitForm(){
   btn.disabled=true;
   btn.textContent='Отправляю...';
 
+  // Генерируем читаемый ID: KAN-ГГММДД-HHMM
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const candId = 'KAN-' + String(now.getFullYear()).slice(2) + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes());
+
   const data={
-    action:'new_candidate',
-    fio:$('fio').value.trim(),
-    age:$('age').value,
-    location:$('location').value.trim(),
-    phone:'+375'+$('phone').value.replace(/\D/g,''),
-    role:$('role').value,
-    experience:$('experience').value,
-    travel:$('travel').value,
-    car:$('car').value,
-    source:$('source').value,
-    about:$('about').value.trim(),
-    tg_id:tg?.initDataUnsafe?.user?.id||'',
-    tg_name:tg?.initDataUnsafe?.user?.first_name||'',
-    ts:new Date().toISOString(),
+    action: 'add_kandidat',
+    // Колонки: ID Дата ФИО Возраст Район/город Телефон Роль Опыт Авто Выезды Источник О себе Telegram ID Статус Дата статуса Заметки
+    id:         candId,
+    date:       pad(now.getDate())+'.'+pad(now.getMonth()+1)+'.'+now.getFullYear(),
+    name:       $('fio').value.trim(),
+    age:        $('age').value,
+    region:     $('location').value.trim(),
+    phone:      '+375'+$('phone').value.replace(/\D/g,''),
+    role:       $('role').value,
+    exp:        $('experience').value,
+    car:        $('car').value,
+    trips:      $('travel').value,
+    source:     $('source').value,
+    about:      $('about').value.trim(),
+    telegramId: String(tg?.initDataUnsafe?.user?.id||''),
+    status:     'новый',
+    // Дата статуса и Заметки — заполняет менеджер
   };
 
-  try{
-    await fetch(WEBHOOK_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'add_kandidat', data })
     });
-  }catch(e){console.error(e);}
+  } catch(e) { console.error('Script error:', e); }
 
   $('formWrap').classList.add('hidden');
   $('successScreen').classList.remove('hidden');
