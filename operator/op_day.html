@@ -409,8 +409,8 @@ async function loadFields() {
     const fromTable = rows
       .filter(row => {
         const rowCity   = (row[2]||'').toString().trim();
-        const rowStatus = (row[9]||'').toString().trim();
-        return rowStatus === 'ждёт' && (!city || rowCity === city);
+        const rowStatus = (row[9]||'').toString().trim().toLowerCase();
+        return rowStatus === 'ждёт' && (!city || rowCity.toLowerCase() === city.toLowerCase());
       })
       .map(row => ({
         id:     (row[0]||'').toString().trim(),
@@ -778,11 +778,16 @@ function closeDay() {
     saveTrip(trip);
   }
 
+  const totalSpent = (() => {
+    const trip = getTrip();
+    return trip ? (parseFloat(trip.ha)||0) : 0; // расходы из trip если есть
+  })();
   apiCall('close_day',{
     dayId:day.id, tripId:day.tripId, dayNum:day.dayNum,
     date:day.date, haDone, note:day.note,
     fieldsDone:fields.filter(f=>f.status==='done').length,
-    fieldsCarried:fields.filter(f=>f.status==='partial').length
+    fieldsCarried:fields.filter(f=>f.status==='partial').length,
+    totalHa: (trip && trip.ha) ? trip.ha + haDone : haDone
   });
 
   clearDay();
