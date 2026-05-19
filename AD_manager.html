@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Менеджер</title>
+<!-- AD_manager.html | май 2026 | v1.3 — config.js -->
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--acc:#1a3a6b;--acm:#15306a;--acl:#e8eef8;--aca:#3a6aee;
+  --green:#1b5935;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--red:#dc2626;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-ico svg{width:24px;height:24px}
+.brand-name{font-size:18px;font-weight:800;color:#fff;line-height:1.1}
+.brand-name em{font-style:normal;color:#a5c8ff}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+.mgr-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none;animation:fadeIn .22s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.menu-wrap{padding:8px 12px 24px}
+.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
+.mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent;position:relative}
+.mi:active{transform:scale(.98);border-color:var(--aca)}
+.mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.mi-info{flex:1}
+.mi-title{font-size:14px;font-weight:700;color:var(--t1)}
+.mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
+.mi-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0}
+.badge-red{background:#fdecea;color:#e74c3c}
+.badge-green{background:var(--gl);color:var(--green)}
+.badge-blue{background:var(--acl);color:var(--acc)}
+.badge-amber{background:#fef3c7;color:#d97706}
+
+.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
+.sub-back{font-size:22px;cursor:pointer;color:var(--acc);padding-right:4px}
+.sub-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
+.sub-wrap{padding:12px 12px 24px}
+
+.info-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.ic-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.ic-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.ic-row:last-child{border-bottom:none}
+.ic-label{font-size:13px;color:var(--t2)}
+.ic-val{font-size:13px;font-weight:700;color:var(--t1)}
+.ic-val.green{color:var(--green)}
+.ic-val.blue{color:var(--acc)}
+.ic-val.amber{color:var(--amber)}
+.ic-val.red{color:var(--red)}
+
+.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--border)}
+.field-card.st-new{border-left-color:var(--amber)}
+.field-card.st-ok{border-left-color:var(--aca)}
+.field-card.st-done{border-left-color:var(--ga)}
+.field-card.st-work{border-left-color:#8b5cf6}
+.fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.fc-name{font-size:15px;font-weight:800;color:var(--t1)}
+.fc-crop{font-size:12px;color:var(--t3);margin-top:2px}
+.fc-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0;margin-left:8px}
+.b-new{background:#fef3c7;color:#92400e}
+.b-ok{background:var(--acl);color:var(--acc)}
+.b-done{background:var(--gl);color:var(--green)}
+.b-work{background:#f5f3ff;color:#6d28d9}
+.fc-data{display:flex;gap:16px;font-size:12px;color:var(--t3);margin-bottom:10px}
+.fc-data span{font-weight:700;color:var(--t2)}
+.fc-actions{display:flex;gap:6px}
+.fa-btn{flex:1;padding:9px;border:none;border-radius:8px;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.fa-btn:active{transform:scale(.97)}
+.fa-accept{background:var(--gl);color:var(--green)}
+.fa-reject{background:#fdecea;color:#e74c3c}
+
+.trip-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--aca)}
+.tc-head{display:flex;justify-content:space-between;margin-bottom:8px}
+.tc-id{font-size:14px;font-weight:800;color:var(--t1)}
+.tc-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--gl);color:var(--green)}
+.tc-data{display:flex;gap:16px;font-size:12px;color:var(--t3)}
+.tc-data span{font-weight:700;color:var(--t2)}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sg{background:var(--card);border-radius:var(--rs);padding:14px 12px;box-shadow:var(--sh)}
+.sg-num{font-size:26px;font-weight:800;color:var(--acc)}
+.sg-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+.btn{width:100%;padding:13px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
+.btn:active{transform:scale(.98)}
+.btn-blue{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-green{background:linear-gradient(135deg,#1b5935,#2a7a4a);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+.loading{text-align:center;padding:30px;color:var(--t3);font-size:13px}
+.empty{text-align:center;padding:40px 20px}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+.empty-s{font-size:12px;color:var(--t3)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="app-hdr">
+  <div class="brand">
+    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/><path d="M7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg></div>
+    <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub">Менеджер АТК</div></div>
+  </div>
+  <div class="mgr-chip">Менеджер</div>
+</div>
+
+<div class="scroll">
+
+<div id="main" class="screen active">
+  <div class="menu-wrap">
+    <div class="sep">⚡ Требуют внимания</div>
+    <div class="mi" onclick="nav('fields-new')">
+      <div class="mi-ico">🌱</div>
+      <div class="mi-info"><div class="mi-title">Новые поля от агронома</div><div class="mi-sub">Требуют подтверждения</div></div>
+      <div class="mi-badge badge-amber" id="badge-new-fields">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="nav('trips-active')">
+      <div class="mi-ico">🚐</div>
+      <div class="mi-info"><div class="mi-title">Активные командировки</div><div class="mi-sub">Кто сейчас в поле</div></div>
+      <div class="mi-badge badge-green" id="badge-trips">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="sep">Поля</div>
+    <div class="mi" onclick="navFields('all')">
+      <div class="mi-ico">🗺️</div>
+      <div class="mi-info"><div class="mi-title">Все поля</div><div class="mi-sub">Полный список сезона</div></div>
+      <div class="mi-badge badge-blue" id="badge-all-fields">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="navFields('подтверждено')">
+      <div class="mi-ico">✅</div>
+      <div class="mi-info"><div class="mi-title">Подтверждённые</div><div class="mi-sub">Ждут бригадира</div></div>
+      <div class="mi-badge badge-blue" id="badge-confirmed">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="navFields('в работе')">
+      <div class="mi-ico">🔄</div>
+      <div class="mi-info"><div class="mi-title">В работе</div><div class="mi-sub">Обрабатываются сейчас</div></div>
+      <div class="mi-badge badge-blue" id="badge-inwork">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="navFields('готово')">
+      <div class="mi-ico">🏁</div>
+      <div class="mi-info"><div class="mi-title">Завершённые</div><div class="mi-sub">Закрытые поля</div></div>
+      <div class="mi-badge badge-green" id="badge-done-fields">—</div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="sep">Данные</div>
+    <div class="mi" onclick="nav('operators')">
+      <div class="mi-ico">👥</div>
+      <div class="mi-info"><div class="mi-title">Операторы</div><div class="mi-sub">Статистика, га, выезды</div></div>
+      <div class="mi-arr">›</div>
+    </div>
+    <div class="mi" onclick="nav('stats')">
+      <div class="mi-ico">📊</div>
+      <div class="mi-info"><div class="mi-title">Статистика</div><div class="mi-sub">Га, выезды, сезон</div></div>
+      <div class="mi-arr">›</div>
+    </div>
+  </div>
+</div>
+
+<div id="fields-new" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Новые поля</div>
+    <button onclick="loadAllFields()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--acc)">↻</button>
+  </div>
+  <div class="sub-wrap" id="fields-new-wrap"><div class="loading">⏳ Загрузка...</div></div>
+</div>
+
+<div id="fields-list" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title" id="fields-list-title">Поля</div>
+    <button onclick="loadAllFields()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--acc)">↻</button>
+  </div>
+  <div class="sub-wrap" id="fields-list-wrap"><div class="loading">⏳ Загрузка...</div></div>
+</div>
+
+<div id="trips-active" class="screen">
+  <div class="sub-hdr">
+    <div class="sub-back" onclick="back()">‹</div>
+    <div class="sub-title">Командировки</div>
+    <button onclick="loadTrips()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--acc)">↻</button>
+  </div>
+  <div class="sub-wrap" id="trips-wrap"><div class="loading">⏳ Загрузка...</div></div>
+</div>
+
+<div id="operators" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Операторы</div></div>
+  <div class="sub-wrap" id="operators-wrap"><div class="loading">⏳ Загрузка...</div></div>
+</div>
+
+<div id="stats" class="screen">
+  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title">Статистика</div></div>
+  <div class="sub-wrap">
+    <div class="stat-grid">
+      <div class="sg"><div class="sg-num" id="stat-ha">—</div><div class="sg-lbl">Га за сезон</div></div>
+      <div class="sg"><div class="sg-num" id="stat-trips">—</div><div class="sg-lbl">Командировок</div></div>
+      <div class="sg"><div class="sg-num" id="stat-ops">—</div><div class="sg-lbl">Операторов</div></div>
+      <div class="sg"><div class="sg-num" id="stat-fields">—</div><div class="sg-lbl">Полей закрыто</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+// CONFIG — см. config.js (SCRIPT_URL)
+
+let navHistory = ['main'];
+let allFields  = [];
+let currentFieldFilter = 'all';
+
+function coordsToMapsUrl(raw) {
+  if (!raw) return '';
+  if (raw.startsWith('http')) return raw;
+  return 'https://maps.google.com/?q=' + encodeURIComponent(raw.toString().replace(/(\d),(\d)/g,'$1.$2').trim());
+}
+
+async function api(action, data) {
+  const r = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, data: data || {} })
+  });
+  const d = await r.json();
+  if (!d.ok) throw new Error(d.error || 'API error');
+  return d.result;
+}
+
+async function loadAllFields() {
+  try {
+    const result = await api('get_fields', {});
+    allFields = (result.fields || []).map(f => ({
+      ...f,
+      status:     (f.status || 'новое').toString().trim().toLowerCase(),
+      mapsUrl:    coordsToMapsUrl(f.mapsUrl || ''),
+      dateClosed: (f.dateClosed || '').toString().trim(),
+      city:       (f.city || '').toString().trim()
+    }));
+    updateBadges();
+    if (navHistory[navHistory.length-1] === 'fields-new') renderNewFields();
+    if (navHistory[navHistory.length-1] === 'fields-list') renderFieldsList(currentFieldFilter);
+  } catch(e) { console.error(e); }
+}
+
+function updateBadges() {
+  const cnt = {
+    new:       allFields.filter(f => f.status === 'новое').length,
+    confirmed: allFields.filter(f => f.status === 'подтверждено').length,
+    inwork:    allFields.filter(f => f.status === 'в работе' || f.status === 'частично').length,
+    done:      allFields.filter(f => f.status === 'готово').length,
+    all:       allFields.length
+  };
+  document.getElementById('badge-new-fields').textContent  = cnt.new  || '0';
+  document.getElementById('badge-confirmed').textContent   = cnt.confirmed || '0';
+  document.getElementById('badge-inwork').textContent      = cnt.inwork || '0';
+  document.getElementById('badge-done-fields').textContent = cnt.done  || '0';
+  document.getElementById('badge-all-fields').textContent  = cnt.all   || '0';
+  const haEl = document.getElementById('stat-fields');
+  if (haEl) haEl.textContent = cnt.done;
+}
+
+function renderNewFields() {
+  const wrap = document.getElementById('fields-new-wrap');
+  const fields = allFields.filter(f => f.status === 'новое');
+  if (!fields.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">✅</div><div class="empty-t">Новых полей нет</div><div class="empty-s">Все поля обработаны</div></div>';
+    return;
+  }
+  let html = `<div class="info-card" style="background:#fef3c7;border:1.5px solid #f59e0b;margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:#92400e;text-align:center">⚠️ ${fields.length} пол. ожидают подтверждения</div></div>`;
+  fields.forEach(f => { html += renderFieldCard(f, true); });
+  wrap.innerHTML = html;
+}
+
+function renderFieldsList(filter) {
+  const wrap = document.getElementById('fields-list-wrap');
+  const filtered = filter === 'all' ? allFields : allFields.filter(f => f.status === filter);
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div><div class="empty-s">В этом разделе пусто</div></div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(f => renderFieldCard(f, f.status === 'новое')).join('');
+}
+
+function renderFieldCard(f, showActions) {
+  const statusMap = {
+    'новое':        { cls:'st-new',  badge:'b-new',  label:'Новое' },
+    'подтверждено': { cls:'st-ok',   badge:'b-ok',   label:'Подтверждено' },
+    'в работе':     { cls:'st-work', badge:'b-work', label:'В работе' },
+    'частично':     { cls:'st-work', badge:'b-work', label:'Частично' },
+    'готово':       { cls:'st-done', badge:'b-done', label:'Готово' }
+  };
+  const st = statusMap[f.status] || statusMap['новое'];
+  return `<div class="field-card ${st.cls}">
+    <div class="fc-head">
+      <div style="flex:1;min-width:0">
+        <div class="fc-name">${f.name || '—'}</div>
+        <div class="fc-crop">${f.city ? f.city + ' · ' : ''}${f.crop || ''}${f.prep ? ' · ' + f.prep : ''}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${f.dateClosed ? '✅ Закрыто: ' + f.dateClosed : ''}</div>
+      </div>
+      <span class="fc-badge ${st.badge}">${st.label}</span>
+    </div>
+    <div class="fc-data">
+      <div>📐 План: <span>${f.haPlan || 0} га</span></div>
+      <div>💧 <span>${f.norm ? f.norm + ' л/га' : '—'}</span></div>
+    </div>
+    ${f.mapsUrl ? `<a href="${f.mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--aca);text-decoration:none;margin-bottom:8px">📍 Открыть в Google Maps</a>` : ''}
+    ${showActions ? `<div class="fc-actions">
+      <button class="fa-btn fa-accept" onclick="confirmField('${f.id}')">✅ Подтвердить</button>
+      <button class="fa-btn fa-reject" onclick="rejectField('${f.id}')">✕ Отклонить</button>
+    </div>` : ''}
+  </div>`;
+}
+
+async function confirmField(fieldId) {
+  showToast('⏳ Подтверждаю...');
+  try {
+    await api('update_field_status', { id: fieldId, status: 'подтверждено' });
+    const f = allFields.find(f => f.id === fieldId);
+    if (f) f.status = 'подтверждено';
+    updateBadges(); renderNewFields();
+    showToast('✅ Поле подтверждено!');
+  } catch(e) { showToast('❌ Ошибка: ' + e.message); }
+}
+
+async function rejectField(fieldId) {
+  showToast('⏳ Отклоняю...');
+  try {
+    await api('update_field_status', { id: fieldId, status: 'отклонено' });
+    const idx = allFields.findIndex(f => f.id === fieldId);
+    if (idx >= 0) allFields.splice(idx, 1);
+    updateBadges(); renderNewFields();
+    showToast('✕ Поле отклонено');
+  } catch(e) { showToast('❌ Ошибка: ' + e.message); }
+}
+
+async function loadTrips() {
+  const wrap = document.getElementById('trips-wrap');
+  try {
+    const result = await api('get_trips', {});
+    const trips = result.trips || [];
+    const active = trips.filter(t => t.status === 'активна');
+    document.getElementById('badge-trips').textContent = active.length || '0';
+    document.getElementById('stat-trips').textContent  = trips.length || '0';
+    if (!active.length) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-ico">🚐</div><div class="empty-t">Нет активных командировок</div></div>';
+      return;
+    }
+    wrap.innerHTML = active.map(t => `
+      <div class="trip-card">
+        <div class="tc-head"><div class="tc-id">🚐 ${t.direction || t.id}</div><div class="tc-status">Активна</div></div>
+        <div class="tc-data">
+          <div>📅 <span>${t.dateStart}</span></div>
+          <div>🌾 <span>${t.ha || 0} га</span></div>
+          <div>💰 <span>${t.balance || t.advance} BYN</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--t3);margin-top:8px">👥 ${t.crew || '—'}</div>
+      </div>`).join('');
+  } catch(e) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Ошибка загрузки</div></div>';
+  }
+}
+
+async function loadOperators() {
+  const wrap = document.getElementById('operators-wrap');
+  try {
+    const result = await api('get_operators', { status: 'Активен' });
+    const ops = result.operators || [];
+    document.getElementById('stat-ops').textContent = ops.length || '0';
+    if (!ops.length) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-ico">👥</div><div class="empty-t">Нет операторов</div></div>';
+      return;
+    }
+    const atk = ops.filter(o => !String(o.type).includes('WR'));
+    const wr  = ops.filter(o =>  String(o.type).includes('WR'));
+    let html = '';
+    if (atk.length) {
+      html += `<div class="info-card"><div class="ic-title">АТК · операторы</div>`;
+      atk.forEach(o => { html += `<div class="ic-row"><span class="ic-label">${o.name}${o.role === 'Бригадир' ? ' ⚡' : ''}</span><span class="ic-val green">${o.hectares || 0} га · ${o.trips || 0} выезд.</span></div>`; });
+      html += `</div>`;
+    }
+    if (wr.length) {
+      html += `<div class="info-card"><div class="ic-title">WR · подряд</div>`;
+      wr.forEach(o => { html += `<div class="ic-row"><span class="ic-label">${o.name} WR</span><span class="ic-val amber">${o.hectares || 0} га · ${o.trips || 0} выезд.</span></div>`; });
+      html += `</div>`;
+    }
+    wrap.innerHTML = html;
+  } catch(e) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Ошибка загрузки</div></div>';
+  }
+}
+
+function nav(screen) {
+  showScreen(screen); navHistory.push(screen);
+  if (screen === 'fields-new')   renderNewFields();
+  if (screen === 'trips-active') loadTrips();
+  if (screen === 'operators')    loadOperators();
+}
+
+function navFields(filter) {
+  currentFieldFilter = filter;
+  const titles = { 'all':'Все поля', 'подтверждено':'Подтверждённые', 'в работе':'В работе', 'готово':'Завершённые' };
+  document.getElementById('fields-list-title').textContent = titles[filter] || 'Поля';
+  showScreen('fields-list'); navHistory.push('fields-list');
+  renderFieldsList(filter);
+}
+
+function back() {
+  if (navHistory.length > 1) { navHistory.pop(); showScreen(navHistory[navHistory.length-1]); }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id); if (el) el.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllFields();
+  try {
+    const r = await api('get_trips', {});
+    const trips = r.trips || [];
+    document.getElementById('badge-trips').textContent = trips.filter(t => t.status === 'активна').length || '0';
+    document.getElementById('stat-trips').textContent  = trips.length || '0';
+    document.getElementById('stat-ha').textContent = trips.reduce((s,t) => s + (parseFloat(t.ha)||0), 0) || '0';
+  } catch(e) {}
+  try {
+    const r = await api('get_operators', { status: 'Активен' });
+    document.getElementById('stat-ops').textContent = (r.operators||[]).length || '0';
+  } catch(e) {}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расчёт заявки | AgroDrone.BY</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1a6b4a;--gl:#e8f4ee;--gm:#3dbf8a;
+  --navy:#0f2847;--navy2:#1a3a6b;
+  --bg:#f0f3f7;--card:#fff;--border:#e2e8f0;
+  --text:#1a1a2e;--muted:#64748b;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --blue:#1d4ed8;--blue-bg:#eff6ff;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30}
+.hlogo{display:flex;align-items:center;gap:8px}
+.hlm{width:28px;height:28px;background:var(--gm);border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+.hlm svg{width:14px;height:14px;fill:#fff}
+.hln{font-size:14px;font-weight:700;color:#fff}
+.hln span{color:var(--gm)}
+.hls{font-size:9.5px;color:rgba(255,255,255,.4);margin-top:1px}
+.mgr-badge{background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px}
+
+/* ── СПИСОК ЗАЯВОК ── */
+.rp{max-width:1200px;margin:0 auto;padding:14px}
+.tabs-w{background:#fff;border-radius:11px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
+.tabs-row{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-row::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;min-width:90px;padding:11px 8px;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:#fff;transition:.2s;text-align:center;white-space:nowrap}
+.tab:hover{background:#f9fafb}
+.tab.active{color:var(--green);border-bottom-color:var(--green);background:var(--gl)}
+.tc{font-size:10px;font-weight:700;opacity:.6}
+.st-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.st-new{background:#dbeafe;color:#1e40af}
+.st-called{background:#ede9fe;color:#6d28d9}
+.st-agreed{background:#d1fae5;color:#065f46}
+.st-work{background:#fef3c7;color:#92400e}
+.st-done{background:var(--gl);color:var(--green)}
+.st-paid{background:#dcfce7;color:#15803d}
+.st-reject{background:#fee2e2;color:#991b1b}
+.empty-st{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.rt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rt-title{font-size:16px;font-weight:700;color:var(--navy)}
+.btn-refresh{background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
+.btn-refresh:hover{border-color:var(--green);color:var(--green)}
+.btn-open{padding:7px 14px;background:var(--green);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer}
+
+/* ── КАРТОЧКИ ЗАЯВОК ── */
+.req-filter{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.req-filter label{font-size:11px;font-weight:600;color:var(--muted)}
+.filter-select{padding:6px 28px 6px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;color:var(--text);background:#fff;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+.filter-select:focus{outline:none;border-color:var(--green)}
+.req-cards{display:flex;flex-direction:column;gap:10px}
+.req-card{background:#fff;border-radius:12px;border:1px solid var(--border);border-left:4px solid #cbd5e1;padding:13px 14px;cursor:pointer;transition:.15s;position:relative}
+.req-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.req-card:active{transform:scale(.99)}
+.req-card.card-new{border-left-color:#3b82f6;background:#fafcff}
+.req-card.card-called{border-left-color:#8b5cf6;background:#fdfaff}
+.req-card.card-agreed{border-left-color:#10b981;background:#f6fdf9}
+.req-card.card-work{border-left-color:#f59e0b;background:#fffdf5}
+.req-card.card-done{border-left-color:#1a6b4a;background:#f5fbf8}
+.req-card.card-paid{border-left-color:#16a34a;background:#f0fdf4}
+.req-card.card-no{border-left-color:#dc2626;background:#fff8f8}
+.rc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.rc-num{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.rc-culture{font-size:16px;font-weight:800;color:var(--navy);line-height:1.2}
+.rc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.rc-mid{display:flex;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+.rc-field{display:flex;flex-direction:column;gap:1px}
+.rc-val{font-size:13px;font-weight:700;color:var(--text)}
+.rc-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rc-bot{display:flex;align-items:center;justify-content:space-between}
+.rc-deadline{font-size:11px;color:var(--muted)}
+.rc-area-big{font-size:18px;font-weight:800;color:var(--navy)}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:40;transform:translateY(100%);transition:.3s}
+.save-bar.show{transform:translateY(0)}
+.save-bar-msg{color:rgba(255,255,255,.7);font-size:12px;flex:1}
+.btn-save-status{padding:10px 18px;background:var(--gm);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
+.btn-save-status:hover{background:#2ea877}
+
+/* ── CLIENT STRIP ── */
+.client-strip{background:var(--navy2);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cs-left{display:flex;align-items:center;gap:10px}
+.cs-avatar{width:34px;height:34px;background:var(--gm);border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.cs-org{font-size:13px;font-weight:700;color:#fff}
+.cs-meta{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.status-wrap{display:flex;gap:5px;flex-wrap:wrap}
+.stat{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid transparent;opacity:.55;transition:.15s;white-space:nowrap}
+.stat.on{opacity:1}
+.stat-new{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.stat-new.on{background:#1e40af;color:#fff;border-color:#1e40af}
+.stat-called{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.stat-called.on{background:#6d28d9;color:#fff;border-color:#6d28d9}
+.stat-agreed{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
+.stat-agreed.on{background:#059669;color:#fff;border-color:#059669}
+.stat-work{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.stat-work.on{background:#d97706;color:#fff;border-color:#d97706}
+.stat-done{background:var(--gl);color:var(--green);border-color:#6ee7b7}
+.stat-done.on{background:var(--green);color:#fff;border-color:var(--green)}
+.stat-paid{background:#dcfce7;color:#15803d;border-color:#86efac}
+.stat-paid.on{background:#16a34a;color:#fff;border-color:#16a34a}
+.stat-no{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.stat-no.on{background:#dc2626;color:#fff;border-color:#dc2626}
+
+/* ── LAYOUT ── */
+.main{max-width:1080px;margin:0 auto;padding:14px 12px;display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
+@media(max-width:720px){.main{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .rp{padding:10px 8px}
+  .rt-hdr{flex-direction:column;align-items:flex-start;gap:6px}
+  .client-strip{flex-direction:column;align-items:flex-start}
+  .status-wrap{width:100%}
+  .stat{font-size:10px;padding:4px 7px}
+  .fi,.sw select{font-size:13px}
+  .pbig{font-size:32px}
+  .actions{grid-template-columns:1fr}
+  .btn-send{grid-column:auto}
+  .frow{grid-template-columns:1fr}
+  .save-bar{padding:10px 12px}
+  .save-bar-msg{font-size:11px}
+}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:11px;border:1px solid var(--border);margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+.ch{padding:11px 14px 0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.cb{padding:10px 14px 13px}
+
+/* ── FORM ── */
+.fg{margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:11.5px;color:var(--muted);font-weight:500;display:block;margin-bottom:3px}
+.fi{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13.5px;color:var(--text);background:#fafbfd;transition:.15s}
+.fi:focus{outline:none;border-color:var(--green);background:#fff}
+.sw{position:relative}
+.sw select{width:100%;padding:7px 30px 7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13.5px;color:var(--text);background:#fafbfd;-webkit-appearance:none;appearance:none;transition:.15s}
+.sw select:focus{outline:none;border-color:var(--green);background:#fff}
+.sw::after{content:'';position:absolute;right:10px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--muted);pointer-events:none}
+.sw:focus-within::after{border-top-color:var(--green)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ftag{display:inline-flex;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:3px;background:var(--gl);color:var(--green)}
+.ftag.hi{background:var(--amber-bg);color:var(--amber)}
+
+/* ── TOGGLE BUTTONS ── */
+.tbg{display:flex;gap:5px}
+.tb{flex:1;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;color:var(--muted);background:#fafbfd;transition:.15s}
+.tb.on{border-color:var(--green);background:var(--gl);color:var(--green);font-weight:700}
+
+/* ── CHECKBOXES ── */
+.cbc{display:flex;flex-direction:column;gap:6px}
+.cbi{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.cbi input{width:14px;height:14px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+
+/* ── PRICE CARD ── */
+.pcard{background:linear-gradient(145deg,var(--navy) 0%,#1a3a35 100%);border-radius:12px;padding:20px;color:#fff;margin-bottom:12px}
+.ptag{font-size:9.5px;opacity:.55;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.pbig{font-size:40px;font-weight:800;letter-spacing:-2px;line-height:1}
+.punit{font-size:12px;opacity:.55;margin-left:3px}
+.psub{font-size:11px;opacity:.4;margin-top:2px}
+.pdiv{border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0}
+.prow{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.prow:last-child{margin-bottom:0}
+.pl{opacity:.55}
+.pv{font-weight:600}
+.ptot{font-size:17px;font-weight:800}
+.p-warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:7px;padding:6px 10px;font-size:11px;color:#fbbf24;margin-top:10px}
+
+/* ── ACTION BUTTONS ── */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn{padding:11px 10px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:.15s;text-align:center}
+.btn-send{background:var(--green);color:#fff;grid-column:1/-1;font-size:14px;padding:13px}
+.btn-send:hover{background:#145a3d}
+.btn-send:active{transform:scale(.98)}
+.btn-copy{background:var(--blue-bg);color:var(--blue);border:1.5px solid #bfdbfe}
+
+/* ── NOTES ── */
+.notes-ta{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:#fafbfd;resize:none;font-family:inherit;line-height:1.5;transition:.15s}
+.notes-ta:focus{outline:none;border-color:var(--green);background:#fff}
+
+/* ── COLLAPSIBLE ── */
+.collapse-btn{width:100%;padding:10px 14px;background:#f5f8fc;border:none;border-top:1px solid var(--border);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:.15s}
+.collapse-btn:hover{background:#edf2f8}
+.collapse-body{display:none}
+.collapse-body.open{display:block}
+.carr{transition:.2s;display:inline-block}
+.carr.open{transform:rotate(180deg)}
+
+/* ── BREAKDOWN TABLE ── */
+.bt{width:100%;border-collapse:collapse;font-size:11.5px}
+.bt th{text-align:left;padding:5px 10px;background:#f5f8fc;font-size:9.5px;color:var(--muted);text-transform:uppercase;font-weight:700}
+.bt th:not(:first-child){text-align:right}
+.bt td{padding:5px 10px;border-bottom:1px solid #f0f3f8}
+.bt td:not(:first-child){text-align:right}
+.bt tr.sub td{color:var(--muted);font-size:11px}
+.bt tr.sub td:first-child{padding-left:18px}
+.bt tr.grp td{font-weight:700;background:#f8fafc;font-size:12px}
+.bt tr.tot td{font-weight:800;font-size:13px;background:var(--gl);color:var(--green)}
+
+/* ── VARS PANEL ── */
+.vp{padding:10px 14px 13px}
+.vsec{margin-bottom:12px}
+.vsec:last-child{margin-bottom:0}
+.vst{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed var(--border)}
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.vf label{font-size:10px;color:var(--muted);display:block;margin-bottom:2px}
+.vi{width:100%;padding:5px 8px;border:1.5px solid #dde3ee;border-radius:6px;font-size:12px;background:#fffef5}
+.vi:focus{outline:none;border-color:var(--green)}
+.vis{width:100%;padding:5px 8px;border:1.5px solid #dde3ee;border-radius:6px;font-size:12px;background:#fffef5;-webkit-appearance:none;appearance:none}
+
+/* ── PIN ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(5,15,35,.75);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.ov.on{display:flex}
+.pbox{background:#fff;border-radius:16px;padding:28px 24px;width:290px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.pt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ps{font-size:12px;color:var(--muted);margin-bottom:16px}
+.pi{width:100%;padding:11px;text-align:center;font-size:22px;letter-spacing:6px;border:2px solid var(--border);border-radius:9px;margin-bottom:12px;font-family:monospace}
+.pi:focus{outline:none;border-color:var(--navy2)}
+.pb{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
+.pe{color:var(--red);font-size:11.5px;margin-top:6px;display:none}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:200;transition:.3s;opacity:0;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+.istrip{font-size:11px;color:#78620a;background:#fef9e7;border:1px solid #f5d85a;border-radius:7px;padding:6px 10px;margin-top:10px}
+.hidden{display:none}
+
+/* COEF VISUAL */
+.cv-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f3f8;font-size:12.5px}
+.cv-row:last-child{border-bottom:none;padding-top:8px;font-weight:700;font-size:13px}
+.cv-left{display:flex;align-items:center;gap:7px}
+.cv-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.cv-name{color:var(--text)}
+.cv-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+.cv-active{background:var(--gl);color:var(--green)}
+.cv-base{background:#f5f8fc;color:var(--muted)}
+.cv-total{background:var(--navy2);color:white;padding:3px 10px;border-radius:6px;font-size:12px}
+</style>
+
+</head>
+<body>
+
+<!-- PIN OVERLAY -->
+
+<div class="ov" id="pinOv">
+  <div class="pbox">
+    <div class="pt">Переменные</div>
+    <div class="ps">PIN-код менеджера</div>
+    <input class="pi" type="password" id="pinIn" maxlength="8" autocomplete="off">
+    <button class="pb" onclick="checkPin()">Войти</button>
+    <div class="pe" id="pinErr">Неверный PIN</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+
+<div class="hdr">
+  <div class="hlogo">
+    <div class="hlm"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v6c0 5 3.5 9.74 8 11 4.5-1.26 8-6 8-11V7L12 2z"/></svg></div>
+    <div><div class="hln">Agro<span>Dron</span>.BY</div><div class="hls">Калькулятор · менеджер</div></div>
+  </div>
+  <span class="mgr-badge">МЕНЕДЖЕР</span>
+</div>
+
+<!-- СПИСОК ЗАЯВОК -->
+
+<div class="rp" id="requestsPanel">
+  <div class="rt-hdr">
+    <span class="rt-title">📋 Заявки на обработку</span>
+    <button class="btn-refresh" onclick="loadRequests()">🔄 Обновить</button>
+  </div>
+  <div class="req-filter">
+    <label>Статус:</label>
+    <select class="filter-select" id="statusFilter" onchange="setFilterFromSelect(this.value)">
+      <option value="all" id="c_all">Все заявки</option>
+      <option value="new" id="c_new">🆕 Новые</option>
+      <option value="called" id="c_called">📞 Связались</option>
+      <option value="agreed" id="c_agreed">🤝 Согласовано</option>
+      <option value="work" id="c_work">✈️ В работе</option>
+      <option value="done" id="c_done">✅ Выполнено</option>
+      <option value="paid" id="c_paid">💰 Оплачено</option>
+      <option value="reject" id="c_reject">❌ Отказ</option>
+    </select>
+  </div>
+  <div id="requestsList"><div class="empty-st">Загружаю заявки...</div></div>
+</div>
+
+<!-- CLIENT STRIP -->
+
+<div class="client-strip hidden" id="clientStrip">
+  <div class="cs-left">
+    <div class="cs-avatar" id="csAvatar">?</div>
+    <div>
+      <div class="cs-org" id="csOrg">Новая заявка</div>
+      <div class="cs-meta" id="csMeta">Данные клиента</div>
+    </div>
+  </div>
+  <div class="status-wrap" id="statusWrap">
+    <div class="stat stat-new on"  id="st_new"    onclick="setStatus('new')">🆕 Новая</div>
+    <div class="stat stat-called"  id="st_called" onclick="setStatus('called')">📞 Связались</div>
+    <div class="stat stat-agreed"  id="st_agreed" onclick="setStatus('agreed')">🤝 Согласовано</div>
+    <div class="stat stat-work"    id="st_work"   onclick="setStatus('work')">✈️ В работе</div>
+    <div class="stat stat-done"    id="st_done"   onclick="setStatus('done')">✅ Выполнена</div>
+    <div class="stat stat-paid"    id="st_paid"   onclick="setStatus('paid')">💰 Оплачена</div>
+    <div class="stat stat-no"      id="st_no"     onclick="setStatus('no')">❌ Отказ</div>
+  </div>
+</div>
+
+<!-- SAVE BAR (фиксированная) -->
+
+<div class="save-bar" id="saveBar">
+  <span class="save-bar-msg">⚠️ Статус изменён — сохраните перед выходом</span>
+  <button class="btn-save-status" onclick="saveStatus()">Сохранить статус</button>
+  <button onclick="backToList()" style="padding:10px 14px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer">← Список</button>
+</div>
+
+<div class="main hidden" id="mainPanel">
+
+  <!-- ═══ LEFT ═══ -->
+
+  <div>
+
+    <div class="card">
+      <div class="ch">Параметры поля</div>
+      <div class="cb">
+        <div class="fg">
+          <label class="fl">Площадь, га</label>
+          <input class="fi" type="number" id="area" value="100" min="1" oninput="calc()">
+        </div>
+        <div class="fg">
+          <label class="fl">Район / населённый пункт</label>
+          <input class="fi" type="text" id="location" value="">
+        </div>
+        <div class="fg">
+          <label class="fl">Расстояние от ВК, км <span style="color:var(--muted);font-weight:400">(авто из НП + смещение)</span></label>
+          <input class="fi" type="number" id="km" value="" min="0" oninput="calc()" placeholder="укажите км">
+          <div class="ftag" id="distTag">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Сложность</div>
+      <div class="cb">
+        <div class="fg">
+          <label class="fl">Тип поля / культура</label>
+          <div class="sw">
+            <select id="treatment" onchange="calc()">
+              <optgroup label="── Сельхоз культуры ──">
+                <option value="culture_grain"  data-name="Зерновые">Зерновые (пшеница, ячмень, рожь)</option>
+                <option value="culture_rape"   data-name="Рапс">Рапс</option>
+                <option value="culture_corn"   data-name="Кукуруза">Кукуруза</option>
+                <option value="culture_soy"    data-name="Соя">Соя</option>
+                <option value="culture_potato" data-name="Картофель">Картофель</option>
+                <option value="culture_beet"   data-name="Свекла сахарная">Свекла сахарная</option>
+                <option value="culture_sunflower" data-name="Подсолнечник">Подсолнечник</option>
+                <option value="culture_vegetables" data-name="Овощные культуры">Овощные (капуста, морковь, лук)</option>
+              </optgroup>
+              <optgroup label="── Ягодники и сады ──">
+                <option value="culture_berries"  data-name="Ягодники">Ягодники (клубника, голубика)</option>
+                <option value="culture_orchards" data-name="Сады">Сады (яблони, груши...)</option>
+                <option value="culture_vineyards" data-name="Виноградники">Виноградники</option>
+              </optgroup>
+              <optgroup label="── Специальные объекты ──">
+                <option value="culture_wasteland"  data-name="Заброшенные земли">Заброшенные земли / бурьян</option>
+                <option value="culture_channels"   data-name="Каналы / мелиорация">Каналы / мелиорация</option>
+                <option value="culture_hogweed"    data-name="Борщевик">Борщевик</option>
+                <option value="culture_powerline"  data-name="ЛЭП">ЛЭП (расчистка)</option>
+                <option value="culture_forest"     data-name="Лесные массивы">Лесные массивы</option>
+                <option value="culture_slopes"     data-name="Склоны / рельеф">Склоны / сложный рельеф</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label class="fl">Сложность поля</label>
+            <div class="sw">
+              <select id="complexity" onchange="calc()">
+                <option value="1" data-key="complexity_simple">Простое</option>
+                <option value="1.02" data-key="complexity_medium">Среднее</option>
+                <option value="1.04" data-key="complexity_hard">Сложное</option>
+                <option value="1.06" data-key="complexity_very_hard">Очень сложное</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Препятствия</label>
+            <div class="sw">
+              <select id="obstacles" onchange="calc()">
+                <option value="1" data-key="obstacles_no">Нет</option>
+                <option value="1.02" data-key="obstacles_yes">Есть</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Участков на поле</label>
+          <div class="tbg">
+            <div class="tb on" id="fr1" onclick="setFrag(1,'fr1')">1–2</div>
+            <div class="tb" id="fr2" onclick="setFrag(1.1,'fr2')">3–5 (×1.1)</div>
+            <div class="tb" id="fr3" onclick="setFrag(1.2,'fr3')">6–10 (×1.2)</div>
+          </div>
+          <input type="hidden" id="frag" value="1">
+        </div>
+        <div class="fg">
+          <label class="fl">Дополнительные условия</label>
+          <div class="cbc">
+            <label class="cbi"><input type="checkbox" id="add_night" value="1" onchange="calc()"> 🌙 Ночные работы <span style="font-size:10px;color:var(--muted)">(коэф будет добавлен)</span></label>
+            <label class="cbi"><input type="checkbox" id="add_urgent" value="1.02" onchange="calc()"> Срочный выезд (×1.02)</label>
+            <label class="cbi"><input type="checkbox" id="add_nps" value="1.04" onchange="calc()"> Вблизи населённого пункта (×1.04)</label>
+            <label class="cbi"><input type="checkbox" id="add_wind" value="1.02" onchange="calc()"> Ветреная погода (×1.02)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARS (скрыты за PIN) -->
+    <div class="card hidden" id="varCard">
+      <div class="ch" style="padding-bottom:8px">Переменные</div>
+      <div class="vp">
+        <div class="vsec">
+          <div class="vst">Транспорт</div>
+          <div class="vg">
+            <div class="vf"><label>Тариф BYN/км</label><input class="vi" type="number" id="v_rate" value="2.6" step="0.1" oninput="calc()"></div>
+            <div class="vf"><label>Надбавка материалы ×</label><input class="vi" type="number" id="v_matmult" value="1.1" step="0.01" oninput="calc()"></div>
+          </div>
+        </div>
+        <div class="vsec">
+          <div class="vst">Дрон и бригада</div>
+          <div class="vg">
+            <div class="vf"><label>Тип дрона</label>
+              <select class="vis" id="droneType" onchange="calc()">
+                <option value="a60">А60-ХМ</option>
+                <option value="a70" selected>А70-X</option>
+                <option value="a99">А99-Х</option>
+              </select>
+            </div>
+            <div class="vf"><label>Кол-во дронов</label><input class="vi" type="number" id="v_nd" value="2" min="1" max="4" oninput="calc()"></div>
+            <div class="vf"><label>Га/дрон/день</label><input class="vi" type="number" id="v_hpd" value="50" step="5" oninput="calc()"></div>
+            <div class="vf"><label>А60 амортиз./смена</label><input class="vi" type="number" id="v_d60" value="40.74" step="0.5" oninput="calc()"></div>
+            <div class="vf"><label>А70 амортиз./смена</label><input class="vi" type="number" id="v_d70" value="50.93" step="0.5" oninput="calc()"></div>
+            <div class="vf"><label>А99 амортиз./смена</label><input class="vi" type="number" id="v_d99" value="65.28" step="0.5" oninput="calc()"></div>
+            <div class="vf"><label>А60 произв. га/смена</label><input class="vi" type="number" id="v_p60" value="100" step="10" oninput="calc()"></div>
+            <div class="vf"><label>А70 произв. га/смена</label><input class="vi" type="number" id="v_p70" value="150" step="10" oninput="calc()"></div>
+            <div class="vf"><label>А99 произв. га/смена</label><input class="vi" type="number" id="v_p99" value="200" step="10" oninput="calc()"></div>
+            <div class="vf"><label>Авто амортиз./смена</label><input class="vi" type="number" id="v_car" value="35.71" step="0.5" oninput="calc()"></div>
+            <div class="vf"><label>Прицеп амортиз./смена</label><input class="vi" type="number" id="v_trail" value="33.33" step="0.5" oninput="calc()"></div>
+          </div>
+        </div>
+        <div class="vsec">
+          <div class="vst">Зарплата</div>
+          <div class="vg">
+            <div class="vf"><label>Оклад оператора</label><input class="vi" type="number" id="v_opsal" value="2777.78" step="50" oninput="calc()"></div>
+            <div class="vf"><label>Сдельная оп. BYN/га</label><input class="vi" type="number" id="v_oppc" value="2" step="0.1" oninput="calc()"></div>
+            <div class="vf"><label>Оклад техника</label><input class="vi" type="number" id="v_tsal" value="2222.22" step="50" oninput="calc()"></div>
+            <div class="vf"><label>Сдельная тех. BYN/га</label><input class="vi" type="number" id="v_tpc" value="1.5" step="0.1" oninput="calc()"></div>
+            <div class="vf"><label>Кол-во операторов</label><input class="vi" type="number" id="v_nop" value="1" min="1" oninput="calc()"></div>
+            <div class="vf"><label>Кол-во техников</label><input class="vi" type="number" id="v_ntech" value="1" min="1" oninput="calc()"></div>
+          </div>
+        </div>
+        <div class="vsec">
+          <div class="vst">Цена</div>
+          <div class="vg">
+            <div class="vf"><label>ФСЗН+БГС %</label><input class="vi" type="number" id="v_fsz" value="34.6" step="0.1" oninput="calc()"></div>
+            <div class="vf"><label>Накладные % ФОТ</label><input class="vi" type="number" id="v_ovh" value="198.3" step="1" oninput="calc()"></div>
+            <div class="vf"><label>Суточные BYN/чел/день</label><input class="vi" type="number" id="v_daily" value="6" oninput="calc()"></div>
+            <div class="vf"><label>Прибыль % себест.</label><input class="vi" type="number" id="v_margin" value="70" oninput="calc()"></div>
+            <div class="vf"><label>НДС %</label><input class="vi" type="number" id="v_vat" value="20" oninput="calc()"></div>
+            <div class="vf"><label>Курс USD</label><input class="vi" type="number" id="v_usd" value="3.34" step="0.01" oninput="calc()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="openPin()" style="width:100%;padding:9px;background:#f0f3f7;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--navy);margin-bottom:12px">
+      🔒 Переменные менеджера
+    </button>
+
+  </div>
+
+  <!-- ═══ RIGHT ═══ -->
+
+  <div>
+
+    <!-- PRICE -->
+    <div class="pcard">
+      <div class="ptag">Цена за гектар (с НДС)</div>
+      <div><span class="pbig" id="r_ppa">—</span><span class="punit">BYN / га</span></div>
+      <hr class="pdiv">
+      <div class="prow"><span class="pl">Площадь</span><span class="pv" id="r_area">—</span></div>
+      <div class="prow"><span class="pl">Дней работы</span><span class="pv" id="r_days">—</span></div>
+      <div class="prow"><span class="pl">Себестоимость</span><span class="pv" id="r_cost">—</span></div>
+      <div class="prow"><span class="pl">Прибыль / маржа</span><span class="pv" id="r_profit">—</span></div>
+      <div class="prow hidden" id="r_road_row"><span class="pl" id="r_road_label">Дорога</span><span class="pv" id="r_road">—</span></div>
+      <hr class="pdiv">
+      <div class="prow">
+        <span style="font-size:13px">Итого с НДС</span>
+        <span class="ptot" id="r_total">—</span>
+      </div>
+      <div class="p-warn hidden" id="pWarn">⚠ Коэффициент выше 2.0 — уточните у клиента детали поля</div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <button class="btn btn-send" onclick="sendKP()">📨 Отправить КП клиенту в Telegram</button>
+      <button class="btn btn-copy" onclick="copyPrice()">📋 Скопировать цену</button>
+    </div>
+
+    <!-- КОЭФФИЦИЕНТЫ ВИЗУАЛ -->
+    <div class="card" id="coefCard">
+      <div class="ch">Коэффициенты начислены</div>
+      <div class="cb" id="coefVisual" style="padding-bottom:12px">
+        <div style="color:var(--muted);font-size:12px">Заполните параметры слева</div>
+      </div>
+    </div>
+
+    <!-- ЗАМЕТКИ -->
+    <div class="card">
+      <div class="ch">Заметки менеджера</div>
+      <div class="cb">
+        <textarea class="notes-ta" id="notes" rows="3"
+          placeholder="Договорились на среду, клиент перезвонит... скидка 5%... перенос..."></textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:11px;color:var(--muted)" id="noteTs"></span>
+          <button onclick="saveNote()" style="font-size:11.5px;font-weight:600;color:var(--green);background:none;border:none;cursor:pointer">Сохранить заметку</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- КАЛЬКУЛЯЦИЯ (свёрнута) -->
+    <div class="card">
+      <button class="collapse-btn" onclick="toggleCollapse('breakdown','carr1')">
+        Полная калькуляция
+        <span class="carr" id="carr1">▼</span>
+      </button>
+      <div class="collapse-body" id="breakdown">
+        <table class="bt">
+          <thead><tr><th>Статья</th><th>BYN</th><th>%</th></tr></thead>
+          <tbody id="btBody"></tbody>
+        </table>
+        <div style="font-size:10.5px;color:var(--muted);padding:7px 12px" id="btNote"></div>
+      </div>
+    </div>
+
+    <div class="istrip">Препараты и вода — за счёт клиента. Цена без стоимости препаратов.</div>
+    <button onclick="backToList()" style="width:100%;margin-top:10px;padding:10px;background:#f0f3f7;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--navy)">← Вернуться к списку заявок</button>
+
+  </div>
+
+</div>
+
+<script>
+const PIN='1234';
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const $=id=>document.getElementById(id);
+const gv=(id,def)=>{const v=parseFloat($(id)?.value);return isNaN(v)?def:v;};
+const fmt=(n,d=2)=>n.toFixed(d);
+const fmtB=(n,d=2)=>n.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+
+let clientData={};
+let currentStatus='new';
+let calcResult={};
+
+/* ─── КОЭФФИЦИЕНТЫ ИЗ SHEETS ─── */
+const COEF_SHEET='КЭФ';
+const VARS_SHEET='ПЕРЕМЕННЫЕ';
+let CF={}; // коэффициенты
+let VR={}; // производственные переменные
+
+async function loadCoefs(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(COEF_SHEET)}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    json.table.rows.forEach(r=>{
+      const key=(r.c[0]?.v||'').toString().trim();
+      if(!key) return;
+      const cell=r.c[2]; // колонка C = Коэф
+      if(!cell||cell.v===null||cell.v===undefined) return;
+      let val=null;
+      const v=cell.v;
+      if(typeof v==='number'){
+        // обычное число — берём как есть
+        val=v;
+      } else if(typeof v==='string'&&v.startsWith('Date(')){
+        // Sheets сохранил как дату: 1.02 → Date(year,1,1)
+        // month 0-indexed, day=1 → коэф = day + (month+1)/100
+        const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
+        const month0=parts[1]; // 0-indexed
+        const day=parts[2];
+        val=parseFloat((day+((month0+1)/100)).toFixed(4));
+      } else {
+        // текст с запятой (русская локаль: "1,02") или обычный
+        const n=parseFloat(v.toString().replace(',','.'));
+        if(!isNaN(n)) val=n;
+      }
+      if(val!==null) CF[key]=val;
+    });
+    console.log('Коэффициенты загружены из КЭФ:',CF);
+    // обновляем value у чекбоксов
+    ['add_night','add_urgent','add_nps','add_wind'].forEach(id=>{
+      const cb=$(id);if(cb&&CF[id])cb.value=CF[id];
+    });
+    calc();
+  }catch(e){
+    console.warn('Не удалось загрузить лист КЭФ, используем дефолты:',e);
+  }
+}
+
+function cf(key,def){return CF[key]??def;}
+function vr(key,def){return VR[key]??def;}
+
+async function loadVars(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(VARS_SHEET)}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    json.table.rows.forEach(r=>{
+      const key=(r.c[0]?.v||'').toString().trim();
+      if(!key) return;
+      const cell=r.c[2];
+      if(!cell||cell.v===null||cell.v===undefined) return;
+      const v=cell.v;
+      let val=null;
+      if(typeof v==='number') val=v;
+      else{const n=parseFloat(v.toString().replace(',','.'));if(!isNaN(n))val=n;}
+      if(val!==null) VR[key]=val;
+    });
+    console.log('Переменные загружены из ПЕРЕМЕННЫЕ:',VR);
+    // Обновляем поля в панели переменных если она открыта
+    const map={
+      v_rate:'transport_rate',v_matmult:'mat_mult',
+      v_d60:'drone_a60_amort',v_p60:'drone_a60_prod',
+      v_d70:'drone_a70_amort',v_p70:'drone_a70_prod',
+      v_d99:'drone_a99_amort',v_p99:'drone_a99_prod',
+      v_car:'car_amort',v_trail:'trailer_amort',
+      v_hpd:'hpd',v_nd:'nd',
+      v_opsal:'op_salary',v_oppc:'op_piecework',
+      v_tsal:'tech_salary',v_tpc:'tech_piecework',
+      v_nop:'n_operators',v_ntech:'n_technicians',
+      v_fsz:'fsz_pct',v_ovh:'overhead_pct',
+      v_daily:'daily_rate',v_margin:'margin_pct',
+      v_vat:'vat_pct',v_usd:'usd_rate',
+    };
+    Object.entries(map).forEach(([inputId,vrKey])=>{
+      const el=$(inputId);
+      if(el&&VR[vrKey]!==undefined) el.value=VR[vrKey];
+    });
+    calc();
+  }catch(e){
+    console.warn('Не удалось загрузить ПЕРЕМЕННЫЕ, используем дефолты:',e);
+  }
+}
+
+
+function distCoef(km){
+  if(km<=20)return{c:cf('dist_20',1.00),l:'≤20 км'};
+  if(km<=50)return{c:cf('dist_50',1.02),l:'≤50 км'};
+  if(km<=100)return{c:cf('dist_100',1.04),l:'≤100 км'};
+  if(km<=150)return{c:cf('dist_150',1.05),l:'100–150 км'};
+  return{c:cf('dist_over',1.06),l:'>150 км'};
+}
+function droneP(t){
+  return{
+    a60:{amort:vr('drone_a60_amort',gv('v_d60',40.74)),prod:vr('drone_a60_prod',gv('v_p60',100))},
+    a70:{amort:vr('drone_a70_amort',gv('v_d70',50.93)),prod:vr('drone_a70_prod',gv('v_p70',150))},
+    a99:{amort:vr('drone_a99_amort',gv('v_d99',65.28)),prod:vr('drone_a99_prod',gv('v_p99',200))},
+  }[t]||{amort:50.93,prod:150};
+}
+
+function setFrag(v,id){
+  $('frag').value=v;
+  ['fr1','fr2','fr3'].forEach(x=>$(x).classList.remove('on'));
+  $(id).classList.add('on');
+  calc();
+}
+
+/* ─── CALC ─── */
+function calc(){
+  const area=gv('area',100);
+  const km=gv('km',0);
+  const complexityEl=$('complexity');
+  const complexityKey=complexityEl?.options[complexityEl.selectedIndex]?.dataset.key||'complexity_simple';
+  const kCmplx=cf(complexityKey, parseFloat(complexityEl?.value)||1);
+
+  const obstaclesEl=$('obstacles');
+  const obstaclesKey=obstaclesEl?.options[obstaclesEl.selectedIndex]?.dataset.key||'obstacles_no';
+  const kObs=cf(obstaclesKey, parseFloat(obstaclesEl?.value)||1);
+  const treatKey=$('treatment')?.value||'culture_grain';
+  // Дефолтные значения на случай если CF не загрузился
+  const treatDefaults={
+    culture_grain:1,culture_rape:1.05,culture_corn:1.1,culture_soy:1.1,
+    culture_potato:1.15,culture_beet:1.2,culture_sunflower:1.25,culture_vegetables:1.3,
+    culture_berries:1.5,culture_orchards:1.6,culture_vineyards:1.7,
+    culture_wasteland:1.8,culture_channels:2,culture_hogweed:2.2,
+    culture_powerline:2.2,culture_forest:3.5,culture_slopes:4
+  };
+  const kTreat=cf(treatKey, treatDefaults[treatKey]||1);
+  const kTreatSafe=(kTreat>0.5&&kTreat<=4)?kTreat:1;
+  const kFrag=parseFloat($('frag').value)||1;
+
+  let kAdd=1;
+  const addKeys={add_night:cf('add_night',1.1),add_urgent:cf('add_urgent',1.02),add_nps:cf('add_nps',1.04),add_wind:cf('add_wind',1.02)};
+  Object.entries(addKeys).forEach(([id,v])=>{
+    const cb=$(id);if(cb?.checked)kAdd*=v;
+  });
+
+  const di=distCoef(km);
+  const kDist=di.c;
+  const kTotal=kCmplx*kObs*kTreatSafe*kFrag*kAdd*kDist;
+  const effArea=area*kTotal;
+
+  $('distTag').textContent=km>0
+    ?'От ВК: '+km+' км · Коэф.: ×'+fmt(kDist,2)+' ('+di.l+')'
+    :'Расстояние не указано — транспорт не начислен';
+  $('pWarn').classList.toggle('hidden',kTotal<=2);
+
+  const nd=Math.max(1, vr('nd',gv('v_nd',2)));
+  const hpd=Math.max(1, vr('hpd',gv('v_hpd',50)));
+  const dp=droneP($('droneType')?.value||'a70');
+  const prod=Math.max(1, dp.prod);
+  const tripDays=Math.max(1, Math.ceil(area/(hpd*nd)));
+  const shifts=Math.max(0.5, Math.ceil(effArea/prod*2)/2);
+  console.log('CALC DEBUG: area='+area+' kTotal='+kTotal.toFixed(3)+' effArea='+effArea.toFixed(1)+' prod='+prod+' nd='+nd+' shifts='+shifts.toFixed(1));
+
+  const rate=vr('transport_rate',gv('v_rate',2.6));
+  const mm=vr('mat_mult',gv('v_matmult',1.1));
+  const carA=vr('car_amort',gv('v_car',35.71));
+  const trA=vr('trailer_amort',gv('v_trail',33.33));
+  const opSal=vr('op_salary',gv('v_opsal',2777.78));
+  const opPc=vr('op_piecework',gv('v_oppc',2));
+  const tSal=vr('tech_salary',gv('v_tsal',2222.22));
+  const tPc=vr('tech_piecework',gv('v_tpc',1.5));
+  const nOp=vr('n_operators',gv('v_nop',1));
+  const nTech=vr('n_technicians',gv('v_ntech',1));
+  const fszR=vr('fsz_pct',gv('v_fsz',34.6))/100;
+  const ovhR=vr('overhead_pct',gv('v_ovh',198.3))/100;
+  const dailyR=vr('daily_rate',gv('v_daily',6));
+  const margR=vr('margin_pct',gv('v_margin',70))/100;
+  const vatR=vr('vat_pct',gv('v_vat',20))/100;
+  const usd=vr('usd_rate',gv('v_usd',3.34));
+
+  const transport=km*rate;
+  const droneAmt=dp.amort*nd*shifts;
+  const carAmt=carA*shifts,trAmt=trA*shifts;
+  const matSub=transport+droneAmt+carAmt+trAmt;
+  const materials=matSub*mm;
+
+  const hours=(effArea/prod)*8;
+  const opHr=(opSal*.9)/168,tHr=(tSal*.9)/168;
+  const salOp=(hours*opHr+opPc*effArea)*nOp;
+  const salTech=(hours*tHr+tPc*effArea)*nTech;
+  const salBase=salOp+salTech;
+  const fsz=salBase*fszR;
+  const daily=tripDays>1?dailyR*(nOp+nTech)*tripDays:0;
+  const ovh=salBase*ovhR;
+  const labour=salBase+fsz+daily+ovh;
+
+  const cost=materials+labour;
+  const profit=cost*margR;
+  const noVat=cost+profit;
+  const vat=noVat*vatR;
+  const total=noVat+vat;
+  const ppa=total/area;
+  const actP=noVat-cost;
+  const actM=actP/noVat*100;
+  const droneLabel=($('droneType')?.value||'a70').toUpperCase();
+
+  // FIX: сохраняем transportFull — долю транспорта в итоге с учётом mm, margin, VAT
+  const transportFull=km>0 ? transport*mm*(1+margR)*(1+vatR) : 0;
+
+  calcResult={area,km,kTotal,effArea,tripDays,shifts,cost,profit:actP,marg:actM,noVat,vat,total,ppa,usd,droneLabel,prod,nd,materials,labour,salOp,salTech,fsz,daily,ovh,transport,transportFull,rate,droneAmt,carAmt,trAmt,matSub,mm};
+
+  // RESULT DISPLAY
+  $('r_ppa').textContent=fmt(ppa);
+  $('r_area').textContent=area+' га';
+  $('r_days').textContent=tripDays===1?'1 день (без ночёвки)':tripDays+' дн. (суточные начислены)';
+  $('r_cost').textContent=fmtB(cost)+' BYN';
+  $('r_profit').textContent=fmtB(actP)+' BYN · '+fmt(actM,1)+'%';
+  $('r_total').textContent=fmtB(total)+' BYN';
+  // строка дороги
+  const roadRow=$('r_road_row');
+  if(km>0&&roadRow){
+    $('r_road_label').textContent='🚗 Дорога ('+km+' км)';
+    $('r_road').textContent=fmtB(transportFull)+' BYN';
+    roadRow.classList.remove('hidden');
+  } else if(roadRow){
+    roadRow.classList.add('hidden');
+  }
+
+  // COEFFICIENTS
+  const coefs=[
+    {icon:'🌾', n:'Тип поля / культура', v:kTreatSafe},
+    {icon:'🏔', n:'Сложность рельефа',   v:kCmplx},
+    {icon:'⚡', n:'Препятствия (ЛЭП)',   v:kObs},
+    {icon:'📍', n:'Удалённость ('+km+' км)', v:kDist},
+    {icon:'🗂', n:'Участков ('+($('frag').value>1?$('frag').value:'1')+')', v:kFrag},
+    {icon:'➕', n:'Доп. условия',         v:kAdd},
+  ];
+  const active=coefs.filter(x=>Math.abs(x.v-1)>0.001);
+
+  const cv=$('coefVisual');
+  const allRows=[...coefs,{icon:'🔢',n:'Итоговый коэффициент',v:kTotal,total:true}];
+  cv.innerHTML=allRows.map(r=>{
+    const isBase=Math.abs(r.v-1)<0.001&&!r.total;
+    const badgeClass=r.total?'cv-total':isBase?'cv-base':'cv-active';
+    const val=r.total?'×'+fmt(kTotal,3):'×'+fmt(r.v,2);
+    return `<div class="cv-row">
+      <div class="cv-left"><span class="cv-icon">${r.icon}</span><span class="cv-name">${r.n}</span></div>
+      <span class="cv-badge ${badgeClass}">${val}</span>
+    </div>`;
+  }).join('');
+  const coefLines=active.length
+    ?active.map(x=>`${x.n}: ×${fmt(x.v,2)}`).join(', ')+` → итого ×${fmt(kTotal,3)}`
+    :'Базовые коэффициенты';
+
+  // BREAKDOWN TABLE
+  const rows=[
+    {n:'Транспорт ('+km+' км × '+rate+' BYN)',v:transport,t:'sub'},
+    {n:'Амортизация '+droneLabel+' ×'+nd+' ('+fmt(shifts,1)+' смены)',v:droneAmt,t:'sub'},
+    {n:'Амортизация автомобиля',v:carAmt,t:'sub'},
+    {n:'Амортизация прицепа',v:trAmt,t:'sub'},
+    {n:'Материалы (×'+fmt(mm,1)+')',v:materials,t:'grp'},
+    {n:'ЗП операторов ×'+nOp,v:salOp,t:'sub'},
+    {n:'ЗП техников ×'+nTech,v:salTech,t:'sub'},
+    {n:'ФСЗН/БГС',v:fsz,t:'sub'},
+    {n:tripDays>1?'Суточные ('+tripDays+' дн.)':'Суточные — нет',v:daily,t:'sub'},
+    {n:'Накладные расходы',v:ovh,t:'sub'},
+    {n:'Фонд оплаты труда',v:labour,t:'grp'},
+    {n:'СЕБЕСТОИМОСТЬ',v:cost,t:'tot'},
+    {n:'Прибыль ('+Math.round(margR*100)+'%)',v:actP,t:'sub'},
+    {n:'Цена без НДС',v:noVat,t:'grp'},
+    {n:'НДС ('+Math.round(vatR*100)+'%)',v:vat,t:'sub'},
+    {n:'ИТОГО С НДС',v:total,t:'tot'},
+  ];
+  $('btBody').innerHTML=rows.map(r=>{
+    const pct=r.t==='sub'?fmt(r.v/cost*100,1)+'%':'';
+    return`<tr class="${r.t}"><td>${r.n}</td><td>${fmt(r.v)}</td><td style="color:var(--muted)">${pct}</td></tr>`;
+  }).join('');
+  $('btNote').textContent=`${droneLabel}, ${prod} га/смена, ${nd} дрона. Эфф. площадь: ${fmt(effArea,1)} га. Коэф.: ${coefLines}`;
+}
+
+/* ─── LOAD FROM URL ─── */
+function loadFromURL(){
+  const p=new URLSearchParams(window.location.search);
+  if(!p.toString()) return;
+
+  const decode=(val)=>{
+    if(!val) return '';
+    try{return decodeURIComponent(val);}catch(e){return val;}
+  };
+
+  clientData={
+    org: decode(p.get('org_name'))||'',
+    unp: decode(p.get('unp'))||'',
+    phone: decode(p.get('phone'))||'',
+    location: decode(p.get('location'))||'',
+    area: p.get('area')||'',
+    treatment: p.get('treatment')||'',
+    treatment_name: decode(p.get('treatment_name'))||'',
+    complexity: p.get('complexity')||'',
+    obstacles: p.get('obstacles')||'',
+    night: p.get('night')==='true',
+    urgent: p.get('urgent')==='true',
+    deadline: decode(p.get('deadline'))||'',
+    comment: decode(p.get('comment'))||'',
+    ts: decode(p.get('ts'))||'',
+  };
+
+  if(clientData.area) $('area').value=clientData.area;
+  if(clientData.location) $('location').value=clientData.location;
+  if(clientData.treatment){
+    const s=$('treatment');
+    for(let i=0;i<s.options.length;i++){
+      if(s.options[i].value===clientData.treatment){s.selectedIndex=i;break;}
+    }
+  }
+  if(clientData.complexity){
+    const s=$('complexity');
+    for(let i=0;i<s.options.length;i++){
+      if(s.options[i].value===clientData.complexity){s.selectedIndex=i;break;}
+    }
+  }
+  if(clientData.obstacles){
+    const s=$('obstacles');
+    for(let i=0;i<s.options.length;i++){
+      if(s.options[i].value===clientData.obstacles){s.selectedIndex=i;break;}
+    }
+  }
+  if(clientData.night) $('add_night').checked=true;
+  if(clientData.urgent) $('add_urgent').checked=true;
+
+  const org=clientData.org||(clientData.unp?'УНП '+clientData.unp:'Клиент');
+  $('csAvatar').textContent=org.charAt(0).toUpperCase();
+  $('csOrg').textContent=org;
+  const meta=[];
+  if(clientData.location) meta.push(clientData.location);
+  if(clientData.area) meta.push(clientData.area+' га');
+  if(clientData.deadline) meta.push(clientData.deadline);
+  if(clientData.phone) meta.push(clientData.phone);
+  if(clientData.unp) meta.push('УНП: '+clientData.unp);
+  $('csMeta').textContent=meta.join(' · ')||'Данные клиента';
+
+  if(clientData.comment){
+    $('notes').value='💬 Комментарий клиента: '+clientData.comment;
+  }
+}
+
+/* ─── SHEETS LOADER ─── */
+// SHEET_ID — см. config.js
+const SHEET_NAME='Заявки';
+// WEBHOOK_URL — см. config.js
+let allRequests=[];
+let currentFilter='all';
+let currentRequest=null;
+let statusChanged=false;
+
+const STATUS_LABELS={
+  'Новая':'new','Связались':'called','Согласовано':'agreed',
+  'В работе':'work','Выполнена':'done','Оплачена':'paid','Отказ':'no'
+};
+const STATUS_BADGE={
+  new:'st-new',called:'st-called',agreed:'st-agreed',
+  work:'st-work',done:'st-done',paid:'st-paid',no:'st-reject'
+};
+const STATUS_NAMES={
+  new:'Новая',called:'Связались',agreed:'Согласовано',
+  work:'В работе',done:'Выполнена',paid:'Оплачена',no:'Отказ'
+};
+
+async function loadRequests(){
+  $('requestsList').innerHTML='<div class="empty-st">Загружаю заявки...</div>';
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    const rows=json.table.rows;
+    allRequests=rows.map((r,i)=>{
+      const raw=r.c.map(c=>c?.v??'');
+      const parseVal=(v)=>{
+        if(typeof v==='string'&&v.startsWith('Date(')){
+          const parts=v.replace('Date(','').replace(')','').split(',').map(Number);
+          return new Date(parts[0],parts[1],parts[2]).toLocaleDateString('ru');
+        }
+        if(v instanceof Date) return v.toLocaleDateString('ru');
+        return v||'';
+      };
+      const v=raw.map(parseVal);
+      return{
+        row:i+2,
+        id:v[0]||('REQ-'+String(i+1).padStart(3,'0')),
+        date:v[1]||'',
+        org:v[2]||'',
+        unp:v[3]||'',
+        phone:v[4]||'',
+        tg_id:v[5]||'',
+        location:v[6]||'',
+        area:v[7]||'',
+        treatment:v[8]||'',
+        coef:v[9]||'',
+        complexity:v[10]||'',
+        obstacles:v[11]||'',
+        sections:v[12]||'',
+        urgent:v[13]||'',
+        deadline:v[14]||'',
+        comment:v[15]||'',
+        status:v[16]||'Новая',
+        date_status:v[17]||'',
+        kTotal:v[18]||'',
+        treat_total:v[19]||'',
+        transport_total:v[20]||'',
+        total_nds:v[21]||'',
+        ppa:v[22]||'',
+        notes_saved:v[23]||'',
+        km:v[24]||'',
+      };
+    }).filter(r=>r.org);
+    allRequests.sort((a,b)=>b.row-a.row);
+    updateCounts();
+    applyFilter();
+  }catch(e){
+    console.error(e);
+    $('requestsList').innerHTML='<div class="empty-st">❌ Ошибка загрузки. Проверьте доступ к таблице.</div>';
+  }
+}
+
+function updateCounts(){
+  const c={all:allRequests.length,new:0,called:0,agreed:0,work:0,done:0,paid:0,no:0};
+  allRequests.forEach(r=>{
+    const k=STATUS_LABELS[r.status]||'new';
+    c[k]++;
+  });
+  const sel=$('statusFilter');
+  if(!sel)return;
+  const labels={
+    all:'Все заявки',new:'🆕 Новые',called:'📞 Связались',
+    agreed:'🤝 Согласовано',work:'✈️ В работе',
+    done:'✅ Выполнено',paid:'💰 Оплачено',reject:'❌ Отказ'
+  };
+  sel.options[0].text=`Все заявки (${c.all})`;
+  sel.options[1].text=`🆕 Новые${c.new?' ('+c.new+')':''}`;
+  sel.options[2].text=`📞 Связались${c.called?' ('+c.called+')':''}`;
+  sel.options[3].text=`🤝 Согласовано${c.agreed?' ('+c.agreed+')':''}`;
+  sel.options[4].text=`✈️ В работе${c.work?' ('+c.work+')':''}`;
+  sel.options[5].text=`✅ Выполнено${c.done?' ('+c.done+')':''}`;
+  sel.options[6].text=`💰 Оплачено${c.paid?' ('+c.paid+')':''}`;
+  sel.options[7].text=`❌ Отказ${c.no?' ('+c.no+')':''}`;
+}
+
+function setFilterFromSelect(val){
+  currentFilter=val==='reject'?'no':val;
+  applyFilter();
+}
+
+function setFilter(f,el){
+  currentFilter=f;
+  const sel=$('statusFilter');
+  if(sel){
+    const map={all:'all',new:'new',called:'called',agreed:'agreed',work:'work',done:'done',paid:'paid',no:'reject'};
+    sel.value=map[f]||'all';
+  }
+  applyFilter();
+}
+
+function applyFilter(){
+  let list=allRequests;
+  if(currentFilter!=='all'){
+    list=list.filter(r=>(STATUS_LABELS[r.status]||'new')===currentFilter);
+  }
+  renderTable(list);
+}
+
+function stBadge(status){
+  const k=STATUS_LABELS[status]||'new';
+  return`<span class="st-badge ${STATUS_BADGE[k]}">${status}</span>`;
+}
+
+function renderTable(list){
+  if(!list.length){
+    $('requestsList').innerHTML='<div class="empty-st">📭 Нет заявок в этой категории</div>';
+    return;
+  }
+  const cardClass={new:'card-new',called:'card-called',agreed:'card-agreed',work:'card-work',done:'card-done',paid:'card-paid',no:'card-no'};
+  $('requestsList').innerHTML='<div class="req-cards">'+list.map((r,i)=>{
+    const sk=STATUS_LABELS[r.status]||'new';
+    const cc=cardClass[sk]||'';
+    const num=i+1;
+    return `<div class="req-card ${cc}" onclick="selectRequest(${r.row})">
+      <div class="rc-top">
+        <div>
+          <div class="rc-num">#${num} · ${r.date||''}</div>
+          <div class="rc-culture">${r.treatment||'Культура не указана'}</div>
+        </div>
+        <div class="rc-right">
+          ${stBadge(r.status)}
+        </div>
+      </div>
+      <div class="rc-mid">
+        <div class="rc-field">
+          <div class="rc-val">${r.location||'—'}</div>
+          <div class="rc-lbl">Город</div>
+        </div>
+        <div class="rc-field">
+          <div class="rc-area-big">${r.area?r.area+' га':'—'}</div>
+          <div class="rc-lbl">Площадь</div>
+        </div>
+      </div>
+      <div class="rc-bot">
+        <span class="rc-deadline">${r.deadline?'⏱ '+r.deadline:''}</span>
+        <button class="btn-open" onclick="selectRequest(${r.row});event.stopPropagation()">Открыть</button>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function selectRequest(row){
+  currentRequest=allRequests.find(r=>r.row===row);
+  if(!currentRequest)return;
+  statusChanged=false;
+
+  clientData={
+    org: currentRequest.org,
+    unp: currentRequest.unp,
+    phone: currentRequest.phone,
+    location: currentRequest.location,
+    area: currentRequest.area,
+    treatment: currentRequest.coef,
+    treatment_name: currentRequest.treatment,
+    deadline: currentRequest.deadline,
+    comment: currentRequest.comment,
+    tg_id: currentRequest.tg_id,
+  };
+
+  if(currentRequest.area) $('area').value=currentRequest.area;
+  if(currentRequest.location) $('location').value=currentRequest.location;
+  // км — берём из Sheets если уже сохранён, иначе сбрасываем
+  $('km').value=currentRequest.km||'';
+
+  const s=$('treatment');
+  let matched=false;
+  if(currentRequest.treatment){
+    const tName=currentRequest.treatment.toLowerCase().trim();
+    for(let i=0;i<s.options.length;i++){
+      const dn=(s.options[i].dataset.name||'').toLowerCase().trim();
+      if(dn&&(tName.includes(dn)||dn.includes(tName))){s.selectedIndex=i;matched=true;break;}
+    }
+  }
+  if(!matched&&currentRequest.coef){
+    const coefNum=parseFloat(String(currentRequest.coef).replace(',','.'));
+    if(!isNaN(coefNum)){
+      for(let i=0;i<s.options.length;i++){
+        if(Math.abs(parseFloat(s.options[i].value)-coefNum)<0.001){s.selectedIndex=i;matched=true;break;}
+      }
+    }
+  }
+  if(!matched) s.selectedIndex=0; // дефолт — Зерновые ×1.0
+
+  const sk=STATUS_LABELS[currentRequest.status]||'new';
+  setStatus(sk,false);
+
+  const org=currentRequest.org||'Клиент';
+  $('csAvatar').textContent=org.charAt(0).toUpperCase();
+  $('csOrg').textContent=org;
+  const meta=[];
+  if(currentRequest.location)meta.push(currentRequest.location);
+  if(currentRequest.area)meta.push(currentRequest.area+' га');
+  if(currentRequest.deadline)meta.push(currentRequest.deadline);
+  if(currentRequest.phone)meta.push(currentRequest.phone);
+  if(currentRequest.urgent&&currentRequest.urgent!=='Обычный')meta.push('⚡ '+currentRequest.urgent);
+  $('csMeta').textContent=meta.join(' · ')||'Данные клиента';
+
+  // заметки: если есть сохранённые — показываем их, иначе комментарий клиента
+  if(currentRequest.notes_saved){
+    $('notes').value=currentRequest.notes_saved;
+  } else if(currentRequest.comment){
+    $('notes').value='💬 Комментарий: '+currentRequest.comment;
+  } else {
+    $('notes').value='';
+  }
+
+  $('requestsPanel').classList.add('hidden');
+  $('clientStrip').classList.remove('hidden');
+  $('mainPanel').classList.remove('hidden');
+  window.scrollTo(0,0);
+  calc();
+}
+
+function backToList(){
+  if(statusChanged){
+    showToast('⚠️ Статус не сохранён');
+    if($('saveBar').classList.contains('show')){
+      showList();
+      return;
+    }
+    $('saveBar').classList.add('show');
+    return;
+  }
+  showList();
+}
+
+function showList(){
+  statusChanged=false;
+  $('saveBar').classList.remove('show');
+  $('requestsPanel').classList.remove('hidden');
+  $('clientStrip').classList.add('hidden');
+  $('mainPanel').classList.add('hidden');
+  loadRequests();
+  window.scrollTo(0,0);
+}
+
+async function saveStatus(){
+  if(!currentRequest)return;
+  const newStatus=STATUS_NAMES[currentStatus]||'Новая';
+  const km=gv('km',0);
+  const loc=$('location')?.value||currentRequest.location||'';
+  const r=calcResult;
+  try{
+    await fetch(WEBHOOK_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'update_status',
+        request_id:currentRequest.id,
+        row:currentRequest.row,
+        status:newStatus,
+        org:currentRequest.org,
+        ts:new Date().toISOString(),
+        // расчётные данные
+        location:loc,
+        km:km||'',
+        kTotal:r.kTotal?parseFloat(r.kTotal.toFixed(3)):'',
+        treat_total:r.total&&r.transportFull?parseFloat((r.total-r.transportFull).toFixed(2)):'',
+        transport_total:r.transportFull?parseFloat(r.transportFull.toFixed(2)):'',
+        total:r.total?parseFloat(r.total.toFixed(2)):'',
+        ppa:r.ppa?parseFloat(r.ppa.toFixed(2)):'',
+        notes:$('notes')?.value||'',
+      })
+    });
+    showToast('Статус и расчёт сохранены ✓');
+    statusChanged=false;
+    $('saveBar').classList.remove('show');
+    currentRequest.status=newStatus;
+  }catch(e){
+    showToast('Ошибка сохранения. Попробуйте ещё раз.');
+    console.error(e);
+  }
+}
+
+/* ─── STATUS ─── */
+function setStatus(s,markChanged=true){
+  currentStatus=s;
+  const allStats=['new','called','agreed','work','done','paid','no'];
+  allStats.forEach(x=>{
+    const el=$('st_'+x);
+    if(el)el.classList.toggle('on',x===s);
+  });
+  if(markChanged&&currentRequest){
+    statusChanged=true;
+    $('saveBar').classList.add('show');
+  }
+}
+
+/* ─── ACTIONS ─── */
+function sendKP(){
+  if(!calcResult.total){ showToast('Сначала рассчитайте стоимость'); return; }
+  const r=calcResult;
+  const org=clientData.org||currentRequest?.org||'';
+  const loc=clientData.location||$('location').value||'';
+  const treatName=$('treatment').options[$('treatment').selectedIndex].dataset.name;
+
+  // FIX: используем transportFull — реальная доля транспорта в итоге (с mm, margin, VAT)
+  const transportTotal=r.transportFull;
+  const treatTotal=r.total-transportTotal;
+  const ppaTreat=treatTotal/r.area;
+
+  // FIX: строка дороги только если km > 0
+  const roadLine=r.km>0
+    ?`🚗 *Дорога:*\n   ${r.km} км × ${fmt(r.rate,2)} BYN/км = *${fmtB(transportTotal)} BYN*\n\n`
+    :'';
+
+  const msg=
+`🌿 *AgroDrone.BY | ЗАО «АТК»*\n\n`+
+`Коммерческое предложение${org?' для *'+org+'*':''}\n\n`+
+`📍 ${loc||'Место уточняется'}\n`+
+`📐 Площадь: *${r.area} га*\n`+
+`🌾 Культура: ${treatName}\n\n`+
+`─────────────────────\n`+
+`✈️ *Обработка:*\n`+
+`   ${fmt(ppaTreat)} BYN/га × ${r.area} га = *${fmtB(treatTotal)} BYN*\n\n`+
+roadLine+
+`─────────────────────\n`+
+`💰 *ИТОГО с НДС: ${fmtB(r.total)} BYN*\n\n`+
+`Препараты и вода — за счёт заказчика.\n`+
+`Для согласования даты выезда свяжитесь с менеджером.`;
+
+  const payload={
+    action:'send_kp',
+    tg_id: clientData.tg_id||currentRequest?.tg_id||'',
+    text: msg,
+    org, loc,
+    area: r.area,
+    treatment: treatName,
+    kTotal: fmt(r.kTotal,3),
+    cost: fmt(r.cost),
+    total: fmt(r.total),
+    treat_total: fmt(treatTotal),
+    transport_total: fmt(transportTotal),
+    ppa: fmt(r.ppa),
+    days: r.tripDays,
+    status: currentStatus,
+    notes: $('notes').value,
+    ts: new Date().toISOString(),
+  };
+
+  fetch(WEBHOOK_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(()=>{
+    showToast('КП отправлено ✓');
+    setStatus('work');
+  }).catch(e=>{
+    navigator.clipboard?.writeText(msg).then(()=>showToast('Webhook недоступен — КП скопировано ✓'));
+    console.error('KP error:',e);
+  });
+}
+
+function copyPrice(){
+  if(!calcResult.ppa){ showToast('Нет данных для копирования'); return; }
+  const r=calcResult;
+  const txt=`${fmt(r.ppa)} BYN/га · Итого: ${fmtB(r.total)} (с НДС)`;
+  navigator.clipboard?.writeText(txt).then(()=>showToast('Скопировано ✓'));
+}
+
+function saveNote(){
+  $('noteTs').textContent='Сохранено '+new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+  showToast('Заметка сохранена ✓');
+  if(tg?.sendData){
+    tg.sendData(JSON.stringify({action:'save_note',note:$('notes').value,org:clientData.org}));
+  }
+}
+
+/* ─── PIN ─── */
+function openPin(){
+  $('pinOv').classList.add('on');
+  $('pinIn').value='';
+  $('pinErr').style.display='none';
+  setTimeout(()=>$('pinIn').focus(),50);
+}
+function checkPin(){
+  if($('pinIn').value===PIN){
+    $('pinOv').classList.remove('on');
+    $('varCard').classList.remove('hidden');
+  } else {
+    $('pinErr').style.display='block';
+    $('pinIn').value='';
+    $('pinIn').focus();
+  }
+}
+$('pinIn').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin();});
+$('pinOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+
+/* ─── COLLAPSE ─── */
+function toggleCollapse(id,arrId){
+  const b=$(id),a=$(arrId);
+  b.classList.toggle('open');
+  a.classList.toggle('open');
+}
+
+/* ─── TOAST ─── */
+function showToast(msg){
+  const t=$('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ─── INIT ─── */
+['area','km'].forEach(id=>$(id)?.addEventListener('input',calc));
+['treatment','complexity','obstacles'].forEach(id=>$(id)?.addEventListener('change',calc));
+['add_night','add_urgent','add_nps','add_wind'].forEach(id=>$(id)?.addEventListener('change',calc));
+
+// Загружаем коэффициенты и переменные параллельно, потом заявки
+Promise.all([
+  loadCoefs(),
+  loadVars()
+]).finally(()=>loadRequests());
+</script>
+
+</body>
+</html>

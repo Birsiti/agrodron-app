@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Статистика | AgroDrone.BY</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="config.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2847;--navy2:#1a3a6b;--navy3:#0a1e35;
+  --green:#1a6b4a;--gl:#e8f4ee;--gm:#3dbf8a;
+  --bg:#f0f3f7;--card:#fff;--border:#e2e8f0;
+  --text:#1a1a2e;--muted:#64748b;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --accent:#3dbf8a;
+}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:40px}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30}
+.hlogo{display:flex;align-items:center;gap:8px}
+.hlm{width:28px;height:28px;background:var(--gm);border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+.hlm svg{width:14px;height:14px;fill:#fff}
+.hln{font-size:14px;font-weight:700;color:#fff}
+.hln span{color:var(--gm)}
+.hls{font-size:9.5px;color:rgba(255,255,255,.4);margin-top:1px}
+.badge{background:rgba(61,191,138,.15);color:var(--gm);font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid rgba(61,191,138,.3)}
+
+/* SEASON STRIP */
+.season-strip{background:linear-gradient(135deg,var(--navy) 0%,#1a3a35 100%);padding:16px;margin:12px 12px 0;border-radius:14px;color:#fff}
+.ss-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.ss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ss-item{}
+.ss-val{font-size:26px;font-weight:900;line-height:1;letter-spacing:-1px}
+.ss-val span{font-size:12px;font-weight:500;opacity:.5;margin-left:2px}
+.ss-lbl{font-size:10px;opacity:.45;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.ss-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0}
+.ss-bottom{display:flex;justify-content:space-between;align-items:center}
+.ss-price{font-size:13px;font-weight:700;color:var(--gm)}
+.ss-profit{font-size:11px;color:rgba(255,255,255,.5)}
+
+/* WRAP */
+.wrap{padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+
+/* CARD */
+.card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.card-hdr{padding:11px 14px 0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;justify-content:space-between}
+.card-hdr-icon{font-size:14px}
+.card-body{padding:10px 14px 13px}
+
+/* OPERATORS */
+.op-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f4f8}
+.op-row:last-child{border-bottom:none}
+.op-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
+.op-name{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.op-role{font-size:10px;color:var(--muted)}
+.op-bar-wrap{flex:2;display:flex;align-items:center;gap:8px}
+.op-bar-bg{flex:1;height:6px;background:#f0f4f8;border-radius:3px;overflow:hidden}
+.op-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.op-ha{font-size:13px;font-weight:800;color:var(--navy);white-space:nowrap}
+
+/* REGIONS */
+.reg-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f4f8}
+.reg-row:last-child{border-bottom:none}
+.reg-num{width:20px;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0;text-align:center}
+.reg-name{font-size:13px;font-weight:600;flex:1}
+.reg-bar-wrap{flex:2;display:flex;align-items:center;gap:8px}
+.reg-bar-bg{flex:1;height:5px;background:#f0f4f8;border-radius:3px;overflow:hidden}
+.reg-bar-fill{height:100%;border-radius:3px;background:var(--gm)}
+.reg-ha{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap}
+
+/* METRICS GRID */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric-card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:12px 14px}
+.metric-icon{font-size:20px;margin-bottom:6px}
+.metric-val{font-size:22px;font-weight:900;color:var(--navy);letter-spacing:-1px;line-height:1}
+.metric-val span{font-size:11px;font-weight:500;color:var(--muted);margin-left:2px}
+.metric-lbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* DRONES */
+.drone-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f4f8}
+.drone-row:last-child{border-bottom:none}
+.drone-ico{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.drone-name{font-size:14px;font-weight:800;color:var(--navy)}
+.drone-reg{font-size:10px;color:var(--muted)}
+.drone-stats{margin-left:auto;text-align:right}
+.drone-ha{font-size:15px;font-weight:800;color:var(--navy)}
+.drone-hrs{font-size:10px;color:var(--muted)}
+.drone-bar-wrap{width:100%;margin-top:6px}
+.drone-bar-bg{width:100%;height:4px;background:#f0f4f8;border-radius:2px;overflow:hidden}
+.drone-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gm),#1a6b4a)}
+
+/* ROAD */
+.road-card{background:linear-gradient(135deg,#1a2e47,#0f2030);border-radius:12px;padding:14px;color:#fff}
+.road-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.road-item{}
+.road-val{font-size:24px;font-weight:900;letter-spacing:-1px;line-height:1}
+.road-val span{font-size:11px;opacity:.5;font-weight:500;margin-left:2px}
+.road-lbl{font-size:10px;opacity:.45;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.road-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:10px 0}
+.road-avg{font-size:11px;opacity:.5;text-align:center}
+
+/* LOADING */
+.loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--gm);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:13px}
+
+/* STATUS */
+.status-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:10px;color:var(--muted);background:#f8fafc;border-top:1px solid var(--border)}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--gm);flex-shrink:0}
+.sdot.loading{background:var(--amber);animation:pulse 1s infinite}
+.sdot.err{background:#dc2626}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.season-badge{background:rgba(61,191,138,.15);color:var(--gm);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hlogo">
+    <div class="hlm"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v6c0 5 3.5 9.74 8 11 4.5-1.26 8-6 8-11V7L12 2z"/></svg></div>
+    <div><div class="hln">Agro<span>Drone</span>.BY</div><div class="hls">Статистика сезона</div></div>
+  </div>
+  <span class="badge">2026</span>
+</div>
+
+<div id="root">
+  <div class="loading"><div class="spinner"></div>Загружаю данные...</div>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+// SHEET_ID — см. config.js
+// Цвета операторов
+const OP_COLORS={
+  'op_001':'#3dbf8a','op_002':'#3b82f6','op_003':'#f59e0b','op_004':'#8b5cf6'
+};
+const OP_NAMES={
+  'op_001':'Бруй Д.А.','op_002':'Грибов К.М.','op_003':'Борисенок Л.И.','op_004':'Уманец А.И.'
+};
+
+async function loadSheet(sheet){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet)}`;
+  const res=await fetch(url);
+  const txt=await res.text();
+  const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+  return json.table;
+}
+
+function parseVal(v){
+  if(!v&&v!==0) return '';
+  if(typeof v==='string'&&v.startsWith('Date(')){
+    const p=v.replace('Date(','').replace(')','').split(',').map(Number);
+    return new Date(p[0],p[1],p[2]).toLocaleDateString('ru');
+  }
+  return v;
+}
+
+function fmt(n,d=0){return Number(n||0).toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ');}
+
+async function init(){
+  try{
+    // Загружаем листы ОБРАБОТКИ и ЗАЯВКИ
+    const [obr,zayavki]=await Promise.all([
+      loadSheet('ОБРАБОТКИ'),
+      loadSheet('ЗАЯВКИ')
+    ]);
+
+    // Парсим ОБРАБОТКИ
+    const obrRows=obr.rows.map(r=>r.c.map(c=>parseVal(c?.v??''))).filter(r=>r[0]);
+    // Структура: A=дата, B=район, C=культура, D=площадь, E=операторы, F=борт, ...
+    // Считаем по данным
+    let totalHa=0, totalTrips=0;
+    const opHa={}, regHa={}, droneHa={};
+
+    obrRows.forEach(r=>{
+      const ha=parseFloat(r[3])||0;
+      const region=(r[1]||'').toString().trim();
+      const ops=(r[4]||'').toString().trim();
+      const drone=(r[5]||'').toString().trim();
+
+      totalHa+=ha;
+      totalTrips++;
+
+      // По районам
+      if(region){
+        regHa[region]=(regHa[region]||0)+ha;
+      }
+
+      // По операторам (через разделитель)
+      if(ops){
+        const opList=ops.split(/[,;\/]+/).map(s=>s.trim()).filter(Boolean);
+        const haPerOp=opList.length>0?Math.round(ha/opList.length):0;
+        opList.forEach(op=>{
+          opHa[op]=(opHa[op]||0)+haPerOp;
+        });
+      }
+
+      // По бортам
+      if(drone){
+        const dList=drone.split(/[+,]+/).map(s=>s.trim()).filter(Boolean);
+        dList.forEach(d=>{
+          droneHa[d]=(droneHa[d]||0)+ha;
+        });
+      }
+    });
+
+    // Парсим ЗАЯВКИ для финансов и км
+    const zRows=zayavki.rows.map(r=>r.c.map(c=>parseVal(c?.v??''))).filter(r=>r[0]);
+    let totalRevenue=0, totalKm=0, completedCount=0, totalPpa=0, ppaCount=0;
+
+    zRows.forEach(r=>{
+      const status=(r[16]||'').toString();
+      const total=parseFloat(r[21])||0;
+      const ppa=parseFloat(r[22])||0;
+      const km=parseFloat(r[24])||0;
+
+      if(['Выполнена','Оплачена'].includes(status)){
+        totalRevenue+=total;
+        completedCount++;
+        if(ppa>0){totalPpa+=ppa;ppaCount++;}
+      }
+      if(km>0) totalKm+=km;
+    });
+
+    const avgPpa=ppaCount>0?totalPpa/ppaCount:0;
+    const avgHa=totalTrips>0?totalHa/totalTrips:0;
+
+    // Топ-5 районов
+    const topRegs=Object.entries(regHa).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxRegHa=topRegs[0]?.[1]||1;
+
+    // Операторы
+    const opList=Object.entries(opHa).sort((a,b)=>b[1]-a[1]);
+    const maxOpHa=opList[0]?.[1]||1;
+
+    // Дроны
+    const droneList=Object.entries(droneHa).sort((a,b)=>b[1]-a[1]);
+    const maxDroneHa=droneList[0]?.[1]||1;
+
+    render({totalHa,totalTrips,avgHa,avgPpa,totalRevenue,totalKm,completedCount,topRegs,maxRegHa,opList,maxOpHa,droneList,maxDroneHa});
+
+  }catch(e){
+    console.error(e);
+    document.getElementById('root').innerHTML=`<div class="loading" style="color:#dc2626">❌ Ошибка загрузки данных</div>`;
+  }
+}
+
+function render(d){
+  const root=document.getElementById('root');
+
+  // Маржа (примерная — 41%)
+  const margin=d.totalRevenue*0.412;
+
+  root.innerHTML=`
+    <!-- СЕЗОН ИТОГО -->
+    <div class="season-strip">
+      <div class="ss-title">Сезон 2026 — итого</div>
+      <div class="ss-grid">
+        <div class="ss-item">
+          <div class="ss-val">${fmt(d.totalHa)}<span>га</span></div>
+          <div class="ss-lbl">Обработано</div>
+        </div>
+        <div class="ss-item">
+          <div class="ss-val">${d.totalTrips}<span>вып.</span></div>
+          <div class="ss-lbl">Выездов</div>
+        </div>
+        <div class="ss-item">
+          <div class="ss-val">${fmt(d.avgHa,0)}<span>га</span></div>
+          <div class="ss-lbl">Ср. поле</div>
+        </div>
+      </div>
+      <hr class="ss-divider">
+      <div class="ss-bottom">
+        <div>
+          <div class="ss-price">${fmt(d.avgPpa,2)} BYN/га — средняя цена</div>
+          <div class="ss-profit">${d.completedCount} выполнено · маржа ~${fmt(margin)} BYN</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+
+      <!-- МЕТРИКИ -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon">📐</div>
+          <div class="metric-val">${fmt(d.avgHa,0)}<span>га</span></div>
+          <div class="metric-lbl">Среднее поле</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💰</div>
+          <div class="metric-val">${fmt(d.avgPpa,2)}<span>BYN</span></div>
+          <div class="metric-lbl">Ср. цена/га</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">📈</div>
+          <div class="metric-val">${fmt(margin)}<span>BYN</span></div>
+          <div class="metric-lbl">Прибыль ~41%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">✅</div>
+          <div class="metric-val">${d.completedCount}<span>шт</span></div>
+          <div class="metric-lbl">Выполнено</div>
+        </div>
+      </div>
+
+      <!-- ОПЕРАТОРЫ -->
+      <div class="card">
+        <div class="card-hdr"><span>👥 Га по операторам</span></div>
+        <div class="card-body">
+          ${d.opList.length?d.opList.map(([op,ha])=>{
+            const color=OP_COLORS[op]||'#3dbf8a';
+            const name=OP_NAMES[op]||op;
+            const pct=Math.round(ha/d.maxOpHa*100);
+            return `<div class="op-row">
+              <div class="op-av" style="background:${color}">${name.split(' ')[0].charAt(0)}${name.split(' ')[1]?.charAt(0)||''}</div>
+              <div><div class="op-name">${name}</div><div class="op-role">${op}</div></div>
+              <div class="op-bar-wrap">
+                <div class="op-bar-bg"><div class="op-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+                <span class="op-ha">${fmt(ha)} га</span>
+              </div>
+            </div>`;
+          }).join(''):`<div class="empty">Нет данных</div>`}
+        </div>
+      </div>
+
+      <!-- ТОП РАЙОНОВ -->
+      <div class="card">
+        <div class="card-hdr"><span>📍 Топ-5 районов</span></div>
+        <div class="card-body">
+          ${d.topRegs.length?d.topRegs.map(([reg,ha],i)=>{
+            const pct=Math.round(ha/d.maxRegHa*100);
+            return `<div class="reg-row">
+              <div class="reg-num">${i+1}</div>
+              <div class="reg-name">${reg}</div>
+              <div class="reg-bar-wrap">
+                <div class="reg-bar-bg"><div class="reg-bar-fill" style="width:${pct}%"></div></div>
+                <span class="reg-ha">${fmt(ha)} га</span>
+              </div>
+            </div>`;
+          }).join(''):`<div class="empty">Нет данных</div>`}
+        </div>
+      </div>
+
+      <!-- БОРТЫ -->
+      <div class="card">
+        <div class="card-hdr"><span>🚁 Борты — га/налёт</span></div>
+        <div class="card-body">
+          ${d.droneList.length?d.droneList.map(([drone,ha])=>{
+            const pct=Math.round(ha/d.maxDroneHa*100);
+            return `<div class="drone-row">
+              <div class="drone-ico">🚁</div>
+              <div><div class="drone-name">${drone}</div><div class="drone-reg">Агродрон АТК</div></div>
+              <div class="drone-stats">
+                <div class="drone-ha">${fmt(ha)} га</div>
+                <div class="drone-hrs">~${fmt(ha/12,0)} ч налёта</div>
+              </div>
+            </div>
+            <div class="drone-bar-wrap" style="padding:0 0 6px">
+              <div class="drone-bar-bg"><div class="drone-bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+          }).join(''):`<div class="empty">Нет данных</div>`}
+        </div>
+      </div>
+
+      <!-- ДОРОГА -->
+      <div class="road-card">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🚗 Логистика сезона</div>
+        <div class="road-grid">
+          <div class="road-item">
+            <div class="road-val">${fmt(d.totalKm)}<span>км</span></div>
+            <div class="road-lbl">Всего пробег</div>
+          </div>
+          <div class="road-item">
+            <div class="road-val">${fmt(d.totalKm*2.6)}<span>BYN</span></div>
+            <div class="road-lbl">Стоимость дороги</div>
+          </div>
+        </div>
+        <hr class="road-divider">
+        <div class="road-avg">Среднее на выезд: ${d.totalTrips>0?fmt(d.totalKm/d.totalTrips,0):0} км · ${d.totalTrips>0?fmt(d.totalKm*2.6/d.totalTrips,0):0} BYN</div>
+      </div>
+
+    </div>
+
+    <div class="status-bar">
+      <div class="sdot"></div>
+      <span>Данные из Google Sheets · обновлено только что</span>
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
