@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Регистрация агронома
-  v1.3 · 2026-05-19
+  v1.4 · 2026-05-19
   Файл: agronomist/agrodron_register.html
-  Изменения: после регистрации кнопка "Готово" отправляет /start и закрывает WebApp для обновления меню бота
+  Изменения: кнопка "Готово" отправляет текстовое сообщение /start через Bot API (триггер в Leadtex)
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Регистрация · AgroDrone.BY</title>
-<!-- AD_agronom_register.html | май 2026 | v1.3 — кнопка "Готово" → /start → обновление меню -->
+<!-- AD_agronom_register.html | май 2026 | v1.4 — /start через Bot API → триггер Leadtex -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="config.js"></script>
@@ -345,19 +345,29 @@ async function submitRegistration() {
 // ══════════════════════════════════
 // ЗАВЕРШЕНИЕ РЕГИСТРАЦИИ
 // ══════════════════════════════════
-function finishRegistration() {
-  // Отправляем команду /start в бот, чтобы обновить меню
-  // Telegram WebApp закроется и бот получит команду
+async function finishRegistration() {
+  // Отправляем текстовое сообщение /start в бот через Telegram Bot API
+  // Это вызовет триггер "Текстовое сообщение" в Leadtex
+  const botToken = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
+  const chatId = telegramId;
+  
   try {
-    tg.sendData('/start');
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: '/start'
+      })
+    });
   } catch (e) {
-    console.error('Ошибка отправки команды:', e);
+    console.error('Ошибка отправки /start:', e);
   }
   
   // Закрываем WebApp
   setTimeout(() => {
     tg.close();
-  }, 200);
+  }, 300);
 }
 
 // ══════════════════════════════════
