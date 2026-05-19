@@ -290,6 +290,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
     <button class="btn btn-primary" onclick="saveField()" id="save-btn">✓ Добавить поле</button>
     <button class="btn btn-sec" onclick="back()">Отмена</button>
+    <button class="btn" id="delete-btn" style="display:none;background:#fee2e2;color:#dc2626;border:2px solid #fca5a5" onclick="deleteField()">🗑️ Удалить поле</button>
   </div>
 </div>
 
@@ -642,6 +643,7 @@ async function saveField() {
       document.getElementById('f-crop').value = '';
       delete btn.dataset.editId;
       btn.textContent = '✓ Добавить поле';
+      document.getElementById('delete-btn').style.display = 'none';
       showToast(editId ? '✅ Поле обновлено!' : '✅ Поле добавлено!');
       setTimeout(() => { back(); navFields(editId ? 'all' : 'ждёт'); }, 800);
     } else {
@@ -674,7 +676,50 @@ function editField(fieldId) {
     btn2.dataset.editId   = fieldId;
     btn2.dataset.editCity = f.city || '';
     btn2.textContent = '✓ Сохранить изменения';
+    document.getElementById('delete-btn').style.display = 'block';
   }, 100);
+}
+
+// ══════════════════════════════════
+// УДАЛЕНИЕ ПОЛЯ
+// ══════════════════════════════════
+async function deleteField() {
+  const btn = document.getElementById('save-btn');
+  const fieldId = btn.dataset.editId;
+  if (!fieldId) return;
+  
+  if (!confirm('Удалить это поле?')) return;
+  
+  showToast('⏳ Удаляю...');
+  
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete_field', id: fieldId })
+    });
+    const json = await resp.json();
+    
+    if (json.ok) {
+      ['f-name','f-prep','f-norm','f-area','f-coords'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-crop').value = '';
+      delete btn.dataset.editId;
+      btn.textContent = '✓ Добавить поле';
+      document.getElementById('delete-btn').style.display = 'none';
+      
+      // Удаляем из локального массива
+      const idx = allFields.findIndex(f => f.id === fieldId);
+      if (idx >= 0) allFields.splice(idx, 1);
+      updateBadges();
+      
+      showToast('✅ Поле удалено');
+      setTimeout(() => { back(); }, 800);
+    } else {
+      showToast('❌ ' + (json.error || 'Ошибка удаления'));
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка. Попробуйте ещё раз');
+  }
 }
 
 // ══════════════════════════════════
