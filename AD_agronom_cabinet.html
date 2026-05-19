@@ -592,8 +592,8 @@ async function saveField() {
   if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
   if (!coords) { showToast('⚠️ Укажите координаты (ссылка Google/Яндекс или числа)'); return; }
 
-  // Telegram ID — необязательный, берём если есть
-  const telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+  // Telegram ID — необязательный, берём если есть, иначе используем CLIENT_ID
+  const telegramId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null) || CLIENT_ID;
 
   // Валидация формата координат
   const isGoogleMaps = coords.includes('google.com/maps') || coords.includes('goo.gl/maps');
