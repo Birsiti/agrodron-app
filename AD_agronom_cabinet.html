@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v2.11 · 2026-05-19
+  v2.12 · 2026-05-19
   Файл: agronomist/agrodron_agronomist.html
   Изменения: 
-  - Координаты обязательны (валидация Google/Яндекс ссылки или числовой формат)
-  - Подсказки по препаратам (datalist с уже использованными препаратами)
-  - Исправлена ошибка OWNER_ID — добавлен telegramId в payload
+  - Упрощён placeholder координат: "Вставьте координаты"
+  - Добавлена ссылка на Яндекс.Карты под полем координат
+  - Исправлена ошибка OWNER_ID: проверка telegramId перед сохранением
 -->
 <html lang="ru">
 <head>
@@ -284,11 +284,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       </div>
       <div class="frow" style="margin-bottom:0">
         <label>Координаты *</label>
-        <input type="text" id="f-coords" placeholder="Ссылка Google/Яндекс или 53.1234, 26.5678" list="coords-hints">
-        <datalist id="coords-hints">
-          <option value="Вставьте ссылку из Google Maps">
-          <option value="Вставьте ссылку из Яндекс.Карт">
-        </datalist>
+        <input type="text" id="f-coords" placeholder="Вставьте координаты">
+        <a href="https://yandex.by/maps" target="_blank" style="display:inline-block;margin-top:6px;font-size:11px;color:var(--aca);text-decoration:none">📍 Открыть Яндекс.Карты</a>
       </div>
     </div>
     <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd;margin-bottom:10px">
@@ -598,6 +595,13 @@ async function saveField() {
   if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
   if (!coords) { showToast('⚠️ Укажите координаты (ссылка Google/Яндекс или числа)'); return; }
 
+  // Проверка Telegram ID
+  const telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+  if (!telegramId) {
+    showToast('⚠️ Ошибка: не удалось получить Telegram ID. Откройте кабинет через бот.');
+    return;
+  }
+
   // Валидация формата координат
   const isGoogleMaps = coords.includes('google.com/maps') || coords.includes('goo.gl/maps');
   const isYandexMaps = coords.includes('yandex.') && coords.includes('maps');
@@ -624,7 +628,7 @@ async function saveField() {
           mapsUrl: coords,
           city: editCity }
       : { clientId: CLIENT_ID,
-          telegramId: tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null,
+          telegramId: telegramId,
           city: CITY || 'Не указан', 
           name, crop, prep,
           norm: norm.replace(',','.'),
