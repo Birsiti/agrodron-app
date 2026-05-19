@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Главное меню
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_menu.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_menu.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Баннер командировки только для активных (status !== 'closed')
+  - Добавлена кнопка "Отчёт по командировке" для закрытых
+  - Баланс может быть отрицательным, аванс может быть 0
 -->
 <html lang="ru">
 <head>
@@ -20,6 +25,7 @@
   --amber:#d97706;--amber-light:#fef3c7;
   --red:#dc2626;--red-light:#fee2e2;
   --blue:#2563eb;--blue-light:#eff6ff;
+  --gray:#6b7280;--gray-light:#f3f4f6;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -59,6 +65,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 /* BANNERS */
 .trip-banner{background:linear-gradient(135deg,#d97706,#b45309);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
+.closed-trip-banner{background:linear-gradient(135deg,#6b7280,#4b5563);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
 .day-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff;cursor:pointer}
 .tb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .tb-title{font-size:13px;font-weight:800}
@@ -97,7 +104,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 
   <!-- Баннер активной командировки -->
-  <div id="trip-banner" style="display:none" onclick="goTo('op_trip.html')">
+  <div id="trip-banner" style="display:none" onclick="goTo('AD_op_trip.html')">
     <div class="trip-banner">
       <div class="tb-top">
         <div><div class="tb-title">🚐 Командировка</div><div class="tb-sub" id="tb-direction">—</div></div>
@@ -111,8 +118,23 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
   </div>
 
+  <!-- Баннер закрытой командировки -->
+  <div id="closed-trip-banner" style="display:none" onclick="showTripReport()">
+    <div class="closed-trip-banner">
+      <div class="tb-top">
+        <div><div class="tb-title">✅ Командировка закрыта</div><div class="tb-sub" id="ctb-direction">—</div></div>
+        <div class="tb-badge">Отчёт</div>
+      </div>
+      <div class="tb-stats">
+        <div class="tb-stat"><div class="tb-stat-val" id="ctb-ha">0</div><div class="tb-stat-lbl">Га обработано</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="ctb-days">0</div><div class="tb-stat-lbl">Дней в поле</div></div>
+        <div class="tb-stat"><div class="tb-stat-val" id="ctb-total">0</div><div class="tb-stat-lbl">Расходов</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Баннер активного дня -->
-  <div id="day-banner" style="display:none" onclick="goTo('op_day.html')">
+  <div id="day-banner" style="display:none" onclick="goTo('AD_op_day.html')">
     <div class="day-banner">
       <div class="tb-top">
         <div><div class="tb-title">☀️ День открыт</div><div class="tb-sub" id="db-date">—</div></div>
@@ -129,17 +151,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   <!-- Меню бригадира -->
   <div id="brigadier-menu" style="display:none">
     <div class="sep">Командировка</div>
-    <div class="mi" id="btn-open-trip" onclick="goTo('op_trip.html')">
+    <div class="mi" id="btn-open-trip" onclick="goTo('AD_op_trip.html')">
       <div class="mi-ico">🚐</div>
       <div class="mi-info"><div class="mi-title">Открыть командировку</div><div class="mi-sub">Выезд, состав, аванс</div></div>
       <div class="mi-arr">›</div>
     </div>
-    <div class="mi" id="btn-open-day" onclick="goTo('op_day.html')" style="display:none">
+    <div class="mi" id="btn-open-day" onclick="goTo('AD_op_day.html')" style="display:none">
       <div class="mi-ico">☀️</div>
       <div class="mi-info"><div class="mi-title">Открыть день</div><div class="mi-sub">Едем в поле</div></div>
       <div class="mi-arr">›</div>
     </div>
-    <div class="mi" id="btn-expense" onclick="goTo('op_expenses.html')" style="display:none">
+    <div class="mi" id="btn-expense" onclick="goTo('AD_op_expenses.html')" style="display:none">
       <div class="mi-ico">💸</div>
       <div class="mi-info"><div class="mi-title">Внести расход</div><div class="mi-sub">По командировке</div></div>
       <div class="mi-arr">›</div>
@@ -148,7 +170,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
   <!-- Общее меню -->
   <div class="sep">Рабочее</div>
-  <div class="mi" onclick="goTo('op_issues.html')">
+  <div class="mi" onclick="goTo('AD_op_issues.html')">
     <div class="mi-ico">🔧</div>
     <div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div>
     <div id="issues-badge" style="display:none" class="mi-badge">!</div>
@@ -156,17 +178,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 
   <div class="sep">Информация</div>
-  <div class="mi" onclick="goTo('op_stats.html')">
+  <div class="mi" onclick="goTo('AD_op_stats.html')">
     <div class="mi-ico">📊</div>
     <div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды за сезон</div></div>
     <div class="mi-arr">›</div>
   </div>
-  <div class="mi" onclick="goTo('op_weather.html')">
+  <div class="mi" onclick="goTo('AD_op_weather.html')">
     <div class="mi-ico">🌤</div>
     <div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">По месту командировки</div></div>
     <div class="mi-arr">›</div>
   </div>
-  <div class="mi" onclick="goTo('op_docs.html')">
+  <div class="mi" onclick="goTo('AD_op_docs.html')">
     <div class="mi-ico">📋</div>
     <div class="mi-info"><div class="mi-title">Документы и связь</div><div class="mi-sub">Правила, контакты, РП</div></div>
     <div class="mi-arr">›</div>
@@ -194,33 +216,96 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+function showTripReport() {
+  const trip = getTrip();
+  if (!trip) return;
+  
+  // Группируем расходы
+  const cashExpenses = (trip.expenses||[]).filter(e=>e.paymentType==='Наличные');
+  const cardExpenses = (trip.expenses||[]).filter(e=>e.paymentType==='Безнал');
+  
+  let report = `✅ Командировка закрыта\n📍 ${trip.direction} · ${formatDate(trip.dateStart)} → ${formatDate(trip.dateEnd)}\n🌾 Обработано: ${trip.ha||0} га\n─────────────────\n💰 Финансы\n`;
+  
+  if (cashExpenses.length > 0) {
+    report += `Наличные:\n`;
+    cashExpenses.forEach(e => {
+      report += `· ${e.category} — ${e.amount} BYN\n`;
+    });
+  }
+  
+  if (cardExpenses.length > 0) {
+    report += `Безнал:\n`;
+    cardExpenses.forEach(e => {
+      report += `· ${e.category}${e.details?' '+e.details:''} — ${e.amount} BYN\n`;
+    });
+  }
+  
+  const totalExpenses = (trip.expenses||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0), 0);
+  const balance = (trip.advance||0) - totalExpenses;
+  
+  report += `📊 Итого расходов: ${totalExpenses.toFixed(0)} BYN\n`;
+  report += balance >= 0 ? `💰 Остаток: +${balance.toFixed(0)} BYN` : `⚠️ Перерасход: ${balance.toFixed(0)} BYN`;
+  
+  // Копируем в буфер и показываем toast
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(report).then(() => {
+      showToast('Отчёт скопирован в буфер');
+    });
+  } else {
+    alert(report);
+  }
+}
+
 // ── Render banners ───────────────────────────────────────
 function renderBanners() {
   const trip = getTrip();
   const day  = getDay();
 
   // Командировка
-  const tripBanner  = document.getElementById('trip-banner');
-  const btnOpenTrip = document.getElementById('btn-open-trip');
-  const btnOpenDay  = document.getElementById('btn-open-day');
-  const btnExpense  = document.getElementById('btn-expense');
+  const tripBanner       = document.getElementById('trip-banner');
+  const closedTripBanner = document.getElementById('closed-trip-banner');
+  const btnOpenTrip      = document.getElementById('btn-open-trip');
+  const btnOpenDay       = document.getElementById('btn-open-day');
+  const btnExpense       = document.getElementById('btn-expense');
 
   if (trip) {
-    const balance = trip.advance - trip.cashSpent;
-    document.getElementById('tb-direction').textContent = '📍 ' + trip.direction;
-    document.getElementById('tb-day-badge').textContent = 'День ' + daysDiff(trip.dateStart);
-    document.getElementById('tb-balance').textContent   = balance.toFixed(0);
-    document.getElementById('tb-ha').textContent        = trip.ha || 0;
-    document.getElementById('tb-exp-cnt').textContent   = (trip.expenses||[]).length;
-    tripBanner.style.display  = 'block';
-    btnOpenTrip.style.display = 'none';
-    btnOpenDay.style.display  = day ? 'none' : 'flex';
-    btnExpense.style.display  = 'flex';
+    const isClosed = trip.status === 'closed';
+    
+    if (isClosed) {
+      // Закрытая командировка — серый баннер с отчётом
+      const totalDays = trip.dateEnd ? daysDiff(trip.dateStart) : 0;
+      const totalExpenses = (trip.expenses||[]).length;
+      document.getElementById('ctb-direction').textContent = '📍 ' + trip.direction + ' · ' + formatDate(trip.dateStart) + ' → ' + formatDate(trip.dateEnd);
+      document.getElementById('ctb-ha').textContent = trip.ha || 0;
+      document.getElementById('ctb-days').textContent = totalDays;
+      document.getElementById('ctb-total').textContent = totalExpenses;
+      closedTripBanner.style.display = 'block';
+      tripBanner.style.display = 'none';
+      btnOpenTrip.style.display = 'none';
+      btnOpenDay.style.display = 'none';
+      btnExpense.style.display = 'none';
+    } else {
+      // Активная командировка — оранжевый баннер
+      const advance = parseFloat(trip.advance) || 0;
+      const cashSpent = parseFloat(trip.cashSpent) || 0;
+      const balance = advance - cashSpent;
+      document.getElementById('tb-direction').textContent = '📍 ' + trip.direction;
+      document.getElementById('tb-day-badge').textContent = 'День ' + daysDiff(trip.dateStart);
+      document.getElementById('tb-balance').textContent = balance.toFixed(0);
+      document.getElementById('tb-ha').textContent = trip.ha || 0;
+      document.getElementById('tb-exp-cnt').textContent = (trip.expenses||[]).length;
+      tripBanner.style.display = 'block';
+      closedTripBanner.style.display = 'none';
+      btnOpenTrip.style.display = 'none';
+      btnOpenDay.style.display = day ? 'none' : 'flex';
+      btnExpense.style.display = 'flex';
+    }
   } else {
-    tripBanner.style.display  = 'none';
+    tripBanner.style.display = 'none';
+    closedTripBanner.style.display = 'none';
     btnOpenTrip.style.display = 'flex';
-    btnOpenDay.style.display  = 'none';
-    btnExpense.style.display  = 'none';
+    btnOpenDay.style.display = 'none';
+    btnExpense.style.display = 'none';
   }
 
   // День
