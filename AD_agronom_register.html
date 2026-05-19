@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Регистрация агронома
-  v1.4 · 2026-05-19
+  v1.5 · 2026-05-19
   Файл: agronomist/agrodron_register.html
-  Изменения: кнопка "Готово" отправляет текстовое сообщение /start через Bot API (триггер в Leadtex)
+  Изменения: убрана кнопка "Готово", после регистрации только сообщение (переход в меню через Leadtex)
 -->
 <html lang="ru">
 <head>
@@ -157,16 +157,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       <div><strong>Телефон:</strong> <span id="success-phone">—</span></div>
     </div>
   </div>
-
-  <div class="info-box" style="background:#fef3c7;border-color:#fbbf24;margin-bottom:12px">
-    <div class="info-box-text" style="color:#92400e">
-      ⚡ Нажмите кнопку ниже, чтобы обновить меню бота и открыть кабинет агронома
-    </div>
-  </div>
-
-  <button class="btn btn-primary" onclick="finishRegistration()">
-    ✅ Готово — обновить меню
-  </button>
 </div>
 
 <!-- ══════════════════════════════════
@@ -340,34 +330,6 @@ async function submitRegistration() {
     btn.disabled = false;
     btn.textContent = '✓ Зарегистрироваться';
   }
-}
-
-// ══════════════════════════════════
-// ЗАВЕРШЕНИЕ РЕГИСТРАЦИИ
-// ══════════════════════════════════
-async function finishRegistration() {
-  // Отправляем текстовое сообщение /start в бот через Telegram Bot API
-  // Это вызовет триггер "Текстовое сообщение" в Leadtex
-  const botToken = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
-  const chatId = telegramId;
-  
-  try {
-    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: '/start'
-      })
-    });
-  } catch (e) {
-    console.error('Ошибка отправки /start:', e);
-  }
-  
-  // Закрываем WebApp
-  setTimeout(() => {
-    tg.close();
-  }, 300);
 }
 
 // ══════════════════════════════════
