@@ -314,22 +314,49 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3Pk
 // ══════════════════════════════════
 // ПОЛУЧЕНИЕ clientId ИЗ URL
 // ══════════════════════════════════
-const urlParams = new URLSearchParams(window.location.search);
-const CLIENT_ID = urlParams.get('clientId');
+// ── Получение CLIENT_ID ──────────────────────────────────
+// Сначала из URL, если нет — определяем по Telegram ID
+let CLIENT_ID = new URLSearchParams(window.location.search).get('clientId');
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) { tg.ready(); tg.expand(); }
 
-if (!CLIENT_ID) {
-  document.querySelector('.scroll').innerHTML = `
-    <div class="error-state">
-      ❌ Ошибка доступа<br><br>
-      Не указан ID клиента в URL.<br>
-      Пожалуйста, откройте кабинет через Telegram бот.
-    </div>
-  `;
-  throw new Error('CLIENT_ID отсутствует в URL');
+async function resolveClientId() {
+  if (CLIENT_ID) {
+    document.getElementById('client-id-badge').textContent = 'ID: ' + CLIENT_ID;
+    return true;
+  }
+
+  const telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user
+    ? tg.initDataUnsafe.user.id : null;
+
+  if (!telegramId) {
+    document.querySelector('.scroll').innerHTML =
+      '<div class="error-state">❌ Ошибка доступа<br><br>Откройте кабинет через Telegram бот.</div>';
+    return false;
+  }
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'checkClientRegistration', telegram_id: telegramId })
+    });
+    const d = await r.json();
+    const result = d.result || d;
+    if (result.registered && result.clientId) {
+      CLIENT_ID = result.clientId;
+      document.getElementById('client-id-badge').textContent = 'ID: ' + CLIENT_ID;
+      return true;
+    }
+    document.querySelector('.scroll').innerHTML =
+      '<div class="error-state">❌ Вы не зарегистрированы<br><br>Пройдите регистрацию через бот.</div>';
+    return false;
+  } catch(e) {
+    document.querySelector('.scroll').innerHTML =
+      '<div class="error-state">❌ Ошибка подключения<br><br>Проверьте интернет и попробуйте снова.</div>';
+    return false;
+  }
 }
 
-// Обновляем badge с ID
-document.getElementById('client-id-badge').textContent = `ID: ${CLIENT_ID}`;
 
 // ══════════════════════════════════
 // ЗАГРУЗКА ДАННЫХ КЛИЕНТА
@@ -638,6 +665,8 @@ function showToast(msg) {
 // INIT
 // ══════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
+  const ok = await resolveClientId();
+  if (!ok) return;
   await loadClientData();
   await loadFields('all');
 });
