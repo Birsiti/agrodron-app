@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — День
-  v1.2 · 2026-05-13
-  Fixes: field_done→close_field, field_start→update_field_status,
-         operatorIds в close_field, безопасный pendingFields
-  Файл: operator/AD_op_day.html
+  v1.3 · 2026-05-19
+  Файл: AD_op_day.html
+  Изменения v1.3:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html, op_map.html → AD_op_map.html
+  
+  Fixes v1.2 (из предыдущей версии):
+  - field_done→close_field, field_start→update_field_status
+  - operatorIds в close_field, безопасный pendingFields
 -->
 <html lang="ru">
 <head>
@@ -211,7 +216,7 @@ textarea.fi{resize:none;min-height:70px}
   <div style="display:flex;gap:8px;margin-bottom:10px">
     <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="openRouteRemaining()">🗺 Остаток</button>
     <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px" onclick="openRouteAll()">🗺 Все поля</button>
-    <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px;background:var(--gl);color:var(--green);border-color:var(--ga)" onclick="goTo('op_map.html')">📍 Карта</button>
+    <button class="btn btn-outline" style="margin:0;flex:1;font-size:12px;background:var(--gl);color:var(--green);border-color:var(--ga)" onclick="goTo('AD_op_map.html')">📍 Карта</button>
   </div>
   <div id="fields-list-wrap"></div>
 </div>
@@ -308,7 +313,7 @@ function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null'
 function saveDay(d){ localStorage.setItem('atk_day', JSON.stringify(d)); }
 function clearDay(){ localStorage.removeItem('atk_day'); }
 function goTo(f){ window.location.href=f; }
-function goMenu(){ window.location.href='op_menu.html'; }
+function goMenu(){ window.location.href='AD_op_menu.html'; }
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 function formatDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
 
@@ -334,7 +339,7 @@ async function apiCall(action, data={}) {
 }
 
 // ── State ────────────────────────────────────────────────
-let pendingFields = []; // поля при открытии дня (из таблицы + перенос)
+let pendingFields = [];
 let currentFieldId = null;
 let selectedFrac = null;
 
@@ -355,7 +360,6 @@ function init() {
   document.getElementById('day-date').value = todayISO();
 
   if (day) {
-    // День открыт — режим активного дня
     document.getElementById('screen-open').classList.remove('active');
     document.getElementById('screen-fields').classList.add('active');
     document.getElementById('tabs').style.display = 'flex';
@@ -363,31 +367,19 @@ function init() {
     document.getElementById('hdr-sub').textContent = formatDate(day.date);
     renderFieldsList();
   } else {
-    // Открываем день
     const trip = getTrip();
     if (!trip) { showToast('❌ Нет активной командировки'); setTimeout(goMenu, 1000); return; }
     document.getElementById('screen-open').classList.add('active');
     document.getElementById('tabs').style.display = 'none';
-    // Авто-загрузить поля
     loadFields();
   }
 }
 
 // ── Sheets API config ────────────────────────────────────
 // SHEET_ID — см. config.js
-// Колонки ПОЛЯ КЛИЕНТОВ (0-based):
-// A=0 ID, B=1 ID клиента, C=2 Районный центр, D=3 Название поля,
-// E=4 Ссылка Maps, F=5 Культура, G=6 Препарат, H=7 Норма л/га,
-// I=8 Площадь га, J=9 Статус, K=10 Фото URL, L=11 Дата закрытия,
-// M=12 ID обработки, N=13 Примечания
-
 function coordsToMapsUrl(raw) {
   if (!raw) return '';
-  // Заменяем запятую-разделитель десятичных на точку: "52,527" → "52.527"
-  // Формат в таблице: "52,5276925, 26,6100870"
-  const fixed = raw.toString()
-    .replace(/(\d),(\d)/g, '$1.$2')  // десятичные запятые → точки
-    .trim();
+  const fixed = raw.toString().replace(/(\d),(\d)/g, '$1.$2').trim();
   return 'https://maps.google.com/?q=' + encodeURIComponent(fixed);
 }
 
@@ -425,9 +417,8 @@ async function loadFields() {
         status: 'pending',
         carried: false
       }))
-      .filter(f => f.name); // пропустить пустые строки
+      .filter(f => f.name);
 
-    // Добавить перенесённые поля из командировки
     const carried = (trip && trip.pendingFields) ? trip.pendingFields : [];
     carried.forEach(f => {
       if (!pendingFields.find(p=>p.id===f.id)) pendingFields.push({...f, carried:true});
@@ -508,7 +499,6 @@ function openDay() {
   };
   saveDay(day);
 
-  // Очистить pending в командировке
   trip.pendingFields = [];
   saveTrip(trip);
 
@@ -587,7 +577,6 @@ function openFieldModal(fieldId) {
   document.getElementById('mo-field-meta').textContent =
     'План: '+field.haPlan+' га · Сделано: '+(field.haDone||0)+' га · Осталось: '+field.haLeft+' га';
 
-  // Если поле уже в работе/частично — сразу к закрытию
   if (field.status==='active'||field.status==='partial') {
     showFracSelect(field);
   } else {
@@ -613,7 +602,6 @@ function showActionSelect() {
 
 function fieldAction(action) {
   if (action==='start') {
-    // Отметить «Начал» — статус active, убрать из pending
     const day = getDay();
     const field = day.fields.find(f=>f.id===currentFieldId);
     if (!field) return;
@@ -634,7 +622,6 @@ function showFracSelect(field) {
   document.getElementById('mo-action-select').style.display='none';
   document.getElementById('mo-frac-select').style.display='block';
 
-  // Строим кнопки дробей на основе haLeft
   const left = field.haLeft;
   const fracs = [
     { label:'1/3', val: Math.round(left/3*10)/10 },
@@ -683,7 +670,6 @@ function confirmFieldClose() {
   field.status = remainder <= 0 ? 'done' : 'partial';
 
   if (remainder > 0 && trip) {
-    // Перенос
     if (!trip.pendingFields) trip.pendingFields = [];
     const idx = trip.pendingFields.findIndex(p=>p.id===field.id);
     const carried = {...field, haLeft:remainder, haDone:totalDone, status:'pending'};
@@ -706,7 +692,6 @@ function confirmFieldClose() {
       if (trip.pendingFields) trip.pendingFields = trip.pendingFields.filter(p=>p.id!==field.id);
       saveTrip(trip);
     }
-    // field_done = close_field с isFullyDone:true
     const trip2 = getTrip();
     apiCall('close_field', {
       id: field.id,
@@ -778,7 +763,7 @@ function closeDay() {
 
   const totalSpent = (() => {
     const trip = getTrip();
-    return trip ? (parseFloat(trip.ha)||0) : 0; // расходы из trip если есть
+    return trip ? (parseFloat(trip.ha)||0) : 0;
   })();
   apiCall('close_day',{
     dayId:day.id, tripId:day.tripId, dayNum:day.dayNum,
@@ -793,10 +778,8 @@ function closeDay() {
   setTimeout(goMenu, 800);
 }
 
-
 // ── Маршруты Google Maps ─────────────────────────────────
 function buildRouteUrl(fields) {
-  // Конвертируем координаты: "52,5276925, 26,6100870" → "52.5276925,26.6100870"
   const coords = fields
     .map(f => f.coords || f.mapsUrl || '')
     .filter(c => c && !c.startsWith('http'))
@@ -806,7 +789,6 @@ function buildRouteUrl(fields) {
   if (coords.length === 0) { showToast('⚠️ Нет координат у полей'); return null; }
   if (coords.length === 1) return 'https://maps.google.com/?q=' + coords[0];
 
-  // Google Maps маршрут: origin + waypoints + destination
   const origin = coords[0];
   const dest   = coords[coords.length - 1];
   const waypts = coords.slice(1, -1);
@@ -820,14 +802,12 @@ function buildRouteUrl(fields) {
 }
 
 function openRouteAll() {
-  // Из списка при открытии дня
   const fields = pendingFields.length > 0 ? pendingFields : (getDay() ? getDay().fields : []);
   const url = buildRouteUrl(fields);
   if (url) window.open(url, '_blank');
 }
 
 function openRouteRemaining() {
-  // Только не закрытые поля
   const day = getDay();
   if (!day) return;
   const remaining = day.fields.filter(f => f.status !== 'done');
