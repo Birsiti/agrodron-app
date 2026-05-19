@@ -2,7 +2,7 @@
 <!--
   AgroDrone.BY · Оператор — Командировка
   v1.1 · май 2026
-  Файл: operator/op_trip.html
+  Файл: operator/AD_op_trip.html
   Изменения v1.1: секция снаряжения бригады (лопасти, форсунки, зарядки, АКБ, авто, спидометр, прицеп)
 -->
 <html lang="ru">
@@ -10,7 +10,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>AgroDrone.BY · Командировка</title>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -196,7 +196,7 @@ textarea.fi{resize:none;min-height:70px}
       </div>
       <div class="gear-qty">
         <button class="qty-btn" onclick="qtyChange('nozzles',-1)">−</button>
-        <div class="qty-val" id="qty-nozzles">2</div>
+        <div class="qty-val" id="qty-nozzles">8</div>
         <button class="qty-btn" onclick="qtyChange('nozzles',1)">+</button>
       </div>
     </div>
@@ -222,7 +222,7 @@ textarea.fi{resize:none;min-height:70px}
       </div>
       <div class="gear-qty">
         <button class="qty-btn" onclick="qtyChange('batteries',-1)">−</button>
-        <div class="qty-val" id="qty-batteries">8</div>
+        <div class="qty-val" id="qty-batteries">6</div>
         <button class="qty-btn" onclick="qtyChange('batteries',1)">+</button>
       </div>
     </div>
@@ -382,7 +382,7 @@ function toggleCI(el){
 }
 
 // ── Снаряжение — счётчики ────────────────────────────────
-const gearQty = { blades:4, nozzles:2, chargers:2, batteries:8 };
+const gearQty = { blades:4, nozzles:8, chargers:2, batteries:6 };
 
 function qtyChange(key, delta) {
   gearQty[key] = Math.max(0, gearQty[key] + delta);
@@ -518,10 +518,6 @@ function renderActive() {
   const trip = getTrip();
   if (!trip) return;
 
-  // Защита от старых записей в localStorage без cashSpent
-  trip.advance   = parseFloat(trip.advance)   || 0;
-  trip.cashSpent = parseFloat(trip.cashSpent) || 0;
-  trip.atkSpent  = parseFloat(trip.atkSpent)  || 0;
   const balance = trip.advance - trip.cashSpent;
   document.getElementById('ta-advance').textContent    = trip.advance.toFixed(2) + ' BYN';
   document.getElementById('ta-cash-spent').textContent = trip.cashSpent.toFixed(2) + ' BYN';
