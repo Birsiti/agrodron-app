@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v2.12 · 2026-05-19
+  v2.13 · 2026-05-19
   Файл: agronomist/agrodron_agronomist.html
-  Изменения: 
-  - Упрощён placeholder координат: "Вставьте координаты"
-  - Добавлена ссылка на Яндекс.Карты под полем координат
-  - Исправлена ошибка OWNER_ID: проверка telegramId перед сохранением
+  Изменения: telegramId необязательный (используем CLIENT_ID из URL)
 -->
 <html lang="ru">
 <head>
@@ -595,12 +592,8 @@ async function saveField() {
   if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
   if (!coords) { showToast('⚠️ Укажите координаты (ссылка Google/Яндекс или числа)'); return; }
 
-  // Проверка Telegram ID
+  // Telegram ID — необязательный, берём если есть
   const telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
-  if (!telegramId) {
-    showToast('⚠️ Ошибка: не удалось получить Telegram ID. Откройте кабинет через бот.');
-    return;
-  }
 
   // Валидация формата координат
   const isGoogleMaps = coords.includes('google.com/maps') || coords.includes('goo.gl/maps');
