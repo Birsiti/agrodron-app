@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Регистрация агронома
-  v1.3 · 2026-05-19
+  v1.2 · 2026-05-19
   Файл: agronomist/agrodron_register.html
 -->
 <html lang="ru">
@@ -115,10 +115,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="frow">
       <label>Контактный телефон *</label>
-      <div style="display:flex;align-items:center;border:2px solid var(--border);border-radius:var(--rs);background:#fff;overflow:hidden;transition:all .2s" id="phone-wrap">
-        <span style="padding:13px 10px 13px 14px;font-size:15px;font-weight:700;color:var(--t1);border-right:2px solid var(--border);white-space:nowrap">+375</span>
-        <input type="tel" id="phone" placeholder="291234567" inputmode="tel" style="flex:1;border:none;padding:13px 14px;font-size:15px;font-family:var(--f);color:var(--t1);outline:none;background:transparent">
-      </div>
+      <input type="tel" id="phone" placeholder="+375291234567" inputmode="tel">
     </div>
   </div>
 
@@ -218,8 +215,7 @@ function showScreen(screenId) {
 function validateForm() {
   const farmName = document.getElementById('farm-name').value.trim();
   const agronomistName = document.getElementById('agronomist-name').value.trim();
-  const phoneRaw = document.getElementById('phone').value.trim();
-  const phone = '+375' + phoneRaw.replace(/[\s\-\(\)]/g, '');
+  const phone = document.getElementById('phone').value.trim();
 
   if (!farmName) {
     showError('Укажите название хозяйства');
@@ -247,7 +243,7 @@ function validateForm() {
     return false;
   }
 
-  // Валидация телефона (базовая)
+  // Валидация телефона — поле содержит только цифры без +375
   const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
   if (!/^\d{9}$/.test(phoneClean)) {
     showError('Укажите 9 цифр после +375');
@@ -288,8 +284,7 @@ async function submitRegistration() {
   const farmName = document.getElementById('farm-name').value.trim();
   const district = document.getElementById('district').value.trim();
   const agronomistName = document.getElementById('agronomist-name').value.trim();
-  const phoneRaw = document.getElementById('phone').value.trim();
-  const phone = '+375' + phoneRaw.replace(/[\s\-\(\)]/g, '');
+  const phone = document.getElementById('phone').value.trim();
 
   try {
     const response = await fetch(SCRIPT_URL, {
@@ -306,16 +301,16 @@ async function submitRegistration() {
 
     const data = await response.json();
 
-    if (data.ok && data.result && data.result.success) {
+    if (data.success) {
       // Успешная регистрация
-      document.getElementById('client-id-display').textContent = data.result.clientId;
+      document.getElementById('client-id-display').textContent = data.clientId;
       document.getElementById('success-farm').textContent = farmName;
       document.getElementById('success-district').textContent = district;
       document.getElementById('success-name').textContent = agronomistName;
       document.getElementById('success-phone').textContent = phone;
       
       // Формируем ссылку на кабинет с clientId
-      const cabinetLink = `${CABINET_URL}?clientId=${data.result.clientId}`;
+      const cabinetLink = `${CABINET_URL}?clientId=${data.clientId}`;
       document.getElementById('open-cabinet-btn').href = cabinetLink;
       
       showScreen('screen-success');
@@ -332,7 +327,7 @@ async function submitRegistration() {
     } else {
       // Ошибка регистрации
       showScreen('screen-form');
-      showError((data.result && data.result.error) || data.error || 'Ошибка регистрации. Попробуйте ещё раз.');
+      showError(data.error || 'Ошибка регистрации. Попробуйте ещё раз.');
       btn.disabled = false;
       btn.textContent = '✓ Зарегистрироваться';
     }
