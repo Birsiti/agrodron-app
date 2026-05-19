@@ -329,6 +329,9 @@ async function resolveClientId() {
   const telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user
     ? tg.initDataUnsafe.user.id : null;
 
+  // Отладка — показываем telegramId
+  document.getElementById('farm-name').textContent = 'TG ID: ' + (telegramId || 'не определён');
+
   if (!telegramId) {
     document.querySelector('.scroll').innerHTML =
       '<div class="error-state">❌ Ошибка доступа<br><br>Откройте кабинет через Telegram бот.</div>';
