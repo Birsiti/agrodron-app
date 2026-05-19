@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Регистрация агронома
+  v1.2 · 2026-05-19
+  Файл: agronomist/agrodron_register.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Регистрация · AgroDrone.BY</title>
+<!-- agrodron_register_v1_2.html | май 2026 | Подключён config.js -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:20px 16px;flex-shrink:0;text-align:center}
+.brand-name{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.brand-name em{font-style:normal;color:#d1fae5}
+.brand-sub{font-size:13px;color:rgba(255,255,255,.85);font-weight:600}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 40px}
+
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* FORM */
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
+.card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.frow{margin-bottom:14px}
+.frow:last-child{margin-bottom:0}
+.frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.frow input{width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);padding:13px 14px;font-family:var(--f);font-size:15px;color:var(--t1);outline:none;transition:all .2s;-webkit-appearance:none}
+.frow input:focus{border-color:var(--aca);background:#f9fafb}
+.frow input::placeholder{color:var(--t3)}
+.hint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
+
+.info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
+.info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
+
+.btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-decoration:none;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-sec{background:#fff;color:var(--t2);border:2px solid var(--border)}
+
+/* SUCCESS */
+.success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
+.success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
+.success-id{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
+.success-id-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
+.success-id-value{font-size:28px;font-weight:800;letter-spacing:1px}
+
+/* ERROR */
+.error-box{background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--rs);padding:14px;margin-bottom:12px}
+.error-text{font-size:13px;color:#991b1b;font-weight:600;text-align:center}
+
+/* LOADING */
+.loading{text-align:center;padding:40px 20px}
+.spinner{border:3px solid var(--border);border-top:3px solid var(--acc);border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--t2);font-weight:600}
+
+/* DEBUG */
+.debug{background:#1a1f2e;color:#a5b4fc;padding:10px;border-radius:8px;font-size:11px;font-family:monospace;margin-top:12px;word-break:break-all;line-height:1.5}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<div class="app-hdr">
+  <div class="brand-name">Agro<em>Drone</em>.BY</div>
+  <div class="brand-sub">Регистрация агронома</div>
+</div>
+
+<div class="scroll">
+
+<!-- ══════════════════════════════════
+     ФОРМА РЕГИСТРАЦИИ
+══════════════════════════════════ -->
+<div id="screen-form" class="screen active">
+  <div class="info-box">
+    <div class="info-box-text">👋 Добро пожаловать в AgroDrone.BY!<br>Для начала работы заполните данные ниже.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Регистрация</div>
+    
+    <div class="frow">
+      <label>Название хозяйства *</label>
+      <input type="text" id="farm-name" placeholder="СПК Рассвет, ФХ Урожай">
+    </div>
+
+    <div class="frow">
+      <label>Район / город *</label>
+      <input type="text" id="district" placeholder="Ганцевичи, Минск, Гродно">
+    </div>
+
+    <div class="frow">
+      <label>Ваше имя *</label>
+      <input type="text" id="agronomist-name" placeholder="Иван или Иван Иванович">
+    </div>
+
+    <div class="frow">
+      <label>Контактный телефон *</label>
+      <input type="tel" id="phone" placeholder="+375291234567" inputmode="tel">
+    </div>
+  </div>
+
+  <div id="error-container"></div>
+
+  <button class="btn btn-primary" id="submit-btn" onclick="submitRegistration()">
+    ✓ Зарегистрироваться
+  </button>
+
+  <div id="debug-info" class="debug" style="display:none"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     УСПЕШНАЯ РЕГИСТРАЦИЯ
+══════════════════════════════════ -->
+<div id="screen-success" class="screen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Регистрация завершена!</div>
+  <div class="success-text">
+    Ваш кабинет агронома создан.<br>
+    Теперь вы можете добавлять поля и создавать заявки на обработку.
+  </div>
+
+  <div class="success-id">
+    <div class="success-id-label">Ваш ID клиента</div>
+    <div class="success-id-value" id="client-id-display">—</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;color:var(--t2);margin-bottom:8px;font-weight:600">📝 Ваши данные:</div>
+    <div style="font-size:13px;line-height:1.8;color:var(--t1)">
+      <div><strong>Хозяйство:</strong> <span id="success-farm">—</span></div>
+      <div><strong>Район:</strong> <span id="success-district">—</span></div>
+      <div><strong>Имя:</strong> <span id="success-name">—</span></div>
+      <div><strong>Телефон:</strong> <span id="success-phone">—</span></div>
+    </div>
+  </div>
+
+  <a href="#" class="btn btn-primary" id="open-cabinet-btn">
+    📱 Открыть кабинет агронома
+  </a>
+</div>
+
+<!-- ══════════════════════════════════
+     ЗАГРУЗКА
+══════════════════════════════════ -->
+<div id="screen-loading" class="screen">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Регистрация...</div>
+  </div>
+</div>
+
+</div><!-- /scroll -->
+
+<script>
+// CONFIG — см. config.js
+
+// ══════════════════════════════════
+// TELEGRAM WEB APP
+// ══════════════════════════════════
+let tg = window.Telegram.WebApp;
+let telegramId = null;
+let telegramUsername = null;
+
+// Инициализация Telegram WebApp
+tg.ready();
+tg.expand();
+
+// Получение данных пользователя Telegram
+try {
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    telegramId = user.id;
+    telegramUsername = user.username || '';
+    
+    // Debug info
+    const debugEl = document.getElementById('debug-info');
+    debugEl.textContent = `Telegram ID: ${telegramId}\nUsername: @${telegramUsername}`;
+    // debugEl.style.display = 'block'; // Раскомментировать для отладки
+  }
+} catch(e) {
+  console.error('Ошибка получения Telegram данных:', e);
+}
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+// ══════════════════════════════════
+// ВАЛИДАЦИЯ
+// ══════════════════════════════════
+function validateForm() {
+  const farmName = document.getElementById('farm-name').value.trim();
+  const agronomistName = document.getElementById('agronomist-name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!farmName) {
+    showError('Укажите название хозяйства');
+    return false;
+  }
+
+  if (farmName.length < 3) {
+    showError('Название хозяйства слишком короткое');
+    return false;
+  }
+
+  const district = document.getElementById('district').value.trim();
+  if (!district) {
+    showError('Укажите район или город');
+    return false;
+  }
+
+  if (!agronomistName) {
+    showError('Укажите ваше имя');
+    return false;
+  }
+
+  if (!phone) {
+    showError('Укажите контактный телефон');
+    return false;
+  }
+
+  // Валидация телефона (базовая)
+  const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
+  if (!/^\+?375\d{9}$/.test(phoneClean) && !/^\d{9,12}$/.test(phoneClean)) {
+    showError('Проверьте формат телефона (+375291234567)');
+    return false;
+  }
+
+  return true;
+}
+
+function showError(msg) {
+  const container = document.getElementById('error-container');
+  container.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
+  setTimeout(() => {
+    container.innerHTML = '';
+  }, 3000);
+}
+
+// ══════════════════════════════════
+// РЕГИСТРАЦИЯ
+// ══════════════════════════════════
+async function submitRegistration() {
+  // Валидация
+  if (!validateForm()) return;
+
+  // Проверка Telegram ID
+  if (!telegramId) {
+    showError('Ошибка: не удалось получить Telegram ID. Откройте форму через бот.');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Регистрация...';
+
+  // Показываем экран загрузки
+  showScreen('screen-loading');
+
+  const farmName = document.getElementById('farm-name').value.trim();
+  const district = document.getElementById('district').value.trim();
+  const agronomistName = document.getElementById('agronomist-name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'registerClient',
+        farm_name: farmName,
+        district: district,
+        agronomist_name: agronomistName,
+        phone: phone,
+        telegram_id: telegramId
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Успешная регистрация
+      document.getElementById('client-id-display').textContent = data.clientId;
+      document.getElementById('success-farm').textContent = farmName;
+      document.getElementById('success-district').textContent = district;
+      document.getElementById('success-name').textContent = agronomistName;
+      document.getElementById('success-phone').textContent = phone;
+      
+      // Формируем ссылку на кабинет с clientId
+      const cabinetLink = `${CABINET_URL}?clientId=${data.clientId}`;
+      document.getElementById('open-cabinet-btn').href = cabinetLink;
+      
+      showScreen('screen-success');
+
+      // Уведомляем Telegram бот об успешной регистрации
+      if (tg.MainButton) {
+        tg.MainButton.setText('Открыть кабинет');
+        tg.MainButton.onClick(() => {
+          window.location.href = cabinetLink;
+        });
+        tg.MainButton.show();
+      }
+
+    } else {
+      // Ошибка регистрации
+      showScreen('screen-form');
+      showError(data.error || 'Ошибка регистрации. Попробуйте ещё раз.');
+      btn.disabled = false;
+      btn.textContent = '✓ Зарегистрироваться';
+    }
+
+  } catch(error) {
+    console.error('Ошибка:', error);
+    showScreen('screen-form');
+    showError('Ошибка подключения. Проверьте интернет и попробуйте снова.');
+    btn.disabled = false;
+    btn.textContent = '✓ Зарегистрироваться';
+  }
+}
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Если не удалось получить Telegram ID, показываем предупреждение
+  if (!telegramId) {
+    const debugEl = document.getElementById('debug-info');
+    debugEl.textContent = '⚠️ Внимание: Telegram ID не определён. Возможно, форма открыта вне Telegram бота.';
+    debugEl.style.display = 'block';
+    debugEl.style.background = '#fee2e2';
+    debugEl.style.color = '#991b1b';
+  }
+
+  // Автофокус на первое поле
+  setTimeout(() => {
+    document.getElementById('farm-name').focus();
+  }, 300);
+});
+</script>
+</body>
+</html>
