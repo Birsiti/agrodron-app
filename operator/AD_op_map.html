@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Карта полей района
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_map.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_map.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Динамическая загрузка Google Maps API через JS
+  - Исправлены ссылки: op_day.html → AD_op_day.html
 -->
 <html lang="ru">
 <head>
@@ -108,11 +112,10 @@ body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin
 
 <script>
 // ── Config ───────────────────────────────────────────────
-// MAPS_KEY — см. config.js
-// SHEET_ID — см. config.js
+// MAPS_KEY, SHEET_ID — см. config.js
 function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
 function getDay() { try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
-function goBack() { window.location.href='op_day.html'; }
+function goBack() { window.location.href='AD_op_day.html'; }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 
 // ── Status colors ────────────────────────────────────────
@@ -137,9 +140,7 @@ let currentField = null;
 // ── Fix coords: "52,527, 26,610" → {lat:52.527, lng:26.610} ──
 function parseCoords(raw) {
   if (!raw) return null;
-  // Заменяем десятичную запятую на точку
   const fixed = raw.toString().replace(/(\d),(\d)/g, '$1.$2').trim();
-  // Парсим два числа
   const parts = fixed.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
   if (parts.length >= 2) return { lat: parts[0], lng: parts[1] };
   return null;
@@ -183,7 +184,6 @@ async function loadAllFields() {
       }))
       .filter(f => f.name && f.coords);
 
-    // Мержим с данными активного дня (если поле в работе — обновляем статус)
     const day = getDay();
     if (day && day.fields) {
       day.fields.forEach(df => {
@@ -205,13 +205,12 @@ async function loadAllFields() {
 
 // ── Init Google Maps ─────────────────────────────────────
 function initMap() {
-  // Центр по умолчанию — Беларусь
   const defaultCenter = { lat: 53.0, lng: 28.0 };
 
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 10,
     center: defaultCenter,
-    mapTypeId: 'hybrid',  // спутник + подписи — удобно для полей
+    mapTypeId: 'hybrid',
     disableDefaultUI: false,
     zoomControl: true,
     mapTypeControl: false,
@@ -231,7 +230,6 @@ function initMap() {
 
 // ── Place markers ────────────────────────────────────────
 function placeMarkers(fields) {
-  // Очистить старые
   markers.forEach(m => m.setMap(null));
   markers = [];
 
@@ -241,7 +239,6 @@ function placeMarkers(fields) {
 
     const color = STATUS_COLOR[field.status] || '#9aa3b2';
 
-    // SVG маркер с цветом статуса
     const svgMarker = {
       path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
       fillColor: color,
@@ -294,7 +291,6 @@ function showFieldPopup(field) {
   document.getElementById('fp-maps-btn').href = coordsToUrl(field.coords);
   document.getElementById('field-popup').style.display = 'block';
 
-  // Центрировать карту на поле
   const pos = parseCoords(field.coords);
   if (pos) map.panTo(pos);
 }
@@ -339,11 +335,15 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('map').addEventListener('click', (e) => {
     if (e.target === document.getElementById('map')) closePopup();
   });
+
+  // Динамическая загрузка Google Maps API
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&callback=initMap`;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
 });
 </script>
-
-<!-- Google Maps JS API -->
-<script src="https://maps.googleapis.com/maps/api/js?key="+MAPS_KEY+"&callback=initMap" async defer></script>
 
 </body>
 </html>

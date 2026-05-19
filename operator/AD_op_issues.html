@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Проблемы с техникой
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_issues.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_issues.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html
 -->
 <html lang="ru">
 <head>
@@ -197,7 +200,7 @@ textarea.fi{resize:none;min-height:100px}
 function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
 function getIssues(){ try{return JSON.parse(localStorage.getItem('atk_issues')||'[]')}catch(e){return[]} }
 function saveIssues(v){ localStorage.setItem('atk_issues',JSON.stringify(v)); }
-function goMenu(){ window.location.href='op_menu.html'; }
+function goMenu(){ window.location.href='AD_op_menu.html'; }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 async function apiCall(action,data={}){ try{await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})});}catch(e){} }
 

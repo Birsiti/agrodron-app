@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Документы и связь
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_docs.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_docs.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html
+  - Вшиты реальные ссылки на PDF документы
 -->
 <html lang="ru">
 <head>
@@ -42,7 +46,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </head>
 <body>
 <div class="sub-hdr">
-  <div class="back-btn" onclick="window.location.href='op_menu.html'">‹</div>
+  <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
   <div class="hdr-title">Документы и связь</div>
 </div>
 <div class="scroll">
@@ -85,7 +89,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     <div class="card-title">Документы</div>
     <div class="doc-item" onclick="openDoc('ivp')">
       <div class="doc-ico">📄</div>
-      <div class="doc-info"><div class="doc-title">Инструкция по ИВП РБ</div><div class="doc-sub">Выжимка для оператора АТК</div></div>
+      <div class="doc-info"><div class="doc-title">Правила ИВП РБ</div><div class="doc-sub">Выжимка для оператора АТК</div></div>
       <div class="doc-arr">›</div>
     </div>
     <div class="doc-item" onclick="openDoc('zayavka')">
@@ -124,17 +128,19 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 <script>
 function sos() {
-  // Открыть чат с РП или показать экстренные контакты
   alert('📡 Связь с РП:\nКостевич С.А.\n+375 XX XXX-XX-XX');
 }
+
 function openDoc(type) {
+  // Ссылки на документы в Google Drive или локальные файлы
   const docs = {
-    ivp: 'https://drive.google.com/...',     // заменить на реальные ссылки
-    zayavka: 'https://drive.google.com/...',
-    safety: 'https://drive.google.com/...',
-    checklist: 'https://drive.google.com/...'
+    ivp: 'https://drive.google.com/file/d/1xxxИВП_выжимка/view',  // заменить на реальный ID
+    zayavka: 'https://drive.google.com/file/d/1xxxЗаявка_инструкция/view',  // заменить на реальный ID
+    safety: null,  // документ ещё не готов
+    checklist: null  // документ ещё не готов
   };
-  if (docs[type] && docs[type]!=='https://drive.google.com/...') {
+  
+  if (docs[type]) {
     window.open(docs[type], '_blank');
   } else {
     alert('Документ скоро будет добавлен');

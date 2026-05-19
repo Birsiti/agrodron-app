@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Расходы
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_expenses.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_expenses.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html
 -->
 <html lang="ru">
 <head>
@@ -164,10 +167,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 <!-- ══ СПИСОК РАСХОДОВ ══ -->
 <div id="screen-list" class="screen">
-<div class="wrap">
-  <div id="list-wrap">
-    <div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>
-  </div>
+<div class="wrap" id="list-wrap">
+  <div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>
 </div>
 </div>
 
@@ -176,7 +177,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="wrap">
   <div class="card">
     <div class="card-title">Наличные (аванс)</div>
-    <div class="row"><span class="rl">Аванс выдан</span><span class="rv" id="sum-advance">—</span></div>
+    <div class="row"><span class="rl">Получено аванса</span><span class="rv amber" id="sum-advance">—</span></div>
     <div class="row"><span class="rl">Потрачено налом</span><span class="rv red" id="sum-cash-spent">0 BYN</span></div>
     <div class="row" style="border-top:2px solid var(--border);padding-top:4px"><span class="rl" style="font-weight:700">Остаток</span><span class="rv green" id="sum-balance" style="font-size:16px">—</span></div>
   </div>
@@ -203,7 +204,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
 function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)); }
 function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
-function goMenu(){ window.location.href='op_menu.html'; }
+function goMenu(){ window.location.href='AD_op_menu.html'; }
 
 function showToast(msg){
   const t=document.getElementById('toast');
