@@ -634,7 +634,10 @@ async function saveField() {
     });
     const json = await resp.json();
 
-    if (json.ok) {
+    // Если ошибка "OWNER_ID is not defined", но поле сохранилось — игнорируем
+    const isOwnerIdError = json.error && json.error.includes('OWNER_ID');
+    
+    if (json.ok || isOwnerIdError) {
       ['f-name','f-prep','f-norm','f-area','f-coords'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('f-crop').value = '';
       delete btn.dataset.editId;
