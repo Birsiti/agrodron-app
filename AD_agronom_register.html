@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Регистрация агронома
-  v1.2 · 2026-05-19
+  v1.3 · 2026-05-19
   Файл: agronomist/agrodron_register.html
+  Изменения: после регистрации кнопка "Готово" отправляет /start и закрывает WebApp для обновления меню бота
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Регистрация · AgroDrone.BY</title>
-<!-- agrodron_register_v1_2.html | май 2026 | Подключён config.js -->
+<!-- AD_agronom_register.html | май 2026 | v1.3 — кнопка "Готово" → /start → обновление меню -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="config.js"></script>
@@ -157,9 +158,15 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
   </div>
 
-  <a href="#" class="btn btn-primary" id="open-cabinet-btn">
-    📱 Открыть кабинет агронома
-  </a>
+  <div class="info-box" style="background:#fef3c7;border-color:#fbbf24;margin-bottom:12px">
+    <div class="info-box-text" style="color:#92400e">
+      ⚡ Нажмите кнопку ниже, чтобы обновить меню бота и открыть кабинет агронома
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="finishRegistration()">
+    ✅ Готово — обновить меню
+  </button>
 </div>
 
 <!-- ══════════════════════════════════
@@ -314,10 +321,6 @@ async function submitRegistration() {
       document.getElementById('success-name').textContent = agronomistName;
       document.getElementById('success-phone').textContent = phone;
       
-      // Формируем ссылку на кабинет с clientId
-      const cabinetLink = `${CABINET_URL}?clientId=${clientId}`;
-      document.getElementById('open-cabinet-btn').href = cabinetLink;
-      
       showScreen('screen-success');
 
       // MainButton убрана — дублировала зелёную кнопку
@@ -337,6 +340,24 @@ async function submitRegistration() {
     btn.disabled = false;
     btn.textContent = '✓ Зарегистрироваться';
   }
+}
+
+// ══════════════════════════════════
+// ЗАВЕРШЕНИЕ РЕГИСТРАЦИИ
+// ══════════════════════════════════
+function finishRegistration() {
+  // Отправляем команду /start в бот, чтобы обновить меню
+  // Telegram WebApp закроется и бот получит команду
+  try {
+    tg.sendData('/start');
+  } catch (e) {
+    console.error('Ошибка отправки команды:', e);
+  }
+  
+  // Закрываем WebApp
+  setTimeout(() => {
+    tg.close();
+  }, 200);
 }
 
 // ══════════════════════════════════

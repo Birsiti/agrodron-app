@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v2.9 · 2026-05-19
+  v2.11 · 2026-05-19
   Файл: agronomist/agrodron_agronomist.html
-  Изменения: clientId из URL, фильтрация по clientId, загрузка имени хозяйства
+  Изменения: 
+  - Координаты обязательны (валидация Google/Яндекс ссылки или числовой формат)
+  - Подсказки по препаратам (datalist с уже использованными препаратами)
+  - Исправлена ошибка OWNER_ID — добавлен telegramId в payload
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>AgroDrone.BY · Агроном</title>
-<!-- AD_agronom_cabinet.html | май 2026 | clientId из URL, фильтрация данных -->
+<!-- AD_agronom_cabinet.html | май 2026 | v2.11 — координаты обязательны + подсказки препаратов -->
 <script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -266,7 +269,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       </div>
       <div class="frow">
         <label>Препарат *</label>
-        <input type="text" id="f-prep" placeholder="Название препарата">
+        <input type="text" id="f-prep" placeholder="Название препарата" list="prep-hints">
+        <datalist id="prep-hints"></datalist>
       </div>
       <div class="fgrid">
         <div class="frow">
@@ -279,8 +283,12 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
         </div>
       </div>
       <div class="frow" style="margin-bottom:0">
-        <label>Координаты (необязательно)</label>
-        <input type="text" id="f-coords" placeholder="53.1234, 26.5678">
+        <label>Координаты *</label>
+        <input type="text" id="f-coords" placeholder="Ссылка Google/Яндекс или 53.1234, 26.5678" list="coords-hints">
+        <datalist id="coords-hints">
+          <option value="Вставьте ссылку из Google Maps">
+          <option value="Вставьте ссылку из Яндекс.Карт">
+        </datalist>
       </div>
     </div>
     <div class="info-card" style="background:#eff6ff;border:1.5px solid #93c5fd;margin-bottom:10px">
@@ -491,6 +499,13 @@ async function loadFields(filter) {
     updateBadges();
     renderFieldsList(filtered, wrap);
 
+    // Собираем уникальные препараты для подсказок
+    const uniquePreps = [...new Set(allFields.map(f => f.prep).filter(p => p))];
+    const datalist = document.getElementById('prep-hints');
+    if (datalist) {
+      datalist.innerHTML = uniquePreps.map(p => `<option value="${p}">`).join('');
+    }
+
   } catch(e) {
     console.error(e);
     wrap.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Ошибка загрузки</div><div class="empty-s">Проверьте подключение</div></div>';
@@ -581,6 +596,17 @@ async function saveField() {
   if (!crop)   { showToast('⚠️ Выберите культуру'); return; }
   if (!prep)   { showToast('⚠️ Укажите препарат'); return; }
   if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
+  if (!coords) { showToast('⚠️ Укажите координаты (ссылка Google/Яндекс или числа)'); return; }
+
+  // Валидация формата координат
+  const isGoogleMaps = coords.includes('google.com/maps') || coords.includes('goo.gl/maps');
+  const isYandexMaps = coords.includes('yandex.') && coords.includes('maps');
+  const isNumeric = /^-?\d+\.?\d*\s*,\s*-?\d+\.?\d*$/.test(coords);
+  
+  if (!isGoogleMaps && !isYandexMaps && !isNumeric) {
+    showToast('⚠️ Неверный формат координат. Вставьте ссылку Google/Яндекс или числа через запятую');
+    return;
+  }
 
   const btn = document.getElementById('save-btn');
   btn.textContent = '⏳ Сохраняю...';
@@ -597,7 +623,8 @@ async function saveField() {
           haPlan: parseFloat(area.replace(',','.')),
           mapsUrl: coords,
           city: editCity }
-      : { clientId: CLIENT_ID, 
+      : { clientId: CLIENT_ID,
+          telegramId: tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null,
           city: CITY || 'Не указан', 
           name, crop, prep,
           norm: norm.replace(',','.'),
