@@ -320,14 +320,7 @@ async function submitRegistration() {
       
       showScreen('screen-success');
 
-      // Уведомляем Telegram бот об успешной регистрации
-      if (tg.MainButton) {
-        tg.MainButton.setText('Открыть кабинет');
-        tg.MainButton.onClick(() => {
-          window.location.href = cabinetLink;
-        });
-        tg.MainButton.show();
-      }
+      // MainButton убрана — дублировала зелёную кнопку
 
     } else {
       // Ошибка регистрации
