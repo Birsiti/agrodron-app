@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Командировка
+  v1.1 · май 2026
+  Файл: operator/AD_op_trip.html
+  Изменения v1.1: секция снаряжения бригады (лопасти, форсунки, зарядки, АКБ, авто, спидометр, прицеп)
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Командировка</title>
+<script src="../config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.hdr-sub{font-size:11px;color:var(--t3);margin-left:auto}
+
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--green);border-bottom-color:var(--ga)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none}
+.screen.active{display:block}
+.wrap{padding:12px 12px 32px}
+
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+
+.fg{margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--ga)}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239aa3b2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+textarea.fi{resize:none;min-height:70px}
+
+.check-list{display:flex;flex-direction:column;gap:6px}
+.ci{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:var(--rs);border:1.5px solid var(--border);cursor:pointer;transition:all .18s}
+.ci.selected{border-color:var(--ga);background:var(--gl)}
+.cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;transition:all .18s;color:transparent}
+.ci.selected .cb{background:var(--ga);border-color:var(--ga);color:#fff}
+.ci-name{font-size:13px;font-weight:600;color:var(--t1)}
+.ci-sub{font-size:11px;color:var(--t3)}
+
+/* ── СНАРЯЖЕНИЕ ── */
+.gear-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.gear-row:last-child{border-bottom:none}
+.gear-label{font-size:13px;color:var(--t1);flex:1}
+.gear-sub{font-size:11px;color:var(--t3);display:block;margin-top:1px}
+.gear-qty{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qty-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:18px;font-weight:700;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .18s}
+.qty-btn:active{background:var(--gl);border-color:var(--ga)}
+.qty-val{font-size:16px;font-weight:800;color:var(--t1);min-width:28px;text-align:center}
+.gear-select{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--f);color:var(--t1);background:#fff;outline:none}
+.gear-select:focus{border-color:var(--ga)}
+.gear-text{width:120px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--f);color:var(--t1);background:#fff;outline:none}
+.gear-text:focus{border-color:var(--ga)}
+
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13px;color:var(--t2)}
+.rv{font-size:13px;font-weight:700;color:var(--t1)}
+.rv.green{color:var(--green)}
+.rv.red{color:var(--red)}
+.rv.amber{color:var(--amber)}
+.rv.blue{color:var(--blue)}
+
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px;display:block;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn:last-child{margin-bottom:0}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+.close-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.co{padding:14px;border-radius:var(--rs);border:2px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .18s}
+.co.selected{border-color:var(--green);background:var(--gl)}
+.co-ico{font-size:24px;margin-bottom:6px}
+.co-name{font-size:12px;font-weight:700;color:var(--t2)}
+
+.info-box{border-radius:var(--rs);padding:12px 14px;font-size:12px;font-weight:600;text-align:center;margin-bottom:8px}
+.info-box.blue{background:var(--blue-light);color:var(--blue);border:1.5px solid #93c5fd}
+.info-box.green{background:var(--gl);color:var(--green);border:1.5px solid var(--ga)}
+
+.empty{text-align:center;padding:48px 20px;color:var(--t3)}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+.divider{height:1px;background:var(--border);margin:10px 0}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+
+.loading{text-align:center;padding:20px;color:var(--t3);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="sub-hdr">
+  <div class="back-btn" onclick="goMenu()">‹</div>
+  <div class="hdr-title" id="hdr-title">Командировка</div>
+  <div class="hdr-sub" id="hdr-sub"></div>
+</div>
+
+<div class="tabs" id="tabs" style="display:none">
+  <div class="tab active" onclick="showTab('active')" id="tab-active">📊 Обзор</div>
+  <div class="tab" onclick="showTab('expenses')" id="tab-expenses">💸 Расходы</div>
+  <div class="tab" onclick="showTab('close')" id="tab-close">🏁 Закрыть</div>
+</div>
+
+<div class="scroll">
+
+<!-- ══ ОТКРЫТЬ КОМАНДИРОВКУ ══ -->
+<div id="screen-open" class="screen active">
+<div class="wrap">
+
+  <div class="card">
+    <div class="card-title">Направление</div>
+    <div class="fg">
+      <label class="fl">Районный центр</label>
+      <select class="fi" id="trip-city">
+        <option value="">— Загрузка городов... —</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Дата выезда</label>
+      <input class="fi" id="trip-date" type="date">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Аванс (наличные командировочные, BYN)</div>
+    <div class="fg" style="margin-bottom:0">
+      <input class="fi" id="trip-advance" type="number" placeholder="500" inputmode="decimal" style="font-size:20px;font-weight:800;text-align:center">
+    </div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px">Питание, бензин по необходимости, прочие мелкие расходы</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Состав бригады</div>
+    <div class="check-list" id="crew-list">
+      <div class="loading">Загрузка операторов...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Техника</div>
+    <div class="check-list" id="equip-list">
+      <div class="ci selected" onclick="toggleCI(this)"><div class="cb">✓</div><div><div class="ci-name">А60-ХМ</div><div class="ci-sub">Основной борт</div></div></div>
+      <div class="ci" onclick="toggleCI(this)"><div class="cb"></div><div><div class="ci-name">А70-ХМ</div><div class="ci-sub">Основной борт</div></div></div>
+      <div class="ci selected" onclick="toggleCI(this)"><div class="cb">✓</div><div><div class="ci-name">А1-Х</div><div class="ci-sub">Оцифровщик</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ СНАРЯЖЕНИЕ БРИГАДЫ ══ -->
+  <div class="card">
+    <div class="card-title">Снаряжение бригады</div>
+
+    <!-- Лопасти -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🪁 Ремкомплект лопастей</div>
+        <span class="gear-sub">шт.</span>
+      </div>
+      <div class="gear-qty">
+        <button class="qty-btn" onclick="qtyChange('blades',-1)">−</button>
+        <div class="qty-val" id="qty-blades">4</div>
+        <button class="qty-btn" onclick="qtyChange('blades',1)">+</button>
+      </div>
+    </div>
+
+    <!-- Форсунки -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">💧 Форсунки</div>
+        <span class="gear-sub">шт.</span>
+      </div>
+      <div class="gear-qty">
+        <button class="qty-btn" onclick="qtyChange('nozzles',-1)">−</button>
+        <div class="qty-val" id="qty-nozzles">8</div>
+        <button class="qty-btn" onclick="qtyChange('nozzles',1)">+</button>
+      </div>
+    </div>
+
+    <!-- Зарядные -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🔌 Зарядные устройства</div>
+        <span class="gear-sub">шт.</span>
+      </div>
+      <div class="gear-qty">
+        <button class="qty-btn" onclick="qtyChange('chargers',-1)">−</button>
+        <div class="qty-val" id="qty-chargers">2</div>
+        <button class="qty-btn" onclick="qtyChange('chargers',1)">+</button>
+      </div>
+    </div>
+
+    <!-- АКБ -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🔋 АКБ (батареи)</div>
+        <span class="gear-sub">шт.</span>
+      </div>
+      <div class="gear-qty">
+        <button class="qty-btn" onclick="qtyChange('batteries',-1)">−</button>
+        <div class="qty-val" id="qty-batteries">6</div>
+        <button class="qty-btn" onclick="qtyChange('batteries',1)">+</button>
+      </div>
+    </div>
+
+    <!-- Автомобиль -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🚐 Автомобиль</div>
+      </div>
+      <select class="gear-select" id="gear-car">
+        <option value="Ford Transit AT1637-5">Ford Transit AT1637-5</option>
+        <option value="Другой">Другой</option>
+      </select>
+    </div>
+
+    <!-- Спидометр -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🔢 Спидометр (км)</div>
+        <span class="gear-sub">показание при выезде</span>
+      </div>
+      <input class="gear-text" id="gear-odometer" type="number" placeholder="00000" inputmode="numeric">
+    </div>
+
+    <!-- Прицеп -->
+    <div class="gear-row">
+      <div style="flex:1">
+        <div class="gear-label">🚛 Прицеп</div>
+      </div>
+      <select class="gear-select" id="gear-trailer">
+        <option value="АТК">АТК</option>
+        <option value="Арендный">Арендный</option>
+      </select>
+    </div>
+
+  </div>
+  <!-- /СНАРЯЖЕНИЕ -->
+
+  <button class="btn btn-amber" onclick="openTrip()">🚐 Выехали!</button>
+  <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
+
+</div>
+</div>
+
+<!-- ══ АКТИВНАЯ КОМАНДИРОВКА — ОБЗОР ══ -->
+<div id="screen-active" class="screen">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">Финансы</div>
+    <div class="row"><span class="rl">Аванс (нал)</span><span class="rv" id="ta-advance">—</span></div>
+    <div class="row"><span class="rl">Нал потрачено</span><span class="rv red" id="ta-cash-spent">0 BYN</span></div>
+    <div class="row"><span class="rl" style="font-weight:700">Остаток нала</span><span class="rv green" id="ta-balance" style="font-size:16px">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="rl">АТК напрямую</span><span class="rv blue" id="ta-atk-spent">0 BYN</span></div>
+    <div style="font-size:11px;color:var(--t3);padding-top:6px">Топливо, гостиница — оплачивает АТК</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Статистика поездки</div>
+    <div class="row"><span class="rl">📅 Дней в выезде</span><span class="rv" id="ta-days">1</span></div>
+    <div class="row"><span class="rl">🌾 Га обработано</span><span class="rv green" id="ta-ha">0 га</span></div>
+    <div class="row"><span class="rl">👥 Состав</span><span class="rv" id="ta-crew" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+    <div class="row"><span class="rl">🚁 Техника</span><span class="rv" id="ta-equip" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+  </div>
+  <!-- Снаряжение — только просмотр -->
+  <div class="card" id="gear-summary-card" style="display:none">
+    <div class="card-title">Снаряжение</div>
+    <div id="gear-summary"></div>
+  </div>
+  <button class="btn btn-blue" onclick="goTo('op_day.html')" id="btn-open-day">☀️ Открыть день</button>
+  <button class="btn btn-outline" onclick="goTo('op_expenses.html')">💸 Внести расход</button>
+</div>
+</div>
+
+<!-- ══ РАСХОДЫ ══ -->
+<div id="screen-expenses" class="screen">
+<div class="wrap">
+  <div id="expenses-wrap">
+    <div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ ЗАКРЫТЬ КОМАНДИРОВКУ ══ -->
+<div id="screen-close" class="screen">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">Итог командировки</div>
+    <div class="row"><span class="rl">Направление</span><span class="rv" id="tc-direction">—</span></div>
+    <div class="row"><span class="rl">Дней в выезде</span><span class="rv" id="tc-days">—</span></div>
+    <div class="row"><span class="rl">Га обработано</span><span class="rv green" id="tc-ha">0 га</span></div>
+    <div class="row"><span class="rl">Полей закрыто</span><span class="rv" id="tc-fields">—</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Финансовый итог</div>
+    <div class="row"><span class="rl">Аванс выдан (нал)</span><span class="rv" id="tc-advance">—</span></div>
+    <div class="row"><span class="rl">Нал потрачено</span><span class="rv red" id="tc-cash-spent">—</span></div>
+    <div class="row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:4px"><span class="rl" style="font-weight:700">Остаток нала</span><span class="rv" id="tc-balance" style="font-size:18px">—</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="rl">АТК напрямую (справочно)</span><span class="rv blue" id="tc-atk-spent">0 BYN</span></div>
+  </div>
+  <!-- Спидометр при закрытии -->
+  <div class="card">
+    <div class="card-title">Пробег</div>
+    <div class="gear-row" style="border:none;padding:0">
+      <div style="flex:1"><div class="gear-label">🔢 Спидометр на возврате (км)</div></div>
+      <input class="gear-text" id="tc-odometer-end" type="number" placeholder="00000" inputmode="numeric">
+    </div>
+    <div id="tc-km-result" style="font-size:13px;color:var(--t3);margin-top:10px;text-align:center"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Остаток наличных</div>
+    <div class="close-opts">
+      <div class="co selected" id="opt-return" onclick="selectCloseOpt('return')">
+        <div class="co-ico">💰</div><div class="co-name">Сдал в кассу</div>
+      </div>
+      <div class="co" id="opt-carry" onclick="selectCloseOpt('carry')">
+        <div class="co-ico">➡️</div><div class="co-name">Перенос на следующий</div>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:0">
+      <label class="fl">Примечание</label>
+      <textarea class="fi" id="tc-note" placeholder="Дополнительная информация..."></textarea>
+    </div>
+  </div>
+  <div class="info-box blue">📢 Итог будет отправлен в «Агрообработки 2026»</div>
+  <button class="btn btn-green" onclick="closeTrip()">✅ Закрыть командировку</button>
+</div>
+</div>
+
+</div><!-- /scroll -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+// SCRIPT_URL — см. config.js
+// SHEET_ID — см. config.js
+function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
+function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)); }
+function clearTrip(){ localStorage.removeItem('atk_trip'); }
+function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function goTo(f){ window.location.href=f; }
+function goMenu(){ window.location.href='op_menu.html'; }
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function daysDiff(s){ const st=new Date(s),n=new Date(); return Math.max(1,Math.floor((n-st)/86400000)+1); }
+function pluralDays(n){ if(n%10===1&&n%100!==11)return'день'; if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'дня'; return'дней'; }
+function formatDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function toggleCI(el){
+  el.classList.toggle('selected');
+  el.querySelector('.cb').textContent = el.classList.contains('selected') ? '✓' : '';
+}
+
+// ── Снаряжение — счётчики ────────────────────────────────
+const gearQty = { blades:4, nozzles:8, chargers:2, batteries:6 };
+
+function qtyChange(key, delta) {
+  gearQty[key] = Math.max(0, gearQty[key] + delta);
+  document.getElementById('qty-' + key).textContent = gearQty[key];
+}
+
+function getGear() {
+  return {
+    blades:    gearQty.blades,
+    nozzles:   gearQty.nozzles,
+    chargers:  gearQty.chargers,
+    batteries: gearQty.batteries,
+    car:       document.getElementById('gear-car').value,
+    odometer:  parseInt(document.getElementById('gear-odometer').value) || 0,
+    trailer:   document.getElementById('gear-trailer').value
+  };
+}
+
+// ── Tabs ─────────────────────────────────────────────────
+function showTab(name) {
+  ['active','expenses','close'].forEach(n => {
+    document.getElementById('screen-'+n).classList.toggle('active', n===name);
+    document.getElementById('tab-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='expenses') renderExpenses();
+  if (name==='close')    renderClose();
+}
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  const trip = getTrip();
+  document.getElementById('trip-date').value = todayISO();
+
+  if (trip) {
+    document.getElementById('screen-open').classList.remove('active');
+    document.getElementById('screen-active').classList.add('active');
+    document.getElementById('tabs').style.display = 'flex';
+    document.getElementById('hdr-title').textContent = trip.direction;
+    document.getElementById('hdr-sub').textContent = 'День ' + daysDiff(trip.dateStart);
+    renderActive();
+  } else {
+    document.getElementById('screen-open').classList.add('active');
+    document.getElementById('tabs').style.display = 'none';
+    loadCities();
+    loadOperators();
+  }
+}
+
+// ── Load cities ───────────────────────────────────────────
+async function loadCities() {
+  const sel = document.getElementById('trip-city');
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!C2:C1000?key=${SHEETS_KEY}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const cities = [...new Set(
+      (d.values||[]).flat().map(v=>v.toString().trim()).filter(v=>v)
+    )].sort();
+    sel.innerHTML = '<option value="">— Выберите город —</option>' +
+      cities.map(c=>`<option value="${c}">${c}</option>`).join('');
+  } catch(e) {
+    sel.innerHTML = '<option value="">— Ошибка загрузки —</option>';
+  }
+}
+
+// ── Load operators ────────────────────────────────────────
+async function loadOperators() {
+  const list = document.getElementById('crew-list');
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'get_operators', data:{status:'Активен'} })
+    });
+    const d = await r.json();
+    const ops = d.ok ? (d.result.operators||[]) : [];
+    if (!ops.length) throw new Error('empty');
+    list.innerHTML = ops.map((op,i)=>`
+      <div class="ci ${i===0?'selected':''}" onclick="toggleCI(this)" data-id="${op.id}" data-name="${op.name}">
+        <div class="cb">${i===0?'✓':''}</div>
+        <div><div class="ci-name">${op.name}</div><div class="ci-sub">${op.id}${op.type?' · '+op.type:''}</div></div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = `
+      <div class="ci selected" onclick="toggleCI(this)" data-id="op_001" data-name="Бруй Д.А."><div class="cb">✓</div><div><div class="ci-name">Бруй Д.А.</div><div class="ci-sub">op_001 · Бригадир</div></div></div>
+      <div class="ci" onclick="toggleCI(this)" data-id="op_002" data-name="Грибов К.М."><div class="cb"></div><div><div class="ci-name">Грибов К.М.</div><div class="ci-sub">op_002</div></div></div>
+      <div class="ci" onclick="toggleCI(this)" data-id="op_003" data-name="Борисенок Л.И."><div class="cb"></div><div><div class="ci-name">Борисенок Л.И.</div><div class="ci-sub">op_003 · WR</div></div></div>
+      <div class="ci" onclick="toggleCI(this)" data-id="op_004" data-name="Уманец А.И."><div class="cb"></div><div><div class="ci-name">Уманец А.И.</div><div class="ci-sub">op_004 · WR</div></div></div>`;
+  }
+}
+
+// ── Open trip ─────────────────────────────────────────────
+function openTrip() {
+  const city    = document.getElementById('trip-city').value;
+  const date    = document.getElementById('trip-date').value;
+  const advance = parseFloat(document.getElementById('trip-advance').value);
+
+  if (!city)             { showToast('⚠️ Выберите направление'); return; }
+  if (!date)             { showToast('⚠️ Укажите дату'); return; }
+  if (!advance||advance<=0){ showToast('⚠️ Укажите аванс'); return; }
+
+  const crew = Array.from(document.querySelectorAll('#crew-list .ci.selected'))
+    .map(el => ({ id: el.dataset.id, name: el.dataset.name }));
+  if (!crew.length) { showToast('⚠️ Выберите состав бригады'); return; }
+
+  const equip = Array.from(document.querySelectorAll('#equip-list .ci.selected'))
+    .map(el => el.querySelector('.ci-name').textContent);
+
+  const gear = getGear();
+
+  const trip = {
+    id: 'TRIP-' + Date.now(),
+    direction: city,
+    dateStart: date,
+    advance, cashSpent:0, atkSpent:0, ha:0,
+    crew, equip, gear,
+    operatorIds: crew.map(c=>c.id),
+    expenses:[], days:[], pendingFields:[],
+    status:'active'
+  };
+
+  saveTrip(trip);
+  apiCall('add_trip', {
+    id:trip.id, direction:trip.direction, dateStart:trip.dateStart,
+    advance:trip.advance, crew:trip.crew.map(c=>c.name), equip:trip.equip
+  });
+
+  showToast('🚐 Командировка открыта!');
+  setTimeout(() => goMenu(), 800);
+}
+
+// ── Render active ─────────────────────────────────────────
+function renderActive() {
+  const trip = getTrip();
+  if (!trip) return;
+
+  const balance = trip.advance - trip.cashSpent;
+  document.getElementById('ta-advance').textContent    = trip.advance.toFixed(2) + ' BYN';
+  document.getElementById('ta-cash-spent').textContent = trip.cashSpent.toFixed(2) + ' BYN';
+  document.getElementById('ta-balance').textContent    = balance.toFixed(2) + ' BYN';
+  document.getElementById('ta-balance').className      = 'rv ' + (balance>=0?'green':'red');
+  document.getElementById('ta-atk-spent').textContent  = (trip.atkSpent||0).toFixed(2) + ' BYN';
+  document.getElementById('ta-days').textContent       = daysDiff(trip.dateStart);
+  document.getElementById('ta-ha').textContent         = (trip.ha||0) + ' га';
+  document.getElementById('ta-crew').textContent       = (trip.crew||[]).map(c=>c.name||c).join(', ')||'—';
+  document.getElementById('ta-equip').textContent      = (trip.equip||[]).join(', ')||'—';
+
+  // Снаряжение — показываем если есть
+  if (trip.gear) {
+    const g = trip.gear;
+    const card = document.getElementById('gear-summary-card');
+    card.style.display = 'block';
+    document.getElementById('gear-summary').innerHTML = `
+      <div class="row"><span class="rl">🪁 Лопасти</span><span class="rv">${g.blades} шт.</span></div>
+      <div class="row"><span class="rl">💧 Форсунки</span><span class="rv">${g.nozzles} шт.</span></div>
+      <div class="row"><span class="rl">🔌 Зарядки</span><span class="rv">${g.chargers} шт.</span></div>
+      <div class="row"><span class="rl">🔋 АКБ</span><span class="rv">${g.batteries} шт.</span></div>
+      <div class="row"><span class="rl">🚐 Авто</span><span class="rv">${g.car}</span></div>
+      <div class="row"><span class="rl">🔢 Спидометр</span><span class="rv">${g.odometer||'—'} км</span></div>
+      <div class="row"><span class="rl">🚛 Прицеп</span><span class="rv">${g.trailer}</span></div>`;
+  }
+
+  document.getElementById('btn-open-day').style.display = getDay() ? 'none' : 'block';
+}
+
+// ── Render expenses ───────────────────────────────────────
+function renderExpenses() {
+  const trip = getTrip();
+  const wrap = document.getElementById('expenses-wrap');
+  const catIco = {diesel:'⛽',petrol:'🪣',food:'🍽',hotel:'🏨',repair:'🔧',other:'📦',fuel_card:'⛽',accommodation:'🏨'};
+
+  if (!trip||(trip.expenses||[]).length===0) {
+    wrap.innerHTML='<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>';
+    return;
+  }
+  const cashTotal = trip.expenses.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
+  const atkTotal  = trip.expenses.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
+
+  let html = trip.expenses.slice().reverse().map(e=>`
+    <div style="background:#fff;border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div style="font-size:18px;width:28px;text-align:center;flex-shrink:0">${catIco[e.cat]||'📦'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${e.label}${e.comment?' · '+e.comment:''}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:1px">${e.date} ${e.time} · ${e.payType==='atk'?'АТК':'Нал'}</div>
+      </div>
+      <div style="font-size:14px;font-weight:800;color:${e.payType==='atk'?'var(--blue)':'var(--red)'}">−${e.amount.toFixed(2)}</div>
+    </div>`).join('');
+
+  html += `<div class="card" style="margin-top:8px">
+    <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
+    <div class="row"><span class="rl">Остаток аванса</span><span class="rv ${(trip.advance-cashTotal)>=0?'green':'red'}">${(trip.advance-cashTotal).toFixed(2)} BYN</span></div>
+    <div class="row"><span class="rl">АТК напрямую</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
+  </div>`;
+  wrap.innerHTML = html;
+}
+
+// ── Render close ──────────────────────────────────────────
+let closeOption = 'return';
+
+function selectCloseOpt(opt) {
+  closeOption = opt;
+  document.getElementById('opt-return').classList.toggle('selected', opt==='return');
+  document.getElementById('opt-carry').classList.toggle('selected',  opt==='carry');
+}
+
+function renderClose() {
+  const trip = getTrip();
+  if (!trip) return;
+
+  const days    = daysDiff(trip.dateStart);
+  const balance = trip.advance - trip.cashSpent;
+  const totalFields = (trip.days||[]).reduce((s,d)=>s+(d.fields||[]).filter(f=>f.status==='done').length,0);
+
+  document.getElementById('tc-direction').textContent  = trip.direction;
+  document.getElementById('tc-days').textContent       = days + ' ' + pluralDays(days);
+  document.getElementById('tc-ha').textContent         = (trip.ha||0) + ' га';
+  document.getElementById('tc-fields').textContent     = totalFields;
+  document.getElementById('tc-advance').textContent    = trip.advance.toFixed(2) + ' BYN';
+  document.getElementById('tc-cash-spent').textContent = trip.cashSpent.toFixed(2) + ' BYN';
+  document.getElementById('tc-balance').textContent    = balance.toFixed(2) + ' BYN';
+  document.getElementById('tc-balance').className      = 'rv ' + (balance>=0?'green':'red');
+  document.getElementById('tc-atk-spent').textContent  = (trip.atkSpent||0).toFixed(2) + ' BYN';
+
+  // Подсчёт пробега при вводе
+  document.getElementById('tc-odometer-end').addEventListener('input', function() {
+    const end   = parseInt(this.value) || 0;
+    const start = trip.gear ? (trip.gear.odometer||0) : 0;
+    const km    = end - start;
+    document.getElementById('tc-km-result').textContent =
+      start > 0 && km > 0 ? `Пробег: ${km} км` : '';
+  });
+}
+
+function closeTrip() {
+  const trip = getTrip();
+  if (!trip) return;
+
+  const odomEnd = parseInt(document.getElementById('tc-odometer-end').value) || 0;
+  const odomStart = trip.gear ? (trip.gear.odometer||0) : 0;
+
+  trip.status      = 'closed';
+  trip.dateEnd     = todayISO();
+  trip.closeOption = closeOption;
+  trip.note        = document.getElementById('tc-note').value.trim();
+  if (odomEnd > 0) trip.kmTotal = odomEnd - odomStart;
+
+  apiCall('close_trip', {
+    id:trip.id, ha:trip.ha||0,
+    spent:trip.cashSpent, closeOption, note:trip.note
+  });
+
+  clearTrip();
+  localStorage.removeItem('atk_day');
+  showToast('✅ Командировка закрыта!');
+  setTimeout(() => goMenu(), 800);
+}
+
+// ── API ───────────────────────────────────────────────────
+async function apiCall(action, data={}) {
+  try {
+    const r = await fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify({action,data}) });
+    const d = await r.json();
+    if (!d.ok) console.warn('apiCall:', action, d.error);
+    return d;
+  } catch(e) { console.error(e); }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Оператор — Расходы
+  v1.0 · 2026-05-13
+  Файл: operator/AD_op_expenses.html
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Расходы</title>
+<script src="../config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--green);border-bottom-color:var(--ga)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none}
+.screen.active{display:block}
+.wrap{padding:12px 12px 32px}
+
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+
+.fg{margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--ga)}
+
+/* PAY TYPE TOGGLE */
+.pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:4px}
+.pay-opt{padding:12px;text-align:center;cursor:pointer;transition:all .18s;font-size:13px;font-weight:700}
+.pay-opt.cash{border-right:1px solid var(--border)}
+.pay-opt.selected-cash{background:var(--amber-light);color:var(--amber)}
+.pay-opt.selected-atk{background:var(--blue-light);color:var(--blue)}
+.pay-hint{font-size:11px;color:var(--t3);text-align:center;margin-top:6px}
+
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cat-pill{padding:12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .18s}
+.cat-pill.selected{border-color:var(--amber);background:var(--amber-light)}
+.cat-pill.atk-cat.selected{border-color:var(--blue);background:var(--blue-light)}
+.cat-ico{font-size:22px;margin-bottom:4px}
+.cat-name{font-size:11px;font-weight:700;color:var(--t2)}
+
+/* EXPENSE ITEMS */
+.exp-item{background:#fff;border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.exp-ico{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.exp-info{flex:1}
+.exp-name{font-size:13px;font-weight:700;color:var(--t1)}
+.exp-meta{font-size:11px;color:var(--t3);margin-top:1px}
+.exp-amt{font-size:14px;font-weight:800}
+.exp-amt.cash{color:var(--red)}
+.exp-amt.atk{color:var(--blue)}
+
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13px;color:var(--t2)}
+.rv{font-size:13px;font-weight:700;color:var(--t1)}
+.rv.green{color:var(--green)} .rv.red{color:var(--red)} .rv.amber{color:var(--amber)} .rv.blue{color:var(--blue)}
+
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px;display:block;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn:last-child{margin-bottom:0}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+.divider{height:1px;background:var(--border);margin:10px 0}
+.empty{text-align:center;padding:48px 20px;color:var(--t3)}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="sub-hdr">
+  <div class="back-btn" onclick="goMenu()">‹</div>
+  <div class="hdr-title">Расходы командировки</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-add" onclick="showTab('add')">➕ Внести</div>
+  <div class="tab" id="tab-list" onclick="showTab('list')">📋 Список</div>
+  <div class="tab" id="tab-summary" onclick="showTab('summary')">💰 Итог</div>
+</div>
+
+<div class="scroll">
+
+<!-- ══ ВНЕСТИ РАСХОД ══ -->
+<div id="screen-add" class="screen active">
+<div class="wrap">
+
+  <!-- Тип оплаты -->
+  <div class="card">
+    <div class="card-title">Тип оплаты</div>
+    <div class="pay-toggle">
+      <div class="pay-opt cash selected-cash" id="pay-cash" onclick="selectPay('cash')">💵 Нал (аванс)</div>
+      <div class="pay-opt atk" id="pay-atk" onclick="selectPay('atk')">🏢 АТК напрямую</div>
+    </div>
+    <div class="pay-hint" id="pay-hint">Списывается с аванса командировочных</div>
+  </div>
+
+  <!-- Категории для нала -->
+  <div class="card" id="cats-cash">
+    <div class="card-title">Категория</div>
+    <div class="cat-grid">
+      <div class="cat-pill selected" onclick="selectCat(this,'food','🍽 Питание')"><div class="cat-ico">🍽</div><div class="cat-name">Питание</div></div>
+      <div class="cat-pill" onclick="selectCat(this,'petrol','🪣 Бензин')"><div class="cat-ico">🪣</div><div class="cat-name">Бензин (резерв)</div></div>
+      <div class="cat-pill" onclick="selectCat(this,'repair','🔧 Ремонт')"><div class="cat-ico">🔧</div><div class="cat-name">Ремонт / запчасти</div></div>
+      <div class="cat-pill" onclick="selectCat(this,'other','📦 Прочее')"><div class="cat-ico">📦</div><div class="cat-name">Прочее</div></div>
+    </div>
+  </div>
+
+  <!-- Категории для АТК -->
+  <div class="card" id="cats-atk" style="display:none">
+    <div class="card-title">Категория (АТК)</div>
+    <div class="cat-grid">
+      <div class="cat-pill atk-cat selected" onclick="selectCat(this,'diesel','⛽ Топливо')"><div class="cat-ico">⛽</div><div class="cat-name">Топливо (карта)</div></div>
+      <div class="cat-pill atk-cat" onclick="selectCat(this,'hotel','🏨 Гостиница')"><div class="cat-ico">🏨</div><div class="cat-name">Гостиница</div></div>
+      <div class="cat-pill atk-cat" onclick="selectCat(this,'other_atk','📦 Прочее АТК')"><div class="cat-ico">📦</div><div class="cat-name">Прочее АТК</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fg">
+      <label class="fl">Сумма (BYN)</label>
+      <input class="fi" id="exp-amount" type="number" placeholder="0.00" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center">
+    </div>
+    <div class="fg" style="margin-bottom:0">
+      <label class="fl">Комментарий (необязательно)</label>
+      <input class="fi" id="exp-comment" type="text" placeholder="АЗС Белнефтехим, 30л">
+    </div>
+  </div>
+
+  <button class="btn btn-amber" id="btn-add-expense" onclick="addExpense()">✓ Записать расход</button>
+  <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
+
+</div>
+</div>
+
+<!-- ══ СПИСОК РАСХОДОВ ══ -->
+<div id="screen-list" class="screen">
+<div class="wrap">
+  <div id="list-wrap">
+    <div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ ИТОГ ══ -->
+<div id="screen-summary" class="screen">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">Наличные (аванс)</div>
+    <div class="row"><span class="rl">Аванс выдан</span><span class="rv" id="sum-advance">—</span></div>
+    <div class="row"><span class="rl">Потрачено налом</span><span class="rv red" id="sum-cash-spent">0 BYN</span></div>
+    <div class="row" style="border-top:2px solid var(--border);padding-top:4px"><span class="rl" style="font-weight:700">Остаток</span><span class="rv green" id="sum-balance" style="font-size:16px">—</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">АТК напрямую (справочно)</div>
+    <div class="row"><span class="rl">⛽ Топливо</span><span class="rv blue" id="sum-fuel">0 BYN</span></div>
+    <div class="row"><span class="rl">🏨 Гостиница</span><span class="rv blue" id="sum-hotel">0 BYN</span></div>
+    <div class="row"><span class="rl">📦 Прочее АТК</span><span class="rv blue" id="sum-atk-other">0 BYN</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="rl" style="font-weight:700">Итого АТК</span><span class="rv blue" id="sum-atk-total" style="font-size:16px">0 BYN</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Общий итог командировки</div>
+    <div class="row"><span class="rl">Нал + АТК</span><span class="rv" id="sum-total">0 BYN</span></div>
+  </div>
+</div>
+</div>
+
+</div><!-- /scroll -->
+<div id="toast" class="toast"></div>
+
+<script>
+// SCRIPT_URL — см. config.js
+function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
+function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)); }
+function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function goMenu(){ window.location.href='op_menu.html'; }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+async function apiCall(action,data={}){
+  try{ await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})}); }
+  catch(e){ console.error(e); }
+}
+
+let payType = 'cash';
+let catData = { key:'food', label:'🍽 Питание' };
+
+function showTab(name) {
+  ['add','list','summary'].forEach(n => {
+    document.getElementById('screen-'+n).classList.toggle('active', n===name);
+    document.getElementById('tab-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='list') renderList();
+  if (name==='summary') renderSummary();
+}
+
+function selectPay(type) {
+  payType = type;
+  const cashEl = document.getElementById('pay-cash');
+  const atkEl  = document.getElementById('pay-atk');
+  cashEl.className = 'pay-opt cash' + (type==='cash'?' selected-cash':'');
+  atkEl.className  = 'pay-opt atk'  + (type==='atk'?' selected-atk':'');
+  document.getElementById('cats-cash').style.display = type==='cash' ? 'block' : 'none';
+  document.getElementById('cats-atk').style.display  = type==='atk'  ? 'block' : 'none';
+  document.getElementById('pay-hint').textContent = type==='cash'
+    ? 'Списывается с аванса командировочных'
+    : 'Оплачивает АТК. В аванс не входит. Фиксируется для отчёта.';
+  document.getElementById('btn-add-expense').className = 'btn ' + (type==='atk'?'btn-blue':'btn-amber');
+  // Сбросить категорию
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('selected'));
+  if (type==='cash') {
+    catData = {key:'food', label:'🍽 Питание'};
+    document.querySelector('#cats-cash .cat-pill').classList.add('selected');
+  } else {
+    catData = {key:'diesel', label:'⛽ Топливо'};
+    document.querySelector('#cats-atk .cat-pill').classList.add('selected');
+  }
+}
+
+function selectCat(el, key, label) {
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  catData = { key, label };
+}
+
+function addExpense() {
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const comment = document.getElementById('exp-comment').value.trim();
+  if (!amount||amount<=0) { showToast('⚠️ Введите сумму'); return; }
+
+  const trip = getTrip();
+  if (!trip) { showToast('❌ Нет активной командировки'); return; }
+  const day = getDay();
+
+  const exp = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('ru-RU'),
+    time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+    cat: catData.key, label: catData.label,
+    amount, comment, payType,
+    dayId: day ? day.id : null
+  };
+
+  trip.expenses = trip.expenses||[];
+  trip.expenses.push(exp);
+  trip.cashSpent = trip.expenses.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
+  trip.atkSpent  = trip.expenses.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
+  saveTrip(trip);
+
+  apiCall('add_expense',{
+    tripId:trip.id, dayId:exp.dayId,
+    label:exp.label, cat:exp.cat,
+    amount:exp.amount, comment:exp.comment,
+    payType:exp.payType
+  });
+
+  document.getElementById('exp-amount').value='';
+  document.getElementById('exp-comment').value='';
+  showToast('✓ ' + (payType==='cash'?'Нал':'АТК') + ': '+amount.toFixed(2)+' BYN');
+}
+
+function renderList() {
+  const trip = getTrip();
+  const wrap = document.getElementById('list-wrap');
+  const catIco = {food:'🍽',petrol:'🪣',repair:'🔧',other:'📦',diesel:'⛽',hotel:'🏨',other_atk:'📦'};
+  if (!trip||(trip.expenses||[]).length===0) {
+    wrap.innerHTML='<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>';
+    return;
+  }
+  wrap.innerHTML = trip.expenses.slice().reverse().map(e=>`
+    <div class="exp-item">
+      <div class="exp-ico">${catIco[e.cat]||'📦'}</div>
+      <div class="exp-info">
+        <div class="exp-name">${e.label}${e.comment?' · '+e.comment:''}</div>
+        <div class="exp-meta">${e.date} ${e.time} · ${e.payType==='atk'?'АТК напрямую':'Нал'}</div>
+      </div>
+      <div class="exp-amt ${e.payType==='atk'?'atk':'cash'}">−${e.amount.toFixed(2)}</div>
+    </div>`).join('');
+}
+
+function renderSummary() {
+  const trip = getTrip();
+  if (!trip) return;
+  const exps = trip.expenses||[];
+  const cashTotal = exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
+  const atkTotal  = exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
+  const fuel      = exps.filter(e=>e.cat==='diesel').reduce((s,e)=>s+e.amount,0);
+  const hotel     = exps.filter(e=>e.cat==='hotel').reduce((s,e)=>s+e.amount,0);
+  const atkOther  = exps.filter(e=>e.payType==='atk'&&e.cat!=='diesel'&&e.cat!=='hotel').reduce((s,e)=>s+e.amount,0);
+  const balance   = trip.advance - cashTotal;
+
+  document.getElementById('sum-advance').textContent    = trip.advance.toFixed(2) + ' BYN';
+  document.getElementById('sum-cash-spent').textContent = cashTotal.toFixed(2) + ' BYN';
+  document.getElementById('sum-balance').textContent    = balance.toFixed(2) + ' BYN';
+  document.getElementById('sum-balance').className      = 'rv ' + (balance>=0?'green':'red');
+  document.getElementById('sum-fuel').textContent       = fuel.toFixed(2) + ' BYN';
+  document.getElementById('sum-hotel').textContent      = hotel.toFixed(2) + ' BYN';
+  document.getElementById('sum-atk-other').textContent  = atkOther.toFixed(2) + ' BYN';
+  document.getElementById('sum-atk-total').textContent  = atkTotal.toFixed(2) + ' BYN';
+  document.getElementById('sum-total').textContent      = (cashTotal+atkTotal).toFixed(2) + ' BYN';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const trip = getTrip();
+  if (!trip) { showToast('❌ Нет активной командировки'); }
+});
+</script>
+</body>
+</html>
