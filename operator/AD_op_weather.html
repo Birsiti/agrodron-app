@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Погода
-  v1.0 · 2026-05-13
-  Файл: operator/AD_op_weather.html
+  v1.1 · 2026-05-19
+  Файл: AD_op_weather.html
+  Изменения v1.1:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html
 -->
 <html lang="ru">
 <head>
@@ -31,7 +34,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </head>
 <body>
 <div class="sub-hdr">
-  <div class="back-btn" onclick="window.location.href='op_menu.html'">‹</div>
+  <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
   <div class="hdr-title">Погода</div>
 </div>
 <div class="scroll">
@@ -71,7 +74,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const trip = JSON.parse(localStorage.getItem('atk_trip')||'null');
     if (trip) {
       document.getElementById('trip-city-info').textContent = '📍 Командировка: ' + trip.direction;
-      // Формируем URL gismeteo по городу (базовый поиск)
       const btn = document.getElementById('btn-trip-city');
       btn.href = 'https://www.gismeteo.by/search/#' + encodeURIComponent(trip.direction);
       btn.textContent = '🌤 Погода: ' + trip.direction;

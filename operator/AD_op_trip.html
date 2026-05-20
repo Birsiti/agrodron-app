@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Командировка
-  v1.1 · май 2026
-  Файл: operator/AD_op_trip.html
-  Изменения v1.1: секция снаряжения бригады (лопасти, форсунки, зарядки, АКБ, авто, спидометр, прицеп)
+  v1.2 · 2026-05-19
+  Файл: AD_op_trip.html
+  Изменения v1.2:
+  - Исправлено название файла в комментарии
+  - Исправлены ссылки: op_menu.html → AD_op_menu.html, op_day.html → AD_op_day.html, op_expenses.html → AD_op_expenses.html
+  - Аванс может быть 0 (если едут на свои деньги)
+  
+  Изменения v1.1 (из предыдущей версии):
+  - Секция снаряжения бригады (лопасти, форсунки, зарядки, АКБ, авто, спидометр, прицеп)
 -->
 <html lang="ru">
 <head>
@@ -150,9 +156,9 @@ textarea.fi{resize:none;min-height:70px}
   <div class="card">
     <div class="card-title">Аванс (наличные командировочные, BYN)</div>
     <div class="fg" style="margin-bottom:0">
-      <input class="fi" id="trip-advance" type="number" placeholder="500" inputmode="decimal" style="font-size:20px;font-weight:800;text-align:center">
+      <input class="fi" id="trip-advance" type="number" placeholder="500 (или 0 если на свои)" inputmode="decimal" style="font-size:20px;font-weight:800;text-align:center">
     </div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px">Питание, бензин по необходимости, прочие мелкие расходы</div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px">Питание, бензин по необходимости, прочие мелкие расходы. Аванс может быть 0 (если едут на свои деньги)</div>
   </div>
 
   <div class="card">
@@ -175,7 +181,6 @@ textarea.fi{resize:none;min-height:70px}
   <div class="card">
     <div class="card-title">Снаряжение бригады</div>
 
-    <!-- Лопасти -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🪁 Ремкомплект лопастей</div>
@@ -188,7 +193,6 @@ textarea.fi{resize:none;min-height:70px}
       </div>
     </div>
 
-    <!-- Форсунки -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">💧 Форсунки</div>
@@ -201,7 +205,6 @@ textarea.fi{resize:none;min-height:70px}
       </div>
     </div>
 
-    <!-- Зарядные -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🔌 Зарядные устройства</div>
@@ -214,7 +217,6 @@ textarea.fi{resize:none;min-height:70px}
       </div>
     </div>
 
-    <!-- АКБ -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🔋 АКБ (батареи)</div>
@@ -227,7 +229,6 @@ textarea.fi{resize:none;min-height:70px}
       </div>
     </div>
 
-    <!-- Автомобиль -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🚐 Автомобиль</div>
@@ -238,7 +239,6 @@ textarea.fi{resize:none;min-height:70px}
       </select>
     </div>
 
-    <!-- Спидометр -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🔢 Спидометр (км)</div>
@@ -247,7 +247,6 @@ textarea.fi{resize:none;min-height:70px}
       <input class="gear-text" id="gear-odometer" type="number" placeholder="00000" inputmode="numeric">
     </div>
 
-    <!-- Прицеп -->
     <div class="gear-row">
       <div style="flex:1">
         <div class="gear-label">🚛 Прицеп</div>
@@ -259,7 +258,6 @@ textarea.fi{resize:none;min-height:70px}
     </div>
 
   </div>
-  <!-- /СНАРЯЖЕНИЕ -->
 
   <button class="btn btn-amber" onclick="openTrip()">🚐 Выехали!</button>
   <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
@@ -286,13 +284,12 @@ textarea.fi{resize:none;min-height:70px}
     <div class="row"><span class="rl">👥 Состав</span><span class="rv" id="ta-crew" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
     <div class="row"><span class="rl">🚁 Техника</span><span class="rv" id="ta-equip" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
   </div>
-  <!-- Снаряжение — только просмотр -->
   <div class="card" id="gear-summary-card" style="display:none">
     <div class="card-title">Снаряжение</div>
     <div id="gear-summary"></div>
   </div>
-  <button class="btn btn-blue" onclick="goTo('op_day.html')" id="btn-open-day">☀️ Открыть день</button>
-  <button class="btn btn-outline" onclick="goTo('op_expenses.html')">💸 Внести расход</button>
+  <button class="btn btn-blue" onclick="goTo('AD_op_day.html')" id="btn-open-day">☀️ Открыть день</button>
+  <button class="btn btn-outline" onclick="goTo('AD_op_expenses.html')">💸 Внести расход</button>
 </div>
 </div>
 
@@ -323,7 +320,6 @@ textarea.fi{resize:none;min-height:70px}
     <div class="divider"></div>
     <div class="row"><span class="rl">АТК напрямую (справочно)</span><span class="rv blue" id="tc-atk-spent">0 BYN</span></div>
   </div>
-  <!-- Спидометр при закрытии -->
   <div class="card">
     <div class="card-title">Пробег</div>
     <div class="gear-row" style="border:none;padding:0">
@@ -364,7 +360,7 @@ function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)); }
 function clearTrip(){ localStorage.removeItem('atk_trip'); }
 function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
 function goTo(f){ window.location.href=f; }
-function goMenu(){ window.location.href='op_menu.html'; }
+function goMenu(){ window.location.href='AD_op_menu.html'; }
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 function daysDiff(s){ const st=new Date(s),n=new Date(); return Math.max(1,Math.floor((n-st)/86400000)+1); }
 function pluralDays(n){ if(n%10===1&&n%100!==11)return'день'; if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'дня'; return'дней'; }
@@ -477,11 +473,11 @@ async function loadOperators() {
 function openTrip() {
   const city    = document.getElementById('trip-city').value;
   const date    = document.getElementById('trip-date').value;
-  const advance = parseFloat(document.getElementById('trip-advance').value);
+  const advance = parseFloat(document.getElementById('trip-advance').value) || 0;
 
-  if (!city)             { showToast('⚠️ Выберите направление'); return; }
-  if (!date)             { showToast('⚠️ Укажите дату'); return; }
-  if (!advance||advance<=0){ showToast('⚠️ Укажите аванс'); return; }
+  if (!city) { showToast('⚠️ Выберите направление'); return; }
+  if (!date) { showToast('⚠️ Укажите дату'); return; }
+  // Аванс может быть 0 — если едут на свои деньги
 
   const crew = Array.from(document.querySelectorAll('#crew-list .ci.selected'))
     .map(el => ({ id: el.dataset.id, name: el.dataset.name }));
@@ -529,7 +525,6 @@ function renderActive() {
   document.getElementById('ta-crew').textContent       = (trip.crew||[]).map(c=>c.name||c).join(', ')||'—';
   document.getElementById('ta-equip').textContent      = (trip.equip||[]).join(', ')||'—';
 
-  // Снаряжение — показываем если есть
   if (trip.gear) {
     const g = trip.gear;
     const card = document.getElementById('gear-summary-card');
@@ -605,7 +600,6 @@ function renderClose() {
   document.getElementById('tc-balance').className      = 'rv ' + (balance>=0?'green':'red');
   document.getElementById('tc-atk-spent').textContent  = (trip.atkSpent||0).toFixed(2) + ' BYN';
 
-  // Подсчёт пробега при вводе
   document.getElementById('tc-odometer-end').addEventListener('input', function() {
     const end   = parseInt(this.value) || 0;
     const start = trip.gear ? (trip.gear.odometer||0) : 0;

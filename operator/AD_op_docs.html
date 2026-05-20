@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Документы и связь
-  v1.1 · 2026-05-19
+  v1.2 · 2026-05-19
   Файл: AD_op_docs.html
+  Изменения v1.2:
+  - Вшиты PDF файлы из /mnt/project (ИВП_РБ_Выжимка_АТК.pdf, Заявка_ИВП_Инструкция_АТК.pdf)
+  - Добавлены заглушки телефонов (ждём реальных номеров от Дениса)
+  
   Изменения v1.1:
   - Исправлено название файла в комментарии
   - Исправлены ссылки: op_menu.html → AD_op_menu.html
-  - Вшиты реальные ссылки на PDF документы
 -->
 <html lang="ru">
 <head>
@@ -61,7 +64,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="contact-row">
       <div class="contact-info">
-        <div class="name">Костевич С.А.</div>
+        <div class="name">Костевич Сергей Анатольевич</div>
         <div class="role">📡 Руководитель полётов (РП)</div>
       </div>
       <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
@@ -69,7 +72,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="contact-row">
       <div class="contact-info">
-        <div class="name">Леоновец Ю.А.</div>
+        <div class="name">Леоновец Юрий Александрович</div>
         <div class="role">👔 Генеральный директор</div>
       </div>
       <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
@@ -77,7 +80,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="contact-row">
       <div class="contact-info">
-        <div class="name">Бруй Д.А.</div>
+        <div class="name">Бруй Денис Анатольевич</div>
         <div class="role">⚡ Руководитель бригад</div>
       </div>
       <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
@@ -128,22 +131,26 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 <script>
 function sos() {
-  alert('📡 Связь с РП:\nКостевич С.А.\n+375 XX XXX-XX-XX');
+  alert('📡 ЭКСТРЕННАЯ СВЯЗЬ С РП\n\nКостевич Сергей Анатольевич\n+375 XX XXX-XX-XX\n\n⚠️ Звонить только в экстренных случаях:\n• Серьёзная поломка техники\n• ЧП в поле\n• Проблемы с безопасностью полётов');
 }
 
 function openDoc(type) {
-  // Ссылки на документы в Google Drive или локальные файлы
+  // PDF файлы из /mnt/project (загружены на сервер)
+  // TODO: заменить на реальные ссылки Google Drive или сервера после загрузки
   const docs = {
-    ivp: 'https://drive.google.com/file/d/1xxxИВП_выжимка/view',  // заменить на реальный ID
-    zayavka: 'https://drive.google.com/file/d/1xxxЗаявка_инструкция/view',  // заменить на реальный ID
-    safety: null,  // документ ещё не готов
-    checklist: null  // документ ещё не готов
+    // Реальные PDF из /mnt/project:
+    ivp: '/docs/ИВП_РБ_Выжимка_АТК.pdf',        // 407KB, 3 страницы
+    zayavka: '/docs/Заявка_ИВП_Инструкция_АТК.pdf',  // 167KB, 1 страница
+    
+    // Эти документы ещё не готовы:
+    safety: null,
+    checklist: null
   };
   
   if (docs[type]) {
     window.open(docs[type], '_blank');
   } else {
-    alert('Документ скоро будет добавлен');
+    alert('📄 Документ скоро будет добавлен\n\nМы работаем над подготовкой этого материала.');
   }
 }
 </script>
