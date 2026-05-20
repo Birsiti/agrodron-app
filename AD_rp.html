@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>AgroDrone.BY · РП</title>
-<!-- AD_rp.html | май 2026 | v1.0 -->
-<script src="config.js"></script>
+<!-- AD_rp.html | май 2026 | v2.0 | Полноценный интерфейс РП с Google Sheets -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -20,11 +19,11 @@ html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 
 .tg{background:#1c2733;padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.tg-l{font-size:14px;color:#5aadff;font-weight:500}
+.tg-l{font-size:14px;color:#5aadff;font-weight:500;cursor:pointer}
 .tg-m{text-align:center}
 .tg-t{font-size:15px;font-weight:600;color:#fff}
 .tg-s{font-size:11px;color:#8fa9be;margin-top:1px}
-.tg-r{color:#5aadff;font-size:20px}
+.tg-r{color:#5aadff;font-size:20px;cursor:pointer}
 
 .app-hdr{background:var(--card);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:10px}
@@ -73,11 +72,15 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ic-val.green{color:var(--green)}
 .ic-val.orange{color:var(--aca)}
 
-.flight-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--aca)}
+.flight-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--aca);cursor:pointer}
+.flight-card.fc-active{border-left-color:var(--green)}
+.flight-card.fc-completed{border-left-color:#cbd5e1;opacity:.7}
 .fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .fc-call{font-size:16px;font-weight:800;color:var(--t1)}
 .fc-reg{font-size:11px;color:var(--t3);margin-top:2px}
 .fc-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--gl);color:var(--green)}
+.fc-status.st-planned{background:var(--acl);color:var(--acc)}
+.fc-status.st-completed{background:var(--bg);color:var(--t3)}
 .fc-data{display:flex;gap:14px;flex-wrap:wrap}
 .fc-d{display:flex;flex-direction:column;gap:1px}
 .fc-dv{font-size:14px;font-weight:800;color:var(--t1)}
@@ -95,10 +98,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .st-work{background:var(--gl);color:var(--green)}
 .st-idle{background:var(--bg);color:var(--t3);border:1px solid var(--border)}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--acc);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(123,45,0,.4);max-width:calc(100% - 32px);text-align:center}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.pb{height:24px}
-
 .eq-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:4px solid #cbd5e1}
 .eq-card.eq-base{border-left-color:#3aaa5e}
 .eq-card.eq-work{border-left-color:#f59e0b}
@@ -110,14 +109,24 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .eq-st-base{background:#e8f4ed;color:#1b5935}
 .eq-st-work{background:#fef3c7;color:#92400e}
 .eq-st-repair{background:#fdecea;color:#c0392b}
+
+.loader{text-align:center;padding:40px 20px;font-size:14px;color:var(--t3)}
+.empty{text-align:center;padding:40px 20px}
+.empty-ico{font-size:36px;margin-bottom:10px}
+.empty-txt{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+.empty-sub{font-size:12px;color:var(--t3)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--acc);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(123,45,0,.4);max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.pb{height:24px}
 </style>
 </head>
 <body>
 
 <div class="tg">
-  <span class="tg-l">‹ Назад</span>
+  <span class="tg-l" onclick="window.Telegram?.WebApp?.close()">‹ Назад</span>
   <div class="tg-m"><div class="tg-t">AgroDrone_BY_bot</div><div class="tg-s">РП · Руководитель полётов</div></div>
-  <span class="tg-r">···</span>
+  <span class="tg-r" onclick="loadData()">⟳</span>
 </div>
 
 <div class="app-hdr">
@@ -127,7 +136,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
     <div>
       <div class="brand-name">Agro<em>Drone</em>.BY</div>
-      <div class="brand-sub">Костко Л.В. · РП</div>
+      <div class="brand-sub">Обработка полей БАК</div>
     </div>
   </div>
   <div class="rp-chip">РП</div>
@@ -135,118 +144,74 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 <div class="status-strip">
   <div class="ss-dot"></div>
-  <div class="ss-text">1 борт в работе · EW-X154-R</div>
-  <div class="ss-time" id="cur-time">—</div>
+  <div class="ss-text">Полёты активны</div>
+  <div class="ss-time" id="cur-time">--:--</div>
 </div>
 
 <div class="scroll">
 
+<!-- Главный экран -->
 <div class="screen active" id="screen-main">
   <div class="menu-wrap">
-    <div class="sep">Управление полётами</div>
-    <div class="mi" onclick="goTo('flights')">
-      <div class="mi-ico">✈️</div><div class="mi-info"><div class="mi-title">Активные полёты</div><div class="mi-sub">Кто в воздухе прямо сейчас</div></div><span class="mi-arr">›</span>
-      <span class="mi-badge">1</span>
+    <div class="sep">Текущие полёты</div>
+    <div id="flights-today-wrap">
+      <div class="loader">⏳ Загрузка данных...</div>
     </div>
-    <div class="mi" onclick="goTo('log')">
-      <div class="mi-ico">📋</div><div class="mi-info"><div class="mi-title">Журнал полётов</div><div class="mi-sub">EW-X154-R · все записи</div></div><span class="mi-arr">›</span>
+
+    <div class="sep">Операторы в поле</div>
+    <div id="operators-wrap">
+      <div class="loader">⏳ Загрузка данных...</div>
     </div>
-    <div class="mi" onclick="goTo('operators')">
-      <div class="mi-ico">👥</div><div class="mi-info"><div class="mi-title">Операторы на выезде</div><div class="mi-sub">Состав бригады и статус</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="sep">Безопасность</div>
-    <div class="mi" onclick="goTo('incidents')">
-      <div class="mi-ico">⚠️</div><div class="mi-info"><div class="mi-title">Инциденты</div><div class="mi-sub">Поломки и нештатные ситуации</div></div><span class="mi-arr">›</span>
-      <span class="mi-badge badge-green">0</span>
-    </div>
-    <div class="mi" onclick="goTo('weather')">
-      <div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Метеоусловия</div><div class="mi-sub">Погода по зонам полётов</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="mi" onclick="goTo('zones')">
-      <div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Зоны полётов</div><div class="mi-sub">Заказинец · 5359C02810 · r=1 км</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="sep">Техника</div>
-    <div class="mi" onclick="goTo('equipment')">
-      <div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">Техника</div><div class="mi-sub">Дроны, прицеп, генератор, авто</div></div><span class="mi-arr">›</span>
-    </div>
-    <div class="sep">Связь</div>
-    <div class="mi" onclick="goTo('contacts')">
-      <div class="mi-ico">📞</div><div class="mi-info"><div class="mi-title">Контакты</div><div class="mi-sub">ЦЕС ОрВД, менеджер, операторы</div></div><span class="mi-arr">›</span>
-    </div>
+
+    <div class="sep">Управление</div>
+    <div class="mi" onclick="goTo('flights')"><div class="mi-ico">✈️</div><div class="mi-info"><div class="mi-title">Все полёты</div><div class="mi-sub">История и планы</div></div><span class="mi-arr">›</span></div>
+    <div class="mi" onclick="goTo('equipment')"><div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">Техника</div><div class="mi-sub">Статус дронов и транспорта</div></div><span class="mi-arr">›</span></div>
+    <div class="mi" onclick="goTo('zones')"><div class="mi-ico">📍</div><div class="mi-info"><div class="mi-title">Зоны полётов</div><div class="mi-sub">Активные площадки</div></div><span class="mi-arr">›</span></div>
+    <div class="mi" onclick="goTo('weather')"><div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Метеоусловия</div><div class="mi-sub">Прогноз и оценка безопасности</div></div><span class="mi-arr">›</span></div>
+    
+    <div class="sep">Связь и документы</div>
+    <div class="mi" onclick="goTo('contacts')"><div class="mi-ico">📞</div><div class="mi-info"><div class="mi-title">Контакты ЦЕС ОрВД</div><div class="mi-sub">Заявки ИВП</div></div><span class="mi-arr">›</span></div>
+    <div class="mi" onclick="goTo('incidents')"><div class="mi-ico">⚠️</div><div class="mi-info"><div class="mi-title">Инциденты</div><div class="mi-sub">Нештатные ситуации</div></div><span class="mi-arr">›</span><span class="mi-badge badge-green" id="incidents-badge">0</span></div>
     <div class="pb"></div>
   </div>
 </div>
 
+<!-- Экран: Все полёты -->
 <div class="screen" id="screen-flights">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Активные полёты</span></div>
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Все полёты</span></div>
   <div class="sub-wrap">
-    <div class="flight-card">
-      <div class="fc-head">
-        <div><div class="fc-call">EW-X154-R</div><div class="fc-reg">А-60 + А-70 · А1-Х</div></div>
-        <span class="fc-status">В работе</span>
-      </div>
-      <div class="fc-data">
-        <div class="fc-d"><div class="fc-dv">08:14</div><div class="fc-dl">Открыт</div></div>
-        <div class="fc-d"><div class="fc-dv" id="flight-dur">—</div><div class="fc-dl">В работе</div></div>
-        <div class="fc-d"><div class="fc-dv">Ганцевичи</div><div class="fc-dl">Место</div></div>
-        <div class="fc-d"><div class="fc-dv">≈60 га</div><div class="fc-dl">Площадь</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="ic-title">Бригада</div>
-      <div class="ic-row"><span class="ic-label">Бруй Д.А.</span><span class="ic-val green">Оператор</span></div>
-      <div class="ic-row"><span class="ic-label">Грибов К.М.</span><span class="ic-val green">Оператор</span></div>
-      <div class="ic-row"><span class="ic-label">Борисенок WR</span><span class="ic-val" style="color:#b07800">Оператор WR</span></div>
-      <div class="ic-row"><span class="ic-label">Уманец WR</span><span class="ic-val" style="color:#b07800">Оператор WR</span></div>
+    <div id="flights-all-wrap">
+      <div class="loader">⏳ Загрузка данных...</div>
     </div>
     <div class="pb"></div>
   </div>
 </div>
 
-<div class="screen" id="screen-log">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Журнал полётов</span></div>
-  <div class="sub-wrap">
-    <div class="info-card">
-      <div class="ic-title">2026-002 · 05.05.2026</div>
-      <div class="ic-row"><span class="ic-label">Место</span><span class="ic-val">Ганцевичский р-н</span></div>
-      <div class="ic-row"><span class="ic-label">Борт</span><span class="ic-val">А-60 + А-70 · А1-Х</span></div>
-      <div class="ic-row"><span class="ic-label">Площадь</span><span class="ic-val green">85 га</span></div>
-      <div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Выполнено</span></div>
-    </div>
-    <div class="info-card">
-      <div class="ic-title">2026-001 · 04.05.2026</div>
-      <div class="ic-row"><span class="ic-label">Место</span><span class="ic-val">Ганцевичский р-н</span></div>
-      <div class="ic-row"><span class="ic-label">Борт</span><span class="ic-val">А-60 + А-70 · А1-Х</span></div>
-      <div class="ic-row"><span class="ic-label">Площадь</span><span class="ic-val green">60 га</span></div>
-      <div class="ic-row"><span class="ic-label">Статус</span><span class="ic-val green">Выполнено</span></div>
-    </div>
-    <div class="pb"></div>
-  </div>
-</div>
-
+<!-- Экран: Операторы -->
 <div class="screen" id="screen-operators">
-  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Операторы на выезде</span></div>
+  <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Операторы</span></div>
   <div class="sub-wrap">
-    <div class="op-status"><div class="op-av av-db">ДБ</div><div><div class="op-nm">Бруй Д.А.</div><div class="op-rl">Оператор АТК · бригадир</div></div><span class="op-st st-work">В работе</span></div>
-    <div class="op-status"><div class="op-av av-kg">КГ</div><div><div class="op-nm">Грибов К.М.</div><div class="op-rl">Оператор АТК</div></div><span class="op-st st-work">В работе</span></div>
-    <div class="op-status"><div class="op-av av-lb">ЛБ</div><div><div class="op-nm">Борисенок WR</div><div class="op-rl">Оператор WR</div></div><span class="op-st st-work">В работе</span></div>
-    <div class="op-status"><div class="op-av av-au">АУ</div><div><div class="op-nm">Уманец WR</div><div class="op-rl">Оператор WR</div></div><span class="op-st st-work">В работе</span></div>
+    <div id="operators-all-wrap">
+      <div class="loader">⏳ Загрузка данных...</div>
+    </div>
     <div class="pb"></div>
   </div>
 </div>
 
+<!-- Экран: Инциденты -->
 <div class="screen" id="screen-incidents">
   <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Инциденты</span></div>
   <div class="sub-wrap">
-    <div style="text-align:center;padding:40px 20px">
-      <div style="font-size:36px;margin-bottom:10px">✅</div>
-      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px">Инцидентов нет</div>
-      <div style="font-size:12px;color:var(--t3)">Всё работает штатно</div>
+    <div class="empty">
+      <div class="empty-ico">✅</div>
+      <div class="empty-txt">Инцидентов нет</div>
+      <div class="empty-sub">Всё работает штатно</div>
     </div>
     <div class="pb"></div>
   </div>
 </div>
 
+<!-- Экран: Метеоусловия -->
 <div class="screen" id="screen-weather">
   <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Метеоусловия</span></div>
   <div class="sub-wrap">
@@ -269,6 +234,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 </div>
 
+<!-- Экран: Зоны полётов -->
 <div class="screen" id="screen-zones">
   <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Зоны полётов</span></div>
   <div class="sub-wrap">
@@ -291,21 +257,18 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 </div>
 
+<!-- Экран: Техника -->
 <div class="screen" id="screen-equipment">
   <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Техника</span></div>
   <div class="sub-wrap">
-    <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Дроны</div>
-    <div class="eq-card eq-work"><div class="eq-ico">🚁</div><div><div class="eq-name">А60-ХМ</div><div class="eq-type">Агродрон · EW-X154-R</div></div><span class="eq-st eq-st-work">В работе</span></div>
-    <div class="eq-card eq-base"><div class="eq-ico">🚁</div><div><div class="eq-name">А70-ХМ</div><div class="eq-type">Агродрон</div></div><span class="eq-st eq-st-base">На базе</span></div>
-    <div class="eq-card eq-base"><div class="eq-ico">🚁</div><div><div class="eq-name">А1-Х</div><div class="eq-type">Вспомогательный</div></div><span class="eq-st eq-st-base">На базе</span></div>
-    <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin:14px 0 8px">Транспорт и оборудование</div>
-    <div class="eq-card eq-work"><div class="eq-ico">🚗</div><div><div class="eq-name">Ford Transit AT1637-5</div><div class="eq-type">Транспортное средство</div></div><span class="eq-st eq-st-work">В работе</span></div>
-    <div class="eq-card eq-work"><div class="eq-ico">🚛</div><div><div class="eq-name">Прицеп</div><div class="eq-type">Транспортировка техники</div></div><span class="eq-st eq-st-work">В работе</span></div>
-    <div class="eq-card eq-work"><div class="eq-ico">⚡</div><div><div class="eq-name">Генератор</div><div class="eq-type">Питание зарядных станций</div></div><span class="eq-st eq-st-work">В работе</span></div>
+    <div id="equipment-wrap">
+      <div class="loader">⏳ Загрузка данных...</div>
+    </div>
     <div class="pb"></div>
   </div>
 </div>
 
+<!-- Экран: Контакты -->
 <div class="screen" id="screen-contacts">
   <div class="sub-hdr"><span class="sub-back" onclick="goTo('main')">‹</span><span class="sub-title">Контакты</span></div>
   <div class="sub-wrap">
@@ -317,7 +280,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
     <div class="info-card">
       <div class="ic-title">Бригада</div>
-      <div class="ic-row"><span class="ic-label">Бруй Д.А.</span><span class="ic-val orange">Telegram</span></div>
+      <div class="ic-row"><span class="ic-label">Бруй Д.А.</span><span class="ic-val orange">@Zveroferma_BY</span></div>
       <div class="ic-row"><span class="ic-label">Грибов К.М.</span><span class="ic-val orange">Telegram</span></div>
       <div class="ic-row"><span class="ic-label">Менеджер АТК</span><span class="ic-val orange">Telegram</span></div>
     </div>
@@ -329,30 +292,296 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="toast" id="toast-el"></div>
 
 <script>
+// === КОНФИГУРАЦИЯ ===
+const SPREADSHEET_ID = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+const API_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const SHEETS = {
+  OPERATORS: 'ОПЕРАТОРЫ',
+  EQUIPMENT: 'ТЕХНИКИ',
+  FLIGHTS: 'ПОЛЁТЫ',
+  OBRABOTKI: 'ОБРАБОТКИ'
+};
+
+// === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
+let DATA = {
+  operators: [],
+  equipment: [],
+  flights: [],
+  obrabotki: []
+};
+
+// === НАВИГАЦИЯ ===
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   document.querySelector('.scroll').scrollTop=0;
 }
+
 function toast(msg){
   const t=document.getElementById('toast-el');
   t.textContent=msg; t.classList.add('show');
   clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500);
 }
+
+// === ОБНОВЛЕНИЕ ВРЕМЕНИ ===
 function updateTime(){
   const now=new Date();
   const h=now.getHours().toString().padStart(2,'0');
   const m=now.getMinutes().toString().padStart(2,'0');
   document.getElementById('cur-time').textContent=h+':'+m+' UTC+3';
-  const start=new Date(); start.setHours(8,14,0,0);
-  const diff=Math.round((now-start)/60000);
-  if(diff>0){
-    const hr=Math.floor(diff/60),mn=diff%60;
-    document.getElementById('flight-dur').textContent=hr>0?hr+'ч '+mn+'м':mn+' мин';
-  }
 }
 updateTime();
 setInterval(updateTime,30000);
+
+// === ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS ===
+async function loadData(){
+  toast('Обновление данных...');
+  try {
+    await Promise.all([
+      loadOperators(),
+      loadEquipment(),
+      loadFlights(),
+      loadObrabotki()
+    ]);
+    renderAll();
+    toast('Данные обновлены');
+  } catch(e){
+    console.error('Ошибка загрузки:', e);
+    toast('Ошибка загрузки данных');
+  }
+}
+
+async function fetchSheet(sheetName){
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  return json.values || [];
+}
+
+async function loadOperators(){
+  const rows = await fetchSheet(SHEETS.OPERATORS);
+  if(rows.length < 2) return;
+  const headers = rows[0];
+  DATA.operators = rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  });
+}
+
+async function loadEquipment(){
+  const rows = await fetchSheet(SHEETS.EQUIPMENT);
+  if(rows.length < 2) return;
+  const headers = rows[0];
+  DATA.equipment = rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  });
+}
+
+async function loadFlights(){
+  const rows = await fetchSheet(SHEETS.FLIGHTS);
+  if(rows.length < 2) return;
+  const headers = rows[0];
+  DATA.flights = rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  }).filter(f => f['Дата полёта']); // Только полёты с датой
+}
+
+async function loadObrabotki(){
+  const rows = await fetchSheet(SHEETS.OBRABOTKI);
+  if(rows.length < 2) return;
+  const headers = rows[0];
+  DATA.obrabotki = rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  });
+}
+
+// === РЕНДЕР ДАННЫХ ===
+function renderAll(){
+  renderFlightsToday();
+  renderOperators();
+  renderFlightsAll();
+  renderEquipment();
+}
+
+function renderFlightsToday(){
+  const today = new Date().toLocaleDateString('ru-RU');
+  const todayFlights = DATA.flights.filter(f => {
+    const fDate = f['Дата полёта'];
+    if(!fDate) return false;
+    try {
+      const parsed = new Date(fDate.split('.').reverse().join('-'));
+      return parsed.toLocaleDateString('ru-RU') === today;
+    } catch(e){ return false; }
+  });
+
+  const wrap = document.getElementById('flights-today-wrap');
+  if(todayFlights.length === 0){
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">✈️</div><div class="empty-txt">Полётов на сегодня нет</div><div class="empty-sub">Планируйте через менеджера</div></div>';
+    return;
+  }
+
+  wrap.innerHTML = todayFlights.map(f => {
+    const status = f['Статус'] || 'Запланирован';
+    const statusClass = status === 'Активен' ? 'st-active' : status === 'Завершён' ? 'st-completed' : 'st-planned';
+    const cardClass = status === 'Активен' ? 'fc-active' : status === 'Завершён' ? 'fc-completed' : '';
+    
+    return `
+      <div class="flight-card ${cardClass}">
+        <div class="fc-head">
+          <div>
+            <div class="fc-call">${f['Оператор ID'] || '—'}</div>
+            <div class="fc-reg">${f['Регистрац. номер БАК'] || '—'}</div>
+          </div>
+          <span class="fc-status ${statusClass}">${status}</span>
+        </div>
+        <div class="fc-data">
+          <div class="fc-d"><div class="fc-dv">${f['Время начала'] || '—'}</div><div class="fc-dl">Начало</div></div>
+          <div class="fc-d"><div class="fc-dv">${f['Площадка'] || '—'}</div><div class="fc-dl">Площадка</div></div>
+          <div class="fc-d"><div class="fc-dv">${f['Препарат'] || '—'}</div><div class="fc-dl">Препарат</div></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderOperators(){
+  const wrap = document.getElementById('operators-wrap');
+  const activeOps = DATA.operators.filter(op => op['Статус'] === 'Активен' || op['Статус'] === 'В работе');
+  
+  if(activeOps.length === 0){
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">👨‍✈️</div><div class="empty-txt">Нет операторов в поле</div><div class="empty-sub">Все на базе</div></div>';
+    return;
+  }
+
+  wrap.innerHTML = activeOps.map(op => {
+    const initials = getInitials(op['ФИО'] || '');
+    const colorClass = getColorClass(initials);
+    const status = op['Статус'] === 'Активен' || op['Статус'] === 'В работе' ? 'В работе' : 'Ожидание';
+    const statusClass = status === 'В работе' ? 'st-work' : 'st-idle';
+    
+    return `
+      <div class="op-status">
+        <div class="op-av ${colorClass}">${initials}</div>
+        <div>
+          <div class="op-nm">${op['ФИО'] || '—'}</div>
+          <div class="op-rl">${op['Тип'] === 'WR' ? 'Оператор WR' : 'Оператор АТК'}</div>
+        </div>
+        <span class="op-st ${statusClass}">${status}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderFlightsAll(){
+  const wrap = document.getElementById('flights-all-wrap');
+  if(DATA.flights.length === 0){
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">✈️</div><div class="empty-txt">Полётов нет</div></div>';
+    return;
+  }
+
+  // Сортировка по дате (новые сверху)
+  const sorted = [...DATA.flights].sort((a, b) => {
+    try {
+      const dateA = new Date(a['Дата полёта'].split('.').reverse().join('-'));
+      const dateB = new Date(b['Дата полёта'].split('.').reverse().join('-'));
+      return dateB - dateA;
+    } catch(e){ return 0; }
+  });
+
+  wrap.innerHTML = sorted.slice(0, 20).map(f => { // Последние 20
+    const status = f['Статус'] || 'Запланирован';
+    const statusClass = status === 'Активен' ? 'st-active' : status === 'Завершён' ? 'st-completed' : 'st-planned';
+    const cardClass = status === 'Активен' ? 'fc-active' : status === 'Завершён' ? 'fc-completed' : '';
+    
+    return `
+      <div class="flight-card ${cardClass}">
+        <div class="fc-head">
+          <div>
+            <div class="fc-call">${f['Оператор ID'] || '—'}</div>
+            <div class="fc-reg">${f['Дата полёта'] || '—'}</div>
+          </div>
+          <span class="fc-status ${statusClass}">${status}</span>
+        </div>
+        <div class="fc-data">
+          <div class="fc-d"><div class="fc-dv">${f['Время начала'] || '—'}</div><div class="fc-dl">Начало</div></div>
+          <div class="fc-d"><div class="fc-dv">${f['Площадка'] || '—'}</div><div class="fc-dl">Площадка</div></div>
+          <div class="fc-d"><div class="fc-dv">${f['Препарат'] || '—'}</div><div class="fc-dl">Препарат</div></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderEquipment(){
+  const wrap = document.getElementById('equipment-wrap');
+  if(DATA.equipment.length === 0){
+    wrap.innerHTML = '<div class="empty"><div class="empty-ico">🚁</div><div class="empty-txt">Техника не загружена</div></div>';
+    return;
+  }
+
+  // Разделение: дроны и транспорт
+  const drones = DATA.equipment.filter(e => e['Тип'] === 'Дрон' || e['Тип'] === 'БАК');
+  const transport = DATA.equipment.filter(e => e['Тип'] !== 'Дрон' && e['Тип'] !== 'БАК');
+
+  let html = '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Дроны</div>';
+  html += drones.map(eq => renderEquipmentCard(eq)).join('');
+  
+  if(transport.length > 0){
+    html += '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin:14px 0 8px">Транспорт и оборудование</div>';
+    html += transport.map(eq => renderEquipmentCard(eq)).join('');
+  }
+
+  wrap.innerHTML = html;
+}
+
+function renderEquipmentCard(eq){
+  const status = eq['Статус'] || 'На базе';
+  const statusClass = status === 'В работе' ? 'eq-work' : status === 'На ремонте' ? 'eq-repair' : 'eq-base';
+  const statusLabel = status === 'В работе' ? 'eq-st-work' : status === 'На ремонте' ? 'eq-st-repair' : 'eq-st-base';
+  const ico = eq['Тип'] === 'Дрон' || eq['Тип'] === 'БАК' ? '🚁' : eq['Тип'] === 'Транспорт' ? '🚗' : eq['Тип'] === 'Прицеп' ? '🚛' : '⚡';
+  
+  return `
+    <div class="eq-card ${statusClass}">
+      <div class="eq-ico">${ico}</div>
+      <div>
+        <div class="eq-name">${eq['Название'] || '—'}</div>
+        <div class="eq-type">${eq['Модель'] || eq['Тип'] || '—'}</div>
+      </div>
+      <span class="eq-st ${statusLabel}">${status}</span>
+    </div>
+  `;
+}
+
+// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+function getInitials(fio){
+  const parts = fio.split(' ').filter(p => p.length > 0);
+  if(parts.length === 0) return '??';
+  if(parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function getColorClass(initials){
+  const colors = ['av-db', 'av-kg', 'av-lb', 'av-au'];
+  const hash = initials.charCodeAt(0) + initials.charCodeAt(1);
+  return colors[hash % colors.length];
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+window.addEventListener('DOMContentLoaded', () => {
+  if(window.Telegram?.WebApp){
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  }
+  loadData();
+});
 </script>
 </body>
 </html>
