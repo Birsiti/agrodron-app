@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Форма поля
-  v3.0 · 2026-05-20
+  v3.1 · 2026-05-21 · clientId в URL везде
   Добавление/редактирование/копирование поля
 -->
 <html lang="ru">
@@ -289,7 +289,7 @@ async function saveField() {
 
     if (json.ok) {
       showToast(editMode ? '✅ Поле обновлено!' : '✅ Поле добавлено!');
-      setTimeout(() => { window.location.href = 'AD_agronom_cabinet.html'; }, 800);
+      setTimeout(() => { window.location.href = 'AD_agronom_cabinet.html?clientId=' + CLIENT_ID; }, 800);
     } else {
       showToast('❌ ' + (json.error || 'Ошибка'));
     }
@@ -316,7 +316,7 @@ async function deleteField() {
     
     if (json.ok) {
       showToast('✅ Поле удалено');
-      setTimeout(() => { window.location.href = 'AD_agronom_cabinet.html'; }, 800);
+      setTimeout(() => { window.location.href = 'AD_agronom_cabinet.html?clientId=' + CLIENT_ID; }, 800);
     } else {
       showToast('❌ ' + (json.error || 'Ошибка удаления'));
     }
@@ -327,7 +327,7 @@ async function deleteField() {
 }
 
 function goBack() {
-  window.location.href = 'AD_agronom_cabinet.html';
+  window.location.href = 'AD_agronom_cabinet.html?clientId=' + CLIENT_ID;
 }
 
 function openYandexMaps() {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v3.1 · 2026-05-20 · ИСПРАВЛЕНО: SCRIPT_URL
+  v3.2 · 2026-05-21 · clientId в URL везде
 -->
 <html lang="ru">
 <head>
@@ -333,7 +333,7 @@ function ctxEdit() {
   const f = allFields.find(f => f.id === currentContextFieldId);
   if (!f) return;
   sessionStorage.setItem('editField', JSON.stringify(f));
-  window.location.href = 'AD_agronom_field_form.html?mode=edit&id=' + f.id;
+  window.location.href = 'AD_agronom_field_form.html?mode=edit&id=' + f.id + '&clientId=' + CLIENT_ID;
 }
 
 function ctxCopy() {
@@ -341,7 +341,7 @@ function ctxCopy() {
   const f = allFields.find(f => f.id === currentContextFieldId);
   if (!f) return;
   sessionStorage.setItem('copyField', JSON.stringify(f));
-  window.location.href = 'AD_agronom_field_form.html?mode=copy';
+  window.location.href = 'AD_agronom_field_form.html?mode=copy&clientId=' + CLIENT_ID;
 }
 
 async function ctxDelete() {
@@ -368,7 +368,7 @@ async function ctxDelete() {
   } catch(e) { console.error(e); showToast('❌ Ошибка'); }
 }
 
-function openFieldForm() { window.location.href = 'AD_agronom_field_form.html'; }
+function openFieldForm() { window.location.href = 'AD_agronom_field_form.html?clientId=' + CLIENT_ID; }
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
