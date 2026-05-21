@@ -124,33 +124,89 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 let tg, CLIENT_ID, CITY, FARM_NAME, allFields = [], currentContextFieldId = null;
 
 async function resolveClientId() {
+  console.log('[1/4] Проверяю clientId в URL...');
+  document.getElementById('farm-name').textContent = 'Проверяю clientId...';
+  
   const urlParams = new URLSearchParams(window.location.search);
   const cid = urlParams.get('clientId');
-  if (cid) { CLIENT_ID = cid; return true; }
+  if (cid) { 
+    console.log('[OK] clientId из URL:', cid);
+    CLIENT_ID = cid; 
+    return true; 
+  }
+  
+  console.log('[2/4] clientId в URL нет, проверяю Telegram Mini App...');
+  document.getElementById('farm-name').textContent = 'Проверяю Telegram...';
+  
   try {
-    tg = window.Telegram.WebApp; tg.ready(); tg.expand();
+    if (!window.Telegram?.WebApp) {
+      console.error('[FAIL] Telegram WebApp не найден');
+      document.getElementById('farm-name').innerHTML = '❌ Откройте через бота';
+      showToast('❌ Откройте через @AgroDrone_BY_Bot');
+      return false;
+    }
+    
+    tg = window.Telegram.WebApp; 
+    tg.ready(); 
+    tg.expand();
+    
     const tid = tg.initDataUnsafe?.user?.id;
-    if (!tid) { showToast('❌ Telegram ID не найден'); return false; }
+    console.log('[3/4] Telegram ID:', tid || 'не найден');
+    
+    if (!tid) { 
+      document.getElementById('farm-name').innerHTML = '❌ Telegram ID не найден';
+      showToast('❌ Telegram ID не найден'); 
+      return false; 
+    }
+    
+    console.log('[4/4] Запрашиваю регистрацию из Apps Script...');
+    document.getElementById('farm-name').textContent = 'Загружаю данные...';
+    
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'checkClientRegistration', telegram_id: tid })
     });
-    const json = await resp.json();
-    if (json.result?.registered) {
-      CLIENT_ID = json.result.clientId; return true;
-    } else {
-      showToast('❌ Вы не зарегистрированы'); return false;
+    
+    if (!resp.ok) {
+      console.error('[FAIL] Apps Script ответил с ошибкой:', resp.status);
+      document.getElementById('farm-name').innerHTML = '❌ Ошибка сервера';
+      showToast('❌ Ошибка сервера: ' + resp.status);
+      return false;
     }
-  } catch(e) { showToast('❌ Ошибка: ' + e.message); return false; }
+    
+    const json = await resp.json();
+    console.log('[OK] Ответ Apps Script:', json);
+    
+    if (json.result?.registered) {
+      CLIENT_ID = json.result.clientId; 
+      console.log('[OK] CLIENT_ID получен:', CLIENT_ID);
+      return true;
+    } else {
+      console.warn('[FAIL] Пользователь не зарегистрирован');
+      document.getElementById('farm-name').innerHTML = '❌ Вы не зарегистрированы';
+      showToast('❌ Вы не зарегистрированы'); 
+      return false;
+    }
+  } catch(e) { 
+    console.error('[FAIL] Ошибка:', e);
+    document.getElementById('farm-name').innerHTML = '❌ ' + e.message;
+    showToast('❌ Ошибка: ' + e.message); 
+    return false; 
+  }
 }
 
 async function loadClientData() {
+  console.log('[5/7] Загружаю данные клиента...');
+  document.getElementById('farm-name').textContent = 'Загружаю профиль...';
+  
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'getClientData', clientId: CLIENT_ID })
     });
     const json = await resp.json();
+    console.log('[OK] Данные клиента:', json);
+    
     if (json.result?.success) {
       FARM_NAME = json.result.farmName || 'Хозяйство';
       CITY = json.result.district || '';
@@ -160,19 +216,38 @@ async function loadClientData() {
       sessionStorage.setItem('CITY', CITY);
       sessionStorage.setItem('FARM_NAME', FARM_NAME);
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { 
+    console.error('[FAIL] Ошибка загрузки данных клиента:', e);
+    document.getElementById('farm-name').textContent = 'Ошибка загрузки';
+  }
 }
 
 async function loadFields() {
-  const resp = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'get_client_fields', data: { clientId: CLIENT_ID } })
-  });
-  const json = await resp.json();
-  if (json.ok && json.result) {
-    allFields = json.result.fields || [];
-    sessionStorage.setItem('allFields', JSON.stringify(allFields));
-    updateBadges();
+  console.log('[6/7] Загружаю поля...');
+  document.getElementById('farm-name').textContent = (FARM_NAME || 'Хозяйство') + ' (загружаю поля...)';
+  
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_client_fields', data: { clientId: CLIENT_ID } })
+    });
+    const json = await resp.json();
+    console.log('[OK] Поля получены:', json);
+    
+    if (json.ok && json.result) {
+      allFields = json.result.fields || [];
+      sessionStorage.setItem('allFields', JSON.stringify(allFields));
+      updateBadges();
+      console.log('[7/7] Загрузка завершена. Полей:', allFields.length);
+      document.getElementById('farm-name').textContent = FARM_NAME || 'Хозяйство';
+    } else {
+      console.warn('[WARN] Поля не получены:', json);
+      document.getElementById('farm-name').textContent = FARM_NAME + ' (нет полей)';
+    }
+  } catch(e) {
+    console.error('[FAIL] Ошибка загрузки полей:', e);
+    document.getElementById('farm-name').textContent = FARM_NAME + ' (ошибка загрузки)';
+    showToast('❌ Ошибка загрузки полей');
   }
 }
 
