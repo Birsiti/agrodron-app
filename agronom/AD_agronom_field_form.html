@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Форма поля
-  v3.1 · 2026-05-21 · папка /agronom/
+  v3.0 · 2026-05-20
   Добавление/редактирование/копирование поля
 -->
 <html lang="ru">
@@ -127,11 +127,20 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
 let CLIENT_ID, CITY, fieldHistory = {}, editMode = false, editId = null;
 
 function init() {
-  CLIENT_ID = sessionStorage.getItem('CLIENT_ID');
+  // Сначала пытаемся взять из URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const clientId = urlParams.get('clientId');
+  
+  if (clientId) {
+    sessionStorage.setItem('CLIENT_ID', clientId);
+    CLIENT_ID = clientId;
+  } else {
+    CLIENT_ID = sessionStorage.getItem('CLIENT_ID');
+  }
+  
   CITY = sessionStorage.getItem('CITY');
   
   const allFields = JSON.parse(sessionStorage.getItem('allFields') || '[]');
