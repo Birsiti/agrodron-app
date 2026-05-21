@@ -2,6 +2,7 @@
 <!--
   AgroDrone.BY · Агроном — Форма поля
   v3.1 · 2026-05-21 · папка /agronom/
+  Добавление/редактирование/копирование поля
 -->
 <html lang="ru">
 <head>
@@ -40,6 +41,12 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .autocomplete-item:active{background:var(--acl)}
 .autocomplete-item-main{font-weight:600;color:var(--t1)}
 .autocomplete-item-sub{font-size:11px;color:var(--t3);margin-top:2px}
+
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn-group-3{grid-template-columns:1fr 1fr 1fr}
+.btn-opt{padding:10px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:var(--f);font-size:13px;font-weight:600;color:var(--t2);background:#fff;cursor:pointer;transition:all .2s;text-align:center}
+.btn-opt:active{transform:scale(.98)}
+.btn-opt.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
 
 .btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
 .btn:active{transform:scale(.98)}
@@ -96,6 +103,23 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     <div style="font-size:11px;color:var(--t3);margin-top:4px">📍 <span style="color:var(--acc);cursor:pointer" onclick="openYandexMaps()">Открыть Яндекс.Карты</span></div>
   </div>
 
+  <div class="frow">
+    <label>Есть ЛЭП, деревья, препятствия?</label>
+    <div class="btn-group">
+      <button class="btn-opt selected" data-group="obstacles" data-value="no" onclick="selectOption(this)">Нет</button>
+      <button class="btn-opt" data-group="obstacles" data-value="yes" onclick="selectOption(this)">Да, есть</button>
+    </div>
+  </div>
+
+  <div class="frow">
+    <label>Сложность рельефа</label>
+    <div class="btn-group btn-group-3">
+      <button class="btn-opt selected" data-group="terrain" data-value="flat" onclick="selectOption(this)">Ровное</button>
+      <button class="btn-opt" data-group="terrain" data-value="medium" onclick="selectOption(this)">Среднее</button>
+      <button class="btn-opt" data-group="terrain" data-value="complex" onclick="selectOption(this)">Сложное</button>
+    </div>
+  </div>
+  
   <button class="btn btn-primary" id="save-btn" onclick="saveField()">✓ Добавить поле</button>
   <button class="btn btn-danger" id="delete-btn" style="display:none" onclick="deleteField()">🗑 Удалить поле</button>
 </div>
@@ -103,6 +127,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="toast" id="toast"></div>
 
 <script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWZ0Z7-ZzIS22kxR3PkblCAcB7hNEQkQShcOuBYUNlxpHT7VFQD8WLTArs5QAXDg0Q/exec';
 let CLIENT_ID, CITY, fieldHistory = {}, editMode = false, editId = null;
 
 function init() {
@@ -215,6 +240,12 @@ function selectPrep(prep, norm) {
   document.getElementById('f-prep').value = prep;
   if (norm) document.getElementById('f-norm').value = norm;
   document.getElementById('prep-suggestions').classList.remove('show');
+}
+
+function selectOption(btn) {
+  const group = btn.dataset.group;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
 }
 
 async function saveField() {
