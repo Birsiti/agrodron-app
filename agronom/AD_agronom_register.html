@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Регистрация агронома
+  v1.6 · 2026-05-21 · папка /agronom/
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Регистрация · AgroDrone.BY</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="../config.js"></script>
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:20px 16px;flex-shrink:0;text-align:center}
+.brand-name{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.brand-name em{font-style:normal;color:#d1fae5}
+.brand-sub{font-size:13px;color:rgba(255,255,255,.85);font-weight:600}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 40px}
+
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
+.card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.frow{margin-bottom:14px}
+.frow:last-child{margin-bottom:0}
+.frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.frow input{width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);padding:13px 14px;font-family:var(--f);font-size:15px;color:var(--t1);outline:none;transition:all .2s;-webkit-appearance:none}
+.frow input:focus{border-color:var(--aca);background:#f9fafb}
+.frow input::placeholder{color:var(--t3)}
+.hint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
+
+.info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
+.info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
+
+.btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-decoration:none;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+
+.success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
+.success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
+.success-id{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
+.success-id-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
+.success-id-value{font-size:28px;font-weight:800;letter-spacing:1px}
+
+.error-box{background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--rs);padding:14px;margin-bottom:12px}
+.error-text{font-size:13px;color:#991b1b;font-weight:600;text-align:center}
+
+.loading{text-align:center;padding:40px 20px}
+.spinner{border:3px solid var(--border);border-top:3px solid var(--acc);border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--t2);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="app-hdr">
+  <div class="brand-name">Agro<em>Drone</em>.BY</div>
+  <div class="brand-sub">Регистрация агронома</div>
+</div>
+
+<div class="scroll">
+
+<div id="screen-form" class="screen active">
+  <div class="info-box">
+    <div class="info-box-text">👋 Добро пожаловать в AgroDrone.BY!<br>Для начала работы заполните данные ниже.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Регистрация</div>
+    
+    <div id="error-container"></div>
+    
+    <div class="frow">
+      <label>Название хозяйства *</label>
+      <input type="text" id="farm-name" placeholder="СПК Заря, ИП Иванов">
+    </div>
+    
+    <div class="frow">
+      <label>Район / Город *</label>
+      <input type="text" id="district" placeholder="Минский район">
+    </div>
+    
+    <div class="frow">
+      <label>Ваше имя *</label>
+      <input type="text" id="agronomist-name" placeholder="Иван Иванович">
+    </div>
+    
+    <div class="frow">
+      <label>Контактный телефон *</label>
+      <input type="tel" id="phone" placeholder="Введите 9 цифр">
+      <div class="hint">📱 +375 уже указан, введите только 9 цифр (например: 29 123 45 67)</div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="submit-btn" onclick="submitRegistration()">✓ Зарегистрироваться</button>
+</div>
+
+<div id="screen-loading" class="screen">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Регистрация...</div>
+  </div>
+</div>
+
+<div id="screen-success" class="screen">
+  <div class="card">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Регистрация успешна!</div>
+    <div class="success-text">Вы зарегистрированы в системе AgroDrone.BY.<br>Ваш личный идентификатор:</div>
+    
+    <div class="success-id">
+      <div class="success-id-label">Client ID</div>
+      <div class="success-id-value" id="client-id-display">—</div>
+    </div>
+    
+    <div style="background:#f9fafb;border-radius:var(--rs);padding:12px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Ваши данные</div>
+      <div style="font-size:13px;margin-bottom:4px"><strong>Хозяйство:</strong> <span id="success-farm">—</span></div>
+      <div style="font-size:13px;margin-bottom:4px"><strong>Район:</strong> <span id="success-district">—</span></div>
+      <div style="font-size:13px;margin-bottom:4px"><strong>Агроном:</strong> <span id="success-name">—</span></div>
+      <div style="font-size:13px"><strong>Телефон:</strong> <span id="success-phone">—</span></div>
+    </div>
+    
+    <div class="info-box">
+      <div class="info-box-text">💬 Теперь вернитесь в бот и нажмите /start для входа в систему</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let telegramId = null;
+
+try {
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    telegramId = tg.initDataUnsafe.user.id;
+  }
+} catch(e) {
+  console.error('Ошибка получения Telegram данных:', e);
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+function validateForm() {
+  const farmName = document.getElementById('farm-name').value.trim();
+  const agronomistName = document.getElementById('agronomist-name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!farmName) {
+    showError('Укажите название хозяйства');
+    return false;
+  }
+
+  if (farmName.length < 3) {
+    showError('Название хозяйства слишком короткое');
+    return false;
+  }
+
+  const district = document.getElementById('district').value.trim();
+  if (!district) {
+    showError('Укажите район или город');
+    return false;
+  }
+
+  if (!agronomistName) {
+    showError('Укажите ваше имя');
+    return false;
+  }
+
+  if (!phone) {
+    showError('Укажите контактный телефон');
+    return false;
+  }
+
+  const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
+  if (!/^\d{9}$/.test(phoneClean)) {
+    showError('Укажите 9 цифр после +375');
+    return false;
+  }
+
+  return true;
+}
+
+function showError(msg) {
+  const container = document.getElementById('error-container');
+  container.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
+  setTimeout(() => {
+    container.innerHTML = '';
+  }, 3000);
+}
+
+async function submitRegistration() {
+  if (!validateForm()) return;
+
+  if (!telegramId) {
+    showError('Ошибка: не удалось получить Telegram ID. Откройте форму через бот.');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Регистрация...';
+
+  showScreen('screen-loading');
+
+  const farmName = document.getElementById('farm-name').value.trim();
+  const district = document.getElementById('district').value.trim();
+  const agronomistName = document.getElementById('agronomist-name').value.trim();
+  const phoneInput = document.getElementById('phone').value.trim();
+  const phone = '+375' + phoneInput.replace(/[\s\-\(\)]/g, '');
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'registerClient',
+        farm_name: farmName,
+        district: district,
+        agronomist_name: agronomistName,
+        phone: phone,
+        telegram_id: telegramId
+      })
+    });
+
+    const data = await response.json();
+
+    if ((data.ok && data.result && data.result.success) || data.success) {
+      const clientId = (data.result && data.result.clientId) || data.clientId;
+      document.getElementById('client-id-display').textContent = clientId;
+      document.getElementById('success-farm').textContent = farmName;
+      document.getElementById('success-district').textContent = district;
+      document.getElementById('success-name').textContent = agronomistName;
+      document.getElementById('success-phone').textContent = phone;
+      
+      showScreen('screen-success');
+    } else {
+      showScreen('screen-form');
+      showError((data.result && data.result.error) || data.error || 'Ошибка регистрации. Попробуйте ещё раз.');
+      btn.disabled = false;
+      btn.textContent = '✓ Зарегистрироваться';
+    }
+
+  } catch(error) {
+    console.error('Ошибка:', error);
+    showScreen('screen-form');
+    showError('Ошибка подключения. Проверьте интернет и попробуйте снова.');
+    btn.disabled = false;
+    btn.textContent = '✓ Зарегистрироваться';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!telegramId) {
+    showError('⚠️ Telegram ID не определён. Откройте форму через бот.');
+  }
+  setTimeout(() => {
+    document.getElementById('farm-name').focus();
+  }, 300);
+});
+</script>
+</body>
+</html>
