@@ -1,7 +1,6 @@
 // ══════════════════════════════════════════════════════════
 // AgroDrone.BY — config.js
-// Централизованная конфигурация — менять только здесь
-// v1.2 | май 2026
+// v1.3 | май 2026 | папка /agronom/ добавлена
 // ══════════════════════════════════════════════════════════
 
 // ── Apps Script ────────────────────────────────────────────
@@ -15,13 +14,16 @@ const SHEET_ID       = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
 const MAPS_KEY       = 'AIzaSyCjxpxSE5noJCigtTYP56_Q6O65awnflwg';
 
 // ── Telegram ───────────────────────────────────────────────
-const OWNER_ID       = '6204739474';       // Денис (Бруй Д.А.)
-const GROUP_CHAT_ID  = '-1003761125572';   // Рабочая группа AgroDrone
+const OWNER_ID       = '6204739474';
+const GROUP_CHAT_ID  = '-1003761125572';
 
-// ── URLs ───────────────────────────────────────────────────
-const CABINET_URL    = 'https://birsiti.github.io/agrodron-app/AD_agronom_cabinet.html';
-const REGISTER_URL   = 'https://birsiti.github.io/agrodron-app/AD_agronom_register.html';
+// ── URLs (папка /agronom/) ─────────────────────────────────
+const BASE_URL       = 'https://birsiti.github.io/agrodron-app';
+const CABINET_URL    = BASE_URL + '/agronom/AD_agronom_cabinet.html';
+const REGISTER_URL   = BASE_URL + '/agronom/AD_agronom_register.html';
+const FIELD_FORM_URL = BASE_URL + '/agronom/AD_agronom_field_form.html';
+const OP_MENU_URL    = BASE_URL + '/operator/AD_op_menu.html';
 
 // ── Admin ──────────────────────────────────────────────────
-const ADMIN_PIN      = '0109';             // PIN администратора
-const WEBHOOK_URL    = 'https://hook.eu2.make.com/nvgwuuo4vf50clenoyojkn9lll6cy0eg'; // Make webhook (admin_coefs)
+const ADMIN_PIN      = '0109';
+const WEBHOOK_URL    = 'https://hook.eu2.make.com/nvgwuuo4vf50clenoyojkn9lll6cy0eg';
