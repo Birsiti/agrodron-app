@@ -129,12 +129,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   <div id="tab-map" class="tab-content">
     <div class="map-legend">
       <div class="map-legend-title">Легенда</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-новое"></span> Новое (<span id="count-новое">0</span>)</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-подтверждено"></span> Подтверждено (<span id="count-подтверждено">0</span>)</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-в_работе"></span> В работе (<span id="count-в_работе">0</span>)</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-частично"></span> Частично (<span id="count-частично">0</span>)</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-готово"></span> Готово (<span id="count-готово">0</span>)</div>
-      <div class="map-legend-item"><span class="map-legend-dot dot-отклонено"></span> Отклонено (<span id="count-отклонено">0</span>)</div>
+      <div class="map-legend-item"><span class="map-legend-dot" style="background:#3b82f6"></span> В работе (<span id="count-work">0</span>)</div>
+      <div class="map-legend-item"><span class="map-legend-dot" style="background:#f97316"></span> Частично (<span id="count-partial">0</span>)</div>
+      <div class="map-legend-item"><span class="map-legend-dot" style="background:#10b981"></span> Готово (<span id="count-done">0</span>)</div>
     </div>
     <div class="map-container">
       <div id="map"></div>
@@ -152,13 +149,13 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 let CLIENT_ID, CITY, FARM_NAME, allFields = [], currentTab = 'active', map, markers = [];
 
 const STATUS_COLORS = {
-  'новое': '#fbbf24',
-  'подтверждено': '#3b82f6',
-  'в работе': '#8b5cf6',
-  'в_работе': '#8b5cf6',
-  'частично': '#f97316',
-  'готово': '#10b981',
-  'отклонено': '#ef4444'
+  'новое': '#3b82f6',           // 🔵 В работе (синий)
+  'подтверждено': '#3b82f6',    // 🔵 В работе (синий)
+  'в работе': '#3b82f6',        // 🔵 В работе (синий)
+  'в_работе': '#3b82f6',        // 🔵 В работе (синий)
+  'частично': '#f97316',        // 🟠 Частично (оранжевый)
+  'готово': '#10b981',          // 🟢 Готово (зелёный)
+  'отклонено': '#10b981'        // 🟢 Готово (зелёный)
 };
 
 async function init() {
@@ -332,51 +329,40 @@ function getStatusText(status) {
 }
 
 function updateStatusCounts() {
-  const counts = {
-    'новое': 0,
-    'подтверждено': 0,
-    'в_работе': 0,
-    'частично': 0,
-    'готово': 0,
-    'отклонено': 0
-  };
+  let work = 0, partial = 0, done = 0;
   
   allFields.forEach(f => {
     const status = (f.status || 'новое').toLowerCase().replace(/ /g, '_');
-    if (counts.hasOwnProperty(status)) {
-      counts[status]++;
+    if (['новое', 'подтверждено', 'в_работе'].includes(status)) {
+      work++;
+    } else if (status === 'частично') {
+      partial++;
+    } else if (['готово', 'отклонено'].includes(status)) {
+      done++;
     }
   });
   
-  Object.keys(counts).forEach(status => {
-    const el = document.getElementById(`count-${status}`);
-    if (el) el.textContent = counts[status];
-  });
+  const el1 = document.getElementById('count-work');
+  const el2 = document.getElementById('count-partial');
+  const el3 = document.getElementById('count-done');
+  if (el1) el1.textContent = work;
+  if (el2) el2.textContent = partial;
+  if (el3) el3.textContent = done;
 }
 
 function initMap() {
   if (!allFields || allFields.length === 0) return;
   
-  // Центр карты — среднее положение всех полей
   const validFields = allFields.filter(f => f.coords);
   if (validFields.length === 0) {
     document.getElementById('map').innerHTML = '<div style="padding:40px;text-align:center;color:#9aa3b2">Нет полей с координатами</div>';
     return;
   }
   
-  const centerLat = validFields.reduce((sum, f) => {
-    const [lat] = f.coords.split(',').map(s => parseFloat(s.trim()));
-    return sum + lat;
-  }, 0) / validFields.length;
-  
-  const centerLng = validFields.reduce((sum, f) => {
-    const [, lng] = f.coords.split(',').map(s => parseFloat(s.trim()));
-    return sum + lng;
-  }, 0) / validFields.length;
-  
+  // Центр карты — Беларусь (Минск)
   map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: centerLat, lng: centerLng },
-    zoom: 10,
+    center: { lat: 53.9, lng: 27.6 },
+    zoom: 7,
     mapTypeId: 'hybrid'
   });
   
