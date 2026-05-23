@@ -117,16 +117,37 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="toast" id="toast"></div>
 
 <script>
-let TELEGRAM_ID = null;
+// ══════════════════════════════════
+// TELEGRAM WEB APP
+// ══════════════════════════════════
+let tg = window.Telegram.WebApp;
+let telegramId = null;
+let telegramUsername = null;
 
-function init() {
-  // Инициализация Telegram WebApp (для корректного отображения)
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+// Инициализация Telegram WebApp
+tg.ready();
+tg.expand();
+
+// Получение данных пользователя Telegram
+try {
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    telegramId = user.id;
+    telegramUsername = user.username || '';
+    
+    console.log('Telegram ID получен:', telegramId);
+    console.log('Username:', telegramUsername);
+  } else {
+    console.warn('Telegram user data не найдены в initDataUnsafe');
   }
-  
+} catch(e) {
+  console.error('Ошибка получения Telegram данных:', e);
+}
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+function init() {
   // Автофокус на первое поле
   setTimeout(() => document.getElementById('f-farm').focus(), 300);
 }
@@ -161,18 +182,14 @@ async function register() {
     return;
   }
   
-  // Telegram ID будет передан от Leadtex через URL параметр
-  // ИЛИ через переменную окружения Telegram WebApp
-  let telegramId = new URLSearchParams(window.location.search).get('telegram_id');
-  
-  if (!telegramId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-    telegramId = window.Telegram.WebApp.initDataUnsafe.user.id;
-  }
-  
+  // Проверяем наличие Telegram ID
   if (!telegramId) {
     showToast('⚠️ Ошибка: не удалось получить Telegram ID');
+    console.error('telegramId отсутствует при попытке регистрации');
     return;
   }
+  
+  console.log('Регистрация с Telegram ID:', telegramId);
   
   const btn = document.getElementById('register-btn');
   btn.disabled = true;
