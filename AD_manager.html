@@ -217,42 +217,50 @@ async function loadAllData() {
 function calculateDashboard() {
   const now = new Date();
   const today = now.toISOString().split('T')[0].split('-').reverse().join('.');
-  const weekAgo = new Date(now - 7*24*60*60*1000).toISOString().split('T')[0].split('-').reverse().join('.');
   
   // Today
-  const todayOb = allObrabotki.filter(o => o.dateFinish === today);
-  const todayHa = todayOb.reduce((s,o) => s + (parseFloat(o.haFact)||0), 0);
-  const todayFields = new Set(todayOb.map(o => o.fieldId)).size;
-  const todayOps = new Set(todayOb.map(o => o.operator)).size;
+  const todayOb = allObrabotki.filter(o => o['Дата закрытия'] === today);
+  const todayHa = todayOb.reduce((s,o) => s + parseNum(o['Га факт']), 0);
+  const todayFields = todayOb.length;
+  const todayOps = new Set(todayOb.map(o => o['Операторы'])).size;
   
   document.getElementById('d-today-ha').textContent = todayHa.toFixed(1);
   document.getElementById('d-today-fields').textContent = todayFields;
   document.getElementById('d-today-ops').textContent = todayOps;
   
-  // Week
+  // Week (last 7 days)
+  const weekAgo = new Date(now - 7*24*60*60*1000);
   const weekOb = allObrabotki.filter(o => {
-    if (!o.dateFinish) return false;
-    const parts = o.dateFinish.split('.');
+    if (!o['Дата закрытия']) return false;
+    const parts = o['Дата закрытия'].split('.');
     if (parts.length !== 3) return false;
     const d = new Date(parts[2], parts[1]-1, parts[0]);
-    return d >= new Date(now - 7*24*60*60*1000);
+    return d >= weekAgo;
   });
-  const weekHa = weekOb.reduce((s,o) => s + (parseFloat(o.haFact)||0), 0);
+  const weekHa = weekOb.reduce((s,o) => s + parseNum(o['Га факт']), 0);
   const weekRev = Math.round(weekHa * 28);
-  const weekFields = new Set(weekOb.map(o => o.fieldId)).size;
+  const weekFields = weekOb.length;
   
   document.getElementById('d-week-ha').textContent = weekHa.toFixed(1);
   document.getElementById('d-week-rev').textContent = weekRev.toLocaleString();
   document.getElementById('d-week-fields').textContent = weekFields;
   
   // Season
-  const seasonHa = allObrabotki.reduce((s,o) => s + (parseFloat(o.haFact)||0), 0);
+  const seasonHa = allObrabotki.reduce((s,o) => s + parseNum(o['Га факт']), 0);
   const seasonFlights = allObrabotki.length;
-  const seasonClients = new Set(allFields.map(f => f.clientId)).size;
+  const seasonClients = new Set(allFields.map(f => f['ID клиента'])).size;
   
   document.getElementById('d-season-ha').textContent = seasonHa.toFixed(1);
   document.getElementById('d-season-flights').textContent = seasonFlights;
   document.getElementById('d-season-clients').textContent = seasonClients;
+}
+
+// Parse number (handle comma as decimal separator)
+function parseNum(val) {
+  if (!val) return 0;
+  const str = String(val).replace(',', '.');
+  const num = parseFloat(str);
+  return isNaN(num) ? 0 : num;
 }
 
 // Tab switch
@@ -288,7 +296,7 @@ function renderFields() {
   let filtered = allFields;
   
   if (currentFilter !== 'all') {
-    filtered = allFields.filter(f => f.status === currentFilter);
+    filtered = allFields.filter(f => f['Статус'] === currentFilter);
   }
   
   if (!filtered.length) {
@@ -303,18 +311,18 @@ function renderFields() {
       'в работе': { cls:'st-work', badge:'b-work', label:'В работе' },
       'готово': { cls:'st-done', badge:'b-done', label:'Готово' }
     };
-    const st = statusMap[f.status] || statusMap['новое'];
+    const st = statusMap[f['Статус']] || statusMap['новое'];
     
     return `<div class="field-card ${st.cls}">
       <div class="fc-head">
-        <div class="fc-name">${f.name || '—'}</div>
+        <div class="fc-name">${f['Название поля'] || '—'}</div>
         <span class="fc-badge ${st.badge}">${st.label}</span>
       </div>
-      <div class="fc-meta">${f.city || '—'} · ${f.crop || '—'}${f.prep ? ' · ' + f.prep : ''}</div>
+      <div class="fc-meta">${f['Районный центр'] || '—'} · ${f['Культура'] || '—'}${f['Препарат'] ? ' · ' + f['Препарат'] : ''}</div>
       <div class="fc-data">
-        <div>📐 <span>${f.haPlan || 0} га</span></div>
-        <div>💧 <span>${f.norm || '—'} л/га</span></div>
-        ${f.dateClosed ? `<div>✅ <span>${f.dateClosed}</span></div>` : ''}
+        <div>📐 <span>${parseNum(f['Площадь га'])} га</span></div>
+        <div>💧 <span>${f['Норма л/га'] || '—'} л/га</span></div>
+        ${f['Дата закрытия'] ? `<div>✅ <span>${f['Дата закрытия']}</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -330,19 +338,19 @@ function renderOperators() {
   }
   
   wrap.innerHTML = allOperators.map(o => {
-    const isWR = String(o.type || '').includes('WR');
+    const isWR = String(o['Тип'] || '').includes('WR');
     return `<div class="op-card">
       <div class="op-head">
-        <div class="op-name">${o.name}</div>
-        <div class="op-id">${o.id}</div>
+        <div class="op-name">${o['ФИО']}</div>
+        <div class="op-id">${o['ID']}</div>
       </div>
       ${isWR ? '<div class="op-type wr">🟠 Подрядчик (WR)</div>' : '<div class="op-type">🟢 АТК</div>'}
       <div class="op-stats">
-        <div class="op-stat"><div class="op-stat-num">${o.hectares || 0}</div><div class="op-stat-lbl">га</div></div>
-        <div class="op-stat"><div class="op-stat-num">${o.fields || 0}</div><div class="op-stat-lbl">полей</div></div>
-        <div class="op-stat"><div class="op-stat-num">${o.hours || 0}</div><div class="op-stat-lbl">часов</div></div>
+        <div class="op-stat"><div class="op-stat-num">${parseNum(o['Га за сезон'])}</div><div class="op-stat-lbl">га</div></div>
+        <div class="op-stat"><div class="op-stat-num">${o['Выездов'] || 0}</div><div class="op-stat-lbl">выездов</div></div>
+        <div class="op-stat"><div class="op-stat-num">${o['Часов налёта'] || 0}</div><div class="op-stat-lbl">часов</div></div>
       </div>
-      <div style="font-size:11px;color:var(--t3);margin-top:8px;text-align:center">Выездов: ${o.trips || 0} · Район: ${o.city || '—'}</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:8px;text-align:center">Район: ${o['Район РБ'] || '—'}${o['Роль'] ? ' · ' + o['Роль'] : ''}</div>
     </div>`;
   }).join('');
 }
@@ -360,23 +368,25 @@ function initMap() {
   });
   
   allFields.forEach(f => {
-    if (!f.coords) return;
-    const coords = f.coords.split(',').map(c => c.trim());
+    if (!f['Ссылка Maps']) return;
+    
+    // Координаты формат: "52,5276925, 26,6100870" (запятая как разделитель!)
+    const coords = f['Ссылка Maps'].split(',').map(c => c.trim());
     if (coords.length < 2) return;
     
-    const lat = parseFloat(coords[0]);
-    const lng = parseFloat(coords[1]);
+    const lat = parseNum(coords[0]);
+    const lng = parseNum(coords[1]);
     if (isNaN(lat) || isNaN(lng)) return;
     
     let color = '#d97706'; // новое
-    if (f.status === 'подтверждено') color = '#3a6aee';
-    if (f.status === 'в работе') color = '#8b5cf6';
-    if (f.status === 'готово') color = '#3aaa5e';
+    if (f['Статус'] === 'подтверждено') color = '#3a6aee';
+    if (f['Статус'] === 'в работе') color = '#8b5cf6';
+    if (f['Статус'] === 'готово') color = '#3aaa5e';
     
     const marker = new google.maps.Marker({
       position: { lat, lng },
       map: map,
-      title: f.name,
+      title: f['Название поля'],
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: color,
@@ -389,9 +399,9 @@ function initMap() {
     
     const info = new google.maps.InfoWindow({
       content: `<div style="font-family:var(--f);padding:4px">
-        <div style="font-weight:800;font-size:13px;margin-bottom:4px">${f.name}</div>
-        <div style="font-size:11px;color:#666">${f.city || '—'} · ${f.crop || '—'}</div>
-        <div style="font-size:11px;margin-top:4px">${f.haPlan || 0} га · ${f.status}</div>
+        <div style="font-weight:800;font-size:13px;margin-bottom:4px">${f['Название поля']}</div>
+        <div style="font-size:11px;color:#666">${f['Районный центр'] || '—'} · ${f['Культура'] || '—'}</div>
+        <div style="font-size:11px;margin-top:4px">${parseNum(f['Площадь га'])} га · ${f['Статус']}</div>
       </div>`
     });
     
