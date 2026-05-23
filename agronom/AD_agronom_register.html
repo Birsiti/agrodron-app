@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Регистрация · AgroDrone.BY</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -119,18 +120,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 let TELEGRAM_ID = null;
 
 function init() {
-  // Получаем Telegram ID
+  // Инициализация Telegram WebApp (для корректного отображения)
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      TELEGRAM_ID = tg.initDataUnsafe.user.id;
-      
-      // Проверяем, не зарегистрирован ли уже
-      checkRegistration();
-    }
   }
   
   // Автофокус на первое поле
@@ -138,30 +132,8 @@ function init() {
 }
 
 async function checkRegistration() {
-  if (!TELEGRAM_ID) return;
-  
-  try {
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ 
-        action: 'checkClientRegistration', 
-        telegram_id: String(TELEGRAM_ID) 
-      })
-    });
-    const json = await resp.json();
-    
-    if (json.ok && json.result.registered) {
-      // Уже зарегистрирован — переходим в кабинет
-      const clientId = json.result.clientId;
-      sessionStorage.setItem('CLIENT_ID', clientId);
-      sessionStorage.setItem('FARM_NAME', json.result.farmName);
-      sessionStorage.setItem('CITY', json.result.city);
-      
-      window.location.href = `AD_agronom_cabinet.html?clientId=${clientId}`;
-    }
-  } catch(e) {
-    console.error('Ошибка проверки регистрации:', e);
-  }
+  // Эта функция НЕ используется в новой логике
+  // Проверка регистрации делается в Leadtex через HTTP-запрос
 }
 
 async function register() {
@@ -189,18 +161,17 @@ async function register() {
     return;
   }
   
-  // Получаем Telegram ID
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      TELEGRAM_ID = tg.initDataUnsafe.user.id;
-    }
+  // Telegram ID будет передан от Leadtex через URL параметр
+  // ИЛИ через переменную окружения Telegram WebApp
+  let telegramId = new URLSearchParams(window.location.search).get('telegram_id');
+  
+  if (!telegramId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+    telegramId = window.Telegram.WebApp.initDataUnsafe.user.id;
   }
   
-  // FALLBACK: если нет Telegram ID — используем 0
-  if (!TELEGRAM_ID) {
-    TELEGRAM_ID = '0';
-    console.log('Fallback: Telegram ID установлен как 0 (веб-регистрация)');
+  if (!telegramId) {
+    showToast('⚠️ Ошибка: не удалось получить Telegram ID');
+    return;
   }
   
   const btn = document.getElementById('register-btn');
@@ -217,7 +188,7 @@ async function register() {
         agronome: name,
         city: city,
         phone: phone,
-        telegram_id: String(TELEGRAM_ID)
+        telegram_id: String(telegramId)
       })
     });
     const json = await resp.json();
