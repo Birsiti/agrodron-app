@@ -1,374 +1,324 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v3.2 · 2026-05-21 · clientId в URL везде
+  v3.2 · 2026-05-23 · Новые ID, автозаполнение, кликабельные координаты
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>AgroDrone.BY · Агроном</title>
+<title>Мои поля · AgroDrone.BY</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;--border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);--r:14px;--rs:10px;--f:'Manrope',sans-serif}
+:root{
+  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;--orange:#f59e0b;--blue:#3b82f6;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
-.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-ico{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.brand-ico svg{width:24px;height:24px}
-.brand-name{font-size:18px;font-weight:800;color:#fff;line-height:1.1}
-.brand-name em{font-style:normal;color:#d1fae5}
-.brand-sub{font-size:11px;color:rgba(255,255,255,.8);font-weight:500;margin-top:2px}
-.role-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.screen{display:none;animation:fadeIn .22s ease}
-.screen.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.menu-wrap{padding:8px 12px calc(80px + env(safe-area-inset-bottom, 20px))}
-.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
-.mi{background:var(--card);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;transition:all .2s;border:1.5px solid transparent}
-.mi:active{transform:scale(.98);border-color:var(--aca)}
-.mi-ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
-.mi-info{flex:1}
-.mi-title{font-size:14px;font-weight:700;color:var(--t1)}
-.mi-sub{font-size:11px;color:var(--t3);margin-top:2px}
-.mi-arr{color:var(--t3);font-size:18px;margin-left:auto}
-.mi-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:8px;flex-shrink:0}
-.badge-yellow{background:#fef3c7;color:#d97706}
-.badge-blue{background:#eff6ff;color:#2563eb}
-.stats-banner{background:linear-gradient(135deg,var(--acc),var(--acm));border-radius:var(--rs);padding:14px;margin-bottom:8px;color:#fff}
-.sb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
-.sb-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
-.sb-val{font-size:16px;font-weight:800}
-.sb-lbl{font-size:10px;opacity:.8;margin-top:2px}
-.sub-hdr{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
-.sub-back{font-size:22px;cursor:pointer;color:var(--acc);padding-right:4px}
-.sub-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
-.sub-wrap{padding:12px 12px calc(80px + env(safe-area-inset-bottom, 20px))}
-.field-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:8px;border-left:4px solid var(--border);transition:all .2s}
-.field-card.st-wait{border-left-color:#f59e0b}
-.field-card.st-work{border-left-color:#2563eb}
-.field-card.st-done{border-left-color:var(--aca)}
-.fc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.fc-name{font-size:15px;font-weight:800;color:var(--t1)}
-.fc-meta{font-size:11px;color:var(--t3);margin-top:2px}
-.fc-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.fc-badge.st-wait{background:#fef3c7;color:#92400e}
-.fc-badge.st-work{background:#eff6ff;color:#1d4ed8}
-.fc-badge.st-done{background:var(--acl);color:var(--acc)}
-.fc-data{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--border);margin-top:6px}
-.fc-d{display:flex;flex-direction:column;gap:2px}
-.fc-dv{font-size:14px;font-weight:800;color:var(--t1)}
-.fc-dl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
-.ctx-menu{position:fixed;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:6px;z-index:1000;min-width:160px;display:none}
-.ctx-menu.show{display:block;animation:ctxShow .2s ease}
-@keyframes ctxShow{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.ctx-item{padding:12px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:10px;transition:background .15s}
-.ctx-item:active{background:var(--bg)}
-.ctx-item-icon{font-size:18px;width:20px}
-.ctx-item.danger{color:#dc2626}
-.empty{text-align:center;padding:40px 20px}
-.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
-.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:14px 16px 16px;flex-shrink:0}
+.hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hdr-logo{font-size:20px;font-weight:800;color:#fff;flex:1}
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;transition:background .2s}
+.hdr-btn:active{background:rgba(255,255,255,.25)}
+.hdr-info{background:rgba(255,255,255,.1);border-radius:var(--rs);padding:10px 12px}
+.hdr-farm{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.hdr-city{font-size:12px;color:rgba(255,255,255,.8)}
+
+.tabs{display:flex;gap:8px;padding:0 12px;margin-top:12px;background:var(--bg);flex-shrink:0;padding-top:8px;border-top:1px solid var(--border)}
+.tab{flex:1;padding:10px;border-radius:var(--rs) var(--rs) 0 0;font-size:13px;font-weight:700;color:var(--t2);background:transparent;cursor:pointer;text-align:center;transition:all .2s;border:none}
+.tab.active{background:#fff;color:var(--acc)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(80px + env(safe-area-inset-bottom, 20px))}
+
+.field-card{background:#fff;border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh);position:relative}
+.field-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.field-id{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.field-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px}
+.status-новое{background:#fef3c7;color:#92400e}
+.status-подтверждено{background:#dbeafe;color:#1e40af}
+.status-в.работе,.status-в_работе{background:#e0e7ff;color:#4338ca}
+.status-частично{background:#fed7aa;color:#9a3412}
+.status-готово{background:#d1fae5;color:#065f46}
+.status-отклонено{background:#fee2e2;color:#991b1b}
+
+.field-name{font-size:16px;font-weight:700;color:var(--t1);margin-bottom:8px}
+.field-details{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.field-detail{font-size:13px;color:var(--t2);display:flex;align-items:center;gap:4px}
+.field-coords{font-size:12px;color:var(--acc);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:4px 0}
+.field-coords:active{opacity:.7}
+
+.field-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.field-btn{padding:8px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:12px;font-weight:600;background:#fff;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px}
+.field-btn:active{transform:scale(.96)}
+.field-btn.btn-edit{color:var(--blue);border-color:#bfdbfe}
+.field-btn.btn-edit:active{background:#eff6ff}
+.field-btn.btn-copy{color:var(--t2);border-color:var(--border)}
+.field-btn.btn-copy:active{background:var(--bg)}
+.field-btn.btn-delete{color:var(--red);border-color:#fecaca}
+.field-btn.btn-delete:active{background:#fee2e2}
+
+.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom, 0px));right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(4,120,87,.4);cursor:pointer;transition:transform .2s;z-index:100}
+.fab:active{transform:scale(.9)}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
+.empty-state-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-state-text{font-size:15px;font-weight:600;margin-bottom:6px}
+.empty-state-hint{font-size:13px;color:var(--t3)}
+
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
+
+.loading{text-align:center;padding:40px;color:var(--t3);font-size:14px}
 </style>
 </head>
 <body>
 
 <div class="app-hdr">
-  <div class="brand">
-    <div class="brand-ico"><svg fill="#fff" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-    <div><div class="brand-name">Agro<em>Drone</em>.BY</div><div class="brand-sub" id="farm-name">Загрузка...</div></div>
+  <div class="hdr-top">
+    <div class="hdr-logo">AgroDrone.BY</div>
+    <div class="hdr-btn" onclick="window.location.reload()">⟳</div>
   </div>
-  <div class="role-chip" id="client-id-badge">ID: —</div>
-</div>
-
-<div class="scroll">
-<div id="menu-main" class="screen active">
-  <div class="menu-wrap">
-    <div class="stats-banner">
-      <div style="font-size:13px;font-weight:800;opacity:.9">🗺️ Мои поля · Сезон 2026</div>
-      <div class="sb-grid">
-        <div class="sb-stat"><div class="sb-val" id="badge-wait">0</div><div class="sb-lbl">Ждёт</div></div>
-        <div class="sb-stat"><div class="sb-val" id="badge-work">0</div><div class="sb-lbl">В работе</div></div>
-        <div class="sb-stat"><div class="sb-val" id="badge-done">0</div><div class="sb-lbl">Готово</div></div>
-      </div>
-    </div>
-    <div class="sep">Поля</div>
-    <div class="mi" onclick="navFields('ждёт')"><div class="mi-ico">⏱️</div><div class="mi-info"><div class="mi-title">Ожидают обработки</div><div class="mi-sub">Новые заявки</div></div><div class="mi-badge badge-yellow" id="badge-wait-mi">0</div><div class="mi-arr">›</div></div>
-    <div class="mi" onclick="navFields('в работе')"><div class="mi-ico">🚁</div><div class="mi-info"><div class="mi-title">В работе</div><div class="mi-sub">Обрабатываются сейчас</div></div><div class="mi-badge badge-blue" id="badge-work-mi">0</div><div class="mi-arr">›</div></div>
-    <div class="mi" onclick="navFields('all')"><div class="mi-ico">📋</div><div class="mi-info"><div class="mi-title">Все поля</div><div class="mi-sub">Полный список</div></div><div class="mi-arr">›</div></div>
-    <div class="sep">Действия</div>
-    <div class="mi" onclick="openFieldForm()"><div class="mi-ico">➕</div><div class="mi-info"><div class="mi-title">Добавить поле</div><div class="mi-sub">Новая заявка на обработку</div></div><div class="mi-arr">›</div></div>
+  <div class="hdr-info">
+    <div class="hdr-farm" id="farm-name">Загрузка...</div>
+    <div class="hdr-city" id="farm-city">—</div>
   </div>
 </div>
-<div id="fields-list" class="screen">
-  <div class="sub-hdr"><div class="sub-back" onclick="back()">‹</div><div class="sub-title" id="fields-title">Поля</div></div>
-  <div class="sub-wrap" id="fields-container"></div>
-</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('new')">Новые</button>
+  <button class="tab" onclick="switchTab('confirmed')">Подтверждённые</button>
+  <button class="tab" onclick="switchTab('all')">Все</button>
 </div>
 
-<div class="ctx-menu" id="ctx-menu">
-  <div class="ctx-item" onclick="ctxEdit()"><div class="ctx-item-icon">✏️</div> Редактировать</div>
-  <div class="ctx-item" onclick="ctxCopy()"><div class="ctx-item-icon">📋</div> Копировать</div>
-  <div class="ctx-item danger" onclick="ctxDelete()"><div class="ctx-item-icon">🗑</div> Удалить</div>
+<div class="scroll" id="scroll-container">
+  <div class="loading">Загрузка полей...</div>
 </div>
+
+<div class="fab" onclick="addField()">+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let tg, CLIENT_ID, CITY, FARM_NAME, allFields = [], currentContextFieldId = null;
+let CLIENT_ID, CITY, FARM_NAME, allFields = [], currentTab = 'new';
 
-async function resolveClientId() {
-  console.log('[1/4] Проверяю clientId в URL...');
-  document.getElementById('farm-name').textContent = 'Проверяю clientId...';
-  
+async function init() {
   const urlParams = new URLSearchParams(window.location.search);
-  const cid = urlParams.get('clientId');
-  if (cid) { 
-    console.log('[OK] clientId из URL:', cid);
-    CLIENT_ID = cid; 
-    return true; 
+  let clientId = urlParams.get('clientId');
+  
+  // Миграция старых форматов ID
+  if (clientId) {
+    // agr-101-26 → AG101
+    if (clientId.includes('agr-')) {
+      const match = clientId.match(/agr-(\d+)-\d+/);
+      if (match) clientId = 'AG' + match[1];
+    }
+    // agr101 → AG101
+    else if (clientId.startsWith('agr') && !clientId.includes('-')) {
+      const num = clientId.replace(/[^\d]/g, '');
+      clientId = 'AG' + num;
+    }
+    
+    sessionStorage.setItem('CLIENT_ID', clientId);
+    CLIENT_ID = clientId;
+  } else {
+    CLIENT_ID = sessionStorage.getItem('CLIENT_ID');
   }
   
-  console.log('[2/4] clientId в URL нет, проверяю Telegram Mini App...');
-  document.getElementById('farm-name').textContent = 'Проверяю Telegram...';
-  
-  try {
-    if (!window.Telegram?.WebApp) {
-      console.error('[FAIL] Telegram WebApp не найден');
-      document.getElementById('farm-name').innerHTML = '❌ Откройте через бота';
-      showToast('❌ Откройте через @AgroDrone_BY_Bot');
-      return false;
-    }
-    
-    tg = window.Telegram.WebApp; 
-    tg.ready(); 
-    tg.expand();
-    
-    const tid = tg.initDataUnsafe?.user?.id;
-    console.log('[3/4] Telegram ID:', tid || 'не найден');
-    
-    if (!tid) { 
-      document.getElementById('farm-name').innerHTML = '❌ Telegram ID не найден';
-      showToast('❌ Telegram ID не найден'); 
-      return false; 
-    }
-    
-    console.log('[4/4] Запрашиваю регистрацию из Apps Script...');
-    document.getElementById('farm-name').textContent = 'Загружаю данные...';
-    
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'checkClientRegistration', telegram_id: tid })
-    });
-    
-    if (!resp.ok) {
-      console.error('[FAIL] Apps Script ответил с ошибкой:', resp.status);
-      document.getElementById('farm-name').innerHTML = '❌ Ошибка сервера';
-      showToast('❌ Ошибка сервера: ' + resp.status);
-      return false;
-    }
-    
-    const json = await resp.json();
-    console.log('[OK] Ответ Apps Script:', json);
-    
-    if (json.result?.registered) {
-      CLIENT_ID = json.result.clientId; 
-      console.log('[OK] CLIENT_ID получен:', CLIENT_ID);
-      return true;
-    } else {
-      console.warn('[FAIL] Пользователь не зарегистрирован');
-      document.getElementById('farm-name').innerHTML = '❌ Вы не зарегистрированы';
-      showToast('❌ Вы не зарегистрированы'); 
-      return false;
-    }
-  } catch(e) { 
-    console.error('[FAIL] Ошибка:', e);
-    document.getElementById('farm-name').innerHTML = '❌ ' + e.message;
-    showToast('❌ Ошибка: ' + e.message); 
-    return false; 
+  if (!CLIENT_ID) {
+    window.location.href = 'AD_agronom_register.html';
+    return;
   }
+  
+  await loadClientData();
+  await loadFields();
 }
 
 async function loadClientData() {
-  console.log('[5/7] Загружаю данные клиента...');
-  document.getElementById('farm-name').textContent = 'Загружаю профиль...';
-  
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'getClientData', clientId: CLIENT_ID })
     });
     const json = await resp.json();
-    console.log('[OK] Данные клиента:', json);
     
-    if (json.result?.success) {
+    if (json.ok && json.result.success) {
       FARM_NAME = json.result.farmName || 'Хозяйство';
-      CITY = json.result.district || '';
+      CITY = json.result.city || 'Не указан';
+      
       document.getElementById('farm-name').textContent = FARM_NAME;
-      document.getElementById('client-id-badge').textContent = 'ID: ' + CLIENT_ID;
-      sessionStorage.setItem('CLIENT_ID', CLIENT_ID);
-      sessionStorage.setItem('CITY', CITY);
+      document.getElementById('farm-city').textContent = '📍 ' + CITY;
+      
       sessionStorage.setItem('FARM_NAME', FARM_NAME);
+      sessionStorage.setItem('CITY', CITY);
     }
-  } catch(e) { 
-    console.error('[FAIL] Ошибка загрузки данных клиента:', e);
-    document.getElementById('farm-name').textContent = 'Ошибка загрузки';
+  } catch(e) {
+    console.error('Ошибка загрузки данных клиента:', e);
   }
 }
 
 async function loadFields() {
-  console.log('[6/7] Загружаю поля...');
-  document.getElementById('farm-name').textContent = (FARM_NAME || 'Хозяйство') + ' (загружаю поля...)';
-  
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'get_client_fields', data: { clientId: CLIENT_ID } })
     });
     const json = await resp.json();
-    console.log('[OK] Поля получены:', json);
     
-    if (json.ok && json.result) {
-      allFields = json.result.fields || [];
+    if (json.ok && json.result.fields) {
+      allFields = json.result.fields;
       sessionStorage.setItem('allFields', JSON.stringify(allFields));
-      updateBadges();
-      console.log('[7/7] Загрузка завершена. Полей:', allFields.length);
-      document.getElementById('farm-name').textContent = FARM_NAME || 'Хозяйство';
+      renderFields();
     } else {
-      console.warn('[WARN] Поля не получены:', json);
-      document.getElementById('farm-name').textContent = FARM_NAME + ' (нет полей)';
+      document.getElementById('scroll-container').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🌾</div>
+          <div class="empty-state-text">Пока нет полей</div>
+          <div class="empty-state-hint">Нажмите + чтобы добавить первое поле</div>
+        </div>
+      `;
     }
   } catch(e) {
-    console.error('[FAIL] Ошибка загрузки полей:', e);
-    document.getElementById('farm-name').textContent = FARM_NAME + ' (ошибка загрузки)';
-    showToast('❌ Ошибка загрузки полей');
+    console.error('Ошибка загрузки полей:', e);
+    showToast('❌ Ошибка загрузки');
   }
 }
 
-function updateBadges() {
-  const cnt = { wait: 0, work: 0, done: 0 };
-  allFields.forEach(f => {
-    const st = (f.status || 'новое').toLowerCase();
-    if (st === 'готово' || st === 'done') cnt.done++;
-    else if (st === 'в работе') cnt.work++;
-    else cnt.wait++;
-  });
-  document.getElementById('badge-wait').textContent = cnt.wait;
-  document.getElementById('badge-work').textContent = cnt.work;
-  document.getElementById('badge-done').textContent = cnt.done;
-  document.getElementById('badge-wait-mi').textContent = cnt.wait;
-  document.getElementById('badge-work-mi').textContent = cnt.work;
-}
-
-function back() {
-  document.getElementById('fields-list').classList.remove('active');
-  document.getElementById('menu-main').classList.add('active');
-}
-
-function navFields(filter) {
-  document.getElementById('menu-main').classList.remove('active');
-  document.getElementById('fields-list').classList.add('active');
-  const title = filter === 'all' ? 'Все поля' : filter === 'ждёт' ? 'Ожидают обработки' : 'В работе';
-  document.getElementById('fields-title').textContent = title;
-  const filtered = filter === 'all' ? allFields : allFields.filter(f => {
-    const st = (f.status || 'новое').toLowerCase();
-    if (filter === 'ждёт') return st === 'новое' || st === 'ожидает' || st === 'ждёт';
-    if (filter === 'в работе') return st === 'в работе';
-    return true;
-  });
-  const container = document.getElementById('fields-container');
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty"><div class="empty-ico">🌾</div><div class="empty-t">Полей нет</div></div>';
+function renderFields() {
+  let fields = allFields;
+  
+  // Фильтрация по табу
+  if (currentTab === 'new') {
+    fields = allFields.filter(f => f.status === 'новое');
+  } else if (currentTab === 'confirmed') {
+    fields = allFields.filter(f => f.status === 'подтверждено' || f.status === 'в работе' || f.status === 'в_работе');
+  }
+  
+  if (fields.length === 0) {
+    const emptyText = currentTab === 'new' ? 'Нет новых полей' : currentTab === 'confirmed' ? 'Нет подтверждённых полей' : 'Нет полей';
+    document.getElementById('scroll-container').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🌾</div>
+        <div class="empty-state-text">${emptyText}</div>
+      </div>
+    `;
     return;
   }
-  container.innerHTML = filtered.map(f => {
-    const st = (f.status || 'новое').toLowerCase();
-    const stClass = st === 'готово' || st === 'done' ? 'st-done' : st === 'в работе' ? 'st-work' : 'st-wait';
-    const stLabel = st === 'готово' || st === 'done' ? 'Готово' : st === 'в работе' ? 'В работе' : 'Ждёт';
+  
+  const html = fields.map(f => {
+    // Миграция отображения ID
+    let displayId = f.id;
+    if (f.id.startsWith('fld_')) {
+      displayId = f.id.replace('fld_', 'FD').replace(/_/g, '-');
+    } else if (f.id.startsWith('CL')) {
+      displayId = f.id.replace('CL', 'FD');
+    }
+    
+    const statusClass = (f.status || 'новое').toLowerCase().replace(/ /g, '_');
+    const statusText = getStatusText(f.status);
+    
+    // Координаты для Google Maps
+    const coords = f.coords || '';
+    const coordsLink = coords ? `onclick="openMaps('${coords}')"` : '';
+    
     return `
-      <div class="field-card ${stClass}" ontouchstart="handleTouchStart(event, '${f.id}')" ontouchend="handleTouchEnd(event)" onclick="showContextMenu(event, '${f.id}')">
-        <div class="fc-head">
-          <div><div class="fc-name">${f.name || 'Поле'}</div><div class="fc-meta">${f.crop || ''}</div></div>
-          <div class="fc-badge ${stClass}">${stLabel}</div>
+      <div class="field-card">
+        <div class="field-header">
+          <div class="field-id">${displayId}</div>
+          <div class="field-status status-${statusClass}">${statusText}</div>
         </div>
-        <div class="fc-data">
-          <div class="fc-d"><div class="fc-dv">${f.haPlan || 0}</div><div class="fc-dl">Га</div></div>
-          <div class="fc-d"><div class="fc-dv">${f.prep || '—'}</div><div class="fc-dl">Препарат</div></div>
-          <div class="fc-d"><div class="fc-dv">${f.norm || '—'}</div><div class="fc-dl">Норма</div></div>
+        
+        <div class="field-name">${f.name || 'Без названия'}</div>
+        
+        <div class="field-details">
+          <div class="field-detail">🌾 ${f.crop || '—'}</div>
+          <div class="field-detail">📦 ${f.prep || '—'}</div>
+          ${f.norm ? `<div class="field-detail">💧 ${f.norm} л/га</div>` : ''}
+          <div class="field-detail">📐 ${f.haPlan || 0} га</div>
+        </div>
+        
+        ${coords ? `<div class="field-coords" ${coordsLink}>📍 Координаты (открыть карту)</div>` : ''}
+        
+        <div class="field-actions">
+          <button class="field-btn btn-copy" onclick='copyField(${JSON.stringify(f).replace(/'/g, "&#39;")})'>📋 Копировать</button>
+          <button class="field-btn btn-edit" onclick='editField(${JSON.stringify(f).replace(/'/g, "&#39;")})'>✏️ Править</button>
+          <button class="field-btn btn-delete" onclick="deleteField('${f.id}', '${f.name}')">🗑 Удалить</button>
         </div>
       </div>
     `;
   }).join('');
+  
+  document.getElementById('scroll-container').innerHTML = html;
 }
 
-let touchTimer = null;
-function handleTouchStart(e, fieldId) { touchTimer = setTimeout(() => showContextMenu(e, fieldId), 500); }
-function handleTouchEnd(e) { clearTimeout(touchTimer); }
-
-function showContextMenu(e, fieldId) {
-  e.preventDefault(); e.stopPropagation();
-  currentContextFieldId = fieldId;
-  const menu = document.getElementById('ctx-menu');
-  menu.classList.add('show');
-  const x = e.clientX || (e.touches && e.touches[0].clientX) || 50;
-  const y = e.clientY || (e.touches && e.touches[0].clientY) || 50;
-  menu.style.left = x + 'px';
-  menu.style.top = y + 'px';
-  setTimeout(() => document.addEventListener('click', hideContextMenu), 100);
+function getStatusText(status) {
+  const map = {
+    'новое': 'Новое',
+    'подтверждено': 'Подтверждено',
+    'в работе': 'В работе',
+    'в_работе': 'В работе',
+    'частично': 'Частично',
+    'готово': 'Готово',
+    'отклонено': 'Отклонено'
+  };
+  return map[status] || status;
 }
 
-function hideContextMenu() {
-  document.getElementById('ctx-menu').classList.remove('show');
-  document.removeEventListener('click', hideContextMenu);
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderFields();
 }
 
-function ctxEdit() {
-  hideContextMenu();
-  const f = allFields.find(f => f.id === currentContextFieldId);
-  if (!f) return;
-  sessionStorage.setItem('editField', JSON.stringify(f));
-  window.location.href = 'AD_agronom_field_form.html?mode=edit&id=' + f.id + '&clientId=' + CLIENT_ID;
+function openMaps(coords) {
+  const [lat, lng] = coords.split(',').map(s => s.trim());
+  window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
 }
 
-function ctxCopy() {
-  hideContextMenu();
-  const f = allFields.find(f => f.id === currentContextFieldId);
-  if (!f) return;
-  sessionStorage.setItem('copyField', JSON.stringify(f));
-  window.location.href = 'AD_agronom_field_form.html?mode=copy&clientId=' + CLIENT_ID;
+function addField() {
+  window.location.href = `AD_agronom_field_form.html?clientId=${CLIENT_ID}`;
 }
 
-async function ctxDelete() {
-  hideContextMenu();
-  const f = allFields.find(f => f.id === currentContextFieldId);
-  if (!f) return;
-  if (!confirm(`Удалить поле "${f.name}"?`)) return;
+function editField(field) {
+  sessionStorage.setItem('editField', JSON.stringify(field));
+  window.location.href = `AD_agronom_field_form.html?clientId=${CLIENT_ID}&mode=edit&id=${field.id}`;
+}
+
+function copyField(field) {
+  sessionStorage.setItem('copyField', JSON.stringify(field));
+  window.location.href = `AD_agronom_field_form.html?clientId=${CLIENT_ID}&mode=copy`;
+}
+
+async function deleteField(id, name) {
+  if (!confirm(`Удалить поле "${name}"?`)) return;
+  
   showToast('⏳ Удаляю...');
+  
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'delete_field', id: currentContextFieldId })
+      body: JSON.stringify({ action: 'delete_field', data: { id } })
     });
     const json = await resp.json();
+    
     if (json.ok) {
-      const idx = allFields.findIndex(f => f.id === currentContextFieldId);
-      if (idx >= 0) allFields.splice(idx, 1);
-      sessionStorage.setItem('allFields', JSON.stringify(allFields));
-      updateBadges(); navFields('all');
       showToast('✅ Поле удалено');
+      await loadFields();
     } else {
       showToast('❌ ' + (json.error || 'Ошибка удаления'));
     }
-  } catch(e) { console.error(e); showToast('❌ Ошибка'); }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка');
+  }
 }
 
-function openFieldForm() { window.location.href = 'AD_agronom_field_form.html?clientId=' + CLIENT_ID; }
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -376,12 +326,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  const ok = await resolveClientId();
-  if (!ok) return;
-  await loadClientData();
-  await loadFields();
-});
+window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

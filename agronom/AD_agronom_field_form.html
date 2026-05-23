@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Форма поля
-  v3.1 · 2026-05-21 · clientId в URL везде
-  Добавление/редактирование/копирование поля
+  v3.2 · 2026-05-23 · Умное автозаполнение, подсказки, история
 -->
 <html lang="ru">
 <head>
@@ -34,19 +33,18 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca)}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--rs) var(--rs);max-height:160px;overflow-y:auto;z-index:100;display:none;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.hint{font-size:11px;color:var(--t3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.hint-link{color:var(--acc);cursor:pointer;font-weight:600}
+.hint-link:active{opacity:.7}
+
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--rs) var(--rs);max-height:200px;overflow-y:auto;z-index:100;display:none;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .autocomplete-list.show{display:block}
-.autocomplete-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);transition:background .15s}
+.autocomplete-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
 .autocomplete-item:last-child{border-bottom:none}
 .autocomplete-item:active{background:var(--acl)}
-.autocomplete-item-main{font-weight:600;color:var(--t1)}
-.autocomplete-item-sub{font-size:11px;color:var(--t3);margin-top:2px}
-
-.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.btn-group-3{grid-template-columns:1fr 1fr 1fr}
-.btn-opt{padding:10px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:var(--f);font-size:13px;font-weight:600;color:var(--t2);background:#fff;cursor:pointer;transition:all .2s;text-align:center}
-.btn-opt:active{transform:scale(.98)}
-.btn-opt.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
+.autocomplete-item-main{font-weight:600;color:var(--t1);font-size:14px;margin-bottom:4px}
+.autocomplete-item-sub{font-size:12px;color:var(--t3);line-height:1.4}
+.autocomplete-badge{display:inline-block;background:var(--acl);color:var(--acc);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:6px}
 
 .btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block}
 .btn:active{transform:scale(.98)}
@@ -67,8 +65,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="scroll">
   <div class="frow">
     <label>Название поля *</label>
-    <input type="text" id="f-name" placeholder="Ур. Залежь, Поле №3" autocomplete="off" oninput="handleFieldNameInput(this.value)">
+    <input type="text" id="f-name" placeholder="Например: Ур. Залежь, Поле №3" autocomplete="off" oninput="handleFieldNameInput(this.value)">
     <div class="autocomplete-list" id="name-suggestions"></div>
+    <div class="hint">💡 Начните вводить — подтянутся данные из прошлых полей</div>
   </div>
   
   <div class="frow">
@@ -83,6 +82,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       <option>Картофель</option>
       <option>Свёкла сахарная</option>
       <option>Подсолнечник</option>
+      <option>Другое</option>
     </select>
   </div>
   
@@ -93,30 +93,22 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
   
   <div class="fgrid">
-    <div class="frow"><label>Норма л/га</label><input type="number" id="f-norm" step="0.1" placeholder="1.5"></div>
-    <div class="frow"><label>Площадь га *</label><input type="number" id="f-area" step="0.1" placeholder="85"></div>
+    <div class="frow">
+      <label>Норма л/га</label>
+      <input type="number" id="f-norm" step="0.1" placeholder="1.5">
+    </div>
+    <div class="frow">
+      <label>Площадь га *</label>
+      <input type="number" id="f-area" step="0.1" placeholder="85">
+    </div>
   </div>
   
   <div class="frow">
     <label>Координаты *</label>
-    <input type="text" id="f-coords" placeholder="Вставьте координаты">
-    <div style="font-size:11px;color:var(--t3);margin-top:4px">📍 <span style="color:var(--acc);cursor:pointer" onclick="openYandexMaps()">Открыть Яндекс.Карты</span></div>
-  </div>
-
-  <div class="frow">
-    <label>Есть ЛЭП, деревья, препятствия?</label>
-    <div class="btn-group">
-      <button class="btn-opt selected" data-group="obstacles" data-value="no" onclick="selectOption(this)">Нет</button>
-      <button class="btn-opt" data-group="obstacles" data-value="yes" onclick="selectOption(this)">Да, есть</button>
-    </div>
-  </div>
-
-  <div class="frow">
-    <label>Сложность рельефа</label>
-    <div class="btn-group btn-group-3">
-      <button class="btn-opt selected" data-group="terrain" data-value="flat" onclick="selectOption(this)">Ровное</button>
-      <button class="btn-opt" data-group="terrain" data-value="medium" onclick="selectOption(this)">Среднее</button>
-      <button class="btn-opt" data-group="terrain" data-value="complex" onclick="selectOption(this)">Сложное</button>
+    <input type="text" id="f-coords" placeholder="Вставьте координаты или ссылку">
+    <div class="hint">
+      📍 <span class="hint-link" onclick="openYandexMaps()">Открыть Яндекс.Карты</span> · 
+      <span class="hint-link" onclick="openGoogleMaps()">Google Maps</span>
     </div>
   </div>
   
@@ -130,15 +122,29 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 let CLIENT_ID, CITY, fieldHistory = {}, editMode = false, editId = null;
 
 function init() {
-  // Сначала пытаемся взять из URL
   const urlParams = new URLSearchParams(window.location.search);
-  const clientId = urlParams.get('clientId');
+  let clientId = urlParams.get('clientId');
   
+  // Миграция старых форматов ID
   if (clientId) {
+    if (clientId.includes('agr-')) {
+      const match = clientId.match(/agr-(\d+)-\d+/);
+      if (match) clientId = 'AG' + match[1];
+    } else if (clientId.startsWith('agr') && !clientId.includes('-')) {
+      const num = clientId.replace(/[^\d]/g, '');
+      clientId = 'AG' + num;
+    }
+    
     sessionStorage.setItem('CLIENT_ID', clientId);
     CLIENT_ID = clientId;
   } else {
     CLIENT_ID = sessionStorage.getItem('CLIENT_ID');
+  }
+  
+  if (!CLIENT_ID) {
+    showToast('❌ Ошибка: нет ID агронома');
+    setTimeout(() => window.location.href = 'AD_agronom_register.html', 1500);
+    return;
   }
   
   CITY = sessionStorage.getItem('CITY');
@@ -146,7 +152,6 @@ function init() {
   const allFields = JSON.parse(sessionStorage.getItem('allFields') || '[]');
   buildFieldHistory(allFields);
   
-  const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get('mode');
   
   if (mode === 'edit') {
@@ -160,19 +165,32 @@ function init() {
   } else if (mode === 'copy') {
     const field = JSON.parse(sessionStorage.getItem('copyField'));
     loadFieldData(field, true);
+    document.getElementById('page-title').textContent = 'Копировать поле';
   }
 }
 
 function buildFieldHistory(fields) {
   fieldHistory = { names: {}, preps: {} };
+  
   fields.forEach(f => {
+    // История по названиям полей
     if (f.name) {
       if (!fieldHistory.names[f.name]) fieldHistory.names[f.name] = [];
-      fieldHistory.names[f.name].push({ crop: f.crop, prep: f.prep, norm: f.norm });
+      fieldHistory.names[f.name].push({
+        crop: f.crop,
+        prep: f.prep,
+        norm: f.norm,
+        coords: f.coords,
+        area: f.haPlan
+      });
     }
-    if (f.prep && f.norm) {
-      if (!fieldHistory.preps[f.prep]) fieldHistory.preps[f.prep] = [];
-      fieldHistory.preps[f.prep].push({ norm: f.norm, crop: f.crop });
+    
+    // История по препаратам
+    if (f.prep) {
+      if (!fieldHistory.preps[f.prep]) fieldHistory.preps[f.prep] = {norms: [], count: 0};
+      fieldHistory.preps[f.prep].norms.push(parseFloat(f.norm) || 0);
+      fieldHistory.preps[f.prep].count++;
+      fieldHistory.preps[f.prep].crop = f.crop; // Последняя культура
     }
   });
 }
@@ -182,7 +200,7 @@ function loadFieldData(field, isCopy = false) {
   document.getElementById('f-crop').value = field.crop || '';
   document.getElementById('f-prep').value = field.prep || '';
   document.getElementById('f-norm').value = field.norm || '';
-  document.getElementById('f-area').value = field.haPlan || '';
+  document.getElementById('f-area').value = isCopy ? '' : (field.haPlan || '');
   document.getElementById('f-coords').value = field.coords || '';
 }
 
@@ -192,33 +210,52 @@ function handleFieldNameInput(val) {
     list.classList.remove('show');
     return;
   }
-  const matches = Object.keys(fieldHistory.names).filter(n => n.toLowerCase().includes(val.toLowerCase()));
+  
+  const matches = Object.keys(fieldHistory.names)
+    .filter(n => n.toLowerCase().includes(val.toLowerCase()))
+    .slice(0, 5);
+  
   if (matches.length === 0) {
     list.classList.remove('show');
     return;
   }
-  list.innerHTML = matches.slice(0, 5).map(name => {
-    const hist = fieldHistory.names[name][0];
+  
+  list.innerHTML = matches.map(name => {
+    const history = fieldHistory.names[name];
+    const last = history[0];
+    const useCount = history.length;
+    
     return `
       <div class="autocomplete-item" onclick="selectFieldName('${name.replace(/'/g, "\\'")}')">
-        <div class="autocomplete-item-main">${name}</div>
-        <div class="autocomplete-item-sub">${hist.crop || ''} · ${hist.prep || ''}</div>
+        <div class="autocomplete-item-main">
+          ${name}
+          <span class="autocomplete-badge">${useCount}×</span>
+        </div>
+        <div class="autocomplete-item-sub">
+          ${last.crop || '—'} · ${last.prep || '—'} · ${last.norm || '—'} л/га · ${last.area || '—'} га
+        </div>
       </div>
     `;
   }).join('');
+  
   list.classList.add('show');
 }
 
 function selectFieldName(name) {
   document.getElementById('f-name').value = name;
   document.getElementById('name-suggestions').classList.remove('show');
-  const hist = fieldHistory.names[name];
-  if (hist && hist.length > 0) {
-    const last = hist[0];
-    if (last.crop) document.getElementById('f-crop').value = last.crop;
-    if (last.prep) document.getElementById('f-prep').value = last.prep;
-    if (last.norm) document.getElementById('f-norm').value = last.norm;
-  }
+  
+  const history = fieldHistory.names[name];
+  if (!history || history.length === 0) return;
+  
+  const last = history[0];
+  
+  if (last.crop) document.getElementById('f-crop').value = last.crop;
+  if (last.prep) document.getElementById('f-prep').value = last.prep;
+  if (last.norm) document.getElementById('f-norm').value = last.norm;
+  if (last.coords) document.getElementById('f-coords').value = last.coords;
+  
+  showToast('✅ Данные подтянуты из истории');
 }
 
 function handlePrepInput(val) {
@@ -227,21 +264,36 @@ function handlePrepInput(val) {
     list.classList.remove('show');
     return;
   }
-  const matches = Object.keys(fieldHistory.preps).filter(p => p.toLowerCase().includes(val.toLowerCase()));
+  
+  const matches = Object.keys(fieldHistory.preps)
+    .filter(p => p.toLowerCase().includes(val.toLowerCase()))
+    .slice(0, 5);
+  
   if (matches.length === 0) {
     list.classList.remove('show');
     return;
   }
-  list.innerHTML = matches.slice(0, 5).map(prep => {
-    const norms = fieldHistory.preps[prep].map(h => h.norm).filter(Boolean);
-    const avgNorm = norms.length > 0 ? (norms.reduce((a,b) => parseFloat(a) + parseFloat(b), 0) / norms.length).toFixed(1) : '';
+  
+  list.innerHTML = matches.map(prep => {
+    const data = fieldHistory.preps[prep];
+    const norms = data.norms.filter(n => n > 0);
+    const avgNorm = norms.length > 0 
+      ? (norms.reduce((a,b) => a+b, 0) / norms.length).toFixed(1) 
+      : '';
+    
     return `
       <div class="autocomplete-item" onclick="selectPrep('${prep.replace(/'/g, "\\'")}', '${avgNorm}')">
-        <div class="autocomplete-item-main">${prep}</div>
-        <div class="autocomplete-item-sub">Норма: ${avgNorm || '—'} л/га</div>
+        <div class="autocomplete-item-main">
+          ${prep}
+          <span class="autocomplete-badge">${data.count}×</span>
+        </div>
+        <div class="autocomplete-item-sub">
+          Средняя норма: ${avgNorm || '—'} л/га · ${data.crop || '—'}
+        </div>
       </div>
     `;
   }).join('');
+  
   list.classList.add('show');
 }
 
@@ -249,12 +301,8 @@ function selectPrep(prep, norm) {
   document.getElementById('f-prep').value = prep;
   if (norm) document.getElementById('f-norm').value = norm;
   document.getElementById('prep-suggestions').classList.remove('show');
-}
-
-function selectOption(btn) {
-  const group = btn.dataset.group;
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
+  
+  showToast('✅ Норма подставлена из истории');
 }
 
 async function saveField() {
@@ -263,13 +311,21 @@ async function saveField() {
   const prep = document.getElementById('f-prep').value.trim();
   const norm = document.getElementById('f-norm').value;
   const area = document.getElementById('f-area').value;
-  const coords = document.getElementById('f-coords').value.trim();
+  let coords = document.getElementById('f-coords').value.trim();
 
   if (!name) { showToast('⚠️ Укажите название поля'); return; }
   if (!crop) { showToast('⚠️ Выберите культуру'); return; }
   if (!prep) { showToast('⚠️ Укажите препарат'); return; }
   if (!area || parseFloat(area) <= 0) { showToast('⚠️ Укажите площадь'); return; }
   if (!coords) { showToast('⚠️ Укажите координаты'); return; }
+  
+  // Извлекаем координаты из ссылки Google Maps
+  if (coords.includes('google.com/maps')) {
+    const match = coords.match(/q=([\d.-]+),([\d.-]+)/);
+    if (match) {
+      coords = `${match[1]}, ${match[2]}`;
+    }
+  }
 
   const btn = document.getElementById('save-btn');
   btn.textContent = '⏳ Сохраняю...';
@@ -310,7 +366,7 @@ async function deleteField() {
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'delete_field', id: editId })
+      body: JSON.stringify({ action: 'delete_field', data: { id: editId } })
     });
     const json = await resp.json();
     
@@ -332,6 +388,10 @@ function goBack() {
 
 function openYandexMaps() {
   window.open('https://yandex.ru/maps/', '_blank');
+}
+
+function openGoogleMaps() {
+  window.open('https://www.google.com/maps/', '_blank');
 }
 
 function showToast(msg) {
