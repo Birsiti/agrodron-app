@@ -96,8 +96,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     
     <div class="frow">
       <label>Телефон *</label>
-      <input type="tel" id="f-phone" placeholder="+375 29 123-45-67" autocomplete="off">
-      <div class="hint">☎️ Для связи по вопросам обработки</div>
+      <input type="tel" id="f-phone" placeholder="+375 29 123-45-67" value="+375 " autocomplete="off">
+      <div class="hint">☎️ Для связи и идентификации в системе</div>
     </div>
     
     <button class="btn btn-primary" id="register-btn" onclick="register()">
@@ -197,9 +197,10 @@ async function register() {
     }
   }
   
+  // FALLBACK: если нет Telegram ID — используем 0
   if (!TELEGRAM_ID) {
-    showToast('⚠️ Откройте через Telegram бот');
-    return;
+    TELEGRAM_ID = '0';
+    console.log('Fallback: Telegram ID установлен как 0 (веб-регистрация)');
   }
   
   const btn = document.getElementById('register-btn');
@@ -252,28 +253,57 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// Форматирование телефона при вводе
+// Форматирование телефона при вводе — +375 фиксирован
 document.getElementById('f-phone').addEventListener('input', (e) => {
-  let val = e.target.value.replace(/\D/g, '');
+  let val = e.target.value;
   
-  if (val.length > 0 && !val.startsWith('375')) {
-    val = '375' + val;
+  // Убираем все символы кроме цифр
+  let digits = val.replace(/\D/g, '');
+  
+  // Если пользователь удалил +375, возвращаем обратно
+  if (!val.startsWith('+375')) {
+    // Если есть цифры после 375, сохраняем их
+    if (digits.startsWith('375')) {
+      digits = digits.slice(3); // Убираем 375 из начала
+    }
+    val = '+375';
   }
   
-  if (val.length > 3) {
-    val = '+' + val.slice(0, 3) + ' ' + val.slice(3);
-  }
-  if (val.length > 7) {
-    val = val.slice(0, 7) + ' ' + val.slice(7);
-  }
-  if (val.length > 11) {
-    val = val.slice(0, 11) + '-' + val.slice(11);
-  }
-  if (val.length > 14) {
-    val = val.slice(0, 14) + '-' + val.slice(14, 16);
+  // Добавляем цифры после +375
+  const afterPrefix = digits.replace(/^375/, ''); // Убираем 375 если есть в начале
+  
+  if (afterPrefix.length > 0) {
+    val = '+375 ' + afterPrefix.slice(0, 2);
+    if (afterPrefix.length > 2) {
+      val += ' ' + afterPrefix.slice(2, 5);
+    }
+    if (afterPrefix.length > 5) {
+      val += '-' + afterPrefix.slice(5, 7);
+    }
+    if (afterPrefix.length > 7) {
+      val += '-' + afterPrefix.slice(7, 9);
+    }
   }
   
   e.target.value = val;
+});
+
+// При фокусе на поле — если пусто, ставим +375
+document.getElementById('f-phone').addEventListener('focus', (e) => {
+  if (!e.target.value || e.target.value.trim() === '') {
+    e.target.value = '+375 ';
+  }
+});
+
+// Запрещаем удалять +375
+document.getElementById('f-phone').addEventListener('keydown', (e) => {
+  const val = e.target.value;
+  const cursorPos = e.target.selectionStart;
+  
+  // Если пытаются удалить что-то из +375 (позиция курсора <= 4)
+  if ((e.key === 'Backspace' || e.key === 'Delete') && cursorPos <= 4) {
+    e.preventDefault();
+  }
 });
 
 window.addEventListener('DOMContentLoaded', init);
