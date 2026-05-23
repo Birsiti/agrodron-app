@@ -369,7 +369,16 @@ function initMap() {
   // Добавляем маркеры
   markers = [];
   validFields.forEach(f => {
-    const [lat, lng] = f.coords.split(',').map(s => parseFloat(s.trim()));
+    // Нормализация: заменяем запятые на точки
+    const normalized = f.coords.replace(/(\d),(\d)/g, '$1.$2');
+    const [lat, lng] = normalized.split(',').map(s => parseFloat(s.trim()));
+    
+    // Проверка на валидность координат (Беларусь: 51-56°N, 23-33°E)
+    if (lat < 51 || lat > 56 || lng < 23 || lng > 33) {
+      console.warn(`Пропущено поле "${f.name}" — координаты вне Беларуси: ${lat}, ${lng}`);
+      return;
+    }
+    
     const status = (f.status || 'новое').toLowerCase().replace(/ /g, '_');
     const color = STATUS_COLORS[status] || '#9aa3b2';
     
@@ -422,7 +431,9 @@ function switchTab(tab) {
 }
 
 function openMaps(coords) {
-  const [lat, lng] = coords.split(',').map(s => s.trim());
+  // Нормализация: заменяем запятые на точки в десятичных числах
+  const normalized = coords.replace(/(\d),(\d)/g, '$1.$2');
+  const [lat, lng] = normalized.split(',').map(s => s.trim());
   window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
 }
 
