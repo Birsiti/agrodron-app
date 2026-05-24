@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.0
-  v1.0 · 2026-05-24
+  AgroDrone.BY · Бригадир — Prepare v1.1
+  v1.1 · 2026-05-24
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v1.0</title>
+<title>AgroDrone.BY · Prepare v1.1</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -157,6 +157,7 @@ select.fi{
 .gear-val{font-size:15px;font-weight:800;color:var(--t1);min-width:24px;text-align:center}
 .gear-check{
   width:20px;
+.btn-green{background:linear-gradient(135deg,var(--green),#2a7a4a);color:#fff;box-shadow:var(--sh)}
   height:20px;
   border-radius:6px;
   border:2px solid var(--border);
@@ -234,7 +235,7 @@ select.fi{
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title">Prepare v1.0</div>
+  <div class="hdr-title">Prepare v1.1</div>
 </div>
 
 <div class="scroll">
@@ -391,7 +392,7 @@ select.fi{
 
   <!-- Кнопки -->
   <button class="btn btn-orange" onclick="sendForApproval()">📋 Отправить на согласование</button>
-  <button class="btn btn-orange" onclick="approveTrip()" style="background:linear-gradient(135deg,var(--green),var(--gm))">✅ Согласовано — Начать командировку</button>
+  <button class="btn btn-orange" onclick="approveTrip()" class="btn btn-green">✅ Согласовано — Начать командировку</button>
   <button class="btn btn-outline" onclick="window.location.href='AD_op_menu.html'">Отмена</button>
 
 </div>
@@ -577,9 +578,41 @@ ${gear.map(g => '✓ ' + g).join('\n')}
 
   localStorage.setItem('atk_trip_pending', JSON.stringify(tripData));
 
+  // Отправка в Telegram бригадиру (Денис)
+  const TELEGRAM_BOT_TOKEN = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
+  const DENIS_CHAT_ID = '6204739474';
+  
+  const telegramMessage = `🚐 ЗАЯВКА НА КОМАНДИРОВКУ
+
+📍 Район: ${district}
+📅 ${dateStart} → ${dateEnd}
+🌾 Примерная площадь: ${plannedHa} га
+
+👥 Бригада: ${operators}
+🚁 Техника: ${tech}
+🚐 ${car}
+
+📦 Снаряжение:
+${gear.join('\n')}
+
+⏰ ${new Date().toLocaleString('ru-RU')}`;
+
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: DENIS_CHAT_ID,
+        text: telegramMessage
+      })
+    });
+  } catch(e) {
+    console.log('Telegram error:', e);
+  }
+
   if (navigator.clipboard) {
     await navigator.clipboard.writeText(doc);
-    showToast('📋 Заявка скопирована в буфер');
+    showToast('✅ Заявка отправлена и скопирована');
   } else {
     alert(doc);
   }
