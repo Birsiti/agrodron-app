@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Регистрация
-  v3.2 · 2026-05-23 · Новый формат ID AG101
+  v3.3 · 2026-05-24 · Fix: telegramId fallback из URL-параметра
 -->
 <html lang="ru">
 <head>
@@ -64,7 +64,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 <div class="app-hdr">
   <div class="hdr-logo">🌾 AgroDrone.BY</div>
-  <div class="hdr-subtitle">Обработка полей БЛА</div>
+  <div class="hdr-subtitle">Обработка полей БЛА · v3.3</div>
 </div>
 
 <div class="scroll">
@@ -134,14 +134,13 @@ try {
   if (user) {
     telegramId = user.id;
     telegramUsername = user.username || '';
-    
-    console.log('Telegram ID получен:', telegramId);
-    console.log('Username:', telegramUsername);
-  } else {
-    console.warn('Telegram user data не найдены в initDataUnsafe');
   }
-} catch(e) {
-  console.error('Ошибка получения Telegram данных:', e);
+} catch(e) {}
+
+// Фолбэк: читаем из URL ?telegram_id=
+if (!telegramId) {
+  const urlId = new URLSearchParams(window.location.search).get('telegram_id');
+  if (urlId) telegramId = urlId;
 }
 
 // ══════════════════════════════════
