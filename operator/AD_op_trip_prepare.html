@@ -1,109 +1,641 @@
 <!DOCTYPE html>
+<!--
+  AgroDrone.BY · Бригадир — Prepare v1.0
+  v1.0 · 2026-05-24
+  Файл: AD_op_trip_prepare.html
+-->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AD_op_trip_prepare</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Prepare v1.0</title>
+<script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff5eb;--card:#fff;--orange:#d97706;--orange-dark:#b45309;--orange-light:#fed7aa;--orange-pale:#fff5eb;--border:#f4dcc4;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--sh:0 2px 8px rgba(217,119,6,.12);--r:16px;--rs:12px;--f:'Manrope',sans-serif;--green:#1b5935;--gm:#2a7a4a}
-*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff5eb;
+  --card:#fff;
+  --orange:#d97706;
+  --orange-dark:#b45309;
+  --orange-light:#fed7aa;
+  --orange-pale:#fff5eb;
+  --border:#f4dcc4;
+  --t1:#1a1f2e;
+  --t2:#5a6476;
+  --t3:#9aa3b2;
+  --sh:0 2px 8px rgba(217,119,6,.12),0 8px 24px rgba(217,119,6,.08);
+  --r:16px;
+  --rs:12px;
+  --f:'Manrope',sans-serif;
+  --green:#1b5935;
+  --blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0;height:100%;display:flex;flex-direction:column}
-.sub-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(217,119,6,.2)}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.sub-hdr{
+  background:linear-gradient(135deg,var(--orange),var(--orange-dark));
+  padding:12px 16px 10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  box-shadow:0 4px 16px rgba(217,119,6,.2);
+}
 .back-btn{font-size:24px;cursor:pointer;color:#fff;line-height:1;padding-right:4px;font-weight:300}
 .hdr-title{font-size:16px;font-weight:800;color:#fff}
-.scroll{flex:1;overflow-y:auto}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:12px 12px 32px}
+
 .card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
 .card-title{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+
 .fg{margin-bottom:14px}
+.fg:last-child{margin-bottom:0}
 .fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
-.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff}
-select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d97706' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--orange)}
+select.fi{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d97706' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:36px;
+}
+
+/* Чеклист операторов */
 .op-list{display:flex;flex-direction:column;gap:6px}
-.op-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff}
-.op-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border)}
+.op-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:var(--rs);
+  border:1.5px solid var(--border);
+  background:#fff;
+  cursor:pointer;
+  transition:all .2s;
+}
+.op-item.selected{
+  border-color:var(--orange);
+  background:var(--orange-pale);
+}
+.op-check{
+  width:20px;
+  height:20px;
+  border-radius:6px;
+  border:2px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  transition:all .2s;
+}
+.op-item.selected .op-check{
+  background:var(--orange);
+  border-color:var(--orange);
+}
+.op-item.selected .op-check::after{
+  content:'✓';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+}
 .op-name{font-size:14px;font-weight:700;color:var(--t1);flex:1}
 .op-role{font-size:11px;color:var(--t3)}
+
+/* Чеклист техники */
 .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tech-item{padding:12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:center}
+.tech-item{
+  padding:12px;
+  border-radius:var(--rs);
+  border:1.5px solid var(--border);
+  background:#fff;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+}
+.tech-item.selected{
+  border-color:var(--orange);
+  background:var(--orange-pale);
+}
 .tech-ico{font-size:28px;margin-bottom:6px}
 .tech-name{font-size:12px;font-weight:700;color:var(--t2)}
-.radio-group{display:flex;flex-direction:column;gap:8px}
-.radio-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff}
-.radio-item.selected{border-color:var(--orange);background:var(--orange-pale)}
-.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border)}
-.radio-label{font-size:14px;font-weight:600;color:var(--t2);flex:1}
+
+/* Снаряжение со счётчиками */
 .gear-list{display:flex;flex-direction:column;gap:8px}
-.gear-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);background:#f8f9fa}
+.gear-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:var(--rs);
+  background:#f8f9fa;
+}
 .gear-name{font-size:13px;font-weight:600;color:var(--t2);flex:1}
 .gear-counter{display:flex;align-items:center;gap:8px}
-.gear-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--orange);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.gear-btn{
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  border:1.5px solid var(--border);
+  background:#fff;
+  color:var(--orange);
+  font-size:16px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all .2s;
+}
+.gear-btn:active{transform:scale(.95);background:var(--orange-pale)}
 .gear-val{font-size:15px;font-weight:800;color:var(--t1);min-width:24px;text-align:center}
-.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);margin-bottom:8px;text-align:center}
+.gear-check{
+  width:20px;
+  height:20px;
+  border-radius:6px;
+  border:2px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  cursor:pointer;
+  transition:all .2s;
+}
+.gear-item.checked .gear-check{
+  background:var(--orange);
+  border-color:var(--orange);
+}
+.gear-item.checked .gear-check::after{
+  content:'✓';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+}
+
+/* Радиокнопки для авто */
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:var(--rs);
+  border:1.5px solid var(--border);
+  background:#fff;
+  cursor:pointer;
+  transition:all .2s;
+}
+.radio-item.selected{
+  border-color:var(--orange);
+  background:var(--orange-pale);
+}
+.radio-dot{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:2px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  transition:all .2s;
+}
+.radio-item.selected .radio-dot{border-color:var(--orange)}
+.radio-item.selected .radio-dot::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--orange);
+}
+.radio-label{font-size:14px;font-weight:600;color:var(--t2);flex:1}
+
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px;display:block;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn:last-child{margin-bottom:0}
 .btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;box-shadow:var(--sh)}
 .btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(217,119,6,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(217,119,6,.3);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
+
 <div class="sub-hdr">
-  <div class="back-btn">‹</div>
-  <div class="hdr-title">Подготовка командировки</div>
+  <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
+  <div class="hdr-title">Prepare v1.0</div>
 </div>
+
 <div class="scroll">
 <div class="wrap">
+
+  <!-- Маршрут -->
   <div class="card">
-    <div class="card-title">📍 КУДА ЕДЕМ</div>
+    <div class="card-title">📍 Куда едем</div>
     <div class="fg">
       <label class="fl">Район</label>
-      <select class="fi"><option>Ганцевичи</option></select>
+      <select class="fi" id="district" onchange="updatePlannedHa()">
+        <option value="">Загрузка...</option>
+      </select>
     </div>
     <div class="fg">
       <label class="fl">Примерная площадь</label>
-      <input type="number" class="fi" value="186" readonly style="background:#f8f9fa">
+      <input type="number" class="fi" id="planned-ha" placeholder="0" readonly style="background:#f8f9fa">
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">Подтягивается из таблицы</div>
     </div>
   </div>
+
+  <!-- Даты -->
   <div class="card">
-    <div class="card-title">📅 ДАТЫ</div>
+    <div class="card-title">📅 Даты</div>
     <div class="fg">
       <label class="fl">Дата выезда</label>
-      <input type="date" class="fi" value="2026-05-25">
+      <input type="date" class="fi" id="date-start">
     </div>
     <div class="fg">
-      <label class="fl">Дата возвращения</label>
-      <input type="date" class="fi" value="2026-05-28">
+      <label class="fl">Дата возвращения (примерно)</label>
+      <input type="date" class="fi" id="date-end">
     </div>
   </div>
+
+  <!-- Состав бригады -->
   <div class="card">
-    <div class="card-title">🚁 ТЕХНИКА</div>
-    <div class="tech-grid">
-      <div class="tech-item"><div class="tech-ico">🚁</div><div class="tech-name">А60-ХМ</div></div>
-      <div class="tech-item"><div class="tech-ico">🚁</div><div class="tech-name">А70-ХМ</div></div>
-      <div class="tech-item"><div class="tech-ico">🛸</div><div class="tech-name">А1-Х</div></div>
-      <div class="tech-item"><div class="tech-ico">📦</div><div class="tech-name">Доп. оборудование</div></div>
+    <div class="card-title">👥 Состав бригады</div>
+    <div class="op-list" id="operators-list">
+      <div class="op-item" onclick="toggleOp(this,'OP001')">
+        <div class="op-check"></div>
+        <div style="flex:1">
+          <div class="op-name">Бруй Д.А.</div>
+          <div class="op-role">Бригадир</div>
+        </div>
+      </div>
+      <div class="op-item" onclick="toggleOp(this,'OP002')">
+        <div class="op-check"></div>
+        <div style="flex:1">
+          <div class="op-name">Грибов К.М.</div>
+          <div class="op-role">Оператор АТК</div>
+        </div>
+      </div>
+      <div class="op-item" onclick="toggleOp(this,'OP003')">
+        <div class="op-check"></div>
+        <div style="flex:1">
+          <div class="op-name">Борисенок Л.И.</div>
+          <div class="op-role">Оператор WR</div>
+        </div>
+      </div>
+      <div class="op-item" onclick="toggleOp(this,'OP004')">
+        <div class="op-check"></div>
+        <div style="flex:1">
+          <div class="op-name">Уманец А.И.</div>
+          <div class="op-role">Оператор WR</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Техника -->
   <div class="card">
-    <div class="card-title">🚐 АВТОМОБИЛЬ</div>
+    <div class="card-title">🚁 Техника</div>
+    <div class="tech-grid" id="tech-grid">
+      <div class="tech-item" onclick="toggleTech(this,'A60')">
+        <div class="tech-ico">🚁</div>
+        <div class="tech-name">А60-ХМ</div>
+      </div>
+      <div class="tech-item" onclick="toggleTech(this,'A70')">
+        <div class="tech-ico">🚁</div>
+        <div class="tech-name">А70-ХМ</div>
+      </div>
+      <div class="tech-item" onclick="toggleTech(this,'A1')">
+        <div class="tech-ico">🛸</div>
+        <div class="tech-name">А1-Х</div>
+      </div>
+      <div class="tech-item" onclick="toggleTech(this,'OTHER')">
+        <div class="tech-ico">📦</div>
+        <div class="tech-name">Доп. оборудование</div>
+      </div>
+    </div>
+    <div class="fg" id="other-tech-field" style="display:none;margin-top:10px">
+      <label class="fl">Что берём дополнительно</label>
+      <input type="text" class="fi" id="other-tech" placeholder="Например: УАЗ, квадрокоптер...">
+    </div>
+  </div>
+
+  <!-- Автомобиль -->
+  <div class="card">
+    <div class="card-title">🚐 Автомобиль</div>
     <div class="radio-group">
-      <div class="radio-item selected"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
-      <div class="radio-item"><div class="radio-dot"></div><div class="radio-label">Аренда</div></div>
+      <div class="radio-item selected" onclick="selectCar(this,'own')">
+        <div class="radio-dot"></div>
+        <div class="radio-label">Свой (Ford Transit AT1637-5)</div>
+      </div>
+      <div class="radio-item" onclick="selectCar(this,'rent')">
+        <div class="radio-dot"></div>
+        <div class="radio-label">Аренда</div>
+      </div>
+    </div>
+    <div class="fg" id="rent-number-field" style="display:none;margin-top:10px;margin-bottom:0">
+      <label class="fl">Гос. номер</label>
+      <input type="text" class="fi" id="rent-number" placeholder="0000 AA-0">
     </div>
   </div>
+
+  <!-- Снаряжение -->
   <div class="card">
-    <div class="card-title">📦 СНАРЯЖЕНИЕ</div>
+    <div class="card-title">📦 Снаряжение</div>
     <div class="gear-list">
-      <div class="gear-item"><div class="gear-name">🚁 Лопасти запасные</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">4</div><div class="gear-btn">+</div></div></div>
-      <div class="gear-item"><div class="gear-name">💧 Форсунки</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">2</div><div class="gear-btn">+</div></div></div>
-      <div class="gear-item"><div class="gear-name">🔋 АКБ</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">8</div><div class="gear-btn">+</div></div></div>
-      <div class="gear-item"><div class="gear-name">🔌 Зарядки</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">2</div><div class="gear-btn">+</div></div></div>
+      <div class="gear-item">
+        <div class="gear-name">🚁 Лопасти запасные</div>
+        <div class="gear-counter">
+          <div class="gear-btn" onclick="changeGear('blades',-1)">−</div>
+          <div class="gear-val" id="blades-val">4</div>
+          <div class="gear-btn" onclick="changeGear('blades',1)">+</div>
+        </div>
+      </div>
+      <div class="gear-item">
+        <div class="gear-name">💧 Форсунки</div>
+        <div class="gear-counter">
+          <div class="gear-btn" onclick="changeGear('nozzles',-1)">−</div>
+          <div class="gear-val" id="nozzles-val">2</div>
+          <div class="gear-btn" onclick="changeGear('nozzles',1)">+</div>
+        </div>
+      </div>
+      <div class="gear-item">
+        <div class="gear-name">🔋 АКБ</div>
+        <div class="gear-counter">
+          <div class="gear-btn" onclick="changeGear('batteries',-1)">−</div>
+          <div class="gear-val" id="batteries-val">8</div>
+          <div class="gear-btn" onclick="changeGear('batteries',1)">+</div>
+        </div>
+      </div>
+      <div class="gear-item">
+        <div class="gear-name">🔌 Зарядки</div>
+        <div class="gear-counter">
+          <div class="gear-btn" onclick="changeGear('chargers',-1)">−</div>
+          <div class="gear-val" id="chargers-val">2</div>
+          <div class="gear-btn" onclick="changeGear('chargers',1)">+</div>
+        </div>
+      </div>
     </div>
   </div>
-  <button class="btn btn-orange">📋 Отправить на согласование</button>
-  <button class="btn btn-orange" style="background:linear-gradient(135deg,var(--green),var(--gm))">✅ Согласовано — Начать командировку</button>
-  <button class="btn btn-outline">Отмена</button>
+
+  <!-- Кнопки -->
+  <button class="btn btn-orange" onclick="sendForApproval()">📋 Отправить на согласование</button>
+  <button class="btn btn-orange" onclick="approveTrip()" style="background:linear-gradient(135deg,var(--green),var(--gm))">✅ Согласовано — Начать командировку</button>
+  <button class="btn btn-outline" onclick="window.location.href='AD_op_menu.html'">Отмена</button>
+
 </div>
 </div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// SCRIPT_URL, SHEET_ID, SHEETS_KEY — см. config.js
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+const selectedOps = new Set();
+const selectedTech = new Set();
+const gearCounters = { blades: 4, nozzles: 2, batteries: 8, chargers: 2 };
+const gearChecked = new Set();
+let carType = 'own';
+let fieldsData = [];
+
+// ── Загрузка районов и полей ────────────────────────────
+async function loadDistricts() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!A2:N1000?key=${SHEETS_KEY}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const rows = d.values || [];
+    
+    fieldsData = rows.map(row => ({
+      district: (row[2]||'').toString().trim(),
+      ha: parseFloat((row[8]||'0').toString().replace(',','.')) || 0,
+      status: (row[9]||'').toString().trim().toLowerCase()
+    }));
+    
+    const districts = [...new Set(fieldsData.map(f => f.district).filter(d => d && d !== 'Не указан' && d !== 'Тест'))].sort();
+    
+    const sel = document.getElementById('district');
+    sel.innerHTML = '<option value="">Выберите район</option>' + 
+      districts.map(d => `<option value="${d}">${d}</option>`).join('') +
+      '<option value="other">⌨️ Другой (ввести вручную)</option>';
+  } catch(e) {
+    document.getElementById('district').innerHTML = '<option value="">Ошибка загрузки</option>';
+  }
+}
+
+function updatePlannedHa() {
+  const district = document.getElementById('district').value;
+  if (!district || district === 'other') {
+    document.getElementById('planned-ha').value = '';
+    return;
+  }
+  
+  const districtFields = fieldsData.filter(f => f.district === district && !['готово','done'].includes(f.status));
+  const totalHa = districtFields.reduce((sum, f) => sum + f.ha, 0);
+  document.getElementById('planned-ha').value = totalHa > 0 ? totalHa.toFixed(1) : '';
+}
+
+// ── Операторы ────────────────────────────────────────────
+function toggleOp(el, id) {
+  el.classList.toggle('selected');
+  if (selectedOps.has(id)) {
+    selectedOps.delete(id);
+  } else {
+    selectedOps.add(id);
+  }
+}
+
+// ── Техника ──────────────────────────────────────────────
+function toggleTech(el, id) {
+  el.classList.toggle('selected');
+  if (selectedTech.has(id)) {
+    selectedTech.delete(id);
+  } else {
+    selectedTech.add(id);
+  }
+  
+  // Показать поле для доп оборудования
+  if (id === 'OTHER') {
+    document.getElementById('other-tech-field').style.display = 
+      selectedTech.has('OTHER') ? 'block' : 'none';
+  }
+}
+
+// ── Автомобиль ───────────────────────────────────────────
+function selectCar(el, type) {
+  document.querySelectorAll('.radio-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  carType = type;
+  document.getElementById('rent-number-field').style.display = type === 'rent' ? 'block' : 'none';
+}
+
+// ── Снаряжение ───────────────────────────────────────────
+function changeGear(key, delta) {
+  gearCounters[key] = Math.max(0, gearCounters[key] + delta);
+  document.getElementById(key + '-val').textContent = gearCounters[key];
+}
+
+function toggleGearCheck(el, key) {
+  el.classList.toggle('checked');
+  if (gearChecked.has(key)) {
+    gearChecked.delete(key);
+  } else {
+    gearChecked.add(key);
+  }
+}
+
+// ── Отправка ─────────────────────────────────────────────
+async function sendForApproval() {
+  const district = document.getElementById('district').value;
+  const dateStart = document.getElementById('date-start').value;
+  const dateEnd = document.getElementById('date-end').value;
+
+  if (!district) { showToast('⚠️ Выберите район'); return; }
+  if (!dateStart) { showToast('⚠️ Укажите дату выезда'); return; }
+  if (!dateEnd) { showToast('⚠️ Укажите дату возвращения'); return; }
+  if (selectedOps.size === 0) { showToast('⚠️ Выберите операторов'); return; }
+  if (selectedTech.size === 0) { showToast('⚠️ Выберите хотя бы один дрон'); return; }
+
+  const opNames = {
+    'OP001': 'Бруй Д.А.',
+    'OP002': 'Грибов К.М.',
+    'OP003': 'Борисенок Л.И.',
+    'OP004': 'Уманец А.И.'
+  };
+  const techNames = { 'A60': 'А60-ХМ', 'A70': 'А70-ХМ', 'A1': 'А1-Х' };
+
+  const operators = Array.from(selectedOps).map(id => opNames[id]).join(', ');
+  
+  let tech = Array.from(selectedTech)
+    .filter(id => id !== 'OTHER')
+    .map(id => techNames[id])
+    .join(', ');
+  
+  if (selectedTech.has('OTHER')) {
+    const otherTech = document.getElementById('other-tech').value.trim();
+    if (otherTech) {
+      tech += (tech ? ', ' : '') + otherTech;
+    }
+  }
+  
+  const car = carType === 'own' 
+    ? 'Ford Transit AT1637-5' 
+    : 'Аренда: ' + document.getElementById('rent-number').value;
+  
+  const gear = [
+    `🚁 Лопасти: ${gearCounters.blades} компл.`,
+    `💧 Форсунки: ${gearCounters.nozzles} шт`,
+    `🔋 АКБ: ${gearCounters.batteries} шт`,
+    `🔌 Зарядки: ${gearCounters.chargers} шт`
+  ];
+
+  const plannedHa = document.getElementById('planned-ha').value || '—';
+
+  const doc = `
+═══════════════════════════════════════
+ЗАЯВКА НА КОМАНДИРОВКУ
+═══════════════════════════════════════
+
+📍 Район: ${district}
+📅 Даты: ${dateStart} → ${dateEnd}
+🌾 Примерная площадь: ${plannedHa} га
+
+👥 Состав бригады:
+${operators}
+
+🚁 Техника:
+${tech}
+
+🚐 Автомобиль: ${car}
+
+📦 Снаряжение:
+${gear.map(g => '✓ ' + g).join('\n')}
+
+═══════════════════════════════════════
+Дата подготовки: ${new Date().toLocaleDateString('ru-RU')}
+Бригадир: Бруй Д.А.
+  `.trim();
+
+  const tripData = {
+    id: 'PREP-' + Date.now(),
+    district, dateStart, dateEnd, plannedHa,
+    operators, tech, car, gear,
+    status: 'pending'
+  };
+
+  localStorage.setItem('atk_trip_pending', JSON.stringify(tripData));
+
+  if (navigator.clipboard) {
+    await navigator.clipboard.writeText(doc);
+    showToast('📋 Заявка скопирована в буфер');
+  } else {
+    alert(doc);
+  }
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'create_trip_request', data: tripData })
+    });
+  } catch(e) {}
+
+  setTimeout(() => {
+    window.location.href = 'AD_op_menu.html';
+  }, 1500);
+}
+
+// ── Согласовано → Начать командировку ───────────────────
+function approveTrip() {
+  const district = document.getElementById('district').value;
+  const dateStart = document.getElementById('date-start').value;
+  const dateEnd = document.getElementById('date-end').value;
+
+  if (!district) { showToast('⚠️ Выберите район'); return; }
+  if (!dateStart) { showToast('⚠️ Укажите дату выезда'); return; }
+  if (selectedOps.size === 0) { showToast('⚠️ Выберите операторов'); return; }
+  if (selectedTech.size === 0) { showToast('⚠️ Выберите дроны'); return; }
+
+  // Сохраняем данные подготовки
+  const opNames = {
+    'OP001': 'Бруй Д.А.',
+    'OP002': 'Грибов К.М.',
+    'OP003': 'Борисенок Л.И.',
+    'OP004': 'Уманец А.И.'
+  };
+  
+  const tripPrep = {
+    district,
+    dateStart,
+    dateEnd,
+    operators: Array.from(selectedOps).map(id => opNames[id]).join(', '),
+    status: 'approved'
+  };
+  
+  localStorage.setItem('atk_trip_approved', JSON.stringify(tripPrep));
+  showToast('✅ Переход к командировке');
+  
+  setTimeout(() => {
+    window.location.href = 'AD_op_trip.html';
+  }, 800);
+}
+
+// ── Init ─────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadDistricts();
+});
+</script>
+
 </body>
 </html>
