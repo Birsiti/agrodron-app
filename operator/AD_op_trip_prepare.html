@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AD_op_trip_prepare</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff5eb;--card:#fff;--orange:#d97706;--orange-dark:#b45309;--orange-light:#fed7aa;--orange-pale:#fff5eb;--border:#f4dcc4;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--sh:0 2px 8px rgba(217,119,6,.12);--r:16px;--rs:12px;--f:'Manrope',sans-serif;--green:#1b5935;--gm:#2a7a4a}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(217,119,6,.2)}
+.back-btn{font-size:24px;cursor:pointer;color:#fff;line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:#fff}
+.scroll{flex:1;overflow-y:auto}
+.wrap{padding:12px 12px 32px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.fg{margin-bottom:14px}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--f);color:var(--t1);background:#fff}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d97706' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.op-list{display:flex;flex-direction:column;gap:6px}
+.op-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff}
+.op-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border)}
+.op-name{font-size:14px;font-weight:700;color:var(--t1);flex:1}
+.op-role{font-size:11px;color:var(--t3)}
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tech-item{padding:12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:center}
+.tech-ico{font-size:28px;margin-bottom:6px}
+.tech-name{font-size:12px;font-weight:700;color:var(--t2)}
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff}
+.radio-item.selected{border-color:var(--orange);background:var(--orange-pale)}
+.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border)}
+.radio-label{font-size:14px;font-weight:600;color:var(--t2);flex:1}
+.gear-list{display:flex;flex-direction:column;gap:8px}
+.gear-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);background:#f8f9fa}
+.gear-name{font-size:13px;font-weight:600;color:var(--t2);flex:1}
+.gear-counter{display:flex;align-items:center;gap:8px}
+.gear-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--orange);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.gear-val{font-size:15px;font-weight:800;color:var(--t1);min-width:24px;text-align:center}
+.btn{width:100%;padding:14px;border-radius:var(--rs);border:none;font-size:15px;font-weight:700;font-family:var(--f);margin-bottom:8px;text-align:center}
+.btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;box-shadow:var(--sh)}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="sub-hdr">
+  <div class="back-btn">‹</div>
+  <div class="hdr-title">Подготовка командировки</div>
+</div>
+<div class="scroll">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">📍 КУДА ЕДЕМ</div>
+    <div class="fg">
+      <label class="fl">Район</label>
+      <select class="fi"><option>Ганцевичи</option></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Примерная площадь</label>
+      <input type="number" class="fi" value="186" readonly style="background:#f8f9fa">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 ДАТЫ</div>
+    <div class="fg">
+      <label class="fl">Дата выезда</label>
+      <input type="date" class="fi" value="2026-05-25">
+    </div>
+    <div class="fg">
+      <label class="fl">Дата возвращения</label>
+      <input type="date" class="fi" value="2026-05-28">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚁 ТЕХНИКА</div>
+    <div class="tech-grid">
+      <div class="tech-item"><div class="tech-ico">🚁</div><div class="tech-name">А60-ХМ</div></div>
+      <div class="tech-item"><div class="tech-ico">🚁</div><div class="tech-name">А70-ХМ</div></div>
+      <div class="tech-item"><div class="tech-ico">🛸</div><div class="tech-name">А1-Х</div></div>
+      <div class="tech-item"><div class="tech-ico">📦</div><div class="tech-name">Доп. оборудование</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚐 АВТОМОБИЛЬ</div>
+    <div class="radio-group">
+      <div class="radio-item selected"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
+      <div class="radio-item"><div class="radio-dot"></div><div class="radio-label">Аренда</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📦 СНАРЯЖЕНИЕ</div>
+    <div class="gear-list">
+      <div class="gear-item"><div class="gear-name">🚁 Лопасти запасные</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">4</div><div class="gear-btn">+</div></div></div>
+      <div class="gear-item"><div class="gear-name">💧 Форсунки</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">2</div><div class="gear-btn">+</div></div></div>
+      <div class="gear-item"><div class="gear-name">🔋 АКБ</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">8</div><div class="gear-btn">+</div></div></div>
+      <div class="gear-item"><div class="gear-name">🔌 Зарядки</div><div class="gear-counter"><div class="gear-btn">−</div><div class="gear-val">2</div><div class="gear-btn">+</div></div></div>
+    </div>
+  </div>
+  <button class="btn btn-orange">📋 Отправить на согласование</button>
+  <button class="btn btn-orange" style="background:linear-gradient(135deg,var(--green),var(--gm))">✅ Согласовано — Начать командировку</button>
+  <button class="btn btn-outline">Отмена</button>
+</div>
+</div>
+</body>
+</html>

@@ -1,62 +1,78 @@
 <!DOCTYPE html>
-<!--
-  AgroDrone.BY · Оператор — Погода
-  v1.1 · 2026-05-19
-  Файл: AD_op_weather.html
-  Изменения v1.1:
-  - Исправлено название файла в комментарии
-  - Исправлены ссылки: op_menu.html → AD_op_menu.html
--->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Погода</title>
-<script src="../config.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AD_op_weather</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;--border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--r:14px;--rs:10px;--f:'Manrope',sans-serif;--blue:#2563eb;--blue-light:#eff6ff;}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#fff5eb;--card:#fff;--orange:#d97706;--orange-dark:#b45309;--orange-light:#fed7aa;--orange-pale:#fff5eb;--border:#f4dcc4;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;--sh:0 2px 8px rgba(217,119,6,.12);--r:16px;--rs:12px;--f:'Manrope',sans-serif;--green:#1b5935}
+*{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
-.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
-.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
-.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(217,119,6,.2)}
+.back-btn{font-size:24px;cursor:pointer;color:#fff;line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:#fff}
+.scroll{flex:1;overflow-y:auto}
 .wrap{padding:12px 12px 32px}
-.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05)}
-.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
-.city-btn{display:block;width:100%;padding:14px;border-radius:var(--rs);background:var(--blue-light);color:var(--blue);border:none;font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;margin-bottom:8px;text-align:center;transition:all .18s;text-decoration:none}
-.city-btn:active{transform:scale(.98)}
-.city-meta{font-size:11px;color:var(--t3);text-align:center;margin-top:4px;margin-bottom:12px}
-.info-box{border-radius:var(--rs);padding:12px;background:var(--gl);color:var(--green);font-size:12px;font-weight:600;margin-bottom:8px;border:1.5px solid var(--ga)}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.forecast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.forecast-day{background:var(--orange-pale);border-radius:var(--rs);padding:12px 8px;text-align:center;border:1.5px solid var(--border)}
+.forecast-day.today{background:linear-gradient(135deg,var(--orange),var(--orange-dark));border-color:var(--orange)}
+.forecast-day.today .fd-date,.forecast-day.today .fd-temp,.forecast-day.today .fd-wind,.forecast-day.today .fd-rain{color:#fff}
+.fd-date{font-size:11px;font-weight:700;color:var(--orange);margin-bottom:6px}
+.fd-ico{font-size:28px;margin-bottom:6px}
+.fd-temp{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px}
+.fd-wind{font-size:11px;color:var(--t2);margin-bottom:2px}
+.fd-rain{font-size:11px;color:var(--t3)}
+.info-box{border-radius:var(--rs);padding:12px;background:var(--orange-pale);color:var(--orange);font-size:12px;font-weight:600;margin-bottom:8px;border:1.5px solid var(--orange-light)}
 </style>
 </head>
 <body>
 <div class="sub-hdr">
-  <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title">Погода</div>
+  <div class="back-btn">‹</div>
+  <div class="hdr-title">Погода для полётов</div>
 </div>
 <div class="scroll">
 <div class="wrap">
-
-  <div class="info-box" id="trip-city-info">Активной командировки нет</div>
-
+  <div class="info-box">📍 Ганцевичи</div>
   <div class="card">
-    <div class="card-title">Прогноз на gismeteo.by</div>
-    <a id="btn-trip-city" href="#" target="_blank" class="city-btn" style="display:none">🌤 Погода в районе командировки</a>
-    <div class="city-meta" id="city-meta-trip"></div>
-
-    <a href="https://www.gismeteo.by/weather-lyuban-4517/" target="_blank" class="city-btn">🍓 Любань (Ягодное место)</a>
-    <div class="city-meta">Ягодный участок, 120 га</div>
-
-    <a href="https://www.gismeteo.by/weather-minsk-4374/" target="_blank" class="city-btn" style="background:#f0f4ff;color:#334155">🏙 Минск</a>
-    <div class="city-meta">АТК / Великий Камень</div>
+    <div class="card-title">🌤 ПРОГНОЗ НА БЛИЖАЙШИЕ ДНИ</div>
+    <div class="forecast-grid">
+      <div class="forecast-day today">
+        <div class="fd-date">Сегодня</div>
+        <div class="fd-ico">⛅</div>
+        <div class="fd-temp">+18°/+12°</div>
+        <div class="fd-wind">💨 4 м/с</div>
+        <div class="fd-rain">—</div>
+      </div>
+      <div class="forecast-day">
+        <div class="fd-date">Завтра</div>
+        <div class="fd-ico">☀️</div>
+        <div class="fd-temp">+22°/+14°</div>
+        <div class="fd-wind">💨 3 м/с</div>
+        <div class="fd-rain">—</div>
+      </div>
+      <div class="forecast-day">
+        <div class="fd-date">Послезавтра</div>
+        <div class="fd-ico">🌧</div>
+        <div class="fd-temp">+19°/+13°</div>
+        <div class="fd-wind">💨 6 м/с</div>
+        <div class="fd-rain">💧 2 мм</div>
+      </div>
+      <div class="forecast-day">
+        <div class="fd-date">28 мая</div>
+        <div class="fd-ico">⛅</div>
+        <div class="fd-temp">+20°/+12°</div>
+        <div class="fd-wind">💨 5 м/с</div>
+        <div class="fd-rain">—</div>
+      </div>
+    </div>
   </div>
-
   <div class="card">
-    <div class="card-title">Параметры для полётов</div>
-    <div style="font-size:13px;color:var(--t2);line-height:1.7">
+    <div class="card-title">✈️ ПАРАМЕТРЫ ДЛЯ ПОЛЁТОВ</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.8">
       ✅ <b>Ветер</b> до 7 м/с — норма<br>
       ⚠️ <b>Ветер</b> 7–10 м/с — ограничения<br>
       ❌ <b>Ветер</b> >10 м/с — запрет<br>
@@ -65,23 +81,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
       ❌ <b>Туман</b> — запрет полётов
     </div>
   </div>
-
 </div>
 </div>
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  try {
-    const trip = JSON.parse(localStorage.getItem('atk_trip')||'null');
-    if (trip) {
-      document.getElementById('trip-city-info').textContent = '📍 Командировка: ' + trip.direction;
-      const btn = document.getElementById('btn-trip-city');
-      btn.href = 'https://www.gismeteo.by/search/#' + encodeURIComponent(trip.direction);
-      btn.textContent = '🌤 Погода: ' + trip.direction;
-      btn.style.display = 'block';
-      document.getElementById('city-meta-trip').textContent = 'Район командировки';
-    }
-  } catch(e){}
-});
-</script>
 </body>
 </html>
