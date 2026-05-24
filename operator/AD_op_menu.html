@@ -51,28 +51,15 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0;height:1
     <div class="rb-info"><div class="rb-title">⚡ Бригадир</div><div class="rb-sub">13 ч · 23 га</div></div>
   </div>
   <div class="sep">⚡ КОМАНДИРОВКА</div>
-  <div class="mi" onclick="openPage('trip')"><div class="mi-ico">🚐</div><div class="mi-info"><div class="mi-title">Подготовка командировки</div><div class="mi-sub">Согласование выезда</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Подготовка командировки')"><div class="mi-ico">🚐</div><div class="mi-info"><div class="mi-title">Подготовка командировки</div><div class="mi-sub">Согласование выезда</div></div><div class="mi-arr">›</div></div>
   <div class="sep">🛠 РАБОЧЕЕ</div>
-  <div class="mi" onclick="openPage('map')"><div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Карта полей</div><div class="mi-sub">Поля района на карте</div></div><div class="mi-arr">›</div></div>
-  <div class="mi" onclick="openPage('weather')"><div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">Прогноз для полётов</div></div><div class="mi-arr">›</div></div>
-  <div class="mi" onclick="openPage('issues')"><div class="mi-ico">🔧</div><div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Карта полей')"><div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Карта полей</div><div class="mi-sub">Поля района на карте</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Погода')"><div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">Прогноз для полётов</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Проблемы с техникой')"><div class="mi-ico">🔧</div><div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div><div class="mi-arr">›</div></div>
   <div class="sep">📋 ИНФОРМАЦИЯ</div>
-  <div class="mi" onclick="openPage('stats')"><div class="mi-ico">📊</div><div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды</div></div><div class="mi-arr">›</div></div>
-  <div class="mi" onclick="openPage('docs')"><div class="mi-ico">📄</div><div class="mi-info"><div class="mi-title">Документы и связь</div><div class="mi-sub">Правила, контакты, РП</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Статистика')"><div class="mi-ico">📊</div><div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="alert('Документы')"><div class="mi-ico">📄</div><div class="mi-info"><div class="mi-title">Документы и связь</div><div class="mi-sub">Правила, контакты, РП</div></div><div class="mi-arr">›</div></div>
 </div>
 </div>
-<script>
-function openPage(page) {
-  const pages = {
-    trip: 'AD_op_trip_prepare.html',
-    map: 'AD_op_map.html',
-    weather: 'AD_op_weather.html',
-    issues: 'AD_op_issues.html',
-    stats: 'AD_op_stats.html',
-    docs: 'AD_op_docs.html'
-  };
-  alert('📱 Открыть: ' + pages[page]);
-}
-</script>
 </body>
 </html>
