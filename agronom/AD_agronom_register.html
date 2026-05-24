@@ -65,6 +65,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="app-hdr">
   <div class="hdr-logo">🌾 AgroDrone.BY</div>
   <div class="hdr-subtitle">Обработка полей БЛА · v3.3</div>
+  <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px" id="debug-url"></div>
 </div>
 
 <div class="scroll">
@@ -142,6 +143,10 @@ if (!telegramId) {
   const urlId = new URLSearchParams(window.location.search).get('telegram_id');
   if (urlId) telegramId = urlId;
 }
+
+// DEBUG — показываем что пришло
+document.getElementById('debug-url').textContent = 
+  'URL: ' + window.location.search + ' | tgID: ' + (telegramId || 'null');
 
 // ══════════════════════════════════
 // INIT
