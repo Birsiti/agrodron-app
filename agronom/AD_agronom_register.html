@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Регистрация
-  v3.3 · 2026-05-24 · Fix: telegramId fallback из URL-параметра
+  v3.4 · 2026-05-24 · Fix: три способа получить telegramId
 -->
 <html lang="ru">
 <head>
@@ -64,7 +64,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 <div class="app-hdr">
   <div class="hdr-logo">🌾 AgroDrone.BY</div>
-  <div class="hdr-subtitle">Обработка полей БЛА · v3.3</div>
+  <div class="hdr-subtitle">Обработка полей БЛА · v3.4</div>
   <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px" id="debug-url"></div>
 </div>
 
@@ -138,14 +138,26 @@ try {
   }
 } catch(e) {}
 
-// Фолбэк: читаем из URL ?telegram_id=
+// Фолбэк 1: парсим initData вручную
+if (!telegramId && tg.initData) {
+  try {
+    const params = new URLSearchParams(tg.initData);
+    const userStr = params.get('user');
+    if (userStr) {
+      const user = JSON.parse(decodeURIComponent(userStr));
+      telegramId = user.id;
+    }
+  } catch(e) {}
+}
+
+// Фолбэк 2: читаем из URL ?telegram_id=
 if (!telegramId) {
   const urlId = new URLSearchParams(window.location.search).get('telegram_id');
   if (urlId) telegramId = urlId;
 }
 
-// DEBUG — показываем что пришло
-document.getElementById('debug-url').textContent = 
+// DEBUG
+document.getElementById('debug-url').textContent =
   'URL: ' + window.location.search + ' | tgID: ' + (telegramId || 'null');
 
 // ══════════════════════════════════
