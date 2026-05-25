@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.4
-  v1.4 · 2026-05-25 · Дата окончания → кол.C при подготовке, очищается при активации + погода в уведомлении
+  AgroDrone.BY · Бригадир — Prepare v1.5
+  v1.5 · 2026-05-25 · Фикс: район вручную, подтяжка при повторном открытии, ветер от/до
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
@@ -116,7 +116,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.4</span></div>
+  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.5</span></div>
 </div>
 
 <!-- Загрузка -->
@@ -160,6 +160,10 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="fg">
       <label class="fl">Район</label>
       <select class="fi" id="district" onchange="updatePlannedHa()"><option value="">Загрузка...</option></select>
+    </div>
+    <div class="fg" id="district-manual-field" style="display:none">
+      <label class="fl">Введите район вручную</label>
+      <input type="text" class="fi" id="district-manual" placeholder="Например: Пинск">
     </div>
     <div class="fg">
       <label class="fl">Примерная площадь</label>
@@ -278,7 +282,7 @@ async function init(){
       pendingTrip = json.result.trip;
       fillPendingScreen(pendingTrip);
       showScreen('pending');
-      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
+      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
     } else {
       showFormNew();
     }
@@ -328,13 +332,21 @@ function isoDate(val){
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
   editMode=true;
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.4</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.5</span>';
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   const t=pendingTrip;
 
   // Район
   const sel=document.getElementById('district');
-  for(let opt of sel.options){if(opt.value===t.district){sel.value=t.district;break;}}
+  if(t.district){
+    let found=false;
+    for(let opt of sel.options){if(opt.value===t.district){sel.value=t.district;found=true;break;}}
+    if(!found){
+      sel.value='other';
+      document.getElementById('district-manual-field').style.display='block';
+      document.getElementById('district-manual').value=t.district;
+    }
+  }
   updatePlannedHa();
 
   // Даты
@@ -367,7 +379,7 @@ function editPending(){
 function cancelEdit(){
   if(pendingTrip){
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
     showScreen('pending');
   } else {
     window.location.href='AD_op_menu.html';
@@ -376,7 +388,8 @@ function cancelEdit(){
 
 // ── Сбор данных ───────────────────────────────────────────
 function collectFormData(){
-  const district=document.getElementById('district').value;
+  let district=document.getElementById('district').value;
+  if(district==='other') district=document.getElementById('district-manual').value.trim();
   const dateStart=document.getElementById('date-start').value;
   const dateEnd=document.getElementById('date-end').value;
   const plannedHa=document.getElementById('planned-ha').value||'0';
@@ -436,7 +449,7 @@ async function sendForApproval(){
     pendingTrip={tripId,...d,notes};
     fillPendingScreen(pendingTrip);
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
     setTimeout(()=>showScreen('pending'),800);
 
   } catch(e){
@@ -482,7 +495,7 @@ async function deleteTrip(){
     showToast('🗑 Заявка удалена');
     pendingTrip=null;editMode=false;
     document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.4</span>';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.5</span>';
     document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
     selectedOps.clear();selectedTech.clear();
     setTimeout(()=>{showScreen('form');document.getElementById('date-start').value=new Date().toISOString().split('T')[0];},500);
@@ -504,7 +517,13 @@ async function loadDistricts(){
 
 function updatePlannedHa(){
   const district=document.getElementById('district').value;
-  if(!district||district==='other'){document.getElementById('planned-ha').value='';return}
+  const manualField=document.getElementById('district-manual-field');
+  if(!district||district==='other'){
+    document.getElementById('planned-ha').value='';
+    manualField.style.display = district==='other' ? 'block' : 'none';
+    return;
+  }
+  manualField.style.display='none';
   const total=fieldsData.filter(f=>f.district===district&&!['готово','done'].includes(f.status)).reduce((s,f)=>s+f.ha,0);
   document.getElementById('planned-ha').value=total>0?total.toFixed(1):'';
 }
@@ -544,7 +563,7 @@ async function getWeatherForecast(district, dateStart) {
     if(!coords) return '🌤 Погода: район не найден в базе';
 
     const [lat, lon] = coords;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=Europe%2FMinsk&forecast_days=7`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,windspeed_10m_min,weathercode&timezone=Europe%2FMinsk&forecast_days=7`;
     const r = await fetch(url);
     const d = await r.json();
 
@@ -561,20 +580,21 @@ async function getWeatherForecast(district, dateStart) {
       const tmax  = Math.round(d.daily.temperature_2m_max[i]);
       const tmin  = Math.round(d.daily.temperature_2m_min[i]);
       const prec  = d.daily.precipitation_sum[i];
-      const wind  = Math.round(d.daily.windspeed_10m_max[i] / 3.6);
+      const windMax = Math.round(d.daily.windspeed_10m_max[i] / 3.6);
+      const windMin = d.daily.windspeed_10m_min ? Math.round(d.daily.windspeed_10m_min[i] / 3.6) : 0;
+      const wind = windMin > 0 ? `${windMin}–${windMax}` : `${windMax}`;
       const wcode = d.daily.weathercode[i];
       const date  = fmtDate(days[i]);
 
       // Оценка погоды для полётов
       let mark;
-      if(wcode >= 95 || prec > 10 || wind > 11){
-        mark = '❌'; // гроза/ливень/ветер >11 м/с
-      } else if(wcode >= 51 || prec > 2 || wind > 7){
-        mark = '❓'; // дождь/ветер >7 м/с
+      if(wcode >= 95 || prec > 10 || windMax > 11){
+        mark = '❌';
+      } else if(wcode >= 51 || prec > 2 || windMax > 7){
+        mark = '❓';
       } else {
-        mark = '✅'; // норм
+        mark = '✅';
       }
-
       lines.push(`${mark} ${date}: ${tmin}…${tmax}°C, 💧${prec}мм, 💨${wind}м/с`);
     }
     return lines.join('\n');
