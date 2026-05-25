@@ -483,7 +483,6 @@ async function init(){
 
   // Загружаем из таблицы
   const resp=await apiCall('getTripData',{tripId});
-  console.log('TRIP_RESP:', JSON.stringify(resp));
   if(resp.ok&&resp.result&&resp.result.tripId){
     tripData=resp.result;
     // Мерджим с localStorage если есть расходы
@@ -503,14 +502,13 @@ async function init(){
     }
     tripData.tripId=tripId;
     showMainUI();
+    prefillOpenForm();
 
     const status=String(tripData.status||'').toLowerCase();
     if(status==='активна'){
       showTab('active');
       renderActive();
     } else {
-      // подготовка — показываем форму открытия
-      prefillOpenForm();
       showTab('open');
     }
   } else {
