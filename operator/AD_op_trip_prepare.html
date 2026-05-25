@@ -274,10 +274,15 @@ function showScreen(name){
 // ── Init ─────────────────────────────────────────────────
 async function init(){
   showScreen('loading');
+  // Сброс кнопки на случай если была disabled
+  const btn = document.getElementById('btn-submit');
+  if(btn){ btn.disabled=false; btn.textContent='📋 Отправить на согласование'; }
+
   await loadDistricts();
   try{
     const resp = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getPendingTrip',data:{}})});
     const json = await resp.json();
+    console.log('getPendingTrip:', JSON.stringify(json));
     if(json.ok && json.result && json.result.found){
       pendingTrip = json.result.trip;
       fillPendingScreen(pendingTrip);
@@ -287,12 +292,15 @@ async function init(){
       showFormNew();
     }
   } catch(e){
+    console.error('init error:', e);
     showFormNew();
   }
 }
 
 function showFormNew(){
   showScreen('form');
+  const btn = document.getElementById('btn-submit');
+  if(btn){ btn.disabled=false; btn.textContent='📋 Отправить на согласование'; }
   document.getElementById('date-start').value=new Date().toISOString().split('T')[0];
 }
 
@@ -561,40 +569,41 @@ async function getWeatherForecast(district, dateStart) {
   try {
     const coords = DISTRICT_COORDS[district];
     if(!coords) return '🌤 Погода: район не найден в базе';
-
     const [lat, lon] = coords;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,windspeed_10m_min,weathercode&timezone=Europe%2FMinsk&forecast_days=7`;
+
+    // wttr.in — без ключа, хорошая точность
+    const url = `https://wttr.in/${lat},${lon}?format=j1`;
     const r = await fetch(url);
     const d = await r.json();
+    const weather = d.weather || [];
 
-    // Находим индекс стартовой даты
-    const days = d.daily.time;
     let startIdx = 0;
-    if(dateStart){
-      const idx = days.indexOf(dateStart);
-      if(idx >= 0) startIdx = idx;
+    if(dateStart && weather.length > 0){
+      const startNorm = dateStart.replace(/-/g,'');
+      for(let i=0;i<weather.length;i++){
+        if((weather[i].date||'').replace(/-/g,'')===startNorm){startIdx=i;break;}
+      }
     }
 
     const lines = ['🌤 Погода на командировку:'];
-    for(let i = startIdx; i < Math.min(startIdx+3, days.length); i++){
-      const tmax  = Math.round(d.daily.temperature_2m_max[i]);
-      const tmin  = Math.round(d.daily.temperature_2m_min[i]);
-      const prec  = d.daily.precipitation_sum[i];
-      const windMax = Math.round(d.daily.windspeed_10m_max[i] / 3.6);
-      const windMin = d.daily.windspeed_10m_min ? Math.round(d.daily.windspeed_10m_min[i] / 3.6) : 0;
-      const wind = windMin > 0 ? `${windMin}–${windMax}` : `${windMax}`;
-      const wcode = d.daily.weathercode[i];
-      const date  = fmtDate(days[i]);
+    for(let i=startIdx; i<Math.min(startIdx+3, weather.length); i++){
+      const w    = weather[i];
+      const date = fmtDate(w.date);
+      const tmax = Math.round(parseFloat(w.maxtempC||0));
+      const tmin = Math.round(parseFloat(w.mintempC||0));
+      const hourly = w.hourly||[];
+      const prec = hourly.reduce((s,h)=>s+parseFloat(h.precipMM||0),0).toFixed(1);
+      const winds = hourly.map(h=>parseFloat(h.windspeedKmph||0));
+      const wMax = Math.round(Math.max(...winds)/3.6);
+      const wMin = Math.round(Math.min(...winds)/3.6);
+      const wind = wMin<wMax ? `${wMin}–${wMax}` : `${wMax}`;
+      const wcode = parseInt(hourly[4]?.weatherCode||0);
 
-      // Оценка погоды для полётов
       let mark;
-      if(wcode >= 95 || prec > 10 || windMax > 11){
-        mark = '❌';
-      } else if(wcode >= 51 || prec > 2 || windMax > 7){
-        mark = '❓';
-      } else {
-        mark = '✅';
-      }
+      if(wcode>=95||parseFloat(prec)>10||wMax>11) mark='❌';
+      else if(wcode>=51||parseFloat(prec)>2||wMax>7) mark='❓';
+      else mark='✅';
+
       lines.push(`${mark} ${date}: ${tmin}…${tmax}°C, 💧${prec}мм, 💨${wind}м/с`);
     }
     return lines.join('\n');
