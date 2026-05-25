@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.6
-  v1.6 · 2026-05-25 · Фикс: район вручную, подтяжка при повторном открытии, ветер от/до
+  AgroDrone.BY · Бригадир — Prepare v2.0
+  v2.0 · 2026-05-25 · Две вкладки: На согласовании + Новая подготовка
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v1.6</title>
+<title>AgroDrone.BY · Prepare v2.0</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -24,34 +24,54 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;height:100%;display:flex;flex-direction:column}
 
-.sub-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:12px 16px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 4px 16px rgba(217,119,6,.2)}
+.sub-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:12px 16px 0;flex-shrink:0;box-shadow:0 4px 16px rgba(217,119,6,.2)}
+.hdr-top{display:flex;align-items:center;gap:10px;padding-bottom:10px}
 .back-btn{font-size:24px;cursor:pointer;color:#fff;line-height:1;padding-right:4px;font-weight:300}
 .hdr-title{font-size:16px;font-weight:800;color:#fff;flex:1}
+
+/* ── Вкладки ── */
+.tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.2);margin:0 -0px}
+.tab{flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;position:relative;transition:color .2s;letter-spacing:.3px}
+.tab.active{color:#fff}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:#fff;border-radius:3px 3px 0 0}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.25);color:#fff;border-radius:10px;min-width:18px;height:18px;font-size:10px;font-weight:800;padding:0 5px;margin-left:5px;vertical-align:middle}
+.tab-badge.pulse{background:#f59e0b;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:12px 12px 32px}
 
-/* ── Экран загрузки ── */
+/* ── Загрузка ── */
 .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px}
 .loading-icon{font-size:36px;animation:spin 1.2s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:13px;color:var(--t3);font-weight:600}
 
-/* ── Карточка "На согласовании" ── */
-.pending-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;margin-bottom:16px}
-.pending-badge-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* ── Пустой список ── */
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:700;color:var(--t2);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--t3)}
 
-.pending-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px}
-.pending-card-hdr{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:14px 16px;border-bottom:1px solid #fde68a}
-.pending-trip-id{font-size:13px;font-weight:800;color:#92400e;letter-spacing:.5px}
-.pending-trip-status{font-size:11px;color:#b45309;margin-top:2px}
-.pending-rows{padding:14px 16px}
-.pending-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f4dcc4}
-.pending-row:last-child{border-bottom:none}
-.pending-row-ico{font-size:16px;flex-shrink:0;margin-top:1px}
-.pending-row-label{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}
-.pending-row-val{font-size:14px;font-weight:600;color:var(--t1)}
+/* ── Карточка pending ── */
+.pending-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;cursor:pointer;transition:transform .15s}
+.pending-card:active{transform:scale(.99)}
+.pending-card-hdr{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.pending-trip-id{font-size:13px;font-weight:800;color:#92400e;letter-spacing:.5px;flex:1}
+.pending-badge-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite}
+.pending-card-body{padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.pending-row{display:flex;align-items:flex-start;gap:8px}
+.pending-row-ico{font-size:14px;flex-shrink:0;margin-top:1px}
+.pending-row-val{font-size:13px;font-weight:600;color:var(--t1)}
+.pending-row-sub{font-size:11px;color:var(--t3)}
+
+/* ── Детальный вид pending ── */
+.detail-rows{padding:14px 16px}
+.detail-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f4dcc4}
+.detail-row:last-child{border-bottom:none}
+.detail-row-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+.detail-row-label{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}
+.detail-row-val{font-size:14px;font-weight:600;color:var(--t1)}
 
 /* ── Форма ── */
 .card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
@@ -100,7 +120,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
 .btn-red{background:#fee2e2;color:var(--red);border:1.5px solid #fecaca}
 
-/* ── Модалка ── */
+/* ── Модалки ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:998;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.show{opacity:1;pointer-events:all}
 .modal-box{background:#fff;border-radius:var(--r) var(--r) 0 0;padding:24px 20px;width:100%;max-width:480px}
@@ -110,13 +130,27 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(217,119,6,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(217,119,6,.3);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
+
+/* ── Детальный экран pending ── */
+.detail-hdr{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:14px 16px;display:flex;align-items:center;gap:10px;border-radius:var(--r) var(--r) 0 0}
+.detail-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px}
 </style>
 </head>
 <body>
 
 <div class="sub-hdr">
-  <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.6</span></div>
+  <div class="hdr-top">
+    <div class="back-btn" id="back-btn" onclick="handleBack()">‹</div>
+    <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v2.0</span></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tab-pending" onclick="switchTab('pending')">
+      🕐 На согласовании<span class="tab-badge pulse" id="badge-count" style="display:none">0</span>
+    </div>
+    <div class="tab" id="tab-new" onclick="switchTab('new')">
+      ➕ Новая подготовка
+    </div>
+  </div>
 </div>
 
 <!-- Загрузка -->
@@ -125,24 +159,31 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   <div class="loading-text">Проверка командировок...</div>
 </div>
 
-<!-- Экран: На согласовании -->
-<div class="scroll" id="screen-pending" style="display:none">
+<!-- ══ ВКЛАДКА: На согласовании ══ -->
+<div class="scroll" id="tab-content-pending" style="display:none">
+<div class="wrap" id="pending-list-wrap">
+  <!-- заполняется JS -->
+</div>
+</div>
+
+<!-- Детальный вид одной заявки -->
+<div class="scroll" id="screen-detail" style="display:none">
 <div class="wrap">
-  <div style="text-align:center">
-    <div class="pending-badge"><div class="pending-badge-dot"></div>На согласовании</div>
-  </div>
-  <div class="pending-card">
-    <div class="pending-card-hdr">
-      <div class="pending-trip-id" id="p-trip-id">—</div>
-      <div class="pending-trip-status">Ожидает подтверждения бригадира</div>
+  <div class="detail-card">
+    <div class="detail-hdr">
+      <div style="flex:1">
+        <div class="pending-trip-id" id="d-trip-id">—</div>
+        <div style="font-size:11px;color:#b45309;margin-top:2px">Ожидает подтверждения</div>
+      </div>
+      <div class="pending-badge-dot"></div>
     </div>
-    <div class="pending-rows">
-      <div class="pending-row"><div class="pending-row-ico">📍</div><div><div class="pending-row-label">Район</div><div class="pending-row-val" id="p-district">—</div></div></div>
-      <div class="pending-row"><div class="pending-row-ico">📅</div><div><div class="pending-row-label">Даты</div><div class="pending-row-val" id="p-dates">—</div></div></div>
-      <div class="pending-row"><div class="pending-row-ico">👥</div><div><div class="pending-row-label">Состав</div><div class="pending-row-val" id="p-operators">—</div></div></div>
-      <div class="pending-row"><div class="pending-row-ico">🚁</div><div><div class="pending-row-label">Техника</div><div class="pending-row-val" id="p-tech">—</div></div></div>
-      <div class="pending-row"><div class="pending-row-ico">🌾</div><div><div class="pending-row-label">Примерно га</div><div class="pending-row-val" id="p-ha">—</div></div></div>
-      <div class="pending-row"><div class="pending-row-ico">🚐</div><div><div class="pending-row-label">Авто / Снаряжение</div><div class="pending-row-val" id="p-notes" style="font-size:12px">—</div></div></div>
+    <div class="detail-rows">
+      <div class="detail-row"><div class="detail-row-ico">📍</div><div><div class="detail-row-label">Район</div><div class="detail-row-val" id="d-district">—</div></div></div>
+      <div class="detail-row"><div class="detail-row-ico">📅</div><div><div class="detail-row-label">Даты</div><div class="detail-row-val" id="d-dates">—</div></div></div>
+      <div class="detail-row"><div class="detail-row-ico">👥</div><div><div class="detail-row-label">Состав</div><div class="detail-row-val" id="d-operators">—</div></div></div>
+      <div class="detail-row"><div class="detail-row-ico">🚁</div><div><div class="detail-row-label">Техника</div><div class="detail-row-val" id="d-tech">—</div></div></div>
+      <div class="detail-row"><div class="detail-row-ico">🌾</div><div><div class="detail-row-label">Примерно га</div><div class="detail-row-val" id="d-ha">—</div></div></div>
+      <div class="detail-row"><div class="detail-row-ico">🚐</div><div><div class="detail-row-label">Авто / Снаряжение</div><div class="detail-row-val" id="d-notes" style="font-size:12px">—</div></div></div>
     </div>
   </div>
   <button class="btn btn-green" id="btn-approve" onclick="approveTrip()">✅ Согласовано — Начать командировку</button>
@@ -151,8 +192,8 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </div>
 </div>
 
-<!-- Экран: Форма -->
-<div class="scroll" id="screen-form" style="display:none">
+<!-- ══ ВКЛАДКА: Новая подготовка ══ -->
+<div class="scroll" id="tab-content-new" style="display:none">
 <div class="wrap">
 
   <div class="card">
@@ -225,7 +266,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   </div>
 
   <button class="btn btn-orange" id="btn-submit" onclick="sendForApproval()">📋 Отправить на согласование</button>
-  <button class="btn btn-outline" onclick="cancelEdit()">Отмена</button>
+  <button class="btn btn-outline" id="btn-cancel" onclick="cancelEdit()" style="display:none">Отмена</button>
 
 </div>
 </div>
@@ -254,95 +295,163 @@ const DIST_MAP  = {'Ганцевичи':'GAN','Слуцк':'SLU','Несвиж':
 const selectedOps  = new Set();
 const selectedTech = new Set();
 const gearCounters = {blades:4,nozzles:2,batteries:8,chargers:2};
-let carType    = 'own';
-let fieldsData = [];
-let pendingTrip = null;
+let carType     = 'own';
+let fieldsData  = [];
+let pendingTrips= []; // массив
+let currentTrip = null; // выбранная для детального просмотра
 let editMode    = false;
+let activeTab   = 'pending';
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
-// ── Экраны ───────────────────────────────────────────────
-function showScreen(name){
+// ── Вкладки ──────────────────────────────────────────────
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('tab-pending').classList.toggle('active', tab==='pending');
+  document.getElementById('tab-new').classList.toggle('active', tab==='new');
+  
+  // Скрыть всё
   document.getElementById('screen-loading').style.display='none';
-  document.getElementById('screen-pending').style.display='none';
-  document.getElementById('screen-form').style.display='none';
-  if(name==='loading') document.getElementById('screen-loading').style.display='flex';
-  if(name==='pending') document.getElementById('screen-pending').style.display='block';
-  if(name==='form')    document.getElementById('screen-form').style.display='block';
+  document.getElementById('tab-content-pending').style.display='none';
+  document.getElementById('tab-content-new').style.display='none';
+  document.getElementById('screen-detail').style.display='none';
+
+  if(tab==='pending'){
+    document.getElementById('tab-content-pending').style.display='block';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.0</span>';
+  } else {
+    document.getElementById('tab-content-new').style.display='block';
+    if(editMode){
+      document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.0</span>';
+    } else {
+      document.getElementById('hdr-title').innerHTML='Новая заявка <span style="font-size:11px;opacity:.6">v2.0</span>';
+      resetForm();
+    }
+  }
+  document.getElementById('back-btn').style.display='block';
+}
+
+function handleBack(){
+  if(document.getElementById('screen-detail').style.display!=='none'){
+    // Из деталей → список
+    showPendingList();
+  } else {
+    window.location.href='AD_op_menu.html';
+  }
+}
+
+function showPendingList(){
+  document.getElementById('screen-detail').style.display='none';
+  document.getElementById('tab-content-pending').style.display='block';
+  document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.0</span>';
+  editMode=false;
+  currentTrip=null;
 }
 
 // ── Init ─────────────────────────────────────────────────
 async function init(){
-  showScreen('loading');
-  // Сброс кнопки на случай если была disabled
-  const btn = document.getElementById('btn-submit');
-  if(btn){ btn.disabled=false; btn.textContent='📋 Отправить на согласование'; }
+  // Загрузка
+  document.getElementById('screen-loading').style.display='flex';
+  document.getElementById('tab-content-pending').style.display='none';
+  document.getElementById('tab-content-new').style.display='none';
+  document.getElementById('screen-detail').style.display='none';
 
   await loadDistricts();
+
   try{
-    const resp = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getPendingTrip',data:{}})});
+    const resp = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getPendingTrips',data:{}})});
     const json = await resp.json();
-    console.log('getPendingTrip:', JSON.stringify(json));
-    if(json.ok && json.result && json.result.found){
-      pendingTrip = json.result.trip;
-      fillPendingScreen(pendingTrip);
-      showScreen('pending');
-      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
+    console.log('getPendingTrips:', JSON.stringify(json));
+
+    if(json.ok && json.result && json.result.trips){
+      pendingTrips = json.result.trips;
     } else {
-      showFormNew();
+      pendingTrips = [];
     }
   } catch(e){
     console.error('init error:', e);
-    showFormNew();
+    pendingTrips = [];
+  }
+
+  updateBadge();
+  renderPendingList();
+
+  // Показать вкладку "На согласовании" по умолчанию
+  document.getElementById('screen-loading').style.display='none';
+  document.getElementById('tab-content-pending').style.display='block';
+  document.getElementById('date-start').value = new Date().toISOString().split('T')[0];
+}
+
+function updateBadge(){
+  const badge = document.getElementById('badge-count');
+  if(pendingTrips.length > 0){
+    badge.style.display='inline-flex';
+    badge.textContent = pendingTrips.length;
+  } else {
+    badge.style.display='none';
   }
 }
 
-function showFormNew(){
-  showScreen('form');
-  const btn = document.getElementById('btn-submit');
-  if(btn){ btn.disabled=false; btn.textContent='📋 Отправить на согласование'; }
-  document.getElementById('date-start').value=new Date().toISOString().split('T')[0];
-}
-
-// ── Заполнить карточку pending ────────────────────────────
-function fillPendingScreen(t){
-  document.getElementById('p-trip-id').textContent   = t.tripId||'—';
-  document.getElementById('p-district').textContent  = t.district||'—';
-  document.getElementById('p-dates').textContent     = fmt(t.dateStart)+' → '+fmt(t.dateEnd);
-  document.getElementById('p-operators').textContent = t.operators||'—';
-  document.getElementById('p-tech').textContent      = t.tech||'—';
-  document.getElementById('p-ha').textContent        = t.plannedHa ? t.plannedHa+' га' : '—';
-  document.getElementById('p-notes').textContent     = t.notes||'—';
-}
-
-function fmt(d){
-  if(!d)return'—';
-  const m=String(d).match(/(\d{4})-(\d{2})-(\d{2})/);
-  return m?`${m[3]}.${m[2]}.${m[1]}`:String(d);
-}
-function isoDate(val){
-  if(!val)return'';
-  // Если объект Date (из Google Sheets)
-  if(val instanceof Date){
-    const y=val.getFullYear(),mo=String(val.getMonth()+1).padStart(2,'0'),d=String(val.getDate()).padStart(2,'0');
-    return`${y}-${mo}-${d}`;
+// ── Рендер списка pending ─────────────────────────────────
+function renderPendingList(){
+  const wrap = document.getElementById('pending-list-wrap');
+  if(pendingTrips.length === 0){
+    wrap.innerHTML=`
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Нет заявок на согласовании</div>
+        <div class="empty-sub">Перейдите на вкладку «Новая подготовка»</div>
+      </div>`;
+    return;
   }
-  const s=String(val).trim();
-  // YYYY-MM-DD
-  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[1]}-${m[2]}-${m[3]}`;
-  // DD.MM.YYYY
-  const m2=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);if(m2)return`${m2[3]}-${m2[2]}-${m2[1]}`;
-  // Любой строковый формат Date
-  try{const d=new Date(s);if(!isNaN(d)){const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${mo}-${dd}`;}}catch(e){}
-  return'';
+  wrap.innerHTML = pendingTrips.map((t,i)=>`
+    <div class="pending-card" onclick="openDetail(${i})">
+      <div class="pending-card-hdr">
+        <div class="pending-trip-id">${t.tripId||'—'}</div>
+        <div class="pending-badge-dot"></div>
+      </div>
+      <div class="pending-card-body">
+        <div class="pending-row">
+          <div class="pending-row-ico">📍</div>
+          <div><div class="pending-row-val">${t.district||'—'}</div><div class="pending-row-sub">${fmt(t.dateStart)}${t.dateEnd?' → '+fmt(t.dateEnd):''}</div></div>
+        </div>
+        <div class="pending-row">
+          <div class="pending-row-ico">👥</div>
+          <div class="pending-row-val" style="font-size:12px">${t.operators||'—'}</div>
+        </div>
+        <div class="pending-row">
+          <div class="pending-row-ico">🌾</div>
+          <div class="pending-row-val">${t.plannedHa ? t.plannedHa+' га' : '—'}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openDetail(idx){
+  currentTrip = pendingTrips[idx];
+  fillDetailScreen(currentTrip);
+  document.getElementById('tab-content-pending').style.display='none';
+  document.getElementById('screen-detail').style.display='block';
+  document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.0</span>';
+}
+
+function fillDetailScreen(t){
+  document.getElementById('d-trip-id').textContent   = t.tripId||'—';
+  document.getElementById('d-district').textContent  = t.district||'—';
+  document.getElementById('d-dates').textContent     = fmt(t.dateStart)+' → '+fmt(t.dateEnd);
+  document.getElementById('d-operators').textContent = t.operators||'—';
+  document.getElementById('d-tech').textContent      = t.tech||'—';
+  document.getElementById('d-ha').textContent        = t.plannedHa ? t.plannedHa+' га' : '—';
+  document.getElementById('d-notes').textContent     = t.notes||'—';
+  const btn=document.getElementById('btn-approve');
+  btn.disabled=false;btn.textContent='✅ Согласовано — Начать командировку';
 }
 
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
+  if(!currentTrip)return;
   editMode=true;
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.6</span>';
-  document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
-  const t=pendingTrip;
+  const t=currentTrip;
 
   // Район
   const sel=document.getElementById('district');
@@ -361,7 +470,7 @@ function editPending(){
   if(t.dateStart) document.getElementById('date-start').value=isoDate(t.dateStart);
   if(t.dateEnd)   document.getElementById('date-end').value=isoDate(t.dateEnd);
 
-  // Сброс операторов
+  // Операторы
   document.querySelectorAll('.op-item').forEach(el=>el.classList.remove('selected'));
   selectedOps.clear();
   if(t.operators){
@@ -371,7 +480,7 @@ function editPending(){
     });
   }
 
-  // Сброс техники
+  // Техника
   document.querySelectorAll('.tech-item').forEach(el=>el.classList.remove('selected'));
   selectedTech.clear();
   if(t.tech){
@@ -381,20 +490,53 @@ function editPending(){
     });
   }
 
-  showScreen('form');
+  document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
+  document.getElementById('btn-cancel').style.display='block';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.0</span>';
+
+  document.getElementById('screen-detail').style.display='none';
+  document.getElementById('tab-content-new').style.display='block';
+  document.getElementById('tab-pending').classList.remove('active');
+  document.getElementById('tab-new').classList.add('active');
+  activeTab='new';
 }
 
 function cancelEdit(){
-  if(pendingTrip){
-    editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
-    showScreen('pending');
+  editMode=false;
+  document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
+  document.getElementById('btn-cancel').style.display='none';
+  if(currentTrip){
+    fillDetailScreen(currentTrip);
+    document.getElementById('tab-content-new').style.display='none';
+    document.getElementById('screen-detail').style.display='block';
+    document.getElementById('tab-pending').classList.add('active');
+    document.getElementById('tab-new').classList.remove('active');
+    activeTab='pending';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.0</span>';
   } else {
-    window.location.href='AD_op_menu.html';
+    switchTab('pending');
   }
 }
 
-// ── Сбор данных ───────────────────────────────────────────
+function resetForm(){
+  document.getElementById('district').value='';
+  document.getElementById('district-manual-field').style.display='none';
+  document.getElementById('planned-ha').value='';
+  document.getElementById('date-start').value=new Date().toISOString().split('T')[0];
+  document.getElementById('date-end').value='';
+  document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
+  selectedOps.clear();selectedTech.clear();
+  carType='own';
+  document.querySelectorAll('.radio-item').forEach((el,i)=>{el.classList.toggle('selected',i===0)});
+  document.getElementById('rent-number-field').style.display='none';
+  document.getElementById('other-tech-field').style.display='none';
+  gearCounters.blades=4;gearCounters.nozzles=2;gearCounters.batteries=8;gearCounters.chargers=2;
+  ['blades','nozzles','batteries','chargers'].forEach(k=>document.getElementById(k+'-val').textContent=gearCounters[k]);
+  document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
+  document.getElementById('btn-cancel').style.display='none';
+}
+
+// ── Данные формы ──────────────────────────────────────────
 function collectFormData(){
   let district=document.getElementById('district').value;
   if(district==='other') district=document.getElementById('district-manual').value.trim();
@@ -429,7 +571,7 @@ function generateTripId(district){
 async function sendForApproval(){
   const d=collectFormData();
   if(!validateForm(d))return;
-  const tripId=(editMode&&pendingTrip)?pendingTrip.tripId:generateTripId(d.district);
+  const tripId=(editMode&&currentTrip)?currentTrip.tripId:generateTripId(d.district);
   const btn=document.getElementById('btn-submit');
   btn.disabled=true;btn.textContent='⏳ Сохранение...';
 
@@ -444,21 +586,34 @@ async function sendForApproval(){
     const json=await resp.json();
     if(!json.ok)throw new Error(json.error||'Ошибка сервера');
 
-    sessionStorage.setItem('atk_trip_id',tripId);
+    const newTrip={tripId,...d,notes};
 
     if(!editMode){
+      // Добавить в массив
+      pendingTrips.push(newTrip);
+      // Telegram уведомление
       const BOT='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk',CID='6204739474';
       const weather = await getWeatherForecast(d.district, d.dateStart);
       const msg=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n${weather}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
       fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msg})}).catch(()=>{});
+      showToast(`✅ Заявка ${tripId} отправлена`);
+    } else {
+      // Обновить в массиве
+      const idx=pendingTrips.findIndex(t=>t.tripId===currentTrip.tripId);
+      if(idx>=0) pendingTrips[idx]=newTrip;
+      currentTrip=newTrip;
+      showToast('✅ Изменения сохранены');
     }
 
-    showToast(editMode?'✅ Изменения сохранены':`✅ Заявка ${tripId} отправлена`);
-    pendingTrip={tripId,...d,notes};
-    fillPendingScreen(pendingTrip);
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
-    setTimeout(()=>showScreen('pending'),800);
+    updateBadge();
+    renderPendingList();
+
+    // Перейти на вкладку "На согласовании"
+    btn.disabled=false;
+    btn.textContent='📋 Отправить на согласование';
+    document.getElementById('btn-cancel').style.display='none';
+    switchTab('pending');
 
   } catch(e){
     showToast('❌ Ошибка: '+e.message);
@@ -467,22 +622,22 @@ async function sendForApproval(){
   }
 }
 
-// ── Согласовано ───────────────────────────────────────────
+// ── Согласовано → активировать ────────────────────────────
 async function approveTrip(){
-  if(!pendingTrip)return;
+  if(!currentTrip)return;
   const btn=document.getElementById('btn-approve');
   btn.disabled=true;btn.textContent='⏳ Запуск...';
   try{
     const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'activateTrip',data:{
-      tripId:pendingTrip.tripId,district:pendingTrip.district,
-      dateStart:pendingTrip.dateStart,operators:pendingTrip.operators,
-      tech:pendingTrip.tech,plannedHa:pendingTrip.plannedHa
+      tripId:currentTrip.tripId,district:currentTrip.district,
+      dateStart:currentTrip.dateStart,operators:currentTrip.operators,
+      tech:currentTrip.tech,plannedHa:currentTrip.plannedHa
     }})});
     const json=await resp.json();
     if(!json.ok)throw new Error(json.error||'Ошибка');
-    sessionStorage.setItem('atk_trip_id',pendingTrip.tripId);
-    showToast(`✅ Командировка ${pendingTrip.tripId} активна`);
-    setTimeout(()=>window.location.href=`AD_op_trip.html?tripId=${encodeURIComponent(pendingTrip.tripId)}`,800);
+    sessionStorage.setItem('atk_trip_id',currentTrip.tripId);
+    showToast(`✅ Командировка ${currentTrip.tripId} активна`);
+    setTimeout(()=>window.location.href=`AD_op_trip.html?tripId=${encodeURIComponent(currentTrip.tripId)}`,800);
   } catch(e){
     showToast('❌ '+e.message);
     btn.disabled=false;btn.textContent='✅ Согласовано — Начать командировку';
@@ -495,22 +650,21 @@ function closeModal(){document.getElementById('modal-delete').classList.remove('
 
 async function deleteTrip(){
   closeModal();
-  if(!pendingTrip)return;
+  if(!currentTrip)return;
   try{
-    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'deleteTrip',data:{tripId:pendingTrip.tripId}})});
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'deleteTrip',data:{tripId:currentTrip.tripId}})});
     const json=await resp.json();
     if(!json.ok)throw new Error(json.error||'Ошибка');
+    pendingTrips=pendingTrips.filter(t=>t.tripId!==currentTrip.tripId);
+    currentTrip=null;editMode=false;
+    updateBadge();
+    renderPendingList();
     showToast('🗑 Заявка удалена');
-    pendingTrip=null;editMode=false;
-    document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.6</span>';
-    document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
-    selectedOps.clear();selectedTech.clear();
-    setTimeout(()=>{showScreen('form');document.getElementById('date-start').value=new Date().toISOString().split('T')[0];},500);
+    setTimeout(()=>showPendingList(),300);
   } catch(e){showToast('❌ '+e.message)}
 }
 
-// ── Загрузка районов ──────────────────────────────────────
+// ── Районы / га ───────────────────────────────────────────
 async function loadDistricts(){
   try{
     const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ%20КЛИЕНТОВ!A2:N1000?key=${SHEETS_KEY}`;
@@ -548,7 +702,7 @@ function selectCar(el,type){
 }
 function changeGear(key,delta){gearCounters[key]=Math.max(0,gearCounters[key]+delta);document.getElementById(key+'-val').textContent=gearCounters[key]}
 
-// ── Координаты районов РБ ─────────────────────────────────
+// ── Форматирование дат ────────────────────────────────────
 const DISTRICT_COORDS = {
   'Ганцевичи':[52.757,26.432],'Слуцк':[53.028,27.555],'Несвиж':[53.220,26.682],
   'Клецк':[53.065,26.640],'Столин':[51.888,26.852],'Брест':[52.097,23.734],
@@ -559,10 +713,17 @@ const DISTRICT_COORDS = {
   'Жодино':[54.100,28.055],'Молодечно':[54.313,26.842]
 };
 
-function fmtDate(val){
-  if(!val)return'—';
-  const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);
-  return m?`${m[3]}.${m[2]}.${m[1]}`:String(val);
+function fmt(d){if(!d)return'—';const m=String(d).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(d)}
+function fmtDate(val){if(!val)return'—';const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(val)}
+
+function isoDate(val){
+  if(!val)return'';
+  if(val instanceof Date){const y=val.getFullYear(),mo=String(val.getMonth()+1).padStart(2,'0'),d=String(val.getDate()).padStart(2,'0');return`${y}-${mo}-${d}`;}
+  const s=String(val).trim();
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[1]}-${m[2]}-${m[3]}`;
+  const m2=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);if(m2)return`${m2[3]}-${m2[2]}-${m2[1]}`;
+  try{const d=new Date(s);if(!isNaN(d)){const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${mo}-${dd}`;}}catch(e){}
+  return'';
 }
 
 async function getWeatherForecast(district, dateStart) {
@@ -570,46 +731,29 @@ async function getWeatherForecast(district, dateStart) {
     const coords = DISTRICT_COORDS[district];
     if(!coords) return '🌤 Погода: район не найден в базе';
     const [lat, lon] = coords;
-
-    // wttr.in — без ключа, хорошая точность
     const url = `https://wttr.in/${lat},${lon}?format=j1`;
     const r = await fetch(url);
     const d = await r.json();
     const weather = d.weather || [];
-
     let startIdx = 0;
     if(dateStart && weather.length > 0){
       const startNorm = dateStart.replace(/-/g,'');
-      for(let i=0;i<weather.length;i++){
-        if((weather[i].date||'').replace(/-/g,'')===startNorm){startIdx=i;break;}
-      }
+      for(let i=0;i<weather.length;i++){if((weather[i].date||'').replace(/-/g,'')===startNorm){startIdx=i;break;}}
     }
-
     const lines = ['🌤 Погода на командировку:'];
     for(let i=startIdx; i<Math.min(startIdx+3, weather.length); i++){
-      const w    = weather[i];
-      const date = fmtDate(w.date);
-      const tmax = Math.round(parseFloat(w.maxtempC||0));
-      const tmin = Math.round(parseFloat(w.mintempC||0));
-      const hourly = w.hourly||[];
-      const prec = hourly.reduce((s,h)=>s+parseFloat(h.precipMM||0),0).toFixed(1);
-      const winds = hourly.map(h=>parseFloat(h.windspeedKmph||0));
-      const wMax = Math.round(Math.max(...winds)/3.6);
-      const wMin = Math.round(Math.min(...winds)/3.6);
-      const wind = wMin<wMax ? `${wMin}–${wMax}` : `${wMax}`;
-      const wcode = parseInt(hourly[4]?.weatherCode||0);
-
-      let mark;
-      if(wcode>=95||parseFloat(prec)>10||wMax>11) mark='❌';
-      else if(wcode>=51||parseFloat(prec)>2||wMax>7) mark='❓';
-      else mark='✅';
-
+      const w=weather[i];const date=fmtDate(w.date);
+      const tmax=Math.round(parseFloat(w.maxtempC||0));const tmin=Math.round(parseFloat(w.mintempC||0));
+      const hourly=w.hourly||[];const prec=hourly.reduce((s,h)=>s+parseFloat(h.precipMM||0),0).toFixed(1);
+      const winds=hourly.map(h=>parseFloat(h.windspeedKmph||0));
+      const wMax=Math.round(Math.max(...winds)/3.6);const wMin=Math.round(Math.min(...winds)/3.6);
+      const wind=wMin<wMax?`${wMin}–${wMax}`:`${wMax}`;
+      const wcode=parseInt(hourly[4]?.weatherCode||0);
+      let mark;if(wcode>=95||parseFloat(prec)>10||wMax>11)mark='❌';else if(wcode>=51||parseFloat(prec)>2||wMax>7)mark='❓';else mark='✅';
       lines.push(`${mark} ${date}: ${tmin}…${tmax}°C, 💧${prec}мм, 💨${wind}м/с`);
     }
     return lines.join('\n');
-  } catch(e){
-    return '🌤 Погода: ошибка загрузки';
-  }
+  } catch(e){return '🌤 Погода: ошибка загрузки';}
 }
 
 window.addEventListener('DOMContentLoaded',init);
