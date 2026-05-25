@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.3
-  v1.3 · 2026-05-25 · Экран "На согласовании" + редактирование + удаление
+  AgroDrone.BY · Бригадир — Prepare v1.3.1
+  v1.3.1 · 2026-05-25 · Фикс isoDate для форматов Sheets
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
@@ -116,7 +116,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.3</span></div>
+  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.3.1</span></div>
 </div>
 
 <!-- Загрузка -->
@@ -278,7 +278,7 @@ async function init(){
       pendingTrip = json.result.trip;
       fillPendingScreen(pendingTrip);
       showScreen('pending');
-      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3</span>';
+      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
     } else {
       showFormNew();
     }
@@ -310,15 +310,25 @@ function fmt(d){
 }
 function isoDate(val){
   if(!val)return'';
-  const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[1]}-${m[2]}-${m[3]}`;
-  const m2=String(val).match(/(\d{2})\.(\d{2})\.(\d{4})/);if(m2)return`${m2[3]}-${m2[2]}-${m2[1]}`;
+  // Если объект Date (из Google Sheets)
+  if(val instanceof Date){
+    const y=val.getFullYear(),mo=String(val.getMonth()+1).padStart(2,'0'),d=String(val.getDate()).padStart(2,'0');
+    return`${y}-${mo}-${d}`;
+  }
+  const s=String(val).trim();
+  // YYYY-MM-DD
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[1]}-${m[2]}-${m[3]}`;
+  // DD.MM.YYYY
+  const m2=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);if(m2)return`${m2[3]}-${m2[2]}-${m2[1]}`;
+  // Любой строковый формат Date
+  try{const d=new Date(s);if(!isNaN(d)){const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${mo}-${dd}`;}}catch(e){}
   return'';
 }
 
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
   editMode=true;
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.3</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.3.1</span>';
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   const t=pendingTrip;
 
@@ -357,7 +367,7 @@ function editPending(){
 function cancelEdit(){
   if(pendingTrip){
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
     showScreen('pending');
   } else {
     window.location.href='AD_op_menu.html';
@@ -426,7 +436,7 @@ async function sendForApproval(){
     pendingTrip={tripId,...d,notes};
     fillPendingScreen(pendingTrip);
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
     setTimeout(()=>showScreen('pending'),800);
 
   } catch(e){
@@ -472,7 +482,7 @@ async function deleteTrip(){
     showToast('🗑 Заявка удалена');
     pendingTrip=null;editMode=false;
     document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.3</span>';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.3.1</span>';
     document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
     selectedOps.clear();selectedTech.clear();
     setTimeout(()=>{showScreen('form');document.getElementById('date-start').value=new Date().toISOString().split('T')[0];},500);
