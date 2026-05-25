@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.3.1
-  v1.3.1 · 2026-05-25 · Фикс isoDate для форматов Sheets
+  AgroDrone.BY · Бригадир — Prepare v1.4
+  v1.4 · 2026-05-25 · Дата окончания → кол.C при подготовке, очищается при активации + погода в уведомлении
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
@@ -116,7 +116,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.3.1</span></div>
+  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.4</span></div>
 </div>
 
 <!-- Загрузка -->
@@ -278,7 +278,7 @@ async function init(){
       pendingTrip = json.result.trip;
       fillPendingScreen(pendingTrip);
       showScreen('pending');
-      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
+      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
     } else {
       showFormNew();
     }
@@ -328,7 +328,7 @@ function isoDate(val){
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
   editMode=true;
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.3.1</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.4</span>';
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   const t=pendingTrip;
 
@@ -367,7 +367,7 @@ function editPending(){
 function cancelEdit(){
   if(pendingTrip){
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
     showScreen('pending');
   } else {
     window.location.href='AD_op_menu.html';
@@ -391,7 +391,6 @@ function collectFormData(){
 function validateForm(d){
   if(!d.district){showToast('⚠️ Выберите район');return false}
   if(!d.dateStart){showToast('⚠️ Укажите дату выезда');return false}
-  if(!d.dateEnd){showToast('⚠️ Укажите дату возвращения');return false}
   if(selectedOps.size===0){showToast('⚠️ Выберите операторов');return false}
   if(selectedTech.size===0){showToast('⚠️ Выберите технику');return false}
   return true;
@@ -428,7 +427,8 @@ async function sendForApproval(){
 
     if(!editMode){
       const BOT='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk',CID='6204739474';
-      const msg=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${d.dateStart} → ${d.dateEnd}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n⏰ ${new Date().toLocaleString('ru-RU')}`;
+      const weather = await getWeatherForecast(d.district, d.dateStart);
+      const msg=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n${weather}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
       fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msg})}).catch(()=>{});
     }
 
@@ -436,7 +436,7 @@ async function sendForApproval(){
     pendingTrip={tripId,...d,notes};
     fillPendingScreen(pendingTrip);
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.3.1</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.4</span>';
     setTimeout(()=>showScreen('pending'),800);
 
   } catch(e){
@@ -482,7 +482,7 @@ async function deleteTrip(){
     showToast('🗑 Заявка удалена');
     pendingTrip=null;editMode=false;
     document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.3.1</span>';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.4</span>';
     document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
     selectedOps.clear();selectedTech.clear();
     setTimeout(()=>{showScreen('form');document.getElementById('date-start').value=new Date().toISOString().split('T')[0];},500);
@@ -520,6 +520,68 @@ function selectCar(el,type){
   document.getElementById('rent-number-field').style.display=type==='rent'?'block':'none';
 }
 function changeGear(key,delta){gearCounters[key]=Math.max(0,gearCounters[key]+delta);document.getElementById(key+'-val').textContent=gearCounters[key]}
+
+// ── Координаты районов РБ ─────────────────────────────────
+const DISTRICT_COORDS = {
+  'Ганцевичи':[52.757,26.432],'Слуцк':[53.028,27.555],'Несвиж':[53.220,26.682],
+  'Клецк':[53.065,26.640],'Столин':[51.888,26.852],'Брест':[52.097,23.734],
+  'Барановичи':[53.133,26.016],'Пинск':[52.117,26.102],'Кобрин':[52.213,24.360],
+  'Лунинец':[52.249,26.808],'Ляховичи':[53.040,26.270],'Пружаны':[52.556,24.457],
+  'Минск':[53.904,27.562],'Гродно':[53.677,23.829],'Витебск':[55.193,30.208],
+  'Могилев':[53.900,30.332],'Гомель':[52.441,30.987],'Бобруйск':[53.138,29.224],
+  'Жодино':[54.100,28.055],'Молодечно':[54.313,26.842]
+};
+
+function fmtDate(val){
+  if(!val)return'—';
+  const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);
+  return m?`${m[3]}.${m[2]}.${m[1]}`:String(val);
+}
+
+async function getWeatherForecast(district, dateStart) {
+  try {
+    const coords = DISTRICT_COORDS[district];
+    if(!coords) return '🌤 Погода: район не найден в базе';
+
+    const [lat, lon] = coords;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=Europe%2FMinsk&forecast_days=7`;
+    const r = await fetch(url);
+    const d = await r.json();
+
+    // Находим индекс стартовой даты
+    const days = d.daily.time;
+    let startIdx = 0;
+    if(dateStart){
+      const idx = days.indexOf(dateStart);
+      if(idx >= 0) startIdx = idx;
+    }
+
+    const lines = ['🌤 Погода на командировку:'];
+    for(let i = startIdx; i < Math.min(startIdx+3, days.length); i++){
+      const tmax  = Math.round(d.daily.temperature_2m_max[i]);
+      const tmin  = Math.round(d.daily.temperature_2m_min[i]);
+      const prec  = d.daily.precipitation_sum[i];
+      const wind  = Math.round(d.daily.windspeed_10m_max[i] / 3.6);
+      const wcode = d.daily.weathercode[i];
+      const date  = fmtDate(days[i]);
+
+      // Оценка погоды для полётов
+      let mark;
+      if(wcode >= 95 || prec > 10 || wind > 11){
+        mark = '❌'; // гроза/ливень/ветер >11 м/с
+      } else if(wcode >= 51 || prec > 2 || wind > 7){
+        mark = '❓'; // дождь/ветер >7 м/с
+      } else {
+        mark = '✅'; // норм
+      }
+
+      lines.push(`${mark} ${date}: ${tmin}…${tmax}°C, 💧${prec}мм, 💨${wind}м/с`);
+    }
+    return lines.join('\n');
+  } catch(e){
+    return '🌤 Погода: ошибка загрузки';
+  }
+}
 
 window.addEventListener('DOMContentLoaded',init);
 </script>
