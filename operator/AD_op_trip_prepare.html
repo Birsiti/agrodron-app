@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.1
-  v1.1 · 2026-05-24
+  AgroDrone.BY · Бригадир — Prepare v1.2
+  v1.2 · 2026-05-25 · Сохранение в Sheets КОМАНДИРОВКИ + подтяжка в AD_op_trip
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v1.1</title>
+<title>AgroDrone.BY · Prepare v1.2</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -235,7 +235,7 @@ select.fi{
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title">Prepare v1.1</div>
+  <div class="hdr-title">Подготовка командировки <span style="font-size:11px;opacity:.6">v1.2</span></div>
 </div>
 
 <div class="scroll">
@@ -411,6 +411,70 @@ const gearChecked = new Set();
 let carType = 'own';
 let fieldsData = [];
 
+const OP_NAMES = {
+  'OP001': 'Бруй Д.А.',
+  'OP002': 'Грибов К.М.',
+  'OP003': 'Борисенок Л.И.',
+  'OP004': 'Уманец А.И.'
+};
+const TECH_NAMES = { 'A60': 'А60-ХМ', 'A70': 'А70-ХМ', 'A1': 'А1-Х' };
+
+// ── Генерация ID командировки ─────────────────────────────
+function generateTripId(district) {
+  const now = new Date();
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  // Берём первые 3 буквы района латиницей или GAN как дефолт
+  const distMap = {
+    'Ганцевичи':'GAN','Слуцк':'SLU','Несвиж':'NES','Клецк':'KLE',
+    'Столин':'STO','Брест':'BRS','Барановичи':'BAR','Пинск':'PIN',
+    'Кобрин':'KOB','Лунинец':'LUN','Ляховичи':'LYA','Пружаны':'PRU'
+  };
+  const code = distMap[district] || district.substring(0,3).toUpperCase();
+  return `TR01-${code}-${mm}${dd}`;
+}
+
+// ── Сбор данных формы ─────────────────────────────────────
+function collectFormData() {
+  const district = document.getElementById('district').value;
+  const dateStart = document.getElementById('date-start').value;
+  const dateEnd = document.getElementById('date-end').value;
+  const plannedHa = document.getElementById('planned-ha').value || '0';
+
+  const operators = Array.from(selectedOps).map(id => OP_NAMES[id]).join(', ');
+
+  let tech = Array.from(selectedTech)
+    .filter(id => id !== 'OTHER')
+    .map(id => TECH_NAMES[id])
+    .join(', ');
+  if (selectedTech.has('OTHER')) {
+    const otherTech = document.getElementById('other-tech').value.trim();
+    if (otherTech) tech += (tech ? ', ' : '') + otherTech;
+  }
+
+  const car = carType === 'own'
+    ? 'Ford Transit AT1637-5'
+    : 'Аренда: ' + (document.getElementById('rent-number').value || '—');
+
+  const gear = [
+    `Лопасти:${gearCounters.blades}`,
+    `Форсунки:${gearCounters.nozzles}`,
+    `АКБ:${gearCounters.batteries}`,
+    `Зарядки:${gearCounters.chargers}`
+  ].join(', ');
+
+  return { district, dateStart, dateEnd, plannedHa, operators, tech, car, gear };
+}
+
+function validateForm(d) {
+  if (!d.district)        { showToast('⚠️ Выберите район'); return false; }
+  if (!d.dateStart)       { showToast('⚠️ Укажите дату выезда'); return false; }
+  if (!d.dateEnd)         { showToast('⚠️ Укажите дату возвращения'); return false; }
+  if (selectedOps.size === 0)  { showToast('⚠️ Выберите операторов'); return false; }
+  if (selectedTech.size === 0) { showToast('⚠️ Выберите технику'); return false; }
+  return true;
+}
+
 // ── Загрузка районов и полей ────────────────────────────
 async function loadDistricts() {
   try {
@@ -418,17 +482,17 @@ async function loadDistricts() {
     const r = await fetch(url);
     const d = await r.json();
     const rows = d.values || [];
-    
+
     fieldsData = rows.map(row => ({
       district: (row[2]||'').toString().trim(),
       ha: parseFloat((row[8]||'0').toString().replace(',','.')) || 0,
       status: (row[9]||'').toString().trim().toLowerCase()
     }));
-    
+
     const districts = [...new Set(fieldsData.map(f => f.district).filter(d => d && d !== 'Не указан' && d !== 'Тест'))].sort();
-    
+
     const sel = document.getElementById('district');
-    sel.innerHTML = '<option value="">Выберите район</option>' + 
+    sel.innerHTML = '<option value="">Выберите район</option>' +
       districts.map(d => `<option value="${d}">${d}</option>`).join('') +
       '<option value="other">⌨️ Другой (ввести вручную)</option>';
   } catch(e) {
@@ -438,11 +502,7 @@ async function loadDistricts() {
 
 function updatePlannedHa() {
   const district = document.getElementById('district').value;
-  if (!district || district === 'other') {
-    document.getElementById('planned-ha').value = '';
-    return;
-  }
-  
+  if (!district || district === 'other') { document.getElementById('planned-ha').value = ''; return; }
   const districtFields = fieldsData.filter(f => f.district === district && !['готово','done'].includes(f.status));
   const totalHa = districtFields.reduce((sum, f) => sum + f.ha, 0);
   document.getElementById('planned-ha').value = totalHa > 0 ? totalHa.toFixed(1) : '';
@@ -451,26 +511,15 @@ function updatePlannedHa() {
 // ── Операторы ────────────────────────────────────────────
 function toggleOp(el, id) {
   el.classList.toggle('selected');
-  if (selectedOps.has(id)) {
-    selectedOps.delete(id);
-  } else {
-    selectedOps.add(id);
-  }
+  selectedOps.has(id) ? selectedOps.delete(id) : selectedOps.add(id);
 }
 
 // ── Техника ──────────────────────────────────────────────
 function toggleTech(el, id) {
   el.classList.toggle('selected');
-  if (selectedTech.has(id)) {
-    selectedTech.delete(id);
-  } else {
-    selectedTech.add(id);
-  }
-  
-  // Показать поле для доп оборудования
+  selectedTech.has(id) ? selectedTech.delete(id) : selectedTech.add(id);
   if (id === 'OTHER') {
-    document.getElementById('other-tech-field').style.display = 
-      selectedTech.has('OTHER') ? 'block' : 'none';
+    document.getElementById('other-tech-field').style.display = selectedTech.has('OTHER') ? 'block' : 'none';
   }
 }
 
@@ -490,183 +539,118 @@ function changeGear(key, delta) {
 
 function toggleGearCheck(el, key) {
   el.classList.toggle('checked');
-  if (gearChecked.has(key)) {
-    gearChecked.delete(key);
-  } else {
-    gearChecked.add(key);
-  }
+  gearChecked.has(key) ? gearChecked.delete(key) : gearChecked.add(key);
 }
 
-// ── Отправка ─────────────────────────────────────────────
+// ── Отправить на согласование → запись в Sheets со статусом "подготовка" ──
 async function sendForApproval() {
-  const district = document.getElementById('district').value;
-  const dateStart = document.getElementById('date-start').value;
-  const dateEnd = document.getElementById('date-end').value;
+  const d = collectFormData();
+  if (!validateForm(d)) return;
 
-  if (!district) { showToast('⚠️ Выберите район'); return; }
-  if (!dateStart) { showToast('⚠️ Укажите дату выезда'); return; }
-  if (!dateEnd) { showToast('⚠️ Укажите дату возвращения'); return; }
-  if (selectedOps.size === 0) { showToast('⚠️ Выберите операторов'); return; }
-  if (selectedTech.size === 0) { showToast('⚠️ Выберите хотя бы один дрон'); return; }
-
-  const opNames = {
-    'OP001': 'Бруй Д.А.',
-    'OP002': 'Грибов К.М.',
-    'OP003': 'Борисенок Л.И.',
-    'OP004': 'Уманец А.И.'
-  };
-  const techNames = { 'A60': 'А60-ХМ', 'A70': 'А70-ХМ', 'A1': 'А1-Х' };
-
-  const operators = Array.from(selectedOps).map(id => opNames[id]).join(', ');
-  
-  let tech = Array.from(selectedTech)
-    .filter(id => id !== 'OTHER')
-    .map(id => techNames[id])
-    .join(', ');
-  
-  if (selectedTech.has('OTHER')) {
-    const otherTech = document.getElementById('other-tech').value.trim();
-    if (otherTech) {
-      tech += (tech ? ', ' : '') + otherTech;
-    }
-  }
-  
-  const car = carType === 'own' 
-    ? 'Ford Transit AT1637-5' 
-    : 'Аренда: ' + document.getElementById('rent-number').value;
-  
-  const gear = [
-    `🚁 Лопасти: ${gearCounters.blades} компл.`,
-    `💧 Форсунки: ${gearCounters.nozzles} шт`,
-    `🔋 АКБ: ${gearCounters.batteries} шт`,
-    `🔌 Зарядки: ${gearCounters.chargers} шт`
-  ];
-
-  const plannedHa = document.getElementById('planned-ha').value || '—';
-
-  const doc = `
-═══════════════════════════════════════
-ЗАЯВКА НА КОМАНДИРОВКУ
-═══════════════════════════════════════
-
-📍 Район: ${district}
-📅 Даты: ${dateStart} → ${dateEnd}
-🌾 Примерная площадь: ${plannedHa} га
-
-👥 Состав бригады:
-${operators}
-
-🚁 Техника:
-${tech}
-
-🚐 Автомобиль: ${car}
-
-📦 Снаряжение:
-${gear.map(g => '✓ ' + g).join('\n')}
-
-═══════════════════════════════════════
-Дата подготовки: ${new Date().toLocaleDateString('ru-RU')}
-Бригадир: Бруй Д.А.
-  `.trim();
-
-  const tripData = {
-    id: 'PREP-' + Date.now(),
-    district, dateStart, dateEnd, plannedHa,
-    operators, tech, car, gear,
-    status: 'pending'
-  };
-
-  localStorage.setItem('atk_trip_pending', JSON.stringify(tripData));
-
-  // Отправка в Telegram бригадиру (Денис)
-  const TELEGRAM_BOT_TOKEN = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
-  const DENIS_CHAT_ID = '6204739474';
-  
-  const telegramMessage = `🚐 ЗАЯВКА НА КОМАНДИРОВКУ
-
-📍 Район: ${district}
-📅 ${dateStart} → ${dateEnd}
-🌾 Примерная площадь: ${plannedHa} га
-
-👥 Бригада: ${operators}
-🚁 Техника: ${tech}
-🚐 ${car}
-
-📦 Снаряжение:
-${gear.join('\n')}
-
-⏰ ${new Date().toLocaleString('ru-RU')}`;
+  const tripId = generateTripId(d.district);
+  const btn = document.querySelector('.btn-orange');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправка...';
 
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    // 1. Записать в Sheets КОМАНДИРОВКИ
+    const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: DENIS_CHAT_ID,
-        text: telegramMessage
+        action: 'createTrip',
+        data: {
+          tripId,
+          district:   d.district,
+          dateStart:  d.dateStart,
+          dateEnd:    d.dateEnd,
+          operators:  d.operators,
+          tech:       d.tech,
+          car:        d.car,
+          gear:       d.gear,
+          plannedHa:  d.plannedHa,
+          status:     'подготовка'
+        }
       })
     });
+    const json = await resp.json();
+    if (!json.ok) throw new Error(json.error || 'Ошибка сервера');
+
+    // 2. Сохранить tripId в sessionStorage для кнопки "Начать"
+    sessionStorage.setItem('atk_trip_id', tripId);
+    sessionStorage.setItem('atk_trip_data', JSON.stringify(d));
+
+    // 3. Уведомление в Telegram
+    const TELEGRAM_BOT_TOKEN = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
+    const DENIS_CHAT_ID = '6204739474';
+    const msg = `🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 Район: ${d.district}\n📅 ${d.dateStart} → ${d.dateEnd}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n⏰ ${new Date().toLocaleString('ru-RU')}`;
+    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id: DENIS_CHAT_ID, text: msg })
+    }).catch(()=>{});
+
+    showToast(`✅ Заявка ${tripId} отправлена`);
+    setTimeout(() => window.location.href = 'AD_op_menu.html', 1500);
+
   } catch(e) {
-    console.log('Telegram error:', e);
+    showToast('❌ Ошибка: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '📋 Отправить на согласование';
   }
-
-  if (navigator.clipboard) {
-    await navigator.clipboard.writeText(doc);
-    showToast('✅ Заявка отправлена и скопирована');
-  } else {
-    alert(doc);
-  }
-
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'create_trip_request', data: tripData })
-    });
-  } catch(e) {}
-
-  setTimeout(() => {
-    window.location.href = 'AD_op_menu.html';
-  }, 1500);
 }
 
-// ── Согласовано → Начать командировку ───────────────────
-function approveTrip() {
-  const district = document.getElementById('district').value;
-  const dateStart = document.getElementById('date-start').value;
-  const dateEnd = document.getElementById('date-end').value;
+// ── Согласовано → активировать командировку в Sheets ─────
+async function approveTrip() {
+  const d = collectFormData();
+  if (!validateForm(d)) return;
 
-  if (!district) { showToast('⚠️ Выберите район'); return; }
-  if (!dateStart) { showToast('⚠️ Укажите дату выезда'); return; }
-  if (selectedOps.size === 0) { showToast('⚠️ Выберите операторов'); return; }
-  if (selectedTech.size === 0) { showToast('⚠️ Выберите дроны'); return; }
+  // Берём tripId из sessionStorage (если уже отправляли) или генерируем новый
+  let tripId = sessionStorage.getItem('atk_trip_id');
+  if (!tripId) tripId = generateTripId(d.district);
 
-  // Сохраняем данные подготовки
-  const opNames = {
-    'OP001': 'Бруй Д.А.',
-    'OP002': 'Грибов К.М.',
-    'OP003': 'Борисенок Л.И.',
-    'OP004': 'Уманец А.И.'
-  };
-  
-  const tripPrep = {
-    district,
-    dateStart,
-    dateEnd,
-    operators: Array.from(selectedOps).map(id => opNames[id]).join(', '),
-    status: 'approved'
-  };
-  
-  localStorage.setItem('atk_trip_approved', JSON.stringify(tripPrep));
-  showToast('✅ Переход к командировке');
-  
-  setTimeout(() => {
-    window.location.href = 'AD_op_trip.html';
-  }, 800);
+  const btn = document.querySelectorAll('.btn-orange')[1];
+  btn.disabled = true;
+  btn.textContent = '⏳ Запуск...';
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'activateTrip',
+        data: {
+          tripId,
+          district:  d.district,
+          dateStart: d.dateStart,
+          dateEnd:   d.dateEnd,
+          operators: d.operators,
+          tech:      d.tech,
+          car:       d.car,
+          gear:      d.gear,
+          plannedHa: d.plannedHa
+        }
+      })
+    });
+    const json = await resp.json();
+    if (!json.ok) throw new Error(json.error || 'Ошибка сервера');
+
+    sessionStorage.setItem('atk_trip_id', tripId);
+    sessionStorage.setItem('atk_trip_data', JSON.stringify(d));
+
+    showToast(`✅ Командировка ${tripId} активна`);
+    setTimeout(() => window.location.href = `AD_op_trip.html?tripId=${encodeURIComponent(tripId)}`, 800);
+
+  } catch(e) {
+    showToast('❌ Ошибка: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '✅ Согласовано — Начать командировку';
+  }
 }
 
 // ── Init ─────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   loadDistricts();
+  // Подставить дату выезда = сегодня по умолчанию
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('date-start').value = today;
 });
 </script>
 
