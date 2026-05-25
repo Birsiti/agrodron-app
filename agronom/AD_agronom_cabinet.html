@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Агроном — Кабинет
-  v3.3 · 2026-05-23 · Табы: Активные/Завершённые/Карта
+  v3.4 · 2026-05-25 · ID агронома в шапке + спиннер загрузки
 -->
 <html lang="ru">
 <head>
@@ -95,6 +95,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .toast.show{opacity:1}
 
 .loading{text-align:center;padding:40px;color:var(--t3);font-size:14px}
+.loading-spinner{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px}
+.spinner-icon{font-size:36px;animation:spin 1.2s linear infinite;display:inline-block}
+.spinner-text{font-size:13px;color:var(--t3);font-weight:600}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hdr-client-id{font-size:11px;font-weight:700;color:rgba(255,255,255,.65);background:rgba(255,255,255,.12);border-radius:8px;padding:3px 8px;letter-spacing:.3px;white-space:nowrap}
 
 .tab-content{display:none}
 .tab-content.active{display:block}
@@ -105,6 +110,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="app-hdr">
   <div class="hdr-top">
     <div class="hdr-logo">AgroDrone.BY</div>
+    <div class="hdr-client-id" id="hdr-client-id">—</div>
     <div class="hdr-btn" onclick="window.location.reload()">⟳</div>
   </div>
   <div class="hdr-info">
@@ -137,7 +143,10 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="scroll">
   <!-- TAB: АКТИВНЫЕ -->
   <div id="tab-active" class="tab-content active">
-    <div id="active-fields" class="loading">Загрузка полей...</div>
+    <div id="active-fields" class="loading-spinner">
+      <span class="spinner-icon">🌾</span>
+      <span class="spinner-text">Загрузка полей...</span>
+    </div>
   </div>
 
   <!-- TAB: ЗАВЕРШЁННЫЕ -->
@@ -196,6 +205,11 @@ async function init() {
     CLIENT_ID = clientId;
   } else {
     CLIENT_ID = sessionStorage.getItem('CLIENT_ID');
+  }
+  
+  // Показываем ID в шапке сразу
+  if (CLIENT_ID) {
+    document.getElementById('hdr-client-id').textContent = CLIENT_ID;
   }
   
   if (!CLIENT_ID) {
