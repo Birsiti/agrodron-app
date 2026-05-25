@@ -363,8 +363,9 @@ async function init(){
     const json = await resp.json();
     console.log('getPendingTrips:', JSON.stringify(json));
 
-    if(json.ok && json.result && json.result.trips){
-      pendingTrips = json.result.trips;
+    const r = json.result?.result || json.result;
+if(json.ok && r && r.trips){
+  pendingTrips = r.trips;
     } else {
       pendingTrips = [];
     }
