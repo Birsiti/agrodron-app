@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Menu v2.0
-  v2.0 · 2026-05-24
-  Файл: AD_op_menu.html
-  
-  Изменения v2.0:
-  - Вернули оранжевый дизайн
-  - Упрощённая логика бригадира (op.id === 'OP001')
-  - Привязка к реальной структуре Google Sheets
-  - Баннеры командировки и дня на основе статусов из таблицы
+  AgroDrone.BY · Menu v3.0
+  v3.0 · 2026-05-25
+  - Активные командировки из таблицы (массив)
+  - История завершённых командировок
+  - Новая подготовка всегда доступна
+  - Несколько активных одновременно
 -->
 <html lang="ru">
 <head>
@@ -19,272 +16,82 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#fff5eb;
-  --card:#fff;
-  --orange:#d97706;
-  --orange-dark:#b45309;
-  --orange-light:#fed7aa;
-  --orange-pale:#fff5eb;
-  --green:#1b5935;
-  --gm:#2a7a4a;
-  --gl:#e8f4ed;
-  --ga:#3aaa5e;
-  --border:#f4dcc4;
-  --t1:#1a1f2e;
-  --t2:#5a6476;
-  --t3:#9aa3b2;
+  --bg:#fff5eb;--card:#fff;--orange:#d97706;--orange-dark:#b45309;
+  --orange-light:#fed7aa;--orange-pale:#fff5eb;
+  --green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#f4dcc4;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
   --sh:0 2px 8px rgba(217,119,6,.12),0 8px 24px rgba(217,119,6,.08);
-  --r:16px;
-  --rs:12px;
-  --f:'Manrope',sans-serif;
-  --amber:#d97706;
-  --red:#dc2626;
-  --blue:#2563eb;
-  --gray:#6b7280;
+  --r:16px;--rs:12px;--f:'Manrope',sans-serif;
+  --red:#dc2626;--blue:#2563eb;--gray:#6b7280;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;height:100%;display:flex;flex-direction:column}
 
-/* HEADER */
-.app-hdr{
-  background:linear-gradient(135deg,var(--orange),var(--orange-dark));
-  padding:16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-shrink:0;
-  box-shadow:0 4px 16px rgba(217,119,6,.2);
-}
+.app-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 16px rgba(217,119,6,.2)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand-ico{
-  width:42px;
-  height:42px;
-  background:rgba(255,255,255,.2);
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-  backdrop-filter:blur(8px);
-}
+.brand-ico{width:42px;height:42px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(8px)}
 .brand-ico svg{width:24px;height:24px}
-.brand-name{
-  font-size:19px;
-  font-weight:800;
-  color:#fff;
-  line-height:1.1;
-  letter-spacing:-.3px;
-}
-.brand-name em{font-style:normal;opacity:.85}
-.brand-sub{
-  font-size:11px;
-  color:rgba(255,255,255,.75);
-  font-weight:600;
-  margin-top:2px;
-}
-.op-chip{
-  font-size:12px;
-  font-weight:800;
-  padding:6px 14px;
-  border-radius:20px;
-  background:rgba(255,255,255,.25);
-  color:#fff;
-  backdrop-filter:blur(8px);
-}
+.brand-name{font-size:19px;font-weight:800;color:#fff;line-height:1.1;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;margin-top:2px}
+.op-chip{font-size:12px;font-weight:800;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.25);color:#fff;backdrop-filter:blur(8px)}
 
-/* SCROLL */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.menu-wrap{padding:12px 12px 32px}
 
-/* MENU */
-.menu-wrap{padding:12px 12px 24px}
-
-/* ROLE BANNER */
-.role-banner{
-  border-radius:var(--r);
-  padding:14px 16px;
-  margin:0 0 12px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  background:linear-gradient(135deg,var(--orange),var(--orange-dark));
-  box-shadow:var(--sh);
-}
-.rb-ico{font-size:24px}
-.rb-info{flex:1}
+.role-banner{border-radius:var(--r);padding:14px 16px;margin:0 0 12px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--orange),var(--orange-dark));box-shadow:var(--sh)}
+.rb-ico{font-size:24px}.rb-info{flex:1}
 .rb-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.2px}
 .rb-sub{font-size:12px;opacity:.85;color:#fff;margin-top:2px}
 
-/* SECTION HEADERS */
-.sep{
-  font-size:11px;
-  font-weight:800;
-  color:var(--orange);
-  text-transform:uppercase;
-  letter-spacing:1px;
-  padding:16px 4px 10px;
-}
+.sep{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:1px;padding:16px 4px 10px;display:flex;align-items:center;justify-content:space-between}
 
-/* MENU ITEMS */
-.mi{
-  background:var(--card);
-  border-radius:var(--rs);
-  padding:16px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  cursor:pointer;
-  box-shadow:0 1px 4px rgba(217,119,6,.08);
-  margin-bottom:8px;
-  transition:all .2s;
-  border:2px solid transparent;
-}
-.mi:active{
-  transform:scale(.98);
-  border-color:var(--orange-light);
-  background:var(--orange-pale);
-}
-.mi-ico{
-  font-size:26px;
-  width:32px;
-  text-align:center;
-  flex-shrink:0;
-}
+.mi{background:var(--card);border-radius:var(--rs);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 1px 4px rgba(217,119,6,.08);margin-bottom:8px;transition:all .2s;border:2px solid transparent}
+.mi:active{transform:scale(.98);border-color:var(--orange-light);background:var(--orange-pale)}
+.mi-ico{font-size:26px;width:32px;text-align:center;flex-shrink:0}
 .mi-info{flex:1}
-.mi-title{
-  font-size:15px;
-  font-weight:800;
-  color:var(--t1);
-  letter-spacing:-.2px;
-}
-.mi-sub{
-  font-size:12px;
-  color:var(--t3);
-  margin-top:3px;
-}
-.mi-arr{
-  color:var(--orange);
-  font-size:20px;
-  margin-left:auto;
-  font-weight:300;
-}
-.mi-badge{
-  font-size:11px;
-  font-weight:800;
-  padding:3px 10px;
-  border-radius:10px;
-  background:var(--red);
-  color:#fff;
-  margin-left:auto;
-}
+.mi-title{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.2px}
+.mi-sub{font-size:12px;color:var(--t3);margin-top:3px}
+.mi-arr{color:var(--orange);font-size:20px;margin-left:auto;font-weight:300}
+.mi-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:10px;background:var(--red);color:#fff;margin-left:auto}
 
-/* BANNERS */
-.trip-banner{
-  background:linear-gradient(135deg,var(--orange),var(--orange-dark));
-  border-radius:var(--r);
-  padding:16px;
-  margin-bottom:12px;
-  color:#fff;
-  cursor:pointer;
-  box-shadow:var(--sh);
-  transition:all .2s;
-}
-.trip-banner:active{transform:scale(.98)}
+/* Активная командировка — карточка */
+.active-trip-card{background:linear-gradient(135deg,var(--orange),var(--orange-dark));border-radius:var(--r);padding:16px;margin-bottom:8px;cursor:pointer;box-shadow:var(--sh);transition:all .2s}
+.active-trip-card:active{transform:scale(.98)}
+.atc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.atc-district{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.atc-badge{background:rgba(255,255,255,.25);padding:4px 12px;border-radius:12px;font-size:11px;font-weight:800;color:#fff;backdrop-filter:blur(8px)}
+.atc-sub{font-size:12px;color:rgba(255,255,255,.8);margin-top:2px}
+.atc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.atc-stat{background:rgba(255,255,255,.2);border-radius:10px;padding:8px;text-align:center;backdrop-filter:blur(8px)}
+.atc-stat-val{font-size:16px;font-weight:800;color:#fff}
+.atc-stat-lbl{font-size:10px;color:rgba(255,255,255,.8);margin-top:1px;font-weight:600}
 
-.closed-trip-banner{
-  background:linear-gradient(135deg,var(--gray),#4b5563);
-  border-radius:var(--r);
-  padding:16px;
-  margin-bottom:12px;
-  color:#fff;
-  cursor:pointer;
-  box-shadow:0 2px 8px rgba(107,114,128,.12);
-  transition:all .2s;
-}
-.closed-trip-banner:active{transform:scale(.98)}
+/* История — карточка */
+.history-card{background:var(--card);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:all .2s;border-left:4px solid var(--ga)}
+.history-card:active{transform:scale(.98)}
+.hc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.hc-district{font-size:14px;font-weight:800;color:var(--t1)}
+.hc-ha{font-size:13px;font-weight:700;color:var(--green)}
+.hc-dates{font-size:11px;color:var(--t3)}
 
-.day-banner{
-  background:linear-gradient(135deg,var(--blue),#1d4ed8);
-  border-radius:var(--r);
-  padding:16px;
-  margin-bottom:12px;
-  color:#fff;
-  cursor:pointer;
-  box-shadow:0 2px 8px rgba(37,99,235,.12);
-  transition:all .2s;
-}
+/* День-баннер */
+.day-banner{background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:var(--r);padding:16px;margin-bottom:12px;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(37,99,235,.12);transition:all .2s}
 .day-banner:active{transform:scale(.98)}
+.tb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.tb-title{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.tb-sub{font-size:12px;opacity:.85;margin-top:3px}
+.tb-badge{background:rgba(255,255,255,.25);padding:4px 12px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;backdrop-filter:blur(8px)}
+.tb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tb-stat{background:rgba(255,255,255,.2);border-radius:10px;padding:10px;text-align:center;backdrop-filter:blur(8px)}
+.tb-stat-val{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.tb-stat-lbl{font-size:10px;opacity:.8;margin-top:2px;font-weight:600}
 
-.tb-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:12px;
-}
-.tb-title{
-  font-size:15px;
-  font-weight:800;
-  letter-spacing:-.2px;
-}
-.tb-sub{
-  font-size:12px;
-  opacity:.85;
-  margin-top:3px;
-}
-.tb-badge{
-  background:rgba(255,255,255,.25);
-  padding:4px 12px;
-  border-radius:12px;
-  font-size:11px;
-  font-weight:800;
-  white-space:nowrap;
-  backdrop-filter:blur(8px);
-}
-.tb-stats{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:8px;
-}
-.tb-stat{
-  background:rgba(255,255,255,.2);
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
-  backdrop-filter:blur(8px);
-}
-.tb-stat-val{
-  font-size:17px;
-  font-weight:800;
-  letter-spacing:-.3px;
-}
-.tb-stat-lbl{
-  font-size:10px;
-  opacity:.8;
-  margin-top:2px;
-  font-weight:600;
-}
+/* Скелетон загрузки */
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:var(--rs);height:80px;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* TOAST */
-.toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(217,119,6,.95);
-  color:#fff;
-  padding:14px 24px;
-  border-radius:30px;
-  font-size:14px;
-  font-weight:700;
-  box-shadow:0 6px 20px rgba(217,119,6,.3);
-  z-index:999;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .3s;
-  white-space:nowrap;
-  max-width:90%;
-  backdrop-filter:blur(8px);
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(217,119,6,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(217,119,6,.3);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -293,129 +100,63 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 <div class="app-hdr">
   <div class="brand">
     <div class="brand-ico">
-      <svg fill="#fff" viewBox="0 0 24 24">
-        <path d="M12 2L4 7v10c0 5 8 6 8 6s8-1 8-6V7l-8-5zm0 18c-4-1-6-3-6-5V8.5l6-3.5 6 3.5V15c0 2-2 4-6 5z"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
       </svg>
     </div>
     <div>
-      <div class="brand-name">Agro<em>Drone</em>.BY</div>
-      <div class="brand-sub">v2.0</div>
+      <div class="brand-name">AgroDrone<em>.BY</em></div>
+      <div class="brand-sub" id="brand-sub">v2.0</div>
     </div>
   </div>
-  <div class="op-chip" id="op-chip">—</div>
+  <div class="op-chip" id="op-chip">...</div>
 </div>
 
 <div class="scroll">
 <div class="menu-wrap">
 
-  <!-- Баннер роли -->
+  <!-- Роль-баннер -->
   <div class="role-banner">
-    <div class="rb-ico" id="rb-ico">👤</div>
+    <div class="rb-ico" id="rb-ico">⚡</div>
     <div class="rb-info">
-      <div class="rb-title" id="rb-title">Оператор</div>
-      <div class="rb-sub" id="rb-sub">Загрузка...</div>
+      <div class="rb-title" id="rb-title">Бригадир</div>
+      <div class="rb-sub" id="rb-sub">загрузка...</div>
     </div>
   </div>
 
-  <!-- Баннер активной командировки -->
-  <div id="trip-banner" style="display:none" onclick="goTo('AD_op_trip.html')">
-    <div class="trip-banner">
-      <div class="tb-top">
-        <div>
-          <div class="tb-title">🚐 Командировка</div>
-          <div class="tb-sub" id="tb-direction">—</div>
-        </div>
-        <div class="tb-badge" id="tb-day-badge">День 1</div>
+  <!-- Активный день -->
+  <div id="day-banner" class="day-banner" style="display:none" onclick="goTo('AD_op_day.html')">
+    <div class="tb-top">
+      <div>
+        <div class="tb-title" id="db-date">День</div>
+        <div class="tb-sub" id="db-trip-name">Командировка</div>
       </div>
-      <div class="tb-stats">
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="tb-balance">—</div>
-          <div class="tb-stat-lbl">Остаток BYN</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="tb-ha">0</div>
-          <div class="tb-stat-lbl">Га всего</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="tb-exp-cnt">0</div>
-          <div class="tb-stat-lbl">Расходов</div>
-        </div>
-      </div>
+      <div class="tb-badge" id="db-fields-badge">0 полей</div>
     </div>
-  </div>
-
-  <!-- Баннер закрытой командировки -->
-  <div id="closed-trip-banner" style="display:none" onclick="showTripReport()">
-    <div class="closed-trip-banner">
-      <div class="tb-top">
-        <div>
-          <div class="tb-title">✅ Командировка закрыта</div>
-          <div class="tb-sub" id="ctb-direction">—</div>
-        </div>
-        <div class="tb-badge">Отчёт</div>
-      </div>
-      <div class="tb-stats">
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="ctb-ha">0</div>
-          <div class="tb-stat-lbl">Га обработано</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="ctb-days">0</div>
-          <div class="tb-stat-lbl">Дней в поле</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="ctb-total">0</div>
-          <div class="tb-stat-lbl">Расходов</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Баннер активного дня -->
-  <div id="day-banner" style="display:none" onclick="goTo('AD_op_day.html')">
-    <div class="day-banner">
-      <div class="tb-top">
-        <div>
-          <div class="tb-title">☀️ День открыт</div>
-          <div class="tb-sub" id="db-date">—</div>
-        </div>
-        <div class="tb-badge" id="db-fields-badge">0 полей</div>
-      </div>
-      <div class="tb-stats">
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="db-ha-done">0</div>
-          <div class="tb-stat-lbl">Га сделано</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="db-ha-left">0</div>
-          <div class="tb-stat-lbl">Га осталось</div>
-        </div>
-        <div class="tb-stat">
-          <div class="tb-stat-val" id="db-fields-done">0/0</div>
-          <div class="tb-stat-lbl">Полей</div>
-        </div>
-      </div>
+    <div class="tb-stats">
+      <div class="tb-stat"><div class="tb-stat-val" id="db-ha-done">0</div><div class="tb-stat-lbl">Га сделано</div></div>
+      <div class="tb-stat"><div class="tb-stat-val" id="db-ha-left">0</div><div class="tb-stat-lbl">Га осталось</div></div>
+      <div class="tb-stat"><div class="tb-stat-val" id="db-fields-done">0/0</div><div class="tb-stat-lbl">Полей</div></div>
     </div>
   </div>
 
   <!-- Меню бригадира -->
   <div id="brigadier-menu" style="display:none">
-    <div class="sep">⚡ Командировка</div>
-    
-    <div class="mi" id="btn-open-trip" onclick="goTo('AD_op_trip_prepare.html')">
+
+    <div class="sep">⚡ Командировки</div>
+
+    <!-- Скелетон пока грузится -->
+    <div id="trips-skeleton" class="skeleton"></div>
+
+    <!-- Активные командировки (динамически) -->
+    <div id="active-trips-list"></div>
+
+    <!-- Кнопки -->
+    <div class="mi" onclick="goTo('AD_op_trip_prepare.html')">
       <div class="mi-ico">🚐</div>
       <div class="mi-info">
-        <div class="mi-title">Подготовка командировки</div>
+        <div class="mi-title">Новая подготовка</div>
         <div class="mi-sub">Согласование выезда</div>
-      </div>
-      <div class="mi-arr">›</div>
-    </div>
-
-    <div class="mi" id="btn-open-day" onclick="goTo('AD_op_day.html')" style="display:none">
-      <div class="mi-ico">☀️</div>
-      <div class="mi-info">
-        <div class="mi-title">Открыть день</div>
-        <div class="mi-sub">Едем в поле</div>
       </div>
       <div class="mi-arr">›</div>
     </div>
@@ -428,59 +169,28 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
       </div>
       <div class="mi-arr">›</div>
     </div>
+
+    <div class="mi" onclick="goTo('AD_op_trip_history.html')">
+      <div class="mi-ico">📋</div>
+      <div class="mi-info">
+        <div class="mi-title">История командировок</div>
+        <div class="mi-sub" id="history-sub">Завершённые</div>
+      </div>
+      <div class="mi-arr">›</div>
+    </div>
+
   </div>
 
   <!-- Рабочее -->
   <div class="sep">🛠 Рабочее</div>
-
-  <div class="mi" onclick="goTo('AD_op_map.html')">
-    <div class="mi-ico">🗺</div>
-    <div class="mi-info">
-      <div class="mi-title">Карта полей</div>
-      <div class="mi-sub">Поля района на карте</div>
-    </div>
-    <div class="mi-arr">›</div>
-  </div>
-
-  <div class="mi" onclick="goTo('AD_op_weather.html')">
-    <div class="mi-ico">🌤</div>
-    <div class="mi-info">
-      <div class="mi-title">Погода</div>
-      <div class="mi-sub">Прогноз для полётов</div>
-    </div>
-    <div class="mi-arr">›</div>
-  </div>
-
-  <div class="mi" onclick="goTo('AD_op_issues.html')">
-    <div class="mi-ico">🔧</div>
-    <div class="mi-info">
-      <div class="mi-title">Проблемы с техникой</div>
-      <div class="mi-sub">Дроны, авто, генератор, насос</div>
-    </div>
-    <div class="mi-badge" id="issues-badge" style="display:none">!</div>
-    <div class="mi-arr">›</div>
-  </div>
+  <div class="mi" onclick="goTo('AD_op_map.html')"><div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Карта полей</div><div class="mi-sub">Поля района на карте</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="goTo('AD_op_weather.html')"><div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">Прогноз для полётов</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="goTo('AD_op_issues.html')"><div class="mi-ico">🔧</div><div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div><div class="mi-badge" id="issues-badge" style="display:none">!</div><div class="mi-arr">›</div></div>
 
   <!-- Информация -->
   <div class="sep">📋 Информация</div>
-
-  <div class="mi" onclick="goTo('AD_op_stats.html')">
-    <div class="mi-ico">📊</div>
-    <div class="mi-info">
-      <div class="mi-title">Моя статистика</div>
-      <div class="mi-sub">Га, часы, выезды</div>
-    </div>
-    <div class="mi-arr">›</div>
-  </div>
-
-  <div class="mi" onclick="goTo('AD_op_docs.html')">
-    <div class="mi-ico">📄</div>
-    <div class="mi-info">
-      <div class="mi-title">Документы и связь</div>
-      <div class="mi-sub">Правила, контакты, РП</div>
-    </div>
-    <div class="mi-arr">›</div>
-  </div>
+  <div class="mi" onclick="goTo('AD_op_stats.html')"><div class="mi-ico">📊</div><div class="mi-info"><div class="mi-title">Моя статистика</div><div class="mi-sub">Га, часы, выезды</div></div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="goTo('AD_op_docs.html')"><div class="mi-ico">📄</div><div class="mi-info"><div class="mi-title">Документы и связь</div><div class="mi-sub">Правила, контакты, РП</div></div><div class="mi-arr">›</div></div>
 
 </div>
 </div>
@@ -488,170 +198,149 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 <div id="toast" class="toast"></div>
 
 <script>
-// ── Config ───────────────────────────────────────────────
-// SCRIPT_URL — см. config.js
-function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
-function getDay() { try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
-function getOp()  { try{return JSON.parse(localStorage.getItem('atk_op')||'null')}catch(e){return null} }
-function saveOp(o){ localStorage.setItem('atk_op', JSON.stringify(o)); }
-function goTo(f)  { window.location.href = f; }
-function daysDiff(s){ const st=new Date(s),n=new Date(); return Math.max(1,Math.floor((n-st)/86400000)+1); }
-function formatDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'.'+m+'.'+y; }
+function getOp(){ try{return JSON.parse(localStorage.getItem('atk_op')||'null')}catch(e){return null} }
+function saveOp(o){ localStorage.setItem('atk_op', JSON.stringify(o)) }
+function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
+function goTo(f){ window.location.href=f }
 
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function showTripReport() {
-  const trip = getTrip();
-  if (!trip) return;
-  
-  const cashExpenses = (trip.expenses||[]).filter(e=>e.paymentType==='Наличные');
-  const cardExpenses = (trip.expenses||[]).filter(e=>e.paymentType==='Безнал');
-  
-  let report = `✅ Командировка закрыта\n📍 ${trip.direction} · ${formatDate(trip.dateStart)} → ${formatDate(trip.dateEnd)}\n🌾 Обработано: ${trip.ha||0} га\n─────────────────\n💰 Финансы\n`;
-  
-  if (cashExpenses.length > 0) {
-    report += `Наличные:\n`;
-    cashExpenses.forEach(e => {
-      report += `· ${e.category} — ${e.amount} BYN\n`;
-    });
-  }
-  
-  if (cardExpenses.length > 0) {
-    report += `Безнал:\n`;
-    cardExpenses.forEach(e => {
-      report += `· ${e.category}${e.details?' '+e.details:''} — ${e.amount} BYN\n`;
-    });
-  }
-  
-  const totalExpenses = (trip.expenses||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0), 0);
-  const balance = (trip.advance||0) - totalExpenses;
-  
-  report += `📊 Итого расходов: ${totalExpenses.toFixed(0)} BYN\n`;
-  report += balance >= 0 ? `💰 Остаток: +${balance.toFixed(0)} BYN` : `⚠️ Перерасход: ${balance.toFixed(0)} BYN`;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(report).then(() => {
-      showToast('📋 Отчёт скопирован в буфер');
-    });
-  } else {
-    alert(report);
-  }
+function fmtDMY(val){
+  if(!val)return'—';
+  const s=String(val);
+  if(s.includes('T')){const d=new Date(s);return`${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`}
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[3]}.${m[2]}.${m[1]}`;
+  return s;
 }
 
-// ── Render banners ───────────────────────────────────────
-function renderBanners() {
-  const trip = getTrip();
-  const day  = getDay();
-
-  // Командировка
-  const tripBanner       = document.getElementById('trip-banner');
-  const closedTripBanner = document.getElementById('closed-trip-banner');
-  const btnOpenTrip      = document.getElementById('btn-open-trip');
-  const btnOpenDay       = document.getElementById('btn-open-day');
-  const btnExpense       = document.getElementById('btn-expense');
-
-  if (trip) {
-    const isClosed = trip.status === 'closed';
-    
-    if (isClosed) {
-      // Закрытая командировка
-      const totalDays = trip.dateEnd ? daysDiff(trip.dateStart) : 0;
-      const totalExpenses = (trip.expenses||[]).length;
-      document.getElementById('ctb-direction').textContent = '📍 ' + trip.direction + ' · ' + formatDate(trip.dateStart) + ' → ' + formatDate(trip.dateEnd);
-      document.getElementById('ctb-ha').textContent = trip.ha || 0;
-      document.getElementById('ctb-days').textContent = totalDays;
-      document.getElementById('ctb-total').textContent = totalExpenses;
-      closedTripBanner.style.display = 'block';
-      tripBanner.style.display = 'none';
-      btnOpenTrip.style.display = 'none';
-      btnOpenDay.style.display = 'none';
-      btnExpense.style.display = 'none';
-    } else {
-      // Активная командировка
-      const advance = parseFloat(trip.advance) || 0;
-      const cashSpent = parseFloat(trip.cashSpent) || 0;
-      const balance = advance - cashSpent;
-      document.getElementById('tb-direction').textContent = '📍 ' + trip.direction;
-      document.getElementById('tb-day-badge').textContent = 'День ' + daysDiff(trip.dateStart);
-      document.getElementById('tb-balance').textContent = balance.toFixed(0);
-      document.getElementById('tb-ha').textContent = trip.ha || 0;
-      document.getElementById('tb-exp-cnt').textContent = (trip.expenses||[]).length;
-      tripBanner.style.display = 'block';
-      closedTripBanner.style.display = 'none';
-      btnOpenTrip.style.display = 'none';
-      btnOpenDay.style.display = day ? 'none' : 'flex';
-      btnExpense.style.display = 'flex';
-    }
-  } else {
-    tripBanner.style.display = 'none';
-    closedTripBanner.style.display = 'none';
-    btnOpenTrip.style.display = 'flex';
-    btnOpenDay.style.display = 'none';
-    btnExpense.style.display = 'none';
-  }
-
-  // День
-  const dayBanner = document.getElementById('day-banner');
-  if (day) {
-    const haDone     = (day.fields||[]).reduce((s,f)=>s+(f.haDone||0),0);
-    const haLeft     = day.haPlan - haDone;
-    const fieldsDone = (day.fields||[]).filter(f=>f.status==='done').length;
-    const total      = (day.fields||[]).length;
-    document.getElementById('db-date').textContent        = formatDate(day.date) + ' · День ' + day.dayNum;
-    document.getElementById('db-fields-badge').textContent= total + ' ' + (total===1?'поле':total<5?'поля':'полей');
-    document.getElementById('db-ha-done').textContent     = haDone;
-    document.getElementById('db-ha-left').textContent     = haLeft;
-    document.getElementById('db-fields-done').textContent = fieldsDone + '/' + total;
-    dayBanner.style.display = 'block';
-    if (btnOpenDay) btnOpenDay.style.display = 'none';
-  } else {
-    dayBanner.style.display = 'none';
-  }
-
-  // Проблемы с техникой
-  const issues = JSON.parse(localStorage.getItem('atk_issues')||'[]');
-  const openIssues = issues.filter(i=>i.status!=='resolved');
-  const badge = document.getElementById('issues-badge');
-  if (badge) badge.style.display = openIssues.length > 0 ? 'block' : 'none';
+function countDays(start){
+  if(!start)return 1;
+  const s=new Date(String(start).includes('T')?start:start+'T00:00:00');
+  const n=new Date();
+  s.setHours(0,0,0,0);n.setHours(0,0,0,0);
+  return Math.max(1,Math.round((n-s)/86400000)+1);
 }
 
-// ── Apply operator ───────────────────────────────────────
-function applyOp(op) {
-  const isBrigadier = op.id === 'OP001';
-  
-  document.getElementById('op-chip').textContent = op.name.split(' ')[0] + ' ' + (op.name.split(' ')[1]||'');
-  document.getElementById('rb-title').textContent = isBrigadier ? '⚡ Бригадир' : '👤 Оператор';
-  document.getElementById('rb-sub').textContent   = (op.hours||'0') + ' ч · ' + (op.hectares||'0') + ' га';
-  document.getElementById('rb-ico').textContent   = isBrigadier ? '⚡' : '👤';
-  document.getElementById('brigadier-menu').style.display = isBrigadier ? 'block' : 'none';
-  
-  saveOp({...op, isBrigadier});
+function dayWord(n){
+  if(n%10===1&&n%100!==11)return'день';
+  if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'дня';
+  return'дней';
+}
+
+async function apiCall(action,data={}){
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})});
+    const d=await r.json();
+    return{ok:d.ok,result:d.result?.result||d.result,error:d.error};
+  }catch(e){return{ok:false,error:e.message}}
+}
+
+// ── Рендер активных командировок ─────────────────────────
+function renderActiveTrips(trips){
+  const list=document.getElementById('active-trips-list');
+  document.getElementById('trips-skeleton').style.display='none';
+
+  if(!trips||trips.length===0){
+    list.innerHTML='';
+    return;
+  }
+
+  // Показать кнопку "Внести расход" если есть активные
+  document.getElementById('btn-expense').style.display='flex';
+
+  list.innerHTML=trips.map(t=>{
+    const days=countDays(t.dateStart||t.dateStart);
+    const balance=(parseFloat(t.advance)||0)-(parseFloat(t.spent)||0);
+    const ha=parseFloat(t.ha)||0;
+    return`
+    <div class="active-trip-card" onclick="openTrip('${t.id||t.tripId}')">
+      <div class="atc-top">
+        <div>
+          <div class="atc-district">🚐 ${t.district||t.direction||'—'}</div>
+          <div class="atc-sub">с ${fmtDMY(t.dateStart)}</div>
+        </div>
+        <div class="atc-badge">День ${days}</div>
+      </div>
+      <div class="atc-stats">
+        <div class="atc-stat"><div class="atc-stat-val">${days}</div><div class="atc-stat-lbl">${dayWord(days)}</div></div>
+        <div class="atc-stat"><div class="atc-stat-val">${ha}</div><div class="atc-stat-lbl">га</div></div>
+        <div class="atc-stat"><div class="atc-stat-val">${balance>=0?'+':''}${balance.toFixed(0)}</div><div class="atc-stat-lbl">BYN</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openTrip(tripId){
+  sessionStorage.setItem('atk_trip_id', tripId);
+  goTo(`AD_op_trip.html?tripId=${encodeURIComponent(tripId)}`);
+}
+
+// ── День-баннер ───────────────────────────────────────────
+function renderDayBanner(){
+  const day=getDay();
+  const banner=document.getElementById('day-banner');
+  if(!day){banner.style.display='none';return}
+  const haDone=(day.fields||[]).reduce((s,f)=>s+(f.haDone||0),0);
+  const haLeft=(day.haPlan||0)-haDone;
+  const fieldsDone=(day.fields||[]).filter(f=>f.status==='done').length;
+  const total=(day.fields||[]).length;
+  document.getElementById('db-date').textContent=fmtDMY(day.date)+' · День '+(day.dayNum||1);
+  document.getElementById('db-trip-name').textContent=day.district||'Командировка';
+  document.getElementById('db-fields-badge').textContent=total+' '+(total===1?'поле':total<5?'поля':'полей');
+  document.getElementById('db-ha-done').textContent=haDone;
+  document.getElementById('db-ha-left').textContent=Math.max(0,haLeft);
+  document.getElementById('db-fields-done').textContent=fieldsDone+'/'+total;
+  banner.style.display='block';
+}
+
+// ── Оператор ──────────────────────────────────────────────
+function applyOp(op){
+  const isBrigadier=op.id==='OP001'||op.id==='op_001';
+  document.getElementById('op-chip').textContent=op.name||'—';
+  document.getElementById('rb-title').textContent=isBrigadier?'⚡ Бригадир':'👤 Оператор';
+  document.getElementById('rb-sub').textContent=(op.hours||'0')+' ч · '+(op.hectares||'0')+' га';
+  document.getElementById('rb-ico').textContent=isBrigadier?'⚡':'👤';
+  document.getElementById('brigadier-menu').style.display=isBrigadier?'block':'none';
+  saveOp({...op,isBrigadier});
 }
 
 // ── Init ─────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-  // Показать сохранённого оператора сразу
-  const cached = getOp();
-  if (cached) applyOp(cached);
+window.addEventListener('DOMContentLoaded',async()=>{
+  // Кэш сразу
+  const cached=getOp();
+  if(cached) applyOp(cached);
+  renderDayBanner();
 
-  renderBanners();
+  // Проблемы с техникой
+  const issues=JSON.parse(localStorage.getItem('atk_issues')||'[]');
+  const badge=document.getElementById('issues-badge');
+  if(badge) badge.style.display=issues.filter(i=>i.status!=='resolved').length>0?'block':'none';
 
-  // Загрузить актуальные данные из таблицы
-  try {
-    const r = await fetch(SCRIPT_URL, {
-      method:'POST',
-      body: JSON.stringify({ action:'get_operators', data:{status:'Активен'} })
-    });
-    const d = await r.json();
-    if (d.ok && d.result.operators && d.result.operators.length > 0) {
-      applyOp(d.result.operators[0]);
-      renderBanners();
-    }
-  } catch(e) { /* offline — работаем с кэшем */ }
+  // Грузим данные параллельно
+  const [opsResp, tripsResp, closedResp] = await Promise.all([
+    apiCall('get_operators',{status:'Активен'}),
+    apiCall('getActiveTrips',{}),
+    apiCall('getClosedTripsCount',{})
+  ]);
+
+  if(opsResp.ok&&opsResp.result?.operators?.length>0){
+    applyOp(opsResp.result.operators[0]);
+  }
+
+  if(tripsResp.ok&&tripsResp.result?.trips){
+    renderActiveTrips(tripsResp.result.trips);
+  } else {
+    document.getElementById('trips-skeleton').style.display='none';
+  }
+
+  if(closedResp.ok&&closedResp.result?.count>0){
+    document.getElementById('history-sub').textContent=
+      `Завершённых: ${closedResp.result.count}`;
+  }
 });
 </script>
 </body>
