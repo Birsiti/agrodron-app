@@ -4,7 +4,7 @@
 // ══════════════════════════════════════════════════════════
 
 // ── Apps Script ────────────────────────────────────────────
-const SCRIPT_URL     = 'https://agrodrone-proxy.birsiti.workers.dev/';
+const SCRIPT_URL     = 'https://agrodrone-proxy.birsiti.workers.dev';
 // ── Google Sheets ──────────────────────────────────────────
 const SHEETS_KEY     = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
 const SHEET_ID       = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
