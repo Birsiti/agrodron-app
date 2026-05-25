@@ -483,6 +483,7 @@ async function init(){
 
   // Загружаем из таблицы
   const resp=await apiCall('getTripData',{tripId});
+  console.log('TRIP_RESP:', JSON.stringify(resp));
   if(resp.ok&&resp.result&&resp.result.tripId){
     tripData=resp.result;
     // Мерджим с localStorage если есть расходы
