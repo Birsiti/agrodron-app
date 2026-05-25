@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v1.5
-  v1.5 · 2026-05-25 · Фикс: район вручную, подтяжка при повторном открытии, ветер от/до
+  AgroDrone.BY · Бригадир — Prepare v1.6
+  v1.6 · 2026-05-25 · Фикс: район вручную, подтяжка при повторном открытии, ветер от/до
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v1.3</title>
+<title>AgroDrone.BY · Prepare v1.6</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -116,7 +116,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <div class="sub-hdr">
   <div class="back-btn" onclick="window.location.href='AD_op_menu.html'">‹</div>
-  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.5</span></div>
+  <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v1.6</span></div>
 </div>
 
 <!-- Загрузка -->
@@ -287,7 +287,7 @@ async function init(){
       pendingTrip = json.result.trip;
       fillPendingScreen(pendingTrip);
       showScreen('pending');
-      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
+      document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
     } else {
       showFormNew();
     }
@@ -340,7 +340,7 @@ function isoDate(val){
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
   editMode=true;
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.5</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v1.6</span>';
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   const t=pendingTrip;
 
@@ -387,7 +387,7 @@ function editPending(){
 function cancelEdit(){
   if(pendingTrip){
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
     showScreen('pending');
   } else {
     window.location.href='AD_op_menu.html';
@@ -457,7 +457,7 @@ async function sendForApproval(){
     pendingTrip={tripId,...d,notes};
     fillPendingScreen(pendingTrip);
     editMode=false;
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.5</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v1.6</span>';
     setTimeout(()=>showScreen('pending'),800);
 
   } catch(e){
@@ -503,7 +503,7 @@ async function deleteTrip(){
     showToast('🗑 Заявка удалена');
     pendingTrip=null;editMode=false;
     document.getElementById('btn-submit').textContent='📋 Отправить на согласование';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.5</span>';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v1.6</span>';
     document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
     selectedOps.clear();selectedTech.clear();
     setTimeout(()=>{showScreen('form');document.getElementById('date-start').value=new Date().toISOString().split('T')[0];},500);
