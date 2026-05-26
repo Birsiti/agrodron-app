@@ -492,7 +492,7 @@ function openDay() {
   const haPlan = pendingFields.reduce((s,f)=>s+f.haLeft,0);
   const day = {
     id: 'DAY-'+Date.now(),
-    tripId: trip.id,
+    tripId: trip.tripId,
     date, dayNum: (trip.days||[]).length+1,
     fields: pendingFields.map(f=>({...f})),
     haPlan, haDone:0, status:'active'
