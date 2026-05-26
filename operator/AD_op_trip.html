@@ -570,10 +570,11 @@ async function init(){
     const status=String(tripData.status||'').toLowerCase();
     const lt2=getTrip();
     const departed=lt2?.departed||false;
-    if(status==='активна'&&departed){
-      showTab('overview');
-    } else if(status==='активна'&&!departed){
-      showTab('depart');
+    if(status==='активна'){
+    const hasDeparted = (parseFloat(tripData.advance)||0) > 0 || (tripData.notes||'').trim().length > 0 || departed;
+    if(hasDeparted) showTab('overview');
+    else showTab('depart');
+    }
     } else {
       prefillPrepare();
       showTab('prepare');
