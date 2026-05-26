@@ -432,8 +432,18 @@ function prefill(){
   document.getElementById('dep-ha').textContent=t.plannedHa?t.plannedHa+' га':'—';
   document.getElementById('hdr-title').textContent=t.district||'Выезд';
   document.getElementById('hdr-sub').textContent='';
+  const notes=String(t.notes||'');
+  const carM=notes.match(/^([^|]+)/);
+  if(carM){const car=carM[1].trim();const sel=document.getElementById('dep-car');if([...sel.options].some(o=>o.value===car))sel.value=car;else sel.value='Аренда';depToggleRent();}
+  const rentM=notes.match(/Аренда:\s*([\d.]+)\s*BYN/);
+  if(rentM)document.getElementById('dep-rent-cost').value=rentM[1];
+  const odoM=notes.match(/Спидометр выезд:\s*(\d+)/);
+  if(odoM)document.getElementById('dep-odometer').value=odoM[1];
+  const blM=notes.match(/Лопасти:(\d+)/);if(blM){gearQty.blades=+blM[1];document.getElementById('qty-blades').textContent=blM[1];}
+  const nzM=notes.match(/Форсунки:(\d+)/);if(nzM){gearQty.nozzles=+nzM[1];document.getElementById('qty-nozzles').textContent=nzM[1];}
+  const btM=notes.match(/АКБ:(\d+)/);if(btM){gearQty.batteries=+btM[1];document.getElementById('qty-batteries').textContent=btM[1];}
+  const chM=notes.match(/Зарядки:(\d+)/);if(chM){gearQty.chargers=+chM[1];document.getElementById('qty-chargers').textContent=chM[1];}
 }
-
 function depToggleRent(){
   document.getElementById('dep-rent-row').style.display=
     document.getElementById('dep-car').value==='Аренда'?'flex':'none';
