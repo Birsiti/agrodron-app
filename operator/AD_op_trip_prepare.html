@@ -626,25 +626,10 @@ async function sendForApproval(){
 // ── Согласовано → активировать ────────────────────────────
 async function approveTrip(){
   if(!currentTrip)return;
-  const btn=document.getElementById('btn-approve');
-  btn.disabled=true;btn.textContent='⏳ Запуск...';
-  try{
-    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'activateTrip',data:{
-      tripId:currentTrip.tripId,district:currentTrip.district,
-      dateStart:currentTrip.dateStart,operators:currentTrip.operators,
-      tech:currentTrip.tech,plannedHa:currentTrip.plannedHa
-    }})});
-    const json=await resp.json();
-    if(!json.ok)throw new Error(json.error||'Ошибка');
-    sessionStorage.setItem('atk_trip_id',currentTrip.tripId);
-    showToast(`✅ Командировка ${currentTrip.tripId} активна`);
-    setTimeout(()=>window.location.href=`AD_op_trip.html?tripId=${encodeURIComponent(currentTrip.tripId)}`,800);
-  } catch(e){
-    showToast('❌ '+e.message);
-    btn.disabled=false;btn.textContent='✅ Согласовано — Начать командировку';
-  }
+  sessionStorage.setItem('atk_trip_id',currentTrip.tripId);
+  showToast(`✅ Согласовано — заполните данные выезда`);
+  setTimeout(()=>window.location.href=`AD_op_trip.html?tripId=${encodeURIComponent(currentTrip.tripId)}`,800);
 }
-
 // ── Удаление ──────────────────────────────────────────────
 function confirmDelete(){document.getElementById('modal-delete').classList.add('show')}
 function closeModal(){document.getElementById('modal-delete').classList.remove('show')}
