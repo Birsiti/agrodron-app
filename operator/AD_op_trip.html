@@ -583,6 +583,11 @@ async function init(){
     setTimeout(goMenu,2000);
   }
 }
+  function showMainUI(){
+  document.getElementById('screen-loading').style.display='none';
+  const ui=document.getElementById('main-ui');
+  ui.style.display='flex';
+}
 // ── Предзаполнение формы ──────────────────────────────────
 function prefillPrepare(){
   const t=tripData;if(!t)return;
