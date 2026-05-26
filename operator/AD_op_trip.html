@@ -155,56 +155,6 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <div class="scroll">
 
-<!-- ══ ПОДГОТОВКА ══ -->
-<div id="screen-prepare" class="screen">
-<div class="wrap">
-  <div class="info-box green" id="trip-info-box">Загрузка данных из заявки...</div>
-  <div class="card">
-    <div class="card-title">📍 Направление</div>
-    <div class="row"><span class="rl">Район</span><span class="rv" id="prep-district">—</span></div>
-    <div class="row"><span class="rl">Планируемые даты</span><span class="rv" id="prep-dates">—</span></div>
-    <div class="row"><span class="rl">Планируемый объём</span><span class="rv green" id="prep-ha">—</span></div>
-  </div>
-  <div class="card">
-    <div class="card-title">👥 Состав бригады</div>
-    <div class="check-list" id="crew-list">
-      <div class="ci selected" onclick="toggleCI(this)" data-name="Бруй Д.А."><div class="cb">✓</div><div><div class="ci-name">Бруй Д.А.</div><div class="ci-sub">op_001 · Бригадир</div></div></div>
-      <div class="ci" onclick="toggleCI(this)" data-name="Грибов К.М."><div class="cb"></div><div><div class="ci-name">Грибов К.М.</div><div class="ci-sub">op_002</div></div></div>
-      <div class="ci" onclick="toggleCI(this)" data-name="Борисенок Л.И."><div class="cb"></div><div><div class="ci-name">Борисенок Л.И.</div><div class="ci-sub">op_003 · WR</div></div></div>
-      <div class="ci" onclick="toggleCI(this)" data-name="Уманец А.И."><div class="cb"></div><div><div class="ci-name">Уманец А.И.</div><div class="ci-sub">op_004 · WR</div></div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">🚁 Техника</div>
-    <div class="check-list" id="equip-list">
-      <div class="ci selected" onclick="toggleCI(this)" data-name="А60-ХМ"><div class="cb">✓</div><div><div class="ci-name">А60-ХМ</div><div class="ci-sub">Основной борт</div></div></div>
-      <div class="ci" onclick="toggleCI(this)" data-name="А70-ХМ"><div class="cb"></div><div><div class="ci-name">А70-ХМ</div><div class="ci-sub">Основной борт</div></div></div>
-      <div class="ci" onclick="toggleCI(this)" data-name="А1-Х"><div class="cb"></div><div><div class="ci-name">А1-Х</div><div class="ci-sub">Оцифровщик</div></div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">💰 Аванс (наличные, BYN)</div>
-    <div class="fg" style="margin-bottom:0">
-      <input class="fi" id="trip-advance" type="number" placeholder="0 BYN" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center">
-    </div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px">Суточные, питание, мелкие расходы. Может быть 0.</div>
-  </div>
-  <div class="card">
-    <div class="card-title">🚐 Снаряжение и транспорт</div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🪁 Лопасти запасные</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('blades',-1)">−</button><div class="qty-val" id="qty-blades">4</div><button class="qty-btn" onclick="qtyChange('blades',1)">+</button></div></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">💧 Форсунки</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('nozzles',-1)">−</button><div class="qty-val" id="qty-nozzles">8</div><button class="qty-btn" onclick="qtyChange('nozzles',1)">+</button></div></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🔋 АКБ</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('batteries',-1)">−</button><div class="qty-val" id="qty-batteries">6</div><button class="qty-btn" onclick="qtyChange('batteries',1)">+</button></div></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🔌 Зарядки</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('chargers',-1)">−</button><div class="qty-val" id="qty-chargers">2</div><button class="qty-btn" onclick="qtyChange('chargers',1)">+</button></div></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🚐 Автомобиль</div></div><select class="gear-select" id="gear-car" onchange="toggleRentCost()"><option value="Ford Transit AT1637-5">Ford Transit AT1637-5</option><option value="Аренда">Аренда</option><option value="Другой">Другой</option></select></div>
-    <div class="gear-row" id="rent-cost-row" style="display:none"><div style="flex:1"><div class="gear-label">💵 Стоимость аренды (BYN/день)</div></div><input class="gear-text" id="rent-cost" type="number" placeholder="0"></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🔢 Спидометр при выезде (км)</div></div><input class="gear-text" id="gear-odometer" type="number" placeholder="00000" inputmode="numeric"></div>
-    <div class="gear-row"><div style="flex:1"><div class="gear-label">🚛 Прицеп</div></div><select class="gear-select" id="gear-trailer"><option value="АТК">АТК</option><option value="Арендный">Арендный</option></select></div>
-  </div>
-  <button class="btn btn-amber" id="btn-go" onclick="openTrip()">🚐 Выехали!</button>
-  <button class="btn btn-outline" onclick="goMenu()">Отмена</button>
-</div>
-</div>
-
 
 <!-- ══ ВЫЕЗД ══ -->
 <div id="screen-depart" class="screen">
