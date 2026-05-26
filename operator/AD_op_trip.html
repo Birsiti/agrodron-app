@@ -231,8 +231,9 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="divider"></div>
     <div class="row"><span class="rl">АТК напрямую</span><span class="rv blue" id="ov-atk-spent">0 BYN</span></div>
   </div>
+   <button class="btn btn-outline" onclick="localStorage.clear();location.reload()" style="font-size:12px;color:var(--red);border-color:var(--red)">🗑 Сбросить локальные данные</button>
   <div class="card">
-    <div class="card-title">➕ Пополнить аванс</div>
+       <div class="card-title">➕ Пополнить аванс</div>
     <div class="advance-row">
       <input class="advance-input" id="add-advance-input" type="number" placeholder="Сумма BYN" inputmode="decimal">
       <button class="btn-add-adv" onclick="addAdvance()">+ Добавить</button>
