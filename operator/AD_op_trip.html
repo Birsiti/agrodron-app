@@ -532,7 +532,6 @@ await apiCall('updateTripNotes',{tripId,notes});
 async function init(){
   const params=new URLSearchParams(window.location.search);
   tripId=params.get('tripId')||sessionStorage.getItem('atk_trip_id');
-
   if(!tripId){
     const lt=getTrip();
     if(lt&&lt.status==='active'){
@@ -547,7 +546,6 @@ async function init(){
     setTimeout(goMenu,1500);
     return;
   }
-
   const resp=await apiCall('getTripData',{tripId});
   if(resp.ok&&resp.result&&resp.result.tripId){
     tripData=resp.result;
@@ -566,14 +564,15 @@ async function init(){
     }
     tripData.tripId=tripId;
     showMainUI();
-
     const status=String(tripData.status||'').toLowerCase();
     const lt2=getTrip();
     const departed=lt2?.departed||false;
-    if(status==='активна'){
-    const hasDeparted = (parseFloat(tripData.advance)||0) > 0 || (tripData.notes||'').trim().length > 0 || departed;
-    if(hasDeparted) showTab('overview');
-    else showTab('depart');
+    if(status==='подготовка'){
+      showTab('depart');
+    } else if(status==='активна'){
+      const hasDeparted=(parseFloat(tripData.advance)||0)>0||(tripData.notes||'').trim().length>0||departed;
+      if(hasDeparted) showTab('overview');
+      else showTab('depart');
     } else {
       prefillPrepare();
       showTab('prepare');
@@ -584,13 +583,6 @@ async function init(){
     setTimeout(goMenu,2000);
   }
 }
-
-function showMainUI(){
-  document.getElementById('screen-loading').style.display='none';
-  const ui=document.getElementById('main-ui');
-  ui.style.display='flex';
-}
-
 // ── Предзаполнение формы ──────────────────────────────────
 function prefillPrepare(){
   const t=tripData;if(!t)return;
