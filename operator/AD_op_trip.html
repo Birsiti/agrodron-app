@@ -574,7 +574,6 @@ async function init(){
     const hasDeparted = (parseFloat(tripData.advance)||0) > 0 || (tripData.notes||'').trim().length > 0 || departed;
     if(hasDeparted) showTab('overview');
     else showTab('depart');
-    }
     } else {
       prefillPrepare();
       showTab('prepare');
