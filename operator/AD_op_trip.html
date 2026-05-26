@@ -538,7 +538,8 @@ async function init(){
     if(lt&&lt.status==='active'){
       tripData=lt;
       showMainUI();
-      showTab('overview');
+      if(lt.departed) showTab('overview');
+      else showTab('depart');
       return;
     }
     document.getElementById('screen-loading').style.display='none';
