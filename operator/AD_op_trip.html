@@ -840,22 +840,34 @@ async function closeTrip(){
   const days=countDays(lt.dateStart,today);
   const gear=lt.gear||{};
   const rentPerDay=gear.car==='Аренда'?(gear.rentCost||0):0;
- 
+
+  // Внести аренду как расход в РАСХОДЫ
+  if(rentPerDay>0){
+    const rentTotal=rentPerDay*days;
+    await apiCall('add_expense',{
+      tripId,
+      dayId:'',
+      category:'Аренда авто',
+      amount:rentTotal,
+      comment:`${rentPerDay} BYN/день × ${days} дн`,
+      date:today,
+      payType:'rent'
+    });
+  }
+
   const res=await apiCall('closeTrip',{
     id:tripId,
     ha:lt.ha||0,
     spent:cashSpent,
     closeOption,
-    note:`Пробег: ${odomEnd-(gear.odometer||0)} км`,
-    rentPerDay,
-    rentDays:days
+    note:`Пробег: ${odomEnd-(gear.odometer||0)} км`
   });
   if(!res.ok){showToast('❌ '+(res.error||'Ошибка'));btn.disabled=false;btn.textContent='✅ Закрыть командировку';return}
- 
+
   const text=buildNotifyText();
   sendTG(OWNER_ID,text);
   sendTG(GROUP_CHAT_ID,text);
- 
+
   localStorage.removeItem('atk_trip');
   localStorage.removeItem('atk_day');
   sessionStorage.removeItem('atk_trip_id');
