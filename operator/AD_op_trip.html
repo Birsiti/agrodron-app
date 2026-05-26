@@ -528,7 +528,8 @@ async function openTrip(){
   saveTrip(lt);
   sessionStorage.setItem('atk_trip_id',tripId);
   tripData={...tripData,...lt};
-
+  const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${lt.gear?.car||'—'}\n⏰ ${todayStr()}`;
+  sendTG(GROUP_CHAT_ID, msg);
   showToast('🚐 Выехали! Удачной командировки!',3000);
   setTimeout(()=>showTab('overview'),500);
 }
