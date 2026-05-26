@@ -400,7 +400,7 @@ async function loadFields() {
       .filter(row => {
         const rowCity   = (row[2]||'').toString().trim();
         const rowStatus = (row[9]||'').toString().trim().toLowerCase();
-        return rowStatus === 'ждёт' && (!city || rowCity.toLowerCase() === city.toLowerCase());
+        return rowStatus !== 'готово' && (!city || rowCity.toLowerCase() === city.toLowerCase());
       })
       .map(row => ({
         id:     (row[0]||'').toString().trim(),
