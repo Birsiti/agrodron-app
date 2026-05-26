@@ -395,7 +395,7 @@ async function loadFields() {
     const d = await r.json();
     const rows = d.values || [];
 
-    const city   = trip ? trip.direction : '';
+    const city = trip ? (trip.district || trip.direction || '') : '';
     const fromTable = rows
       .filter(row => {
         const rowCity   = (row[2]||'').toString().trim();
