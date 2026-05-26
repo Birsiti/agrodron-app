@@ -816,28 +816,51 @@ async function closeTrip(){
   const lt=getTrip()||tripData;if(!lt){showToast('❌ Нет данных');return}
   const odomEnd=parseInt(document.getElementById('cl-odo-end').value)||0;
   if(!odomEnd){showToast('⚠️ Введите спидометр при возврате');return}
-
+ 
   const btn=document.getElementById('btn-close-trip');
   btn.disabled=true;btn.textContent='⏳ Закрытие...';
-
+ 
+  // Закрыть активный день если есть
+  const activeDay=getDay();
+  if(activeDay&&activeDay.id){
+    await apiCall('closeDay',{
+      id:activeDay.id,
+      ha:activeDay.ha||0,
+      fields_done:activeDay.fields_done||0,
+      fields_moved:activeDay.fields_moved||0,
+      expenses:activeDay.expenses||0
+    });
+    localStorage.removeItem('atk_day');
+  }
+ 
   const today=todayISO();
   const exps=lt.expenses||[];
   const cashSpent=exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
-
-  const res=await apiCall('closeTrip',{id:tripId,ha:lt.ha||0,spent:cashSpent,closeOption,note:`Пробег: ${odomEnd-(lt.gear?.odometer||0)} км`});
+  const days=countDays(lt.dateStart,today);
+  const gear=lt.gear||{};
+  const rentPerDay=gear.car==='Аренда'?(gear.rentCost||0):0;
+ 
+  const res=await apiCall('closeTrip',{
+    id:tripId,
+    ha:lt.ha||0,
+    spent:cashSpent,
+    closeOption,
+    note:`Пробег: ${odomEnd-(gear.odometer||0)} км`,
+    rentPerDay,
+    rentDays:days
+  });
   if(!res.ok){showToast('❌ '+(res.error||'Ошибка'));btn.disabled=false;btn.textContent='✅ Закрыть командировку';return}
-
+ 
   const text=buildNotifyText();
   sendTG(OWNER_ID,text);
   sendTG(GROUP_CHAT_ID,text);
-
+ 
   localStorage.removeItem('atk_trip');
   localStorage.removeItem('atk_day');
   sessionStorage.removeItem('atk_trip_id');
   showToast('✅ Командировка закрыта!',3000);
   setTimeout(goMenu,1500);
 }
-
 window.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
