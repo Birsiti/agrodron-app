@@ -618,7 +618,9 @@ async function openTrip(){
   saveTrip(lt);
   sessionStorage.setItem('atk_trip_id',tripId);
   tripData={...tripData,...lt};
-
+  document.getElementById('btn-go').style.display='none';
+  document.getElementById('tab-open').style.pointerEvents='none';
+  document.getElementById('tab-open').style.opacity='.4';
   showToast('🚐 Выехали! Удачной командировки!',3000);
   setTimeout(()=>{showTab('active');renderActive();},500);
 }
