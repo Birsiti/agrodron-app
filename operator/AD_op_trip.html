@@ -518,7 +518,9 @@ async function depart(){
   tripData={...tripData,...lt};
 
   if(advance>0) await apiCall('updateTripAdvance',{tripId,advance});
-
+const notes=`${car}${rentCost>0?' | Аренда: '+rentCost+' BYN/день':''} | Спидометр выезд: ${odometer} | Лопасти:${gearQty.blades}, Форсунки:${gearQty.nozzles}, АКБ:${gearQty.batteries}, Зарядки:${gearQty.chargers}`;
+await apiCall('updateTripNotes',{tripId,notes});
+  
   const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${car}${rentCost>0?' ('+rentCost+' BYN/день)':''}\n🔢 Спидометр: ${odometer} км\n💰 Аванс: ${advance} BYN\n⏰ ${todayStr()}`;
   sendTG(GROUP_CHAT_ID, msg);
 
