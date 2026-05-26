@@ -205,6 +205,62 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </div>
 </div>
 
+
+<!-- ══ ВЫЕЗД ══ -->
+<div id="screen-depart" class="screen">
+<div class="wrap">
+  <div class="info-box amber" id="depart-info-box">📋 Согласовано. Заполните данные выезда.</div>
+  <div class="card">
+    <div class="card-title">📍 Командировка</div>
+    <div class="row"><span class="rl">Район</span><span class="rv" id="dep-district">—</span></div>
+    <div class="row"><span class="rl">Состав</span><span class="rv" id="dep-operators" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+    <div class="row"><span class="rl">Техника</span><span class="rv" id="dep-tech" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+    <div class="row"><span class="rl">План</span><span class="rv green" id="dep-ha">—</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💰 Аванс (наличные, BYN)</div>
+    <div class="fg" style="margin-bottom:0">
+      <input class="fi" id="dep-advance" type="number" placeholder="0 BYN" inputmode="decimal" style="font-size:22px;font-weight:800;text-align:center">
+    </div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:8px">Суточные, питание, мелкие расходы. Может быть 0.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚐 Транспорт и спидометр</div>
+    <div class="gear-row">
+      <div style="flex:1"><div class="gear-label">🚐 Автомобиль</div></div>
+      <select class="gear-select" id="dep-car" onchange="depToggleRent()">
+        <option value="Ford Transit AT1637-5">Ford Transit AT1637-5</option>
+        <option value="Аренда">Аренда</option>
+        <option value="Другой">Другой</option>
+      </select>
+    </div>
+    <div class="gear-row" id="dep-rent-row" style="display:none">
+      <div style="flex:1"><div class="gear-label">💵 Стоимость аренды (BYN/день)</div></div>
+      <input class="gear-text" id="dep-rent-cost" type="number" placeholder="0" inputmode="decimal">
+    </div>
+    <div class="gear-row">
+      <div style="flex:1"><div class="gear-label">🔢 Спидометр при выезде (км)</div></div>
+      <input class="gear-text" id="dep-odometer" type="number" placeholder="00000" inputmode="numeric">
+    </div>
+    <div class="gear-row">
+      <div style="flex:1"><div class="gear-label">🚛 Прицеп</div></div>
+      <select class="gear-select" id="dep-trailer">
+        <option value="АТК">АТК</option>
+        <option value="Арендный">Арендный</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📦 Снаряжение</div>
+    <div class="gear-row"><div style="flex:1"><div class="gear-label">🪁 Лопасти</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('blades',-1)">−</button><div class="qty-val" id="qty-blades">4</div><button class="qty-btn" onclick="qtyChange('blades',1)">+</button></div></div>
+    <div class="gear-row"><div style="flex:1"><div class="gear-label">💧 Форсунки</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('nozzles',-1)">−</button><div class="qty-val" id="qty-nozzles">8</div><button class="qty-btn" onclick="qtyChange('nozzles',1)">+</button></div></div>
+    <div class="gear-row"><div style="flex:1"><div class="gear-label">🔋 АКБ</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('batteries',-1)">−</button><div class="qty-val" id="qty-batteries">6</div><button class="qty-btn" onclick="qtyChange('batteries',1)">+</button></div></div>
+    <div class="gear-row"><div style="flex:1"><div class="gear-label">🔌 Зарядки</div><span class="gear-sub">шт.</span></div><div class="gear-qty"><button class="qty-btn" onclick="qtyChange('chargers',-1)">−</button><div class="qty-val" id="qty-chargers">2</div><button class="qty-btn" onclick="qtyChange('chargers',1)">+</button></div></div>
+  </div>
+  <button class="btn btn-amber" onclick="depart()">🚐 Выехали!</button>
+</div>
+</div>
+
 <!-- ══ ОБЗОР ══ -->
 <div id="screen-overview" class="screen">
 <div class="wrap">
@@ -388,6 +444,7 @@ function toggleRentCost(){document.getElementById('rent-cost-row').style.display
 
 // ── Вкладки ───────────────────────────────────────────────
 const TABS_PREPARE=[{id:'prepare',ico:'📋',label:'Подготовка'}];
+const TABS_DEPART =[{id:'depart',ico:'🚐',label:'Выезд'}];
 const TABS_ACTIVE =[{id:'overview',ico:'📊',label:'Обзор'},{id:'days',ico:'☀️',label:'Дни'},{id:'expenses',ico:'💸',label:'Расходы'},{id:'close',ico:'🏁',label:'Закрыть'}];
 
 function buildTabs(tabs){
@@ -397,9 +454,14 @@ function buildTabs(tabs){
 
 function showTab(name){
   currentTab=name;
-  const isActive=String(tripData?.status||'').toLowerCase()==='активна';
-  buildTabs(isActive?TABS_ACTIVE:TABS_PREPARE);
-  ['prepare','overview','days','expenses','close'].forEach(n=>{
+  const status=String(tripData?.status||'').toLowerCase();
+  const lt=getTrip();
+  const departed=lt?.departed||false;
+  let tabs=TABS_PREPARE;
+  if(status==='активна'&&!departed) tabs=TABS_DEPART;
+  if(status==='активна'&&departed)  tabs=TABS_ACTIVE;
+  buildTabs(tabs);
+  ['prepare','depart','overview','days','expenses','close'].forEach(n=>{
     const s=document.getElementById('screen-'+n);
     if(s) s.classList.toggle('active',n===name);
   });
@@ -407,6 +469,61 @@ function showTab(name){
   if(name==='days')     renderDays();
   if(name==='expenses') renderExpenses();
   if(name==='close')    renderClose();
+  if(name==='depart')   prefillDepart();
+}
+
+
+// ── Экран Выезд ───────────────────────────────────────────
+function prefillDepart(){
+  const t=tripData;if(!t)return;
+  document.getElementById('dep-district').textContent=t.district||'—';
+  document.getElementById('dep-operators').textContent=t.operators||'—';
+  document.getElementById('dep-tech').textContent=t.tech||'—';
+  document.getElementById('dep-ha').textContent=t.plannedHa?t.plannedHa+' га':'—';
+  document.getElementById('hdr-title').textContent=t.district||'Выезд';
+  document.getElementById('hdr-sub').textContent='';
+}
+
+function depToggleRent(){
+  document.getElementById('dep-rent-row').style.display=
+    document.getElementById('dep-car').value==='Аренда'?'flex':'none';
+}
+
+async function depart(){
+  const advance=parseFloat(document.getElementById('dep-advance').value)||0;
+  const odometer=parseInt(document.getElementById('dep-odometer').value)||0;
+  const car=document.getElementById('dep-car').value;
+  const trailer=document.getElementById('dep-trailer').value;
+  const rentCost=parseFloat(document.getElementById('dep-rent-cost').value)||0;
+
+  // Сохранить в localStorage
+  const lt=getTrip()||{};
+  lt.tripId=tripId;
+  lt.status='active';
+  lt.departed=true;
+  lt.district=tripData.district||'';
+  lt.dateStart=lt.dateStart||todayISO();
+  lt.plannedHa=tripData.plannedHa||0;
+  lt.operators=tripData.operators||'';
+  lt.tech=tripData.tech||'';
+  lt.advance=advance;
+  lt.advanceHistory=advance>0?[{amount:advance,date:todayStr(),note:'Начальный аванс'}]:[];
+  lt.cashSpent=lt.cashSpent||0;
+  lt.atkSpent=lt.atkSpent||0;
+  lt.expenses=lt.expenses||[];
+  lt.days=lt.days||[];
+  lt.gear={blades:gearQty.blades,nozzles:gearQty.nozzles,batteries:gearQty.batteries,chargers:gearQty.chargers,car,odometer,trailer,rentCost};
+  saveTrip(lt);
+  sessionStorage.setItem('atk_trip_id',tripId);
+  tripData={...tripData,...lt};
+
+  if(advance>0) await apiCall('updateTripAdvance',{tripId,advance});
+
+  const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${car}${rentCost>0?' ('+rentCost+' BYN/день)':''}\n🔢 Спидометр: ${odometer} км\n💰 Аванс: ${advance} BYN\n⏰ ${todayStr()}`;
+  sendTG(GROUP_CHAT_ID, msg);
+
+  showToast('🚐 Выехали! Удачной командировки!',3000);
+  setTimeout(()=>showTab('overview'),500);
 }
 
 // ── Init ─────────────────────────────────────────────────
@@ -448,8 +565,12 @@ async function init(){
     showMainUI();
 
     const status=String(tripData.status||'').toLowerCase();
-    if(status==='активна'){
+    const lt2=getTrip();
+    const departed=lt2?.departed||false;
+    if(status==='активна'&&departed){
       showTab('overview');
+    } else if(status==='активна'&&!departed){
+      showTab('depart');
     } else {
       prefillPrepare();
       showTab('prepare');
@@ -528,8 +649,7 @@ async function openTrip(){
   saveTrip(lt);
   sessionStorage.setItem('atk_trip_id',tripId);
   tripData={...tripData,...lt};
-  const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${lt.gear?.car||'—'}\n⏰ ${todayStr()}`;
-  sendTG(GROUP_CHAT_ID, msg);
+
   showToast('🚐 Выехали! Удачной командировки!',3000);
   setTimeout(()=>showTab('overview'),500);
 }
