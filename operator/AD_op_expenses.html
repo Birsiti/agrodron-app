@@ -283,7 +283,7 @@ function addExpense() {
   saveTrip(trip);
 
   apiCall('add_expense',{
-    tripId:trip.id, dayId:exp.dayId,
+    tripId:trip.tripId||trip.id, dayId:exp.dayId,
     label:exp.label, cat:exp.cat,
     amount:exp.amount, comment:exp.comment,
     payType:exp.payType
