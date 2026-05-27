@@ -482,7 +482,7 @@ function addFieldManual() {
 }
 
 // ── Open day ─────────────────────────────────────────────
-function openDay() {
+async function openDay() {
   const trip = getTrip();
   if (!trip) { showToast('❌ Нет командировки'); return; }
   const date = document.getElementById('day-date').value;
@@ -497,17 +497,22 @@ function openDay() {
     fields: pendingFields.map(f=>({...f})),
     haPlan, haDone:0, status:'active'
   };
-  saveDay(day);
 
   trip.pendingFields = [];
   saveTrip(trip);
 
-  apiCall('open_day', {
+  const res = await apiCall('open_day', {
     tripId:day.tripId, dayId:day.id, dayNum:day.dayNum,
     date:day.date, haPlan:day.haPlan,
     district:trip.district||'',
     fieldIds:day.fields.map(f=>f.id)
   });
+
+  // Сохраняем ID из таблицы (DY01-xx), а не локальный DAY-timestamp
+  if (res && res.result && res.result.dayId) {
+    day.id = res.result.dayId;
+  }
+  saveDay(day);
 
   showToast('☀️ День '+day.dayNum+' открыт!');
   setTimeout(()=>window.location.reload(), 600);
