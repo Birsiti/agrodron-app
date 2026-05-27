@@ -457,6 +457,10 @@ function prefill(){
   if(carM){const car=carM[1].trim();const sel=document.getElementById('dep-car');if([...sel.options].some(o=>o.value===car))sel.value=car;else sel.value='Аренда';depToggleRent();}
   const rentM=notes.match(/Аренда:\s*([\d.]+)\s*BYN/);
   if(rentM)document.getElementById('dep-rent-cost').value=rentM[1];
+  const modelM=notes.match(/Аренда:\s*([^(]+)\s*\(/);
+if(modelM&&document.getElementById('dep-rent-model'))document.getElementById('dep-rent-model').value=modelM[1].trim();
+const plateM=notes.match(/\(([^)]+)\)/);
+if(plateM&&document.getElementById('dep-rent-plate'))document.getElementById('dep-rent-plate').value=plateM[1].trim();
   const odoM=notes.match(/Спидометр выезд:\s*(\d+)/);
   if(odoM)document.getElementById('dep-odometer').value=odoM[1];
   const blM=notes.match(/Лопасти:(\d+)/);if(blM){gearQty.blades=+blM[1];document.getElementById('qty-blades').textContent=blM[1];}
