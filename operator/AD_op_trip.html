@@ -220,6 +220,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="row"><span class="rl">Даты</span><span class="rv" id="ov-dates">—</span></div>
     <div class="row"><span class="rl">Дней в выезде</span><span class="rv amber" id="ov-days">—</span></div>
     <div class="row"><span class="rl">👥 Состав</span><span class="rv" id="ov-crew" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
+    <div style="margin-top:8px"><button class="btn btn-outline" style="font-size:12px;padding:8px" onclick="openCrewScreen()">✏️ Изменить состав</button></div>
     <div class="row"><span class="rl">🚁 Техника</span><span class="rv" id="ov-tech" style="font-size:12px;text-align:right;max-width:55%">—</span></div>
     <div class="row"><span class="rl">🌾 План</span><span class="rv green" id="ov-plan-ha">—</span></div>
   </div>
@@ -314,6 +315,16 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 </div><!-- /scroll -->
 </div><!-- /main-ui -->
+
+<!-- ══ ЭКРАН ИЗМЕНЕНИЯ СОСТАВА ══ -->
+<div id="crew-screen" style="position:absolute;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)">
+  <div style="background:linear-gradient(135deg,var(--green),var(--gm));padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <div style="font-size:24px;cursor:pointer;color:#fff;font-weight:300;line-height:1" onclick="closeCrewScreen()">‹</div>
+    <div style="font-size:16px;font-weight:800;color:#fff;flex:1">Состав бригады</div>
+    <button onclick="saveCrewChange()" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;font-family:var(--f);cursor:pointer">Сохранить</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px" id="crew-list"></div>
+</div>
 
 <div id="toast" class="toast"></div>
 
@@ -873,6 +884,75 @@ async function closeTrip(){
   showToast('✅ Командировка закрыта!',3000);
   setTimeout(goMenu,1500);
 }
+// ── Изменение состава ─────────────────────────────────────
+const CREW_OPS = [
+  {id:'OP001',name:'Бруй Д.А.',role:'Бригадир'},
+  {id:'OP002',name:'Грибов К.М.',role:'Оператор АТК'},
+  {id:'OP003',name:'Борисенок Л.И.',role:'Оператор WR'},
+  {id:'OP004',name:'Уманец А.И.',role:'Оператор WR'},
+  {id:'OP005',name:'Бич Иван',role:'Оператор АТК'},
+  {id:'OP006',name:'Ленский Александр',role:'Оператор АТК'},
+  {id:'OP007',name:'Василевски А.В.',role:'Оператор АТК'}
+];
+const selectedCrew = new Set();
+
+function openCrewScreen(){
+  const lt=getTrip()||tripData;
+  // Пометить текущий состав
+  selectedCrew.clear();
+  if(lt?.operators){
+    lt.operators.split(',').map(s=>s.trim()).forEach(name=>{
+      const op=CREW_OPS.find(o=>o.name===name);
+      if(op) selectedCrew.add(op.id);
+    });
+  }
+  renderCrewList();
+  document.getElementById('crew-screen').style.transform='translateX(0)';
+}
+
+function closeCrewScreen(){
+  document.getElementById('crew-screen').style.transform='translateX(100%)';
+}
+
+function renderCrewList(){
+  document.getElementById('crew-list').innerHTML = CREW_OPS.map(op=>`
+    <div id="crew-row-${op.id}" onclick="toggleCrew('${op.id}')"
+      style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1.5px solid ${selectedCrew.has(op.id)?'var(--green)':'var(--border)'};background:${selectedCrew.has(op.id)?'var(--gl)':'#fff'}">
+      <div style="width:24px;height:24px;border-radius:7px;border:2px solid ${selectedCrew.has(op.id)?'var(--ga)':'var(--border)'};background:${selectedCrew.has(op.id)?'var(--ga)':'#fff'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;flex-shrink:0">${selectedCrew.has(op.id)?'✓':''}</div>
+      <div><div style="font-size:15px;font-weight:700;color:var(--t1)">${op.name}</div><div style="font-size:12px;color:var(--t3);margin-top:2px">${op.role}</div></div>
+    </div>`).join('');
+}
+
+function toggleCrew(id){
+  selectedCrew.has(id)?selectedCrew.delete(id):selectedCrew.add(id);
+  renderCrewList();
+}
+
+async function saveCrewChange(){
+  if(selectedCrew.size===0){showToast('⚠️ Выберите хотя бы одного');return;}
+  const lt=getTrip()||tripData;
+  const oldCrew=lt?.operators||'';
+  const newCrew=CREW_OPS.filter(o=>selectedCrew.has(o.id)).map(o=>o.name).join(', ');
+  if(newCrew===oldCrew){closeCrewScreen();return;}
+
+  await apiCall('updateTripNotes',{
+    tripId,
+    crewChange:`Состав изменён ${todayStr()}: ${newCrew}`
+  });
+  await apiCall('updateTripOperators',{tripId, operators:newCrew});
+
+  const lt2=getTrip()||{};
+  lt2.operators=newCrew;
+  saveTrip(lt2);
+  if(tripData) tripData.operators=newCrew;
+
+  document.getElementById('ov-crew').textContent=newCrew;
+  sendTG(GROUP_CHAT_ID,`👥 Состав бригады изменён\n📍 ${lt?.district||tripId}\n\nБыл: ${oldCrew}\nСтал: ${newCrew}\n⏰ ${todayStr()}`);
+
+  closeCrewScreen();
+  showToast('✅ Состав обновлён');
+}
+
 window.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
