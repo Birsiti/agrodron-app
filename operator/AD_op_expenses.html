@@ -129,8 +129,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     <div class="card-title">Категория</div>
     <div class="cat-grid">
       <div class="cat-pill selected" onclick="selectCat(this,'food','🍽 Питание')"><div class="cat-ico">🍽</div><div class="cat-name">Питание</div></div>
-      <div class="cat-pill" onclick="selectCat(this,'fuel_cash','⛽ Топливо')"><div class="cat-ico">⛽</div><div class="cat-name">Топливо</div></div>
-      <div class="cat-pill" onclick="selectCat(this,'hotel_cash','🏨 Гостиница')"><div class="cat-ico">🏨</div><div class="cat-name">Гостиница</div></div>
+      <div class="cat-pill" onclick="selectCat(this,'diesel_cash','⛽ Дизель')"><div class="cat-ico">⛽</div><div class="cat-name">Дизель</div></div>
+      <div class="cat-pill" onclick="selectCat(this,'petrol_cash','🪣 Бензин')"><div class="cat-ico">🪣</div><div class="cat-name">Бензин</div></div>      <div class="cat-pill" onclick="selectCat(this,'hotel_cash','🏨 Гостиница')"><div class="cat-ico">🏨</div><div class="cat-name">Гостиница</div></div>
       <div class="cat-pill" onclick="selectCat(this,'repair','🔧 Ремонт')"><div class="cat-ico">🔧</div><div class="cat-name">Ремонт / запчасти</div></div>
       <div class="cat-pill" onclick="selectCat(this,'other','📦 Прочее')"><div class="cat-ico">📦</div><div class="cat-name">Прочее</div></div>
     </div>
@@ -140,8 +140,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   <div class="card" id="cats-atk" style="display:none">
     <div class="card-title">Категория (Безнал)</div>
     <div class="cat-grid">
-      <div class="cat-pill atk-cat selected" onclick="selectCat(this,'diesel','⛽ Топливо')"><div class="cat-ico">⛽</div><div class="cat-name">Топливо (карта)</div></div>
-      <div class="cat-pill atk-cat" onclick="selectCat(this,'hotel','🏨 Гостиница')"><div class="cat-ico">🏨</div><div class="cat-name">Гостиница</div></div>
+      <div class="cat-pill atk-cat selected" onclick="selectCat(this,'diesel','⛽ Дизель')"><div class="cat-ico">⛽</div><div class="cat-name">Дизель (карта)</div></div>
+      <div class="cat-pill atk-cat" onclick="selectCat(this,'petrol','🪣 Бензин')"><div class="cat-ico">🪣</div><div class="cat-name">Бензин (карта)</div></div>      <div class="cat-pill atk-cat" onclick="selectCat(this,'hotel','🏨 Гостиница')"><div class="cat-ico">🏨</div><div class="cat-name">Гостиница</div></div>
       <div class="cat-pill atk-cat" onclick="selectCat(this,'other_atk','📦 Прочее')"><div class="cat-ico">📦</div><div class="cat-name">Прочее</div></div>
     </div>
   </div>
@@ -241,7 +241,7 @@ function selectPay(type) {
     catData = {key:'food', label:'🍽 Питание'};
     document.querySelector('#cats-cash .cat-pill').classList.add('selected');
   } else {
-    catData = {key:'diesel', label:'⛽ Топливо'};
+    catData = {key:'diesel', label:'⛽ Дизель'};
     document.querySelector('#cats-atk .cat-pill').classList.add('selected');
   }
 }
@@ -293,7 +293,7 @@ function addExpense() {
 function renderList() {
   const trip = getTrip();
   const wrap = document.getElementById('list-wrap');
-  const catIco = {food:'🍽',fuel_cash:'⛽',hotel_cash:'🏨',repair:'🔧',other:'📦',diesel:'⛽',hotel:'🏨',other_atk:'📦',petrol:'⛽'};
+const catIco = {food:'🍽',diesel_cash:'⛽',petrol_cash:'🪣',hotel_cash:'🏨',repair:'🔧',other:'📦',diesel:'⛽',petrol:'🪣',hotel:'🏨',other_atk:'📦'};
   if (!trip||(trip.expenses||[]).length===0) {
     wrap.innerHTML='<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>';
     return;
@@ -315,7 +315,7 @@ function renderSummary() {
   const exps = trip.expenses||[];
   const cashTotal = exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
   const atkTotal  = exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
-  const fuel      = exps.filter(e=>e.cat==='diesel').reduce((s,e)=>s+e.amount,0);
+  const fuel = exps.filter(e=>['diesel','petrol','diesel_cash','petrol_cash'].includes(e.cat)).reduce((s,e)=>s+e.amount,0);
   const hotel     = exps.filter(e=>e.cat==='hotel').reduce((s,e)=>s+e.amount,0);
   const atkOther  = exps.filter(e=>e.payType==='atk'&&e.cat!=='diesel'&&e.cat!=='hotel').reduce((s,e)=>s+e.amount,0);
   const balance   = (trip.advance||0) - cashTotal;
