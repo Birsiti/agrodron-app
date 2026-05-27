@@ -324,7 +324,9 @@ function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
   ${t.note||t.primechanie||t['Примечание']?`<div class="summary-block">
     <div class="summary-label">Примечание</div>
     <div style="font-size:12px;color:var(--t2);line-height:1.5">${t.note||t.primechanie||t['Примечание']}</div>
-  </div>`:''}`;
+  </div>`:''}
+  ${renderCarBlock(t.car)}
+  ${renderZipBlock(t.zip)}`;
 }
 
 // ── Дни / Поля ────────────────────────────────────────────
@@ -427,6 +429,36 @@ function rerenderCard(id){
   const advance=num(t.advance||t.avans||t['Аванс']);
   const balance=advance-cashTotal;
   el.outerHTML=tripCard(t);
+}
+
+function renderCarBlock(car){
+  if(!car) return '';
+  const isRent=car.type==='rent';
+  const ico=isRent?'🚜':'🚐';
+  const label=isRent?'Аренда':'Свой';
+  const km=car.odoEnd>0&&car.odoStart>=0?car.odoEnd-car.odoStart:null;
+  return`<div class="summary-block">
+    <div class="summary-label">Автомобиль</div>
+    <div class="row"><span class="rl">${ico} ${label}</span><span class="rv">${car.car||'—'}${car.plate?' · '+car.plate:''}</span></div>
+    ${car.odoStart>0?`<div class="row"><span class="rl">Спидометр выезд</span><span class="rv">${car.odoStart} км</span></div>`:''}
+    ${car.odoEnd>0?`<div class="row"><span class="rl">Спидометр возврат</span><span class="rv">${car.odoEnd} км</span></div>`:''}
+    ${km!==null&&km>0?`<div class="row"><span class="rl">🛣 Пробег</span><span class="rv green">${km} км</span></div>`:''}
+    ${isRent&&car.rentPerDay>0?`<div class="row"><span class="rl">Аренда/день</span><span class="rv red">${car.rentPerDay} BYN</span></div>`:''}
+    ${car.trailer?`<div class="row"><span class="rl">Прицеп</span><span class="rv">${car.trailer}</span></div>`:''}
+  </div>`;
+}
+
+function renderZipBlock(zip){
+  if(!zip) return '';
+  return`<div class="summary-block">
+    <div class="summary-label">ЗИП</div>
+    <div class="stat-grid">
+      <div class="stat-cell"><div class="stat-val">${zip.blades||0}</div><div class="stat-lbl">🪁 Лопасти</div></div>
+      <div class="stat-cell"><div class="stat-val">${zip.nozzles||0}</div><div class="stat-lbl">💧 Форсунки</div></div>
+      <div class="stat-cell"><div class="stat-val">${zip.batteries||0}</div><div class="stat-lbl">🔋 АКБ</div></div>
+      <div class="stat-cell"><div class="stat-val">${zip.chargers||0}</div><div class="stat-lbl">🔌 Зарядки</div></div>
+    </div>
+  </div>`;
 }
 
 window.addEventListener('DOMContentLoaded',init);
