@@ -225,10 +225,12 @@ async function init(){
   }
   allData=resp.result;
   document.getElementById('main-ui').style.display='flex';
-  const issResp=await apiCall('get_issues',{});
-  if(issResp?.ok&&issResp.result) allData.issues=issResp.result.issues||[];
   document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
   render();
+  // Инциденты грузим фоном — не блокируем рендер
+  apiCall('get_issues',{}).then(issResp=>{
+    if(issResp?.ok&&issResp.result) allData.issues=issResp.result.issues||[];
+  }).catch(()=>{});
 }
 
 // ── Рендер списка ─────────────────────────────────────────
