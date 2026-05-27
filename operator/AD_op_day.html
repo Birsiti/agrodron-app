@@ -769,6 +769,7 @@ function closeDay() {
   apiCall('close_day',{
     dayId:day.id, tripId:day.tripId, dayNum:day.dayNum,
     date:day.date, haDone, note:day.note,
+    district: trip ? (trip.district||'') : '',
     fieldsDone:fields.filter(f=>f.status==='done').length,
     fieldsCarried:fields.filter(f=>f.status==='partial').length,
     totalHa: (trip && trip.ha) ? trip.ha + haDone : haDone
