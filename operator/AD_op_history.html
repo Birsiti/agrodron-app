@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · История командировок
+  v1.0 · 2026-05-27
+  - Список всех командировок
+  - Разворот: Дни/Поля, Расходы, Итог
+  - Action: getTripHistory
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · История командировок</title>
+<script src="../config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --amber:#d97706;--amber-dark:#b45309;--amber-light:#fef3c7;
+  --red:#dc2626;--blue:#2563eb;--blue-light:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
+.hdr-sub{font-size:11px;color:var(--t3);white-space:nowrap}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 100px}
+
+/* Loading */
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px}
+.loading-icon{font-size:36px;animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--t3);font-weight:600}
+
+/* Trip card (список) */
+.trip-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+.trip-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.trip-head:active{background:#f8f9fb}
+.trip-ico{width:42px;height:42px;border-radius:12px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.trip-ico.closed{background:#f1f3f7}
+.trip-info{flex:1;min-width:0}
+.trip-id{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.trip-district{font-size:15px;font-weight:800;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-dates{font-size:11px;color:var(--t2);margin-top:2px}
+.trip-right{text-align:right;flex-shrink:0}
+.trip-ha{font-size:16px;font-weight:800;color:var(--green)}
+.trip-status{font-size:10px;font-weight:700;margin-top:3px;padding:2px 7px;border-radius:20px;display:inline-block}
+.trip-status.closed{background:#f1f3f7;color:var(--t3)}
+.trip-status.active{background:var(--gl);color:var(--green)}
+.trip-chevron{font-size:18px;color:var(--t3);transition:transform .25s;flex-shrink:0;margin-left:4px}
+.trip-chevron.open{transform:rotate(90deg)}
+
+/* Detail panel */
+.trip-detail{display:none;border-top:1px solid var(--border)}
+.trip-detail.open{display:block}
+
+/* Мини-вкладки внутри карточки */
+.inner-tabs{display:flex;border-bottom:1px solid var(--border);background:#fafbfc}
+.itab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.itab.active{color:var(--green);border-bottom-color:var(--ga);background:#fff}
+
+.inner-body{padding:14px 14px 18px}
+
+/* Строки */
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:12px;color:var(--t2)}
+.rv{font-size:12px;font-weight:700;color:var(--t1)}
+.rv.green{color:var(--green)}.rv.red{color:var(--red)}.rv.amber{color:var(--amber)}.rv.blue{color:var(--blue)}
+
+/* Дни */
+.day-item{background:#f8f9fb;border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.day-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.day-title{font-size:13px;font-weight:800;color:var(--t1)}
+.day-ha{font-size:14px;font-weight:800;color:var(--green)}
+.field-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border)}
+.field-status{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.field-status.done{background:var(--ga)}
+.field-status.moved{background:var(--amber)}
+.field-name{font-size:12px;color:var(--t2);flex:1}
+.field-ha-val{font-size:12px;font-weight:700;color:var(--t1)}
+
+/* Расходы */
+.exp-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.exp-item:last-child{border-bottom:none}
+.exp-ico{font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.exp-info{flex:1}
+.exp-label{font-size:12px;font-weight:700;color:var(--t1)}
+.exp-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.exp-amount{font-size:13px;font-weight:800}
+.exp-amount.cash{color:var(--red)}
+.exp-amount.atk{color:var(--blue)}
+
+/* Итог */
+.summary-block{margin-bottom:12px}
+.summary-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-cell{background:#f8f9fb;border-radius:10px;padding:11px 12px}
+.stat-val{font-size:18px;font-weight:800;color:var(--t1)}
+.stat-lbl{font-size:10px;color:var(--t3);margin-top:2px}
+.stat-cell.green .stat-val{color:var(--green)}
+.stat-cell.red .stat-val{color:var(--red)}
+.stat-cell.blue .stat-val{color:var(--blue)}
+.stat-cell.amber .stat-val{color:var(--amber)}
+
+.crew-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.chip{background:var(--gl);color:var(--green);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.chip.tech{background:var(--blue-light);color:var(--blue)}
+
+.divider{height:1px;background:var(--border);margin:10px 0}
+
+.empty{text-align:center;padding:40px 20px}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+.empty-s{font-size:12px;color:var(--t3)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,31,46,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="screen-loading">
+  <div class="loading-icon">📋</div>
+  <div class="loading-text">Загрузка истории...</div>
+</div>
+
+<div id="main-ui" style="display:none;flex-direction:column;height:100%">
+  <div class="sub-hdr">
+    <div class="back-btn" onclick="goMenu()">‹</div>
+    <div class="hdr-title">История командировок</div>
+    <div class="hdr-sub" id="hdr-count"></div>
+  </div>
+  <div class="scroll">
+    <div class="wrap" id="trips-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Утилиты ───────────────────────────────────────────────
+function goMenu(){
+  if(window.Telegram?.WebApp) window.Telegram.WebApp.close();
+  else window.location.href='AD_op_menu.html';
+}
+
+function showToast(msg,dur=2200){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+function fmtDMY(v){
+  if(!v)return'—';
+  // Excel serial или ISO строка
+  if(typeof v==='number'){
+    const d=new Date(Math.round((v-25569)*86400*1000));
+    return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getFullYear();
+  }
+  if(typeof v==='string'&&v.match(/^\d{4}-\d{2}-\d{2}/)){
+    const p=v.split('T')[0].split('-');
+    return p[2]+'.'+p[1]+'.'+p[0];
+  }
+  return v;
+}
+
+function fmtDate(v){return fmtDMY(v)}
+
+function countDays(start,end){
+  if(!start)return 0;
+  const parse=v=>{
+    if(typeof v==='number') return new Date(Math.round((v-25569)*86400*1000));
+    return new Date(v);
+  };
+  const s=parse(start), e=end?parse(end):new Date();
+  return Math.max(1,Math.round((e-s)/(86400*1000))+1);
+}
+
+function dayWord(n){
+  if(n%10===1&&n%100!==11)return'день';
+  if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'дня';
+  return'дней';
+}
+
+const catIco={
+  '🍽 Питание':'🍽','⛽ Топливо':'⛽','🪣 Бензин':'🪣','🏨 Гостиница':'🏨',
+  '🔧 Ремонт':'🔧','📦 Прочее':'📦','🚐 Аренда авто':'🚐','⛽ Дизель':'⛽',
+  food:'🍽',diesel:'⛽',diesel_cash:'⛽',petrol:'🪣',petrol_cash:'🪣',
+  hotel:'🏨',hotel_cash:'🏨',repair:'🔧',other:'📦',other_atk:'📦',fuel_card:'⛽'
+};
+
+function ico(cat){return catIco[cat]||'📦'}
+
+// ── API ───────────────────────────────────────────────────
+async function apiCall(action,data={}){
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})});
+    return await r.json();
+  }catch(e){return{ok:false,error:e.message}}
+}
+
+// ── Данные ────────────────────────────────────────────────
+let allData={trips:[],days:[],obrabotki:[],expenses:[]};
+// openStates[tripId] = {open:bool, tab:'days'|'expenses'|'summary'}
+const openStates={};
+
+// ── Инициализация ─────────────────────────────────────────
+async function init(){
+  const resp=await apiCall('getTripHistory',{});
+  document.getElementById('screen-loading').style.display='none';
+  if(!resp||resp.ok===false){
+    showToast('❌ '+(resp?.error||'Ошибка загрузки'));
+    document.getElementById('main-ui').style.display='flex';
+    document.getElementById('trips-list').innerHTML=`<div class="empty"><div class="empty-ico">📋</div><div class="empty-t">Нет данных</div><div class="empty-s">Проверьте подключение</div></div>`;
+    return;
+  }
+  allData=resp;
+  document.getElementById('main-ui').style.display='flex';
+  document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
+  render();
+}
+
+// ── Рендер списка ─────────────────────────────────────────
+function render(){
+  const list=document.getElementById('trips-list');
+  const trips=[...(allData.trips||[])].reverse(); // новые сверху
+  if(!trips.length){
+    list.innerHTML=`<div class="empty"><div class="empty-ico">🚐</div><div class="empty-t">Командировок пока нет</div><div class="empty-s">Выезды появятся здесь после закрытия</div></div>`;
+    return;
+  }
+  list.innerHTML=trips.map(t=>tripCard(t)).join('');
+}
+
+function tripCard(t){
+  const id=t.id||t.tripId||'';
+  const state=openStates[id]||{open:false,tab:'summary'};
+  const closed=t.status==='закрыта'||t.status==='closed';
+  const days=allData.days.filter(d=>d.tripId===id||d.commandirovkaId===id||d['Командировка ID']===id);
+  const exps=allData.expenses.filter(e=>e.tripId===id||e.commandirovkaId===id||e['Командировка ID']===id);
+  const obs=allData.obrabotki.filter(o=>o.tripId===id||o.commandirovkaId===id);
+
+  const cashTotal=exps.filter(e=>isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
+  const atkTotal=exps.filter(e=>!isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
+  const advance=num(t.advance||t.avans||t['Аванс']);
+  const balance=advance-cashTotal;
+  const ha=num(t.ha||t.gaItogo||t['Га итого']);
+
+  return`<div class="trip-card" id="tc-${id}">
+  <div class="trip-head" onclick="toggleTrip('${id}')">
+    <div class="trip-ico ${closed?'closed':''}">🚐</div>
+    <div class="trip-info">
+      <div class="trip-id">${id}</div>
+      <div class="trip-district">${t.district||t.rayon||t['Район']||'—'}</div>
+      <div class="trip-dates">${fmtDate(t.dateStart||t['Дата откр.'])} → ${fmtDate(t.dateEnd||t['Дата закр.'])}</div>
+    </div>
+    <div class="trip-right">
+      <div class="trip-ha">${ha?ha.toFixed(1)+' га':'—'}</div>
+      <div class="trip-status ${closed?'closed':'active'}">${closed?'закрыта':'активна'}</div>
+    </div>
+    <div class="trip-chevron ${state.open?'open':''}" id="chev-${id}">›</div>
+  </div>
+  ${state.open?detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,state.tab):'<div class="trip-detail" id="td-'+id+'"></div>'}
+</div>`;
+}
+
+function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab){
+  return`<div class="trip-detail open" id="td-${id}">
+  <div class="inner-tabs">
+    <div class="itab ${tab==='summary'?'active':''}" onclick="setTab('${id}','summary')">📊 Итог</div>
+    <div class="itab ${tab==='days'?'active':''}" onclick="setTab('${id}','days')">☀️ Дни</div>
+    <div class="itab ${tab==='expenses'?'active':''}" onclick="setTab('${id}','expenses')">💸 Расходы</div>
+  </div>
+  <div class="inner-body">
+    ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance):''}
+    ${tab==='days'?renderDays(id,days,obs):''}
+    ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal):''}
+  </div>
+</div>`;
+}
+
+// ── Итог ──────────────────────────────────────────────────
+function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
+  const ha=num(t.ha||t.gaItogo||t['Га итого']);
+  const daysCount=countDays(t.dateStart||t['Дата откр.'],t.dateEnd||t['Дата закр.']);
+  const workDays=days.filter(d=>num(d.ha||d.gaFact||d['Га факт'])>0).length;
+  const crew=(t.operators||t.sostav||t['Состав']||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const tech=(t.tech||t.technika||t['Техника']||'').split(',').map(s=>s.trim()).filter(Boolean);
+
+  return`
+  <div class="summary-block">
+    <div class="summary-label">Основное</div>
+    <div class="stat-grid">
+      <div class="stat-cell green"><div class="stat-val">${ha?ha.toFixed(1):'—'}</div><div class="stat-lbl">га обработано</div></div>
+      <div class="stat-cell amber"><div class="stat-val">${daysCount}</div><div class="stat-lbl">${dayWord(daysCount)} командировки</div></div>
+      <div class="stat-cell"><div class="stat-val">${workDays||'—'}</div><div class="stat-lbl">рабочих дней</div></div>
+      <div class="stat-cell ${balance>=0?'green':'red'}"><div class="stat-val">${balance>=0?'+':''}${balance.toFixed(0)}</div><div class="stat-lbl">остаток BYN</div></div>
+    </div>
+  </div>
+  <div class="summary-block">
+    <div class="summary-label">Финансы</div>
+    <div class="row"><span class="rl">Аванс выдан</span><span class="rv">${advance.toFixed(2)} BYN</span></div>
+    <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
+    <div class="row"><span class="rl">Безнал (АТК)</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
+    <div class="row"><span class="rl">Всего расходов</span><span class="rv">${(cashTotal+atkTotal).toFixed(2)} BYN</span></div>
+    ${advance>0?`<div class="row"><span class="rl" style="font-weight:700">Остаток</span><span class="rv ${balance>=0?'green':'red'}" style="font-size:15px">${balance.toFixed(2)} BYN</span></div>`:''}
+  </div>
+  ${crew.length?`<div class="summary-block">
+    <div class="summary-label">Состав бригады</div>
+    <div class="crew-chips">${crew.map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+  </div>`:''}
+  ${tech.length?`<div class="summary-block">
+    <div class="summary-label">Техника</div>
+    <div class="crew-chips">${tech.map(c=>`<span class="chip tech">${c}</span>`).join('')}</div>
+  </div>`:''}
+  ${t.note||t.primechanie||t['Примечание']?`<div class="summary-block">
+    <div class="summary-label">Примечание</div>
+    <div style="font-size:12px;color:var(--t2);line-height:1.5">${t.note||t.primechanie||t['Примечание']}</div>
+  </div>`:''}`;
+}
+
+// ── Дни / Поля ────────────────────────────────────────────
+function renderDays(tripId,days,obs){
+  if(!days.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">☀️</div><div class="empty-t">Дней нет</div></div>`;
+
+  const sorted=[...days].sort((a,b)=>num(a['День №']||a.dayNum||0)-num(b['День №']||b.dayNum||0));
+
+  return sorted.map((d,i)=>{
+    const date=d.date||d['Дата']||d.data;
+    const ha=num(d.ha||d.gaFact||d['Га факт']);
+    const haStr=ha?ha.toFixed(2)+' га':'0 га';
+    const note=d.note||d.primechanie||d['Примечание']||'';
+    const dayObs=obs.filter(o=>sameDate(o.date||o['Дата'],date));
+
+    return`<div class="day-item">
+      <div class="day-hdr">
+        <div class="day-title">День ${i+1} · ${fmtDate(date)}</div>
+        <div class="day-ha">${haStr}</div>
+      </div>
+      ${note?`<div style="font-size:11px;color:var(--t3);margin-bottom:6px">${note}</div>`:''}
+      ${dayObs.length?dayObs.map(o=>`
+        <div class="field-row">
+          <div class="field-status done"></div>
+          <div class="field-name">${o.np||o['НП']||'Поле'} ${o.culture||o['Культура']?'· '+( o.culture||o['Культура']):''}${o.drug||o['Препарат']?' · '+(o.drug||o['Препарат']):''}</div>
+          <div class="field-ha-val">${num(o.gaFact||o['Га факт']).toFixed(2)} га</div>
+        </div>`).join('')
+      :`<div style="font-size:11px;color:var(--t3);padding-top:4px">Полей не записано</div>`}
+    </div>`;
+  }).join('');
+}
+
+function sameDate(a,b){
+  // сравниваем Excel serial или строки
+  if(!a||!b) return false;
+  const toInt=v=>typeof v==='number'?Math.round(v):0;
+  if(typeof a==='number'&&typeof b==='number') return Math.round(a)===Math.round(b);
+  return fmtDMY(a)===fmtDMY(b);
+}
+
+// ── Расходы ───────────────────────────────────────────────
+function renderExpenses(exps,advance,cashTotal,atkTotal){
+  if(!exps.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>`;
+
+  const balance=advance-cashTotal;
+  return exps.map(e=>{
+    const cat=e.category||e.cat||e['Категория']||'📦';
+    const label=e.label||cat;
+    const amount=num(e.amount||e.suma||e['Сумма']);
+    const comment=e.comment||e.komment||e['Комментарий']||'';
+    const date=fmtDate(e.date||e['Дата']||'');
+    const isC=isNash(e);
+    return`<div class="exp-item">
+      <div class="exp-ico">${ico(cat)}</div>
+      <div class="exp-info">
+        <div class="exp-label">${label}${comment?' · '+comment:''}</div>
+        <div class="exp-sub">${date} · ${isC?'💵 Нал':'💳 Безнал'}</div>
+      </div>
+      <div class="exp-amount ${isC?'cash':'atk'}">−${amount.toFixed(2)}</div>
+    </div>`;
+  }).join('')+`
+  <div class="divider"></div>
+  <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
+  <div class="row"><span class="rl">Безнал</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
+  ${advance>0?`<div class="row"><span class="rl" style="font-weight:700">Остаток аванса</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>`:''}`;
+}
+
+// ── Хелперы ───────────────────────────────────────────────
+function num(v){return parseFloat(v)||0}
+function isNash(e){
+  const p=e.payType||e.tipOplaty||e['Тип оплаты']||'';
+  return !p||p==='cash'||p==='нал'||p==='наличные';
+}
+
+// ── Тогл / таб ────────────────────────────────────────────
+function toggleTrip(id){
+  const state=openStates[id]||{open:false,tab:'summary'};
+  state.open=!state.open;
+  openStates[id]=state;
+  rerenderCard(id);
+}
+
+function setTab(id,tab){
+  openStates[id]=openStates[id]||{open:true};
+  openStates[id].tab=tab;
+  rerenderCard(id);
+}
+
+function rerenderCard(id){
+  const trips=[...(allData.trips||[])].reverse();
+  const t=trips.find(x=>(x.id||x.tripId||'')===id);
+  if(!t) return;
+  const el=document.getElementById('tc-'+id);
+  if(!el) return;
+  const days=allData.days.filter(d=>d.tripId===id||d.commandirovkaId===id||d['Командировка ID']===id);
+  const exps=allData.expenses.filter(e=>e.tripId===id||e.commandirovkaId===id||e['Командировка ID']===id);
+  const obs=allData.obrabotki.filter(o=>o.tripId===id||o.commandirovkaId===id);
+  const cashTotal=exps.filter(e=>isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
+  const atkTotal=exps.filter(e=>!isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
+  const advance=num(t.advance||t.avans||t['Аванс']);
+  const balance=advance-cashTotal;
+  el.outerHTML=tripCard(t);
+}
+
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
