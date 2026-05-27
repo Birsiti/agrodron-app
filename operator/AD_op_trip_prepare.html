@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v2.1
-  v2.1 · 2026-05-27 · Убрана вкладка Операторы из хедера → экран выбора внутри формы
+  AgroDrone.BY · Бригадир — Prepare v2.2
+  v2.2 · 2026-05-27 · Fix: sanitize op id для DOM; погода не блокирует отправку
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
@@ -351,10 +351,12 @@ function closeOpsScreen(){
   updateOpsTrigger();
 }
 
+function safeId(id){ return id.replace(/[^a-zA-Z0-9_-]/g,'_'); }
+
 function renderOpsList(){
   const wrap = document.getElementById('ops-list');
   wrap.innerHTML = opsData.map(op=>`
-    <div class="op-row ${selectedOps.has(op.id)?'selected':''}" id="op-row-${op.id}" onclick="toggleOpRow('${op.id}')">
+    <div class="op-row ${selectedOps.has(op.id)?'selected':''}" id="op-row-${safeId(op.id)}" onclick="toggleOpRow('${op.id.replace(/'/g,"\\'")}')">
       <div class="op-row-check"></div>
       <div>
         <div class="op-row-name">${op.name}</div>
@@ -364,7 +366,8 @@ function renderOpsList(){
 }
 
 function toggleOpRow(id){
-  const el = document.getElementById('op-row-'+id);
+  const el = document.getElementById('op-row-'+safeId(id));
+  if(!el) return;
   if(selectedOps.has(id)){selectedOps.delete(id);el.classList.remove('selected');}
   else{selectedOps.add(id);el.classList.add('selected');}
 }
@@ -668,10 +671,14 @@ async function sendForApproval(){
 
     if(!editMode){
       pendingTrips.push(newTrip);
+      // Telegram — отправляем сразу без погоды, погода догоняет фоном
       const BOT='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk',CID='6204739474';
-      const weather = await getWeatherForecast(d.district, d.dateStart);
-      const msg=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n${weather}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
-      fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msg})}).catch(()=>{});
+      const msgBase=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n⏰ ${new Date().toLocaleString('ru-RU')}`;
+      fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msgBase})}).catch(()=>{});
+      // Погода — фоном, отдельным сообщением
+      getWeatherForecast(d.district, d.dateStart).then(weather=>{
+        if(weather) fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:weather})}).catch(()=>{});
+      });
       showToast(`✅ Заявка ${tripId} отправлена`);
     } else {
       const idx=pendingTrips.findIndex(t=>t.tripId===currentTrip.tripId);
