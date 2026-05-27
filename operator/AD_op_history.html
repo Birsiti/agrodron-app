@@ -269,7 +269,6 @@ function tripCard(t){
     <div class="trip-right">
       <div class="trip-ha">${ha?ha.toFixed(1)+' га':'—'}</div>
       <div class="trip-status ${closed?'closed':'active'}">${closed?'закрыта':'активна'}</div>
-      ${(()=>{const open=(allData.issues||[]).filter(i=>String(i.tripId||i['Командировка']||'')===String(id)&&!(String(i.status||i['Статус']||'').match(/закрыта|решено|closed/)));return open.length?`<div style="font-size:10px;font-weight:700;color:var(--red);margin-top:3px">🔴 ЧП: ${open.length}</div>`:''})()}
     </div>
     <div class="trip-chevron ${state.open?'open':''}" id="chev-${id}">›</div>
   </div>
@@ -326,10 +325,6 @@ function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
   ${tech.length?`<div class="summary-block">
     <div class="summary-label">Техника</div>
     <div class="crew-chips">${tech.map(c=>`<span class="chip tech">${c}</span>`).join('')}</div>
-  </div>`:''}
-  ${t.note||t.primechanie||t['Примечание']?`<div class="summary-block">
-    <div class="summary-label">Примечание</div>
-    <div style="font-size:12px;color:var(--t2);line-height:1.5">${t.note||t.primechanie||t['Примечание']}</div>
   </div>`:''}
   ${renderCarBlock(t.car)}`;
 }
