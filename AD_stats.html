@@ -193,13 +193,25 @@ async function init(){
     const topCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
     const avgHa=obrCount>0?totalHa/obrCount:0;
 
-    render({totalHa,obrCount,avgHa,tripCount,totalSpent,totalNal,totalBeznal,totalRent,totalCarry,totalExpenses,topOps,topDrones,topRegions,topCats});
+    render({totalHa,obrCount,avgHa,tripCount,totalSpent,totalNal,totalBeznal,totalRent,totalCarry,totalExpenses,topOps,topDrones,topRegions,topCats,tripsData:trips.rows.filter(r=>r[0]&&String(r[10]).includes('закрыта'))});
     document.getElementById('upd-time').textContent=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
 
   }catch(e){
     console.error(e);
     document.getElementById('loading').innerHTML='<div style="color:var(--red);font-size:13px">❌ Ошибка загрузки</div>';
   }
+}
+
+function fmtD(v){
+  if(!v)return'—';
+  if(typeof v==='number'){
+    const d=new Date(Math.round((v-25569)*86400*1000));
+    return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getFullYear().toString().slice(2)+' ';
+  }
+  const s=String(v).trim();
+  const m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
+  if(m)return m[1]+'.'+m[2]+'.'+m[3].slice(2)+' ';
+  return s+' ';
 }
 
 function render(d){
@@ -321,6 +333,37 @@ function render(d){
         <span class="rl" style="font-weight:700">Итого расходов</span>
         <span class="rv red">${fmt(d.totalExpenses)} BYN</span>
       </div>
+    </div>
+
+    <!-- ИСТОРИЯ КОМАНДИРОВОК -->
+    <div class="card">
+      <div class="card-title">🚐 История командировок</div>
+      ${d.tripsData.length?[...d.tripsData].reverse().map(r=>{
+        const id=String(r[0]);
+        const district=String(r[3]||'—');
+        const dateStart=fmtD(r[1]);
+        const dateEnd=fmtD(r[2]);
+        const ha=parseFloat(r[9])||0;
+        const spent=parseFloat(r[7])||0;
+        const advance=parseFloat(r[6])||0;
+        const balance=advance-spent;
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div>
+              <div style="font-size:12px;font-weight:800;color:var(--t1)">${district}</div>
+              <div style="font-size:10px;color:var(--t3)">${id} · ${dateStart}→${dateEnd}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:14px;font-weight:800;color:var(--green)">${fmt(ha,1)} га</div>
+              <div style="font-size:10px;color:${balance>=0?'var(--green)':'var(--red)'};font-weight:700">${balance>=0?'+':''}${fmt(balance)} BYN</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;font-size:10px;color:var(--t3)">
+            <span>💰 Аванс: ${fmt(advance)}</span>
+            <span>💸 Расходы: ${fmt(spent)}</span>
+          </div>
+        </div>`;
+      }).join(''):`<div class="empty">Нет закрытых командировок</div>`}
     </div>
 
   `;
