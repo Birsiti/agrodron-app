@@ -293,11 +293,11 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <div class="row"><span class="rl">Итого аренда</span><span class="rv red" id="cl-rent-total">—</span></div>
     </div>
   </div>
-  <div class="card">
+ <div class="card">
     <div class="card-title">💵 Остаток наличных</div>
-    <div class="close-opts">
-      <div class="co selected" id="opt-return" onclick="selectCloseOpt('return')"><div class="co-ico">💰</div><div class="co-name">Сдал в кассу</div></div>
-      <div class="co" id="opt-carry" onclick="selectCloseOpt('carry')"><div class="co-ico">➡️</div><div class="co-name">Перенос</div></div>
+    <div class="row">
+      <span class="rl">Перенос на след. командировку</span>
+      <span class="rv green" id="cl-carry-balance">—</span>
     </div>
   </div>
   <div class="card">
@@ -713,7 +713,6 @@ function renderClose(){
   const atkTotal=exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
   const balance=(lt.advance||0)-cashTotal;
   const gear=lt.gear||{};
-
   document.getElementById('cl-district').textContent=lt.district||tripData?.district||'—';
   document.getElementById('cl-dates').textContent=fmtDMY(lt.dateStart)+' → '+fmtDMY(today);
   document.getElementById('cl-days').textContent=days+' '+dayWord(days);
@@ -725,24 +724,23 @@ function renderClose(){
   document.getElementById('cl-balance').className='rv '+(balance>=0?'green':'red');
   document.getElementById('cl-atk-total').textContent=atkTotal.toFixed(2)+' BYN';
   document.getElementById('cl-odo-start').textContent=(gear.odometer||0)+' км';
-
-  const catLabels={food:'🍽 Питание',petrol:'🪣 Бензин',repair:'🔧 Ремонт',other:'📦 Прочее'};
+  // Перенос
+  const carryEl=document.getElementById('cl-carry-balance');
+  if(carryEl){carryEl.textContent=balance.toFixed(2)+' BYN';carryEl.className='rv '+(balance>=0?'green':'red');}
+  const catLabels={food:'🍽 Питание',petrol:'🪣 Бензин',fuel_cash:'⛽ Топливо',hotel_cash:'🏨 Гостиница',repair:'🔧 Ремонт',other:'📦 Прочее'};
   const cashGroups={};
   exps.filter(e=>e.payType==='cash').forEach(e=>{const k=catLabels[e.cat]||'📦 Прочее';cashGroups[k]=(cashGroups[k]||0)+e.amount});
   document.getElementById('cl-cash-items').innerHTML=Object.entries(cashGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv" style="font-size:12px">−${v.toFixed(2)} BYN</span></div>`).join('');
-
-  const atkLabels={diesel:'⛽ Топливо',hotel:'🏨 Гостиница',other_atk:'📦 Прочее АТК'};
+  const atkLabels={diesel:'⛽ Топливо',hotel:'🏨 Гостиница',other_atk:'📦 Прочее'};
   const atkGroups={};
   exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||'📦 Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
   document.getElementById('cl-atk-items').innerHTML=Object.entries(atkGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv blue" style="font-size:12px">${v.toFixed(2)} BYN</span></div>`).join('');
-
   if(gear.car==='Аренда'&&gear.rentCost>0){
     document.getElementById('cl-rent-block').style.display='block';
     document.getElementById('cl-rent-per-day').textContent=gear.rentCost+' BYN/день';
     document.getElementById('cl-rent-total').textContent=(gear.rentCost*days).toFixed(2)+' BYN';
   }
 }
-
 function calcKm(){
   const lt=getTrip()||tripData;
   const start=(lt?.gear?.odometer)||0;
