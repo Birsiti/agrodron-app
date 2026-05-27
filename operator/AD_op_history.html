@@ -209,7 +209,7 @@ async function apiCall(action,data={}){
 }
 
 // ── Данные ────────────────────────────────────────────────
-let allData={trips:[],days:[],obrabotki:[],expenses:[]};
+let allData={trips:[],days:[],obrabotki:[],expenses:[],issues:[]};
 // openStates[tripId] = {open:bool, tab:'days'|'expenses'|'summary'}
 const openStates={};
 
@@ -225,6 +225,9 @@ async function init(){
   }
   allData=resp.result;
   document.getElementById('main-ui').style.display='flex';
+  // Загружаем инциденты с техникой
+  const issResp=await apiCall('get_issues',{});
+  if(issResp?.ok&&issResp.result) allData.issues=issResp.result.issues||issResp.result||[];
   document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
   render();
 }
@@ -268,21 +271,22 @@ function tripCard(t){
     </div>
     <div class="trip-chevron ${state.open?'open':''}" id="chev-${id}">›</div>
   </div>
-  ${state.open?detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,state.tab,num(t.carry)):'<div class="trip-detail" id="td-'+id+'"></div>'}
+  ${state.open?detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,state.tab):'<div class="trip-detail" id="td-'+id+'"></div>'}
 </div>`;
 }
 
-function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab,carry=0){
+function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab){
   return`<div class="trip-detail open" id="td-${id}">
   <div class="inner-tabs">
     <div class="itab ${tab==='summary'?'active':''}" onclick="setTab('${id}','summary')">📊 Итог</div>
     <div class="itab ${tab==='days'?'active':''}" onclick="setTab('${id}','days')">☀️ Дни</div>
     <div class="itab ${tab==='expenses'?'active':''}" onclick="setTab('${id}','expenses')">💸 Расходы</div>
+    <div class="itab ${tab==='issues'?'active':''}" onclick="setTab('${id}','issues')">🔧 Техника</div>
   </div>
   <div class="inner-body">
     ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance):''}
     ${tab==='days'?renderDays(id,days,obs):''}
-    ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal,carry):''}
+    ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal):''}
   </div>
 </div>`;
 }
@@ -368,22 +372,11 @@ function sameDate(a,b){
 }
 
 // ── Расходы ───────────────────────────────────────────────
-function renderExpenses(exps,advance,cashTotal,atkTotal,carry=0){
-  const balance=advance+carry-cashTotal;
-  const hasData=exps.length>0||advance>0||carry>0;
-  if(!hasData) return`<div class="empty" style="padding:20px"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>`;
+function renderExpenses(exps,advance,cashTotal,atkTotal){
+  if(!exps.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>`;
 
-  const header=`
-    ${carry>0?`<div class="exp-item"><div class="exp-ico">🔄</div><div class="exp-info"><div class="exp-label">Перенос с прошлой командировки</div><div class="exp-sub">Остаток прошлого выезда</div></div><div class="exp-amount" style="color:var(--green)">+${carry.toFixed(2)}</div></div>`:''}
-    ${advance>0?`<div class="exp-item"><div class="exp-ico">💰</div><div class="exp-info"><div class="exp-label">Аванс выдан</div><div class="exp-sub">Наличные на командировку</div></div><div class="exp-amount" style="color:var(--green)">+${advance.toFixed(2)}</div></div>`:''}
-    ${carry>0||advance>0?`<div class="divider"></div>`:''}
-  `;
-
-  if(!exps.length) return header+`
-    <div class="divider"></div>
-    <div class="row"><span class="rl" style="font-weight:700">Остаток → след. командировку</span><span class="rv green">${balance.toFixed(2)} BYN</span></div>`;
-
-  return header+exps.map(e=>{
+  const balance=advance-cashTotal;
+  return exps.map(e=>{
     const cat=e.category||e.cat||e['Категория']||'📦';
     const label=e.label||cat;
     const amount=num(e.amount||e.suma||e['Сумма']);
@@ -401,8 +394,8 @@ function renderExpenses(exps,advance,cashTotal,atkTotal,carry=0){
   }).join('')+`
   <div class="divider"></div>
   <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
-  <div class="row"><span class="rl">Безнал (АТК)</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
-  <div class="row"><span class="rl" style="font-weight:700">Остаток → след. командировку</span><span class="rv ${balance>=0?'green':'red'}" style="font-size:14px">${balance.toFixed(2)} BYN</span></div>`;
+  <div class="row"><span class="rl">Безнал</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
+  ${advance>0?`<div class="row"><span class="rl" style="font-weight:700">Остаток аванса</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>`:''}`;
 }
 
 // ── Хелперы ───────────────────────────────────────────────
@@ -440,6 +433,25 @@ function rerenderCard(id){
   const advance=num(t.advance||t.avans||t['Аванс']);
   const balance=advance-cashTotal;
   el.outerHTML=tripCard(t);
+}
+
+function renderIssues(issues,tripId){
+  const list=issues.filter(i=>String(i['Командировка']||i.tripId||i.commandirovka||'')===String(tripId));
+  if(!list.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">✅</div><div class="empty-t">Инцидентов нет</div><div class="empty-s">Техника работала без замечаний</div></div>`;
+  const urgIco={'critical':'🔴','high':'🟠','normal':'🟡','low':'🟢'};
+  return list.map(i=>{
+    const urg=String(i['Срочность']||i.urgency||'').toLowerCase();
+    const status=String(i['Статус']||i.status||'');
+    const closed=status==='закрыта'||status==='closed'||status==='решено';
+    return`<div class="day-item" style="margin-bottom:8px">
+      <div class="day-hdr">
+        <div class="day-title">${urgIco[urg]||'⚪'} ${i['БАК']||i.bak||'—'} · ${i['Тип']||i.type||'—'}</div>
+        <div style="font-size:11px;font-weight:700;color:${closed?'var(--green)':'var(--red)'}">${closed?'✅ решено':'⏳ открыта'}</div>
+      </div>
+      ${i['Описание']||i.description?`<div style="font-size:12px;color:var(--t2);margin-bottom:4px">${i['Описание']||i.description}</div>`:''}
+      <div style="font-size:11px;color:var(--t3)">${i['Оператор']||i.operator||''} · ${fmtDate(i['Дата заявки']||i.date||'')}${i['Примечания']?' · '+i['Примечания']:''}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderCarBlock(car){
