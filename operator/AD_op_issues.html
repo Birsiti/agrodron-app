@@ -262,10 +262,12 @@ function submitIssue() {
   saveIssues(issues);
 
   apiCall('report_issue', {
-    id: issue.id, techName: issue.techName,
-    severity: issue.severity, desc: issue.desc,
-    tripId: issue.tripId, direction: issue.direction
-  });
+  techName: issue.techName,
+  severity: issue.severity,
+  desc: issue.desc,
+  tripId: issue.tripId,
+  operator: 'Бруй Д.А.'
+});
 
   const sevMsg = {low:'⚠️ Зафиксировано',high:'🔴 Сообщение отправлено механику',critical:'🆘 Срочно! РП уведомлён'}[severity];
   document.getElementById('issue-desc').value='';
