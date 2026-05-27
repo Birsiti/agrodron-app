@@ -209,7 +209,7 @@ async function apiCall(action,data={}){
 }
 
 // ── Данные ────────────────────────────────────────────────
-let allData={trips:[],days:[],obrabotki:[],expenses:[],issues:[]};
+let allData={trips:[],days:[],obrabotki:[],expenses:[]};
 // openStates[tripId] = {open:bool, tab:'days'|'expenses'|'summary'}
 const openStates={};
 
@@ -225,9 +225,6 @@ async function init(){
   }
   allData=resp.result;
   document.getElementById('main-ui').style.display='flex';
-  // Загружаем инциденты с техникой
-  const issResp=await apiCall('get_issues',{});
-  if(issResp?.ok&&issResp.result) allData.issues=issResp.result.issues||issResp.result||[];
   document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
   render();
 }
@@ -281,7 +278,6 @@ function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab){
     <div class="itab ${tab==='summary'?'active':''}" onclick="setTab('${id}','summary')">📊 Итог</div>
     <div class="itab ${tab==='days'?'active':''}" onclick="setTab('${id}','days')">☀️ Дни</div>
     <div class="itab ${tab==='expenses'?'active':''}" onclick="setTab('${id}','expenses')">💸 Расходы</div>
-    <div class="itab ${tab==='issues'?'active':''}" onclick="setTab('${id}','issues')">🔧 Техника</div>
   </div>
   <div class="inner-body">
     ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance):''}
@@ -325,166 +321,3 @@ function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
     <div class="summary-label">Техника</div>
     <div class="crew-chips">${tech.map(c=>`<span class="chip tech">${c}</span>`).join('')}</div>
   </div>`:''}
-  ${t.note||t.primechanie||t['Примечание']?`<div class="summary-block">
-    <div class="summary-label">Примечание</div>
-    <div style="font-size:12px;color:var(--t2);line-height:1.5">${t.note||t.primechanie||t['Примечание']}</div>
-  </div>`:''}
-  ${renderCarBlock(t.car)}
-  ${renderZipBlock(t.zip)}`;
-}
-
-// ── Дни / Поля ────────────────────────────────────────────
-function renderDays(tripId,days,obs){
-  if(!days.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">☀️</div><div class="empty-t">Дней нет</div></div>`;
-
-  const sorted=[...days].sort((a,b)=>num(a['День №']||a.dayNum||0)-num(b['День №']||b.dayNum||0));
-
-  return sorted.map((d,i)=>{
-    const date=d.date||d['Дата']||d.data;
-    const ha=num(d.ha||d.gaFact||d['Га факт']);
-    const haStr=ha?ha.toFixed(2)+' га':'0 га';
-    const note=d.note||d.primechanie||d['Примечание']||'';
-    const dayObs=obs.filter(o=>sameDate(o.date||o['Дата'],date));
-
-    return`<div class="day-item">
-      <div class="day-hdr">
-        <div class="day-title">День ${i+1} · ${fmtDate(date)}</div>
-        <div class="day-ha">${haStr}</div>
-      </div>
-      ${note?`<div style="font-size:11px;color:var(--t3);margin-bottom:6px">${note}</div>`:''}
-      ${dayObs.length?dayObs.map(o=>`
-        <div class="field-row">
-          <div class="field-status done"></div>
-          <div class="field-name">${o.np||o['НП']||'Поле'} ${o.culture||o['Культура']?'· '+( o.culture||o['Культура']):''}${o.drug||o['Препарат']?' · '+(o.drug||o['Препарат']):''}</div>
-          <div class="field-ha-val">${num(o.gaFact||o['Га факт']).toFixed(2)} га</div>
-        </div>`).join('')
-      :`<div style="font-size:11px;color:var(--t3);padding-top:4px">Полей не записано</div>`}
-    </div>`;
-  }).join('');
-}
-
-function sameDate(a,b){
-  // сравниваем Excel serial или строки
-  if(!a||!b) return false;
-  const toInt=v=>typeof v==='number'?Math.round(v):0;
-  if(typeof a==='number'&&typeof b==='number') return Math.round(a)===Math.round(b);
-  return fmtDMY(a)===fmtDMY(b);
-}
-
-// ── Расходы ───────────────────────────────────────────────
-function renderExpenses(exps,advance,cashTotal,atkTotal){
-  if(!exps.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div></div>`;
-
-  const balance=advance-cashTotal;
-  return exps.map(e=>{
-    const cat=e.category||e.cat||e['Категория']||'📦';
-    const label=e.label||cat;
-    const amount=num(e.amount||e.suma||e['Сумма']);
-    const comment=e.comment||e.komment||e['Комментарий']||'';
-    const date=fmtDate(e.date||e['Дата']||'');
-    const isC=isNash(e);
-    return`<div class="exp-item">
-      <div class="exp-ico">${ico(cat)}</div>
-      <div class="exp-info">
-        <div class="exp-label">${label}${comment?' · '+comment:''}</div>
-        <div class="exp-sub">${date} · ${isC?'💵 Нал':'💳 Безнал'}</div>
-      </div>
-      <div class="exp-amount ${isC?'cash':'atk'}">−${amount.toFixed(2)}</div>
-    </div>`;
-  }).join('')+`
-  <div class="divider"></div>
-  <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
-  <div class="row"><span class="rl">Безнал</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
-  ${advance>0?`<div class="row"><span class="rl" style="font-weight:700">Остаток аванса</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>`:''}`;
-}
-
-// ── Хелперы ───────────────────────────────────────────────
-function num(v){return parseFloat(v)||0}
-function isNash(e){
-  const p=e.payType||e.tipOplaty||e['Тип оплаты']||'';
-  return !p||p==='cash'||p==='нал'||p==='наличные';
-}
-
-// ── Тогл / таб ────────────────────────────────────────────
-function toggleTrip(id){
-  const state=openStates[id]||{open:false,tab:'summary'};
-  state.open=!state.open;
-  openStates[id]=state;
-  rerenderCard(id);
-}
-
-function setTab(id,tab){
-  openStates[id]=openStates[id]||{open:true};
-  openStates[id].tab=tab;
-  rerenderCard(id);
-}
-
-function rerenderCard(id){
-  const trips=[...(allData.trips||[])].reverse();
-  const t=trips.find(x=>(x.id||x.tripId||'')===id);
-  if(!t) return;
-  const el=document.getElementById('tc-'+id);
-  if(!el) return;
-  const days=allData.days.filter(d=>d.tripId===id||d.commandirovkaId===id||d['Командировка ID']===id);
-  const exps=allData.expenses.filter(e=>e.tripId===id||e.commandirovkaId===id||e['Командировка ID']===id);
-  const obs=allData.obrabotki.filter(o=>o.tripId===id||o.commandirovkaId===id);
-  const cashTotal=exps.filter(e=>isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
-  const atkTotal=exps.filter(e=>!isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
-  const advance=num(t.advance||t.avans||t['Аванс']);
-  const balance=advance-cashTotal;
-  el.outerHTML=tripCard(t);
-}
-
-function renderIssues(issues,tripId){
-  const list=issues.filter(i=>String(i['Командировка']||i.tripId||i.commandirovka||'')===String(tripId));
-  if(!list.length) return`<div class="empty" style="padding:20px"><div class="empty-ico">✅</div><div class="empty-t">Инцидентов нет</div><div class="empty-s">Техника работала без замечаний</div></div>`;
-  const urgIco={'critical':'🔴','high':'🟠','normal':'🟡','low':'🟢'};
-  return list.map(i=>{
-    const urg=String(i['Срочность']||i.urgency||'').toLowerCase();
-    const status=String(i['Статус']||i.status||'');
-    const closed=status==='закрыта'||status==='closed'||status==='решено';
-    return`<div class="day-item" style="margin-bottom:8px">
-      <div class="day-hdr">
-        <div class="day-title">${urgIco[urg]||'⚪'} ${i['БАК']||i.bak||'—'} · ${i['Тип']||i.type||'—'}</div>
-        <div style="font-size:11px;font-weight:700;color:${closed?'var(--green)':'var(--red)'}">${closed?'✅ решено':'⏳ открыта'}</div>
-      </div>
-      ${i['Описание']||i.description?`<div style="font-size:12px;color:var(--t2);margin-bottom:4px">${i['Описание']||i.description}</div>`:''}
-      <div style="font-size:11px;color:var(--t3)">${i['Оператор']||i.operator||''} · ${fmtDate(i['Дата заявки']||i.date||'')}${i['Примечания']?' · '+i['Примечания']:''}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderCarBlock(car){
-  if(!car) return '';
-  const isRent=car.type==='rent';
-  const ico=isRent?'🚜':'🚐';
-  const label=isRent?'Аренда':'Свой';
-  const km=car.odoEnd>0&&car.odoStart>=0?car.odoEnd-car.odoStart:null;
-  return`<div class="summary-block">
-    <div class="summary-label">Автомобиль</div>
-    <div class="row"><span class="rl">${ico} ${label}</span><span class="rv">${car.car||'—'}${car.plate?' · '+car.plate:''}</span></div>
-    ${car.odoStart>0?`<div class="row"><span class="rl">Спидометр выезд</span><span class="rv">${car.odoStart} км</span></div>`:''}
-    ${car.odoEnd>0?`<div class="row"><span class="rl">Спидометр возврат</span><span class="rv">${car.odoEnd} км</span></div>`:''}
-    ${km!==null&&km>0?`<div class="row"><span class="rl">🛣 Пробег</span><span class="rv green">${km} км</span></div>`:''}
-    ${isRent&&car.rentPerDay>0?`<div class="row"><span class="rl">Аренда/день</span><span class="rv red">${car.rentPerDay} BYN</span></div>`:''}
-    ${car.trailer?`<div class="row"><span class="rl">Прицеп</span><span class="rv">${car.trailer}</span></div>`:''}
-  </div>`;
-}
-
-function renderZipBlock(zip){
-  if(!zip) return '';
-  return`<div class="summary-block">
-    <div class="summary-label">ЗИП</div>
-    <div class="stat-grid">
-      <div class="stat-cell"><div class="stat-val">${zip.blades||0}</div><div class="stat-lbl">🪁 Лопасти</div></div>
-      <div class="stat-cell"><div class="stat-val">${zip.nozzles||0}</div><div class="stat-lbl">💧 Форсунки</div></div>
-      <div class="stat-cell"><div class="stat-val">${zip.batteries||0}</div><div class="stat-lbl">🔋 АКБ</div></div>
-      <div class="stat-cell"><div class="stat-val">${zip.chargers||0}</div><div class="stat-lbl">🔌 Зарядки</div></div>
-    </div>
-  </div>`;
-}
-
-window.addEventListener('DOMContentLoaded',init);
-</script>
-</body>
-</html>
