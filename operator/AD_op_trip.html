@@ -778,8 +778,8 @@ function buildNotifyText(){
   const atkLines=Object.entries(atkGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
 
   const balStr=balance>=0?`+${balance.toFixed(2)} BYN (${closeOption==='carry'?'перенос':'сдано в кассу'})`:`−${Math.abs(balance).toFixed(2)} BYN (перерасход)`;
-  const carLabel=gear.car==='Аренда'?'Аренда авто':gear.car||'Ford Transit';
-let kmLine=km>0?`\n🛣 ${carLabel}: ${km} км`:'';
+  const carLabel=gear.car==='Аренда'?'Ford Transit (аренда)':gear.car||'Ford Transit';
+let kmLine=km>0?`\n🛣 Пробег (${carLabel}): ${km} км`:'';
   let rentLine=gear.car==='Аренда'&&gear.rentCost>0?`\n🚐 Аренда авто: ${(gear.rentCost*days).toFixed(2)} BYN`:'';
 
   return`✅ Командировка закрыта
@@ -797,9 +797,9 @@ ${cashLines}
 ${atkLines}
 ${kmLine}${rentLine}
 
-📊 Нал потрачено: ${cashTotal.toFixed(2)} BYN
-📊 АТК итого: ${atkTotal.toFixed(2)} BYN
-📊 Всего расходов: ${(cashTotal+atkTotal).toFixed(2)} BYN
+💵 Нал потрачено: ${cashTotal.toFixed(2)} BYN
+💳 Безнал итого: ${atkTotal.toFixed(2)} BYN
+🧾 Всего расходов: ${(cashTotal+atkTotal).toFixed(2)} BYN
 ─────────────────
 ${balance>=0?'💵':'⚠️'} Остаток: ${balStr}`;
 }
