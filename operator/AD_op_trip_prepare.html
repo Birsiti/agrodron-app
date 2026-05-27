@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v2.0
-  v2.0 · 2026-05-25 · Две вкладки: На согласовании + Новая подготовка
+  AgroDrone.BY · Бригадир — Prepare v2.1
+  v2.1 · 2026-05-27 · Убрана вкладка Операторы из хедера → экран выбора внутри формы
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v2.0</title>
+<title>AgroDrone.BY · Prepare v2.1</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -29,8 +29,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 .back-btn{font-size:24px;cursor:pointer;color:#fff;line-height:1;padding-right:4px;font-weight:300}
 .hdr-title{font-size:16px;font-weight:800;color:#fff;flex:1}
 
-/* ── Вкладки ── */
-.tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.2);margin:0 -0px}
+/* ── Вкладки (2 шт) ── */
+.tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.2)}
 .tab{flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;position:relative;transition:color .2s;letter-spacing:.3px}
 .tab.active{color:#fff}
 .tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:#fff;border-radius:3px 3px 0 0}
@@ -82,13 +82,14 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 .fi:focus{border-color:var(--orange)}
 select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d97706' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 
-.op-list{display:flex;flex-direction:column;gap:6px}
-.op-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .2s}
-.op-item.selected{border-color:var(--orange);background:var(--orange-pale)}
-.op-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;position:relative;transition:all .2s}
-.op-item.selected .op-check{background:var(--orange);border-color:var(--orange)}
-.op-item.selected .op-check::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:14px;font-weight:800}
-.op-name{font-size:14px;font-weight:700;color:var(--t1)}.op-role{font-size:11px;color:var(--t3)}
+/* ── Кнопка выбора операторов ── */
+.ops-trigger{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s}
+.ops-trigger:active{border-color:var(--orange)}
+.ops-trigger-text{font-size:14px;color:var(--t3);font-weight:500}
+.ops-trigger-text.has-ops{color:var(--t1);font-weight:600}
+.ops-trigger-arrow{font-size:16px;color:var(--orange)}
+.ops-selected-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ops-tag{background:var(--orange-pale);border:1px solid var(--orange-light);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--orange-dark)}
 
 .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tech-item{padding:12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .2s}
@@ -120,6 +121,22 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
 .btn-red{background:#fee2e2;color:var(--red);border:1.5px solid #fecaca}
 
+/* ── Экран выбора операторов (поверх формы) ── */
+.ops-screen{position:absolute;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.ops-screen.show{transform:translateX(0)}
+.ops-screen-hdr{background:linear-gradient(135deg,var(--orange),var(--orange-dark));padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ops-screen-title{font-size:16px;font-weight:800;color:#fff;flex:1}
+.ops-done-btn{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;font-family:var(--f);cursor:pointer}
+.ops-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ops-wrap{padding:12px}
+.op-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border-radius:var(--rs);margin-bottom:8px;cursor:pointer;border:1.5px solid var(--border);transition:all .2s}
+.op-row.selected{border-color:var(--orange);background:var(--orange-pale)}
+.op-row-check{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;position:relative;transition:all .2s}
+.op-row.selected .op-row-check{background:var(--orange);border-color:var(--orange)}
+.op-row.selected .op-row-check::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:14px;font-weight:800}
+.op-row-name{font-size:15px;font-weight:700;color:var(--t1)}
+.op-row-role{font-size:12px;color:var(--t3);margin-top:2px}
+
 /* ── Модалки ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:998;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.show{opacity:1;pointer-events:all}
@@ -134,17 +151,6 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 /* ── Детальный экран pending ── */
 .detail-hdr{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:14px 16px;display:flex;align-items:center;gap:10px;border-radius:var(--r) var(--r) 0 0}
 .detail-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px}
-  .op-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
-.op-avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--orange),var(--orange-dark));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff;font-weight:800}
-.op-card-info{flex:1}
-.op-card-name{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:2px}
-.op-card-stats{display:flex;gap:16px}
-.op-stat{text-align:center}
-.op-stat-val{font-size:20px;font-weight:800;color:var(--orange)}
-.op-stat-lbl{font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
-.op-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:8px}
-.op-status.active{background:#dcfce7;color:#15803d}
-.op-status.inactive{background:#f1f5f9;color:var(--t3)}
 </style>
 </head>
 <body>
@@ -152,7 +158,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div class="sub-hdr">
   <div class="hdr-top">
     <div class="back-btn" id="back-btn" onclick="handleBack()">‹</div>
-    <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v2.0</span></div>
+    <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v2.1</span></div>
   </div>
   <div class="tabs">
     <div class="tab active" id="tab-pending" onclick="switchTab('pending')">
@@ -161,10 +167,8 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="tab" id="tab-new" onclick="switchTab('new')">
       ➕ Подготовка
     </div>
-    <div class="tab" id="tab-ops" onclick="switchTab('ops')">
-      👥 Операторы
-    </div>
   </div>
+</div>
 
 <!-- Загрузка -->
 <div class="loading-screen" id="screen-loading">
@@ -174,9 +178,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ══ ВКЛАДКА: На согласовании ══ -->
 <div class="scroll" id="tab-content-pending" style="display:none">
-<div class="wrap" id="pending-list-wrap">
-  <!-- заполняется JS -->
-</div>
+<div class="wrap" id="pending-list-wrap"></div>
 </div>
 
 <!-- Детальный вид одной заявки -->
@@ -234,12 +236,11 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
   <div class="card">
     <div class="card-title">👥 Состав бригады</div>
-    <div class="op-list">
-      <div class="op-item" data-op="OP001" onclick="toggleOp(this,'OP001')"><div class="op-check"></div><div style="flex:1"><div class="op-name">Бруй Д.А.</div><div class="op-role">Бригадир</div></div></div>
-      <div class="op-item" data-op="OP002" onclick="toggleOp(this,'OP002')"><div class="op-check"></div><div style="flex:1"><div class="op-name">Грибов К.М.</div><div class="op-role">Оператор АТК</div></div></div>
-      <div class="op-item" data-op="OP003" onclick="toggleOp(this,'OP003')"><div class="op-check"></div><div style="flex:1"><div class="op-name">Борисенок Л.И.</div><div class="op-role">Оператор WR</div></div></div>
-      <div class="op-item" data-op="OP004" onclick="toggleOp(this,'OP004')"><div class="op-check"></div><div style="flex:1"><div class="op-name">Уманец А.И.</div><div class="op-role">Оператор WR</div></div></div>
+    <div class="ops-trigger" onclick="openOpsScreen()">
+      <span class="ops-trigger-text" id="ops-trigger-text">Нажмите, чтобы выбрать</span>
+      <span class="ops-trigger-arrow">›</span>
     </div>
+    <div class="ops-selected-tags" id="ops-selected-tags" style="display:none"></div>
   </div>
 
   <div class="card">
@@ -250,7 +251,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <div class="tech-item" data-tech="A1"  onclick="toggleTech(this,'A1')"><div class="tech-ico">🛸</div><div class="tech-name">А1-Х</div></div>
       <div class="tech-item" data-tech="OTHER" onclick="toggleTech(this,'OTHER')"><div class="tech-ico">📦</div><div class="tech-name">Доп. оборудование</div></div>
     </div>
-    <div class="fg" id="other-tech-field" style="display:none;margin-top:10px">
+    <div class="fg" id="other-tech-field" style="display:none;margin-top:10px;margin-bottom:0">
       <label class="fl">Что берём дополнительно</label>
       <input type="text" class="fi" id="other-tech" placeholder="Например: УАЗ, квадрокоптер...">
     </div>
@@ -283,15 +284,21 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 </div>
 </div>
-<!-- ══ ВКЛАДКА: Операторы ══ -->
-<div class="scroll" id="tab-content-ops" style="display:none">
-<div class="wrap" id="ops-list-wrap">
-  <div style="text-align:center;padding:40px 0;color:var(--t3)">
-    <div style="font-size:36px;margin-bottom:10px">👥</div>
-    <div style="font-size:13px;font-weight:600">Загрузка...</div>
+
+<!-- ══ ЭКРАН ВЫБОРА ОПЕРАТОРОВ ══ -->
+<div class="ops-screen" id="ops-screen">
+  <div class="ops-screen-hdr">
+    <div class="back-btn" onclick="closeOpsScreen()">‹</div>
+    <div class="ops-screen-title">Состав бригады</div>
+    <button class="ops-done-btn" onclick="closeOpsScreen()">Готово</button>
+  </div>
+  <div class="ops-scroll">
+    <div class="ops-wrap" id="ops-list">
+      <!-- заполняется JS из Sheets -->
+    </div>
   </div>
 </div>
-</div>
+
 <!-- Модалка удаления -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal-box">
@@ -308,6 +315,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <script>
 const OP_NAMES  = {'OP001':'Бруй Д.А.','OP002':'Грибов К.М.','OP003':'Борисенок Л.И.','OP004':'Уманец А.И.'};
+const OP_ROLES  = {'OP001':'Бригадир','OP002':'Оператор АТК','OP003':'Оператор WR','OP004':'Оператор WR'};
 const OP_IDS    = Object.fromEntries(Object.entries(OP_NAMES).map(([k,v])=>[v,k]));
 const TECH_NAMES= {'A60':'А60-ХМ','A70':'А70-ХМ','A1':'А1-Х'};
 const TECH_IDS  = Object.fromEntries(Object.entries(TECH_NAMES).map(([k,v])=>[v,k]));
@@ -318,49 +326,96 @@ const selectedTech = new Set();
 const gearCounters = {blades:4,nozzles:2,batteries:8,chargers:2};
 let carType     = 'own';
 let fieldsData  = [];
-let pendingTrips= []; // массив
-let currentTrip = null; // выбранная для детального просмотра
+let pendingTrips= [];
+let currentTrip = null;
 let editMode    = false;
 let activeTab   = 'pending';
+// Операторы из Sheets (или дефолт)
+let opsData = [
+  {id:'OP001',name:'Бруй Д.А.',role:'Бригадир'},
+  {id:'OP002',name:'Грибов К.М.',role:'Оператор АТК'},
+  {id:'OP003',name:'Борисенок Л.И.',role:'Оператор WR'},
+  {id:'OP004',name:'Уманец А.И.',role:'Оператор WR'}
+];
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+// ── Экран выбора операторов ──────────────────────────────
+function openOpsScreen(){
+  renderOpsList();
+  document.getElementById('ops-screen').classList.add('show');
+}
+
+function closeOpsScreen(){
+  document.getElementById('ops-screen').classList.remove('show');
+  updateOpsTrigger();
+}
+
+function renderOpsList(){
+  const wrap = document.getElementById('ops-list');
+  wrap.innerHTML = opsData.map(op=>`
+    <div class="op-row ${selectedOps.has(op.id)?'selected':''}" id="op-row-${op.id}" onclick="toggleOpRow('${op.id}')">
+      <div class="op-row-check"></div>
+      <div>
+        <div class="op-row-name">${op.name}</div>
+        <div class="op-row-role">${op.role}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleOpRow(id){
+  const el = document.getElementById('op-row-'+id);
+  if(selectedOps.has(id)){selectedOps.delete(id);el.classList.remove('selected');}
+  else{selectedOps.add(id);el.classList.add('selected');}
+}
+
+function updateOpsTrigger(){
+  const trigger = document.getElementById('ops-trigger-text');
+  const tags = document.getElementById('ops-selected-tags');
+  if(selectedOps.size===0){
+    trigger.textContent='Нажмите, чтобы выбрать';
+    trigger.classList.remove('has-ops');
+    tags.style.display='none';
+    tags.innerHTML='';
+  } else {
+    const names = Array.from(selectedOps).map(id=>opsData.find(o=>o.id===id)?.name||id);
+    trigger.textContent=`Выбрано: ${selectedOps.size}`;
+    trigger.classList.add('has-ops');
+    tags.style.display='flex';
+    tags.innerHTML = names.map(n=>`<span class="ops-tag">${n}</span>`).join('');
+  }
+}
 
 // ── Вкладки ──────────────────────────────────────────────
 function switchTab(tab){
   activeTab = tab;
-  document.getElementById('tab-ops').classList.toggle('active', tab==='ops');
-  
+
+  // Обновляем классы вкладок
+  document.getElementById('tab-pending').classList.toggle('active', tab==='pending');
+  document.getElementById('tab-new').classList.toggle('active', tab==='new');
+
   // Скрыть всё
   document.getElementById('screen-loading').style.display='none';
   document.getElementById('tab-content-pending').style.display='none';
   document.getElementById('tab-content-new').style.display='none';
-  document.getElementById('tab-content-ops').style.display='none';
   document.getElementById('screen-detail').style.display='none';
-  if(tab==='ops'){
-    document.getElementById('tab-content-ops').style.display='block';
-    document.getElementById('hdr-title').innerHTML='Операторы <span style="font-size:11px;opacity:.6">v2.0</span>';
-    loadOperators();
-    return;
-  }
+
   if(tab==='pending'){
     document.getElementById('tab-content-pending').style.display='block';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.0</span>';
-  
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.1</span>';
   } else {
     document.getElementById('tab-content-new').style.display='block';
     if(editMode){
-      document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.0</span>';
+      document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.1</span>';
     } else {
-      document.getElementById('hdr-title').innerHTML='Новая заявка <span style="font-size:11px;opacity:.6">v2.0</span>';
+      document.getElementById('hdr-title').innerHTML='Новая заявка <span style="font-size:11px;opacity:.6">v2.1</span>';
       resetForm();
     }
   }
-  document.getElementById('back-btn').style.display='block';
 }
 
 function handleBack(){
   if(document.getElementById('screen-detail').style.display!=='none'){
-    // Из деталей → список
     showPendingList();
   } else {
     window.location.href='AD_op_menu.html';
@@ -370,32 +425,25 @@ function handleBack(){
 function showPendingList(){
   document.getElementById('screen-detail').style.display='none';
   document.getElementById('tab-content-pending').style.display='block';
-  document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.0</span>';
-  editMode=false;
-  currentTrip=null;
+  document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.1</span>';
+  editMode=false;currentTrip=null;
 }
 
 // ── Init ─────────────────────────────────────────────────
 async function init(){
-  // Загрузка
   document.getElementById('screen-loading').style.display='flex';
   document.getElementById('tab-content-pending').style.display='none';
   document.getElementById('tab-content-new').style.display='none';
   document.getElementById('screen-detail').style.display='none';
 
   await loadDistricts();
+  await loadOperatorsData();
 
   try{
     const resp = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getPendingTrips',data:{}})});
     const json = await resp.json();
-    console.log('getPendingTrips:', JSON.stringify(json));
-
     const r = json.result?.result || json.result;
-if(json.ok && r && r.trips){
-  pendingTrips = r.trips;
-    } else {
-      pendingTrips = [];
-    }
+    pendingTrips = (json.ok && r && r.trips) ? r.trips : [];
   } catch(e){
     console.error('init error:', e);
     pendingTrips = [];
@@ -404,7 +452,6 @@ if(json.ok && r && r.trips){
   updateBadge();
   renderPendingList();
 
-  // Показать вкладку "На согласовании" по умолчанию
   document.getElementById('screen-loading').style.display='none';
   document.getElementById('tab-content-pending').style.display='block';
   document.getElementById('date-start').value = new Date().toISOString().split('T')[0];
@@ -412,23 +459,35 @@ if(json.ok && r && r.trips){
 
 function updateBadge(){
   const badge = document.getElementById('badge-count');
-  if(pendingTrips.length > 0){
-    badge.style.display='inline-flex';
-    badge.textContent = pendingTrips.length;
-  } else {
-    badge.style.display='none';
-  }
+  if(pendingTrips.length>0){badge.style.display='inline-flex';badge.textContent=pendingTrips.length;}
+  else{badge.style.display='none';}
+}
+
+// ── Загрузка операторов из Sheets ────────────────────────
+async function loadOperatorsData(){
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ОПЕРАТОРЫ!A2:G100?key=${SHEETS_KEY}`;
+    const r=await fetch(url);const d=await r.json();
+    const rows=d.values||[];
+    if(rows.length){
+      opsData = rows.filter(r=>r[0]&&r[1]).map(r=>({
+        id: r[0].trim(),
+        name: r[1].trim(),
+        role: r[2]||'Оператор'
+      }));
+    }
+  } catch(e){ /* используем дефолт */ }
 }
 
 // ── Рендер списка pending ─────────────────────────────────
 function renderPendingList(){
   const wrap = document.getElementById('pending-list-wrap');
-  if(pendingTrips.length === 0){
+  if(pendingTrips.length===0){
     wrap.innerHTML=`
       <div class="empty-state">
         <div class="empty-icon">📋</div>
         <div class="empty-title">Нет заявок на согласовании</div>
-        <div class="empty-sub">Перейдите на вкладку «Новая подготовка»</div>
+        <div class="empty-sub">Перейдите на вкладку «Подготовка»</div>
       </div>`;
     return;
   }
@@ -456,11 +515,11 @@ function renderPendingList(){
 }
 
 function openDetail(idx){
-  currentTrip = pendingTrips[idx];
+  currentTrip=pendingTrips[idx];
   fillDetailScreen(currentTrip);
   document.getElementById('tab-content-pending').style.display='none';
   document.getElementById('screen-detail').style.display='block';
-  document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.0</span>';
+  document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.1</span>';
 }
 
 function fillDetailScreen(t){
@@ -478,37 +537,27 @@ function fillDetailScreen(t){
 // ── Редактировать ─────────────────────────────────────────
 function editPending(){
   if(!currentTrip)return;
-  editMode=true;
-  const t=currentTrip;
+  editMode=true;const t=currentTrip;
 
-  // Район
   const sel=document.getElementById('district');
   if(t.district){
     let found=false;
     for(let opt of sel.options){if(opt.value===t.district){sel.value=t.district;found=true;break;}}
-    if(!found){
-      sel.value='other';
-      document.getElementById('district-manual-field').style.display='block';
-      document.getElementById('district-manual').value=t.district;
-    }
+    if(!found){sel.value='other';document.getElementById('district-manual-field').style.display='block';document.getElementById('district-manual').value=t.district;}
   }
   updatePlannedHa();
-
-  // Даты
   if(t.dateStart) document.getElementById('date-start').value=isoDate(t.dateStart);
   if(t.dateEnd)   document.getElementById('date-end').value=isoDate(t.dateEnd);
 
-  // Операторы
-  document.querySelectorAll('.op-item').forEach(el=>el.classList.remove('selected'));
   selectedOps.clear();
   if(t.operators){
     t.operators.split(',').map(s=>s.trim()).forEach(name=>{
-      const id=OP_IDS[name];
-      if(id){selectedOps.add(id);document.querySelector(`[data-op="${id}"]`)?.classList.add('selected');}
+      const id=OP_IDS[name]||(opsData.find(o=>o.name===name)?.id);
+      if(id) selectedOps.add(id);
     });
   }
+  updateOpsTrigger();
 
-  // Техника
   document.querySelectorAll('.tech-item').forEach(el=>el.classList.remove('selected'));
   selectedTech.clear();
   if(t.tech){
@@ -520,13 +569,12 @@ function editPending(){
 
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   document.getElementById('btn-cancel').style.display='block';
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.0</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.1</span>';
 
   document.getElementById('screen-detail').style.display='none';
   document.getElementById('tab-content-new').style.display='block';
   document.getElementById('tab-pending').classList.remove('active');
   document.getElementById('tab-new').classList.add('active');
-  document.getElementById('tab-ops').classList.remove('active');
   activeTab='new';
 }
 
@@ -541,7 +589,7 @@ function cancelEdit(){
     document.getElementById('tab-pending').classList.add('active');
     document.getElementById('tab-new').classList.remove('active');
     activeTab='pending';
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.0</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.1</span>';
   } else {
     switchTab('pending');
   }
@@ -553,8 +601,9 @@ function resetForm(){
   document.getElementById('planned-ha').value='';
   document.getElementById('date-start').value=new Date().toISOString().split('T')[0];
   document.getElementById('date-end').value='';
-  document.querySelectorAll('.op-item,.tech-item').forEach(el=>el.classList.remove('selected'));
-  selectedOps.clear();selectedTech.clear();
+  selectedOps.clear();updateOpsTrigger();
+  document.querySelectorAll('.tech-item').forEach(el=>el.classList.remove('selected'));
+  selectedTech.clear();
   carType='own';
   document.querySelectorAll('.radio-item').forEach((el,i)=>{el.classList.toggle('selected',i===0)});
   document.getElementById('rent-number-field').style.display='none';
@@ -572,7 +621,7 @@ function collectFormData(){
   const dateStart=document.getElementById('date-start').value;
   const dateEnd=document.getElementById('date-end').value;
   const plannedHa=document.getElementById('planned-ha').value||'0';
-  const operators=Array.from(selectedOps).map(id=>OP_NAMES[id]).join(', ');
+  const operators=Array.from(selectedOps).map(id=>opsData.find(o=>o.id===id)?.name||id).join(', ');
   let tech=Array.from(selectedTech).filter(id=>id!=='OTHER').map(id=>TECH_NAMES[id]).join(', ');
   if(selectedTech.has('OTHER')){const o=document.getElementById('other-tech').value.trim();if(o)tech+=(tech?', ':'')+o;}
   const car=carType==='own'?'Ford Transit AT1637-5':'Аренда: '+(document.getElementById('rent-number').value||'—');
@@ -618,27 +667,20 @@ async function sendForApproval(){
     const newTrip={tripId,...d,notes};
 
     if(!editMode){
-      // Добавить в массив
       pendingTrips.push(newTrip);
-      // Telegram уведомление
       const BOT='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk',CID='6204739474';
       const weather = await getWeatherForecast(d.district, d.dateStart);
       const msg=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n${weather}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
       fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msg})}).catch(()=>{});
       showToast(`✅ Заявка ${tripId} отправлена`);
     } else {
-      // Обновить в массиве
       const idx=pendingTrips.findIndex(t=>t.tripId===currentTrip.tripId);
       if(idx>=0) pendingTrips[idx]=newTrip;
       currentTrip=newTrip;
       showToast('✅ Изменения сохранены');
     }
 
-    editMode=false;
-    updateBadge();
-    renderPendingList();
-
-    // Перейти на вкладку "На согласовании"
+    editMode=false;updateBadge();renderPendingList();
     btn.disabled=false;
     btn.textContent='📋 Отправить на согласование';
     document.getElementById('btn-cancel').style.display='none';
@@ -651,28 +693,27 @@ async function sendForApproval(){
   }
 }
 
-// ── Согласовано → активировать ────────────────────────────
+// ── Согласовано ───────────────────────────────────────────
 async function approveTrip(){
   if(!currentTrip)return;
   sessionStorage.setItem('atk_trip_id',currentTrip.tripId);
   showToast(`✅ Согласовано — заполните данные выезда`);
   setTimeout(()=>window.location.href=`AD_op_trip.html?tripId=${encodeURIComponent(currentTrip.tripId)}`,800);
 }
+
 // ── Удаление ──────────────────────────────────────────────
 function confirmDelete(){document.getElementById('modal-delete').classList.add('show')}
 function closeModal(){document.getElementById('modal-delete').classList.remove('show')}
 
 async function deleteTrip(){
-  closeModal();
-  if(!currentTrip)return;
+  closeModal();if(!currentTrip)return;
   try{
     const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'deleteTrip',data:{tripId:currentTrip.tripId}})});
     const json=await resp.json();
     if(!json.ok)throw new Error(json.error||'Ошибка');
     pendingTrips=pendingTrips.filter(t=>t.tripId!==currentTrip.tripId);
     currentTrip=null;editMode=false;
-    updateBadge();
-    renderPendingList();
+    updateBadge();renderPendingList();
     showToast('🗑 Заявка удалена');
     setTimeout(()=>showPendingList(),300);
   } catch(e){showToast('❌ '+e.message)}
@@ -696,15 +737,13 @@ function updatePlannedHa(){
   const manualField=document.getElementById('district-manual-field');
   if(!district||district==='other'){
     document.getElementById('planned-ha').value='';
-    manualField.style.display = district==='other' ? 'block' : 'none';
-    return;
+    manualField.style.display=district==='other'?'block':'none';return;
   }
   manualField.style.display='none';
   const total=fieldsData.filter(f=>f.district===district&&!['готово','done'].includes(f.status)).reduce((s,f)=>s+f.ha,0);
   document.getElementById('planned-ha').value=total>0?total.toFixed(1):'';
 }
 
-function toggleOp(el,id){el.classList.toggle('selected');selectedOps.has(id)?selectedOps.delete(id):selectedOps.add(id)}
 function toggleTech(el,id){
   el.classList.toggle('selected');selectedTech.has(id)?selectedTech.delete(id):selectedTech.add(id);
   if(id==='OTHER')document.getElementById('other-tech-field').style.display=selectedTech.has('OTHER')?'block':'none';
@@ -729,14 +768,12 @@ const DISTRICT_COORDS = {
 
 function fmt(d){if(!d)return'—';const m=String(d).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(d)}
 function fmtDate(val){if(!val)return'—';const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(val)}
-
 function isoDate(val){
   if(!val)return'';
-  if(val instanceof Date){const y=val.getFullYear(),mo=String(val.getMonth()+1).padStart(2,'0'),d=String(val.getDate()).padStart(2,'0');return`${y}-${mo}-${d}`;}
   const s=String(val).trim();
   const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[1]}-${m[2]}-${m[3]}`;
   const m2=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);if(m2)return`${m2[3]}-${m2[2]}-${m2[1]}`;
-  try{const d=new Date(s);if(!isNaN(d)){const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${mo}-${dd}`;}}catch(e){}
+  try{const d=new Date(s);if(!isNaN(d)){return d.toISOString().split('T')[0];}}catch(e){}
   return'';
 }
 
@@ -745,8 +782,7 @@ async function getWeatherForecast(district, dateStart) {
     const coords = DISTRICT_COORDS[district];
     if(!coords) return '🌤 Погода: район не найден в базе';
     const [lat, lon] = coords;
-    const url = `https://wttr.in/${lat},${lon}?format=j1`;
-    const r = await fetch(url);
+    const r = await fetch(`https://wttr.in/${lat},${lon}?format=j1`);
     const d = await r.json();
     const weather = d.weather || [];
     let startIdx = 0;
@@ -769,35 +805,7 @@ async function getWeatherForecast(district, dateStart) {
     return lines.join('\n');
   } catch(e){return '🌤 Погода: ошибка загрузки';}
 }
-async function loadOperators(){
-  const wrap=document.getElementById('ops-list-wrap');
-  try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ОПЕРАТОРЫ!A2:L100?key=${SHEETS_KEY}`;
-    const r=await fetch(url);
-    const d=await r.json();
-    const rows=d.values||[];
-    if(!rows.length){wrap.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--t3)"><div style="font-size:36px">👥</div><div>Нет данных</div></div>';return;}
-    wrap.innerHTML=rows.filter(r=>r[0]).map(r=>{
-      const name=r[1]||'—';
-      const status=String(r[6]||'').trim().toLowerCase();
-      const ha=parseFloat(r[10])||0;
-      const trips=parseInt(r[11])||0;
-      const isActive=!status||status==='активен'||status==='active';
-      const initials=name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
-      return`<div class="op-card">
-        <div class="op-avatar">${initials}</div>
-        <div class="op-card-info">
-          <div class="op-card-name">${name}</div>
-          <span class="op-status ${isActive?'active':'inactive'}">${isActive?'● Активен':'○ Неактивен'}</span>
-          <div class="op-card-stats">
-            <div class="op-stat"><div class="op-stat-val">${ha>0?ha.toFixed(1):'—'}</div><div class="op-stat-lbl">Га за сезон</div></div>
-            <div class="op-stat"><div class="op-stat-val">${trips||'—'}</div><div class="op-stat-lbl">Выездов</div></div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){wrap.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--red)">❌ Ошибка загрузки</div>';}
-}
+
 window.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
