@@ -444,9 +444,7 @@ function renderCarBlock(car){
   return`<div class="summary-block">
     <div class="summary-label">Автомобиль</div>
     <div class="row"><span class="rl">${ico} ${label}</span><span class="rv">${car.car||'—'}${car.plate?' · '+car.plate:''}</span></div>
-    ${car.odoStart>0?`<div class="row"><span class="rl">Спидометр выезд</span><span class="rv">${car.odoStart} км</span></div>`:''}
-    ${car.odoEnd>0?`<div class="row"><span class="rl">Спидометр возврат</span><span class="rv">${car.odoEnd} км</span></div>`:''}
-    ${km!==null&&km>0?`<div class="row"><span class="rl">🛣 Пробег</span><span class="rv green">${km} км</span></div>`:''}
+    ${km!==null&&km>0?`<div class="row"><span class="rl">🛣 Пробег</span><span class="rv green">${km} км</span></div>`:car.odoStart>0?`<div class="row"><span class="rl">🛣 Пробег</span><span class="rv">${car.odoStart} км</span></div>`:''}
     ${isRent&&car.rentPerDay>0?`<div class="row"><span class="rl">Аренда/день</span><span class="rv red">${car.rentPerDay} BYN</span></div>`:''}
     ${car.trailer?`<div class="row"><span class="rl">Прицеп</span><span class="rv">${car.trailer}</span></div>`:''}
   </div>`;
