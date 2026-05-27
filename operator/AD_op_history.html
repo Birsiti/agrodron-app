@@ -269,6 +269,7 @@ function tripCard(t){
     <div class="trip-right">
       <div class="trip-ha">${ha?ha.toFixed(1)+' га':'—'}</div>
       <div class="trip-status ${closed?'closed':'active'}">${closed?'закрыта':'активна'}</div>
+      ${(()=>{const open=(allData.issues||[]).filter(i=>String(i.tripId||i['Командировка']||'')===String(id)&&!(String(i.status||i['Статус']||'').match(/закрыта|решено|closed/)));return open.length?`<div style="font-size:10px;font-weight:700;color:var(--red);margin-top:3px">🔴 ЧП: ${open.length}</div>`:''})()}
     </div>
     <div class="trip-chevron ${state.open?'open':''}" id="chev-${id}">›</div>
   </div>
