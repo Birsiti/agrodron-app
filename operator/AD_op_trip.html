@@ -229,7 +229,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="row"><span class="rl">Нал потрачено</span><span class="rv red" id="ov-cash-spent">0 BYN</span></div>
     <div class="row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:4px"><span class="rl" style="font-weight:700">Остаток нала</span><span class="rv green" id="ov-balance" style="font-size:16px">0 BYN</span></div>
     <div class="divider"></div>
-    <div class="row"><span class="rl">АТК напрямую</span><span class="rv blue" id="ov-atk-spent">0 BYN</span></div>
+    <div class="row"><span class="rl">💳 Безнал</span><span class="rv blue" id="ov-atk-spent">0 BYN</span></div>
   </div>
    <button class="btn btn-outline" onclick="localStorage.clear();location.reload()" style="font-size:12px;color:var(--red);border-color:var(--red)">🗑 Сбросить локальные данные</button>
   <div class="card">
@@ -418,7 +418,7 @@ function showTab(name){
   });
   if(name==='overview') renderOverview();
   if(name==='days')     renderDays();
-  if(name==='expenses') renderExpenses();
+  if(name==='expenses') ;
   if(name==='close')    renderClose();
   if(name==='depart')   prefill();
 }
@@ -668,7 +668,7 @@ function renderExpenses(){
   const lt=getTrip()||tripData;
   const list=document.getElementById('expenses-list');
   const exps=lt?.expenses||[];
-  const catIco={diesel:'⛽',petrol:'🪣',food:'🍽',hotel:'🏨',repair:'🔧',other:'📦',fuel_card:'⛽',accommodation:'🏨'};
+  const catIco={food:'🍽',diesel:'⛽',petrol:'🪣',diesel_cash:'⛽',petrol_cash:'🪣',hotel:'🏨',hotel_cash:'🏨',repair:'🔧',other:'📦',other_atk:'📦',fuel_card:'⛽'};
   if(!exps.length){list.innerHTML=`<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div><div class="empty-s">Нажмите «Внести расход»</div></div>`;return}
   const cashTotal=exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
   const atkTotal=exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
@@ -677,7 +677,7 @@ function renderExpenses(){
       <div class="exp-ico">${catIco[e.cat]||'📦'}</div>
       <div class="exp-info">
         <div class="exp-label">${e.label||e.cat||'Расход'}${e.comment?' · '+e.comment:''}</div>
-        <div class="exp-sub">${e.date||''} ${e.time||''} · ${e.payType==='atk'?'АТК':'Нал'}</div>
+        <div class="exp-sub">${e.date||''} ${e.time||''} · ${e.payType==='atk'?'💳 Безнал':'💵 Нал'}</div>
       </div>
       <div class="exp-amount ${e.payType==='atk'?'atk':'cash'}">−${(e.amount||0).toFixed(2)}</div>
     </div>`).join('')+`
@@ -727,11 +727,10 @@ function renderClose(){
   // Перенос
   const carryEl=document.getElementById('cl-carry-balance');
   if(carryEl){carryEl.textContent=balance.toFixed(2)+' BYN';carryEl.className='rv '+(balance>=0?'green':'red');}
-  const catLabels={food:'🍽 Питание',petrol:'🪣 Бензин',fuel_cash:'⛽ Топливо',hotel_cash:'🏨 Гостиница',repair:'🔧 Ремонт',other:'📦 Прочее'};
-  const cashGroups={};
+  const catLabels={food:'🍽 Питание',diesel_cash:'⛽ Дизель',petrol_cash:'🪣 Бензин',hotel_cash:'🏨 Гостиница',repair:'🔧 Ремонт',other:'📦 Прочее'};  const cashGroups={};
   exps.filter(e=>e.payType==='cash').forEach(e=>{const k=catLabels[e.cat]||'📦 Прочее';cashGroups[k]=(cashGroups[k]||0)+e.amount});
   document.getElementById('cl-cash-items').innerHTML=Object.entries(cashGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv" style="font-size:12px">−${v.toFixed(2)} BYN</span></div>`).join('');
-  const atkLabels={diesel:'⛽ Топливо',hotel:'🏨 Гостиница',other_atk:'📦 Прочее'};
+  const atkLabels={diesel:'⛽ Дизель',petrol:'🪣 Бензин',hotel:'🏨 Гостиница',other_atk:'📦 Прочее'};
   const atkGroups={};
   exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||'📦 Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
   document.getElementById('cl-atk-items').innerHTML=Object.entries(atkGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv blue" style="font-size:12px">${v.toFixed(2)} BYN</span></div>`).join('');
@@ -767,12 +766,12 @@ function buildNotifyText(){
   const odomEnd=parseInt(document.getElementById('cl-odo-end')?.value)||0;
   const km=odomEnd>0&&gear.odometer>0?odomEnd-gear.odometer:0;
 
-  const catLabels={food:'Питание',petrol:'Бензин',repair:'Ремонт',other:'Прочее'};
+  const catLabels={food:'Питание',diesel_cash:'Дизель',petrol_cash:'Бензин',hotel_cash:'Гостиница',repair:'Ремонт',other:'Прочее'};
   const cashGroups={};
   exps.filter(e=>e.payType==='cash').forEach(e=>{const k=catLabels[e.cat]||'Прочее';cashGroups[k]=(cashGroups[k]||0)+e.amount});
   const cashLines=Object.entries(cashGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
 
-  const atkLabels={diesel:'Топливо (карта)',hotel:'Гостиница',other_atk:'Прочее АТК'};
+  const atkLabels={diesel:'Дизель (карта)',petrol:'Бензин (карта)',hotel:'Гостиница',other_atk:'Прочее'};
   const atkGroups={};
   exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||'Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
   const atkLines=Object.entries(atkGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
