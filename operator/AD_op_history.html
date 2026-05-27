@@ -223,7 +223,7 @@ async function init(){
     document.getElementById('trips-list').innerHTML=`<div class="empty"><div class="empty-ico">📋</div><div class="empty-t">Нет данных</div><div class="empty-s">Проверьте подключение</div></div>`;
     return;
   }
-  allData=resp;
+  allData=resp.result;
   document.getElementById('main-ui').style.display='flex';
   document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
   render();
