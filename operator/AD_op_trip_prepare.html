@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v2.2
+  AgroDrone.BY · Бригадир — Prepare v2.3
   v2.2 · 2026-05-27 · Fix: sanitize op id для DOM; погода не блокирует отправку
   Файл: AD_op_trip_prepare.html
 -->
@@ -263,10 +263,14 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <div class="radio-item selected" onclick="selectCar(this,'own')"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
       <div class="radio-item" onclick="selectCar(this,'rent')"><div class="radio-dot"></div><div class="radio-label">Аренда</div></div>
     </div>
-    <div class="fg" id="rent-number-field" style="display:none;margin-top:10px;margin-bottom:0">
-      <label class="fl">Гос. номер</label>
-      <input type="text" class="fi" id="rent-number" placeholder="0000 AA-0">
-    </div>
+    <div class="fg" id="rent-model-field" style="display:none;margin-top:10px;margin-bottom:0">
+  <label class="fl">Марка / модель</label>
+  <input type="text" class="fi" id="rent-model" placeholder="Газель, MAN, Iveco...">
+</div>
+<div class="fg" id="rent-number-field" style="display:none;margin-top:8px;margin-bottom:0">
+  <label class="fl">Гос. номер</label>
+  <input type="text" class="fi" id="rent-number" placeholder="0000 AA-0">
+</div>
   </div>
 
   <div class="card">
@@ -610,6 +614,8 @@ function resetForm(){
   carType='own';
   document.querySelectorAll('.radio-item').forEach((el,i)=>{el.classList.toggle('selected',i===0)});
   document.getElementById('rent-number-field').style.display='none';
+  document.getElementById('rent-model-field').style.display='none';
+document.getElementById('rent-model').value='';
   document.getElementById('other-tech-field').style.display='none';
   gearCounters.blades=4;gearCounters.nozzles=2;gearCounters.batteries=8;gearCounters.chargers=2;
   ['blades','nozzles','batteries','chargers'].forEach(k=>document.getElementById(k+'-val').textContent=gearCounters[k]);
@@ -627,8 +633,8 @@ function collectFormData(){
   const operators=Array.from(selectedOps).map(id=>opsData.find(o=>o.id===id)?.name||id).join(', ');
   let tech=Array.from(selectedTech).filter(id=>id!=='OTHER').map(id=>TECH_NAMES[id]).join(', ');
   if(selectedTech.has('OTHER')){const o=document.getElementById('other-tech').value.trim();if(o)tech+=(tech?', ':'')+o;}
-  const car=carType==='own'?'Ford Transit AT1637-5':'Аренда: '+(document.getElementById('rent-number').value||'—');
-  const gear=`Лопасти:${gearCounters.blades}, Форсунки:${gearCounters.nozzles}, АКБ:${gearCounters.batteries}, Зарядки:${gearCounters.chargers}`;
+  const rentModel=document.getElementById('rent-model').value.trim();
+const car=carType==='own'?'Ford Transit AT1637-5':`Аренда: ${rentModel||'—'} (${document.getElementById('rent-number').value||'—'})`;  const gear=`Лопасти:${gearCounters.blades}, Форсунки:${gearCounters.nozzles}, АКБ:${gearCounters.batteries}, Зарядки:${gearCounters.chargers}`;
   return{district,dateStart,dateEnd,plannedHa,operators,tech,car,gear};
 }
 
@@ -759,6 +765,7 @@ function selectCar(el,type){
   document.querySelectorAll('.radio-item').forEach(i=>i.classList.remove('selected'));
   el.classList.add('selected');carType=type;
   document.getElementById('rent-number-field').style.display=type==='rent'?'block':'none';
+  document.getElementById('rent-model-field').style.display=type==='rent'?'block':'none';
 }
 function changeGear(key,delta){gearCounters[key]=Math.max(0,gearCounters[key]+delta);document.getElementById(key+'-val').textContent=gearCounters[key]}
 
