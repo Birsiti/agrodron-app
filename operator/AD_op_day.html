@@ -505,6 +505,7 @@ function openDay() {
   apiCall('open_day', {
     tripId:day.tripId, dayId:day.id, dayNum:day.dayNum,
     date:day.date, haPlan:day.haPlan,
+    district:trip.district||'',
     fieldIds:day.fields.map(f=>f.id)
   });
 
