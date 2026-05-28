@@ -156,7 +156,45 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 
 <div class="scroll" id="content" style="display:none">
-<div class="wrap" id="root"></div>
+<div class="wrap" id="root">
+
+  <!-- HERO — статичный, данные вставляются через JS -->
+  <div class="hero" id="hero-block">
+    <div class="hero-label">Сезон 2026</div>
+    <div class="hero-main">
+      <div><span class="hero-main-val" id="h-ha">—</span><span class="hero-main-unit">га</span></div>
+      <div class="hero-main-lbl">Обработано всего</div>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-cell">
+        <div class="hero-cell-val"><span id="h-fields">—</span><span class="hero-cell-unit">шт</span></div>
+        <div class="hero-cell-lbl">Полей</div>
+      </div>
+      <div class="hero-cell">
+        <div class="hero-cell-val"><span id="h-trips">—</span><span class="hero-cell-unit">вып</span></div>
+        <div class="hero-cell-lbl">Командировок</div>
+      </div>
+      <div class="hero-cell">
+        <div class="hero-cell-val"><span id="h-days">—</span><span class="hero-cell-unit">дн</span></div>
+        <div class="hero-cell-lbl">В поле</div>
+      </div>
+    </div>
+    <hr class="hero-divider">
+    <div class="hero-minmax">
+      <div class="hero-mm-item">
+        <div><span class="hero-mm-val" id="h-min">—</span><span class="hero-mm-unit">га</span></div>
+        <div class="hero-mm-lbl">Мин. поле</div>
+      </div>
+      <div class="hero-mm-item">
+        <div><span class="hero-mm-val" id="h-max">—</span><span class="hero-mm-unit">га</span></div>
+        <div class="hero-mm-lbl">Макс. поле</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dynamic-content"></div>
+
+</div>
 </div>
 
 <script>
@@ -415,45 +453,15 @@ function render(d){
   const maxReg=d.topRegions[0]?.[1]||1;
   const maxCat=d.topCats[0]?.[1]||1;
 
-  document.getElementById('root').innerHTML=`
+  // Hero — вставляем через textContent (Telegram WebView fix)
+  document.getElementById('h-ha').textContent=fmt(d.totalHa,1);
+  document.getElementById('h-fields').textContent=d.obrCount;
+  document.getElementById('h-trips').textContent=d.tripCount;
+  document.getElementById('h-days').textContent=d.fieldDays;
+  document.getElementById('h-min').textContent=fmt(d.minHa,1);
+  document.getElementById('h-max').textContent=fmt(d.maxHa,1);
 
-    <!-- HERO -->
-    <div class="hero">
-      <div class="hero-label">Сезон 2026</div>
-
-      <div class="hero-main">
-        <div><span class="hero-main-val">${fmt(d.totalHa,1)}</span><span class="hero-main-unit">га</span></div>
-        <div class="hero-main-lbl">Обработано всего</div>
-      </div>
-
-      <div class="hero-grid">
-        <div class="hero-cell">
-          <div class="hero-cell-val">${d.obrCount}<span class="hero-cell-unit">шт</span></div>
-          <div class="hero-cell-lbl">Полей</div>
-        </div>
-        <div class="hero-cell">
-          <div class="hero-cell-val">${d.tripCount}<span class="hero-cell-unit">вып</span></div>
-          <div class="hero-cell-lbl">Командировок</div>
-        </div>
-        <div class="hero-cell">
-          <div class="hero-cell-val">${d.fieldDays}<span class="hero-cell-unit">дн</span></div>
-          <div class="hero-cell-lbl">В поле</div>
-        </div>
-      </div>
-
-      <hr class="hero-divider">
-
-      <div class="hero-minmax">
-        <div class="hero-mm-item">
-          <div><span class="hero-mm-val">${fmt(d.minHa,1)}</span><span class="hero-mm-unit">га</span></div>
-          <div class="hero-mm-lbl">Мин. поле</div>
-        </div>
-        <div class="hero-mm-item">
-          <div><span class="hero-mm-val">${fmt(d.maxHa,1)}</span><span class="hero-mm-unit">га</span></div>
-          <div class="hero-mm-lbl">Макс. поле</div>
-        </div>
-      </div>
-    </div>
+  document.getElementById('dynamic-content').innerHTML=`
 
     <!-- ФИНАНСЫ -->
     <div class="metrics">
