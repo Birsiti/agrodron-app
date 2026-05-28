@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.0 · 2026-05-28
-  Данные: ОБРАБОТКИ, КОМАНДИРОВКИ, РАСХОДЫ, ОПЕРАТОРЫ, ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ
+  v3.1 · 2026-05-28
+  Данные: ОБРАБОТКИ, КОМАНДИРОВКИ, РАСХОДЫ, ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ
 -->
 <html lang="ru">
 <head>
@@ -14,13 +14,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--ga:#3aaa5e;
   --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
   --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
   --r:14px;--rs:10px;--f:'Manrope',sans-serif;
-  --amber:#d97706;--amber-light:#fef3c7;
-  --red:#dc2626;--red-light:#fee2e2;--blue:#2563eb;--blue-light:#eff6ff;
-  --purple:#7c3aed;
+  --amber:#d97706;--red:#dc2626;--blue:#2563eb;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -35,22 +33,35 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:10px}
 
 /* HERO */
-.hero{background:linear-gradient(135deg,var(--green) 0%,#1e6b3f 60%,#257a4a 100%);border-radius:var(--r);padding:18px;color:#fff;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
-.hero-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
-.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.hero-item .val{font-size:28px;font-weight:900;line-height:1;letter-spacing:-1px}
-.hero-item .unit{font-size:11px;font-weight:500;opacity:.55;margin-left:2px}
-.hero-item .lbl{font-size:10px;opacity:.5;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.hero-divider{border:none;border-top:1px solid rgba(255,255,255,.15);margin:12px 0}
-.hero-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
-.hero-stat{font-size:12px;color:rgba(255,255,255,.6)}
-.hero-stat b{color:#fff}
+.hero{background:linear-gradient(145deg,#1b5935 0%,#1e6b3f 55%,#2a7a4a 100%);border-radius:var(--r);padding:18px 18px 16px;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.hero::after{content:'';position:absolute;right:30px;top:-40px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.hero-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+
+/* Большая цифра */
+.hero-main{margin-bottom:14px}
+.hero-main-val{font-size:52px;font-weight:900;line-height:1;letter-spacing:-2px;color:#fff}
+.hero-main-unit{font-size:16px;font-weight:600;opacity:.6;margin-left:4px}
+.hero-main-lbl{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* Сетка доп метрик */
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+.hero-cell{background:rgba(255,255,255,.09);border-radius:10px;padding:10px 10px 8px}
+.hero-cell-val{font-size:20px;font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1}
+.hero-cell-unit{font-size:10px;opacity:.55;margin-left:2px}
+.hero-cell-lbl{font-size:9px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* Мин/макс */
+.hero-divider{border:none;border-top:1px solid rgba(255,255,255,.12);margin-bottom:12px}
+.hero-minmax{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hero-mm-item{background:rgba(255,255,255,.09);border-radius:10px;padding:10px 12px}
+.hero-mm-val{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.hero-mm-unit{font-size:10px;opacity:.55;margin-left:2px}
+.hero-mm-lbl{font-size:9px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 
 /* CARDS */
 .card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
 .card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.card-title-action{font-size:11px;font-weight:700;color:var(--green);cursor:pointer;text-transform:none;letter-spacing:0}
 
 /* METRICS GRID */
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -68,17 +79,10 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .bar-name{font-size:13px;font-weight:700;color:var(--t1)}
 .bar-sub{font-size:10px;color:var(--t3);margin-top:2px}
 .bar-track{height:4px;background:#f0f4f8;border-radius:2px;overflow:hidden;margin-top:5px}
-.bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
 .bar-right{text-align:right;flex-shrink:0}
 .bar-val{font-size:14px;font-weight:800;color:var(--t1)}
 .bar-val2{font-size:10px;color:var(--t3);margin-top:2px}
-
-/* ROWS */
-.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
-.row:last-child{border-bottom:none}
-.rl{font-size:13px;color:var(--t2);flex:1}
-.rv{font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
-.rv.green{color:var(--green)}.rv.red{color:var(--red)}.rv.amber{color:var(--amber)}
 
 /* РАСХОДЫ */
 .exp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
@@ -91,34 +95,39 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .exp-val{font-size:13px;font-weight:800;color:var(--t1)}
 .exp-pct{font-size:10px;color:var(--t3);margin-top:2px}
 
+/* ROWS */
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13px;color:var(--t2);flex:1}
+.rv{font-size:13px;font-weight:700;color:var(--t1)}
+.rv.red{color:var(--red)}.rv.green{color:var(--green)}
+
 /* КОМАНДИРОВКИ */
-.trip-card{padding:10px 0;border-bottom:1px solid var(--border)}
-.trip-card:last-child{border-bottom:none}
-.trip-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.trip-item{padding:11px 0;border-bottom:1px solid var(--border)}
+.trip-item:last-child{border-bottom:none}
+.trip-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
 .trip-district{font-size:13px;font-weight:800;color:var(--t1)}
 .trip-id{font-size:10px;color:var(--t3);margin-top:1px}
-.trip-ha{font-size:15px;font-weight:900;color:var(--green);text-align:right}
+.trip-ha{font-size:15px;font-weight:900;color:var(--green)}
 .trip-bal{font-size:10px;font-weight:700;text-align:right;margin-top:1px}
-.trip-meta{display:flex;gap:12px;font-size:10px;color:var(--t3)}
-.trip-crew{font-size:10px;color:var(--t3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-crew{font-size:10px;color:var(--t3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trip-meta{display:flex;gap:12px;font-size:10px;color:var(--t3);margin-top:3px}
 
 /* ТЕХНИКА */
-.ti-card{padding:10px 12px;border-radius:var(--rs);margin-bottom:6px;border:1.5px solid var(--border)}
-.ti-card:last-child{margin-bottom:0}
-.ti-card.open{border-color:#fca5a5;background:#fff7f7}
-.ti-card.closed{background:#f8f9fa}
+.ti-open{border-radius:var(--rs);border:1.5px solid #fca5a5;background:#fff7f7;padding:10px 12px;margin-bottom:6px}
+.ti-closed{border-radius:var(--rs);background:#f8f9fa;border:1.5px solid var(--border);padding:10px 12px;margin-bottom:6px}
+.ti-open:last-child,.ti-closed:last-child{margin-bottom:0}
 .ti-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.ti-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;flex-shrink:0}
-.ti-badge.open{background:#fee2e2;color:var(--red)}
-.ti-badge.closed{background:#f0f4f8;color:var(--t3)}
+.ti-badge-open{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:var(--red);flex-shrink:0}
+.ti-badge-done{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:#f0f4f8;color:var(--t3);flex-shrink:0}
 .ti-bak{font-size:12px;font-weight:800;color:var(--t1)}
 .ti-type{font-size:11px;color:var(--t2);font-weight:600;margin-left:auto}
 .ti-desc{font-size:12px;color:var(--t2);line-height:1.4}
 .ti-meta{display:flex;gap:10px;margin-top:4px;font-size:10px;color:var(--t3)}
 
 /* COLLAPSE */
-.collapse-btn{width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:var(--rs);background:transparent;color:var(--t3);font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:8px;transition:all .2s}
-.collapse-btn:active{background:var(--bg)}
+.collapse-btn{width:100%;padding:9px;border:1.5px dashed var(--border);border-radius:var(--rs);background:transparent;color:var(--t3);font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:8px;transition:all .2s}
+.collapse-btn:active{background:#f8f9fa}
 
 /* LOADING */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t3);font-size:13px;font-weight:600}
@@ -126,9 +135,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:20px;color:var(--t3);font-size:13px}
 
-/* АНИМАЦИЯ */
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .card,.hero,.metrics{animation:fadeIn .3s ease both}
+.card:nth-child(2){animation-delay:.04s}
+.card:nth-child(3){animation-delay:.08s}
+.card:nth-child(4){animation-delay:.12s}
 </style>
 </head>
 <body>
@@ -159,7 +170,10 @@ const OP_INITIALS={
   'Уманец А.И.':'УА','Бич Иван':'БИ','Ленский Александр':'ЛА','Василевски А.В.':'ВА'
 };
 
-function fmt(n,d=0){const v=Number(n||0);return isNaN(v)?'0':v.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+function fmt(n,d=0){
+  const v=Number(n||0);
+  return isNaN(v)?'0':v.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+}
 
 function fmtD(v){
   if(!v&&v!==0)return'—';
@@ -169,14 +183,29 @@ function fmtD(v){
     return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getFullYear()).slice(2);
   }
   const s=String(v).trim();
-  // Date(2026,4,5) формат из gviz
   const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
-  if(gm) return String(parseInt(gm[3])).padStart(2,'0')+'.'+String(parseInt(gm[2])+1).padStart(2,'0')+'.'+String(gm[1]).slice(2);
+  if(gm)return String(parseInt(gm[3])).padStart(2,'0')+'.'+String(parseInt(gm[2])+1).padStart(2,'0')+'.'+String(gm[1]).slice(2);
   const m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
   if(m)return m[1]+'.'+m[2]+'.'+m[3].slice(2);
   const m2=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if(m2)return m2[3]+'.'+m2[2]+'.'+m2[1].slice(2);
   return s;
+}
+
+function parseDate(v){
+  if(!v&&v!==0)return null;
+  if(typeof v==='number'){
+    const d=new Date(Math.round((v-25569)*86400*1000));
+    return isNaN(d.getTime())?null:d;
+  }
+  const s=String(v).trim();
+  const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(gm)return new Date(parseInt(gm[1]),parseInt(gm[2]),parseInt(gm[3]));
+  const m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
+  if(m)return new Date(parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1]));
+  const m2=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m2)return new Date(parseInt(m2[1]),parseInt(m2[2])-1,parseInt(m2[3]));
+  return null;
 }
 
 async function loadSheet(sheet){
@@ -185,11 +214,7 @@ async function loadSheet(sheet){
   const txt=await res.text();
   const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
   const headers=json.table.cols.map(c=>c.label||'');
-  const rows=json.table.rows.map(r=>r.c.map(c=>{
-    if(!c)return'';
-    if(c.v===null||c.v===undefined)return'';
-    return c.v;
-  }));
+  const rows=json.table.rows.map(r=>r.c.map(c=>(!c||c.v===null||c.v===undefined)?'':c.v));
   return{headers,rows};
 }
 
@@ -203,8 +228,8 @@ async function init(){
     ]);
 
     // ── ОБРАБОТКИ ─────────────────────────────────────────
-    // A=ID B=Дата C=ID_заявки D=НП E=Культура F=Препарат G=Норма H=Га факт I=Борт J=Операторы K=Га/оп
-    let totalHa=0, obrCount=0;
+    // A=ID B=Дата C=ID_заявки D=НП E=Культура F=Препарат G=Норма H=Га факт I=Борт J=Операторы
+    let totalHa=0, obrCount=0, minHa=Infinity, maxHa=0;
     const opHa={}, droneHa={};
 
     obr.rows.filter(r=>r[0]).forEach(r=>{
@@ -212,9 +237,11 @@ async function init(){
       const ops=String(r[9]||'').trim();
       const drone=String(r[8]||'').trim();
       totalHa+=ha; obrCount++;
+      if(ha>0&&ha<minHa) minHa=ha;
+      if(ha>maxHa) maxHa=ha;
       if(ops){
         const list=ops.split(/[,;]+/).map(s=>s.trim()).filter(Boolean);
-        list.forEach(op=>{ opHa[op]=(opHa[op]||0)+ha/list.length; });
+        list.forEach(op=>{opHa[op]=(opHa[op]||0)+ha/list.length;});
       }
       if(drone){
         drone.split(/[,]+/).map(s=>s.trim()).filter(Boolean).forEach(d=>{
@@ -222,12 +249,13 @@ async function init(){
         });
       }
     });
+    if(minHa===Infinity)minHa=0;
 
     // ── КОМАНДИРОВКИ ──────────────────────────────────────
     // A=ID B=Дата откр C=Дата закр D=Район E=Состав F=Техника
     // G=Аванс H=Потрачено I=Остаток J=Га K=Статус
-    // N=Нал(idx13) O=Безнал(14) P=Аренда(15) Q=Перенос(16)
-    let tripCount=0,totalSpent=0,totalNal=0,totalBeznal=0,totalRent=0,totalCarry=0;
+    // N(13)=Нал O(14)=Безнал P(15)=Аренда Q(16)=Перенос
+    let tripCount=0,totalSpent=0,totalNal=0,totalBeznal=0,totalRent=0,totalCarry=0,fieldDays=0;
     const regionHa={};
     const closedTrips=[];
 
@@ -235,7 +263,7 @@ async function init(){
       const status=String(r[10]||'');
       const district=String(r[3]||'').trim();
       const ha=parseFloat(r[9])||0;
-      if(district) regionHa[district]=(regionHa[district]||0)+ha;
+      if(district)regionHa[district]=(regionHa[district]||0)+ha;
       if(status.includes('закрыта')){
         tripCount++;
         totalSpent+=parseFloat(r[7])||0;
@@ -244,23 +272,27 @@ async function init(){
         totalRent+=parseFloat(r[15])||0;
         totalCarry+=parseFloat(r[16])||0;
         closedTrips.push(r);
+        // дни в поле
+        const ds=parseDate(r[1]),de=parseDate(r[2]);
+        if(ds&&de){
+          const diff=Math.round((de-ds)/(86400*1000));
+          fieldDays+=Math.max(1,diff+1);
+        } else fieldDays+=1;
       }
     });
 
     // ── РАСХОДЫ ───────────────────────────────────────────
-    // A=ID B=Командировка C=День D=Дата E=Тип F=Категория G=Сумма
     const catTotals={};
     let totalExpenses=0;
     expenses.rows.filter(r=>r[0]).forEach(r=>{
       const cat=String(r[5]||'').replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[🍽⛽🏨🪣🔧📦🚐🔌]/g,'').trim();
       const sum=parseFloat(r[6])||0;
       totalExpenses+=sum;
-      if(cat) catTotals[cat]=(catTotals[cat]||0)+sum;
+      if(cat)catTotals[cat]=(catTotals[cat]||0)+sum;
     });
     const topCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
 
     // ── ТО ────────────────────────────────────────────────
-    // A=ID B=БАК C=Дата заявки D=Тип E=Описание F=Оператор G=Срочность H=Статус I=Дата закрытия
     const tiAll=ti.rows.filter(r=>r[0]).map(r=>({
       id:String(r[0]),bak:String(r[1]||''),date:r[2],
       type:String(r[3]||''),desc:String(r[4]||''),
@@ -270,43 +302,34 @@ async function init(){
     const tiOpen=tiAll.filter(t=>t.status.includes('откр'));
     const tiClosed=tiAll.filter(t=>!t.status.includes('откр'));
 
-    // ── АГРЕГАТЫ ──────────────────────────────────────────
     const topOps=Object.entries(opHa).sort((a,b)=>b[1]-a[1]);
     const topDrones=Object.entries(droneHa).sort((a,b)=>b[1]-a[1]);
     const topRegions=Object.entries(regionHa).sort((a,b)=>b[1]-a[1]);
-    const avgHa=obrCount>0?totalHa/obrCount:0;
-    // Дней в поле = уникальные даты из РАСХОДЫ / ДНИ — approximation из командировок
-    let fieldDays=0;
-    closedTrips.forEach(r=>{
-      const s=fmtD(r[1]),e=fmtD(r[2]);
-      // просто считаем как разницу дат если есть
-      try{
-        const parse=d=>{const[dd,mm,yy]=d.split('.');return new Date(`20${yy}-${mm}-${dd}`);}
-        if(s!=='—'&&e!=='—'){const diff=(parse(e)-parse(s))/(86400*1000);fieldDays+=Math.max(1,Math.round(diff)+1);}
-        else fieldDays+=1;
-      }catch(e){fieldDays+=1;}
-    });
     const haPerDay=fieldDays>0?totalHa/fieldDays:0;
 
-    render({totalHa,obrCount,avgHa,tripCount,fieldDays,haPerDay,
+    render({totalHa,obrCount,minHa,maxHa,tripCount,fieldDays,haPerDay,
       totalSpent,totalNal,totalBeznal,totalRent,totalCarry,totalExpenses,
-      topOps,topDrones,topRegions,topCats,
-      closedTrips,tiOpen,tiClosed});
+      topOps,topDrones,topRegions,topCats,closedTrips,tiOpen,tiClosed});
 
-    document.getElementById('upd-time').textContent=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('upd-time').textContent=
+      new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
 
   }catch(e){
     console.error(e);
-    document.getElementById('loading').innerHTML='<div style="color:var(--red);font-size:13px;text-align:center">❌ Ошибка загрузки<br><span style="font-size:11px;color:var(--t3)">'+e.message+'</span></div>';
+    document.getElementById('loading').innerHTML=
+      `<div style="color:var(--red);font-size:13px;text-align:center">❌ Ошибка<br><span style="font-size:11px;color:var(--t3)">${e.message}</span></div>`;
   }
 }
 
-function renderOps(topOps, showAll){
+// ── Операторы (collapse) ──────────────────────────────────
+let _topOps=[], opsShowAll=false;
+function renderOps(topOps,showAll){
   const maxOp=topOps[0]?.[1]||1;
-  const visible = showAll ? topOps : topOps.slice(0,3);
-  const rows = visible.map(([op,ha],i)=>{
+  const visible=showAll?topOps:topOps.slice(0,3);
+  document.getElementById('ops-list').innerHTML=visible.map(([op,ha])=>{
+    const idx=topOps.findIndex(x=>x[0]===op);
+    const color=OP_COLORS[idx%OP_COLORS.length];
     const initials=OP_INITIALS[op]||(op.split(/[\s.]+/).map(s=>s[0]).join('').slice(0,2).toUpperCase());
-    const color=OP_COLORS[topOps.findIndex(x=>x[0]===op)%OP_COLORS.length];
     const pct=Math.round(ha/maxOp*100);
     return`<div class="bar-row">
       <div class="bar-av" style="background:${color}">${initials}</div>
@@ -317,19 +340,74 @@ function renderOps(topOps, showAll){
       <div class="bar-right"><div class="bar-val">${fmt(ha,1)} га</div></div>
     </div>`;
   }).join('');
-  const btn = topOps.length>3
-    ? `<button class="collapse-btn" onclick="toggleOps()">${showAll?'▲ Свернуть':'▼ Показать всех ('+topOps.length+')'}</button>`
-    : '';
-  document.getElementById('ops-list').innerHTML=rows;
-  document.getElementById('ops-btn-wrap').innerHTML=btn;
+  document.getElementById('ops-btn-wrap').innerHTML=topOps.length>3
+    ?`<button class="collapse-btn" onclick="toggleOps()">${showAll?'▲ Свернуть':'▼ Показать всех ('+topOps.length+')'}</button>`:'';
 }
-
-let opsShowAll=false;
-let _topOps=[];
 function toggleOps(){opsShowAll=!opsShowAll;renderOps(_topOps,opsShowAll);}
+
+// ── Командировки (collapse) ───────────────────────────────
+let _closedTrips=[], tripsShowAll=false;
+function renderTrips(trips,showAll){
+  const visible=showAll?trips:trips.slice(0,3);
+  document.getElementById('trips-list').innerHTML=visible.map(r=>{
+    const district=String(r[3]||'—');
+    const id=String(r[0]);
+    const ds=fmtD(r[1]),de=fmtD(r[2]);
+    const ha=parseFloat(r[9])||0;
+    const spent=parseFloat(r[7])||0;
+    const advance=parseFloat(r[6])||0;
+    const balance=advance-spent;
+    const crew=String(r[4]||'').trim();
+    return`<div class="trip-item">
+      <div class="trip-top">
+        <div>
+          <div class="trip-district">${district}</div>
+          <div class="trip-id">${id} · ${ds}→${de}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="trip-ha">${fmt(ha,1)} га</div>
+          <div class="trip-bal" style="color:${balance>=0?'var(--green)':'var(--red)'}">${balance>=0?'+':''}${fmt(balance)} BYN</div>
+        </div>
+      </div>
+      ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
+      <div class="trip-meta">
+        <span>💰 ${fmt(advance)}</span>
+        <span>💸 ${fmt(spent)} BYN</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('trips-btn-wrap').innerHTML=trips.length>3
+    ?`<button class="collapse-btn" onclick="toggleTrips()">${showAll?'▲ Свернуть':'▼ Показать все ('+trips.length+')'}</button>`:'';
+}
+function toggleTrips(){tripsShowAll=!tripsShowAll;renderTrips(_closedTrips,tripsShowAll);}
+
+// ── Техника (collapse) ────────────────────────────────────
+let _tiClosed=[], tiShowAll=false;
+function renderTiClosed(list,showAll){
+  const visible=showAll?list:list.slice(0,3);
+  document.getElementById('ti-closed-list').innerHTML=visible.map(t=>`
+    <div class="ti-closed">
+      <div class="ti-top">
+        <span class="ti-badge-done">✓ Закрыто</span>
+        <span class="ti-bak">${t.bak}</span>
+        <span class="ti-type">${t.type}</span>
+      </div>
+      <div class="ti-desc">${t.desc}</div>
+      <div class="ti-meta">
+        <span>📅 ${fmtD(t.date)}</span>
+        ${t.closedAt?`<span>→ ${fmtD(t.closedAt)}</span>`:''}
+      </div>
+    </div>`).join('');
+  document.getElementById('ti-btn-wrap').innerHTML=list.length>3
+    ?`<button class="collapse-btn" onclick="toggleTi()">${showAll?'▲ Свернуть':'▼ Показать все ('+list.length+')'}</button>`:'';
+}
+function toggleTi(){tiShowAll=!tiShowAll;renderTiClosed(_tiClosed,tiShowAll);}
 
 function render(d){
   _topOps=d.topOps;
+  _closedTrips=[...d.closedTrips].reverse();
+  _tiClosed=d.tiClosed;
+
   document.getElementById('loading').style.display='none';
   document.getElementById('content').style.display='flex';
 
@@ -341,26 +419,39 @@ function render(d){
 
     <!-- HERO -->
     <div class="hero">
-      <div class="hero-title">Сезон 2026 — итого</div>
+      <div class="hero-label">Сезон 2026</div>
+
+      <div class="hero-main">
+        <div><span class="hero-main-val">${fmt(d.totalHa,1)}</span><span class="hero-main-unit">га</span></div>
+        <div class="hero-main-lbl">Обработано всего</div>
+      </div>
+
       <div class="hero-grid">
-        <div class="hero-item">
-          <div class="val">${fmt(d.totalHa)}<span class="unit">га</span></div>
-          <div class="lbl">Обработано</div>
+        <div class="hero-cell">
+          <div class="hero-cell-val">${d.obrCount}<span class="hero-cell-unit">шт</span></div>
+          <div class="hero-cell-lbl">Полей</div>
         </div>
-        <div class="hero-item">
-          <div class="val">${d.obrCount}<span class="unit">шт</span></div>
-          <div class="lbl">Обработок</div>
+        <div class="hero-cell">
+          <div class="hero-cell-val">${d.tripCount}<span class="hero-cell-unit">вып</span></div>
+          <div class="hero-cell-lbl">Командировок</div>
         </div>
-        <div class="hero-item">
-          <div class="val">${d.tripCount}<span class="unit">вып</span></div>
-          <div class="lbl">Командировок</div>
+        <div class="hero-cell">
+          <div class="hero-cell-val">${d.fieldDays}<span class="hero-cell-unit">дн</span></div>
+          <div class="hero-cell-lbl">В поле</div>
         </div>
       </div>
+
       <hr class="hero-divider">
-      <div class="hero-bottom">
-        <div class="hero-stat">Среднее поле: <b>${fmt(d.avgHa,1)} га</b></div>
-        <div class="hero-stat">Дней в поле: <b>${d.fieldDays}</b></div>
-        <div class="hero-stat">Га/день: <b>${fmt(d.haPerDay,1)}</b></div>
+
+      <div class="hero-minmax">
+        <div class="hero-mm-item">
+          <div><span class="hero-mm-val">${fmt(d.minHa,1)}</span><span class="hero-mm-unit">га</span></div>
+          <div class="hero-mm-lbl">Мин. поле</div>
+        </div>
+        <div class="hero-mm-item">
+          <div><span class="hero-mm-val">${fmt(d.maxHa,1)}</span><span class="hero-mm-unit">га</span></div>
+          <div class="hero-mm-lbl">Макс. поле</div>
+        </div>
       </div>
     </div>
 
@@ -430,7 +521,7 @@ function render(d){
       }).join(''):`<div class="empty">Нет данных</div>`}
     </div>
 
-    <!-- РАСХОДЫ ПО КАТЕГОРИЯМ -->
+    <!-- РАСХОДЫ -->
     <div class="card">
       <div class="card-title">💸 Расходы по категориям</div>
       ${d.topCats.length?d.topCats.map(([cat,sum])=>{
@@ -453,16 +544,16 @@ function render(d){
       </div>
     </div>
 
-    <!-- ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ -->
+    <!-- ТЕХОБСЛУЖИВАНИЕ -->
     <div class="card">
       <div class="card-title">
         🔧 Техобслуживание
-        <span style="font-size:11px;font-weight:600;color:${d.tiOpen.length?'var(--red)':'var(--t3)'}">${d.tiOpen.length} открытых</span>
+        <span style="font-size:11px;font-weight:700;color:${d.tiOpen.length?'var(--red)':'var(--t3)'}">${d.tiOpen.length?d.tiOpen.length+' открытых':'все закрыты'}</span>
       </div>
       ${d.tiOpen.length?d.tiOpen.map(t=>`
-        <div class="ti-card open">
+        <div class="ti-open">
           <div class="ti-top">
-            <span class="ti-badge open">⚠️ Открыто</span>
+            <span class="ti-badge-open">⚠️ Открыто</span>
             <span class="ti-bak">${t.bak}</span>
             <span class="ti-type">${t.type}</span>
           </div>
@@ -470,63 +561,28 @@ function render(d){
           <div class="ti-meta">
             <span>📅 ${fmtD(t.date)}</span>
             ${t.op?`<span>👤 ${t.op}</span>`:''}
-            ${t.urgency?`<span>🔴 ${t.urgency}</span>`:''}
           </div>
         </div>`).join(''):''}
       ${d.tiClosed.length?`
         <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin:${d.tiOpen.length?'10px':0} 0 8px">Закрытые</div>
-        ${d.tiClosed.map(t=>`
-          <div class="ti-card closed">
-            <div class="ti-top">
-              <span class="ti-badge closed">✓ Закрыто</span>
-              <span class="ti-bak">${t.bak}</span>
-              <span class="ti-type">${t.type}</span>
-            </div>
-            <div class="ti-desc">${t.desc}</div>
-            <div class="ti-meta">
-              <span>📅 ${fmtD(t.date)}</span>
-              ${t.closedAt?`<span>→ ${fmtD(t.closedAt)}</span>`:''}
-            </div>
-          </div>`).join('')}`:''}
+        <div id="ti-closed-list"></div>
+        <div id="ti-btn-wrap"></div>
+      `:''}
       ${!d.tiOpen.length&&!d.tiClosed.length?`<div class="empty">Нет записей</div>`:''}
     </div>
 
-    <!-- ИСТОРИЯ КОМАНДИРОВОК -->
+    <!-- КОМАНДИРОВКИ -->
     <div class="card">
       <div class="card-title">🚐 История командировок</div>
-      ${d.closedTrips.length?[...d.closedTrips].reverse().map(r=>{
-        const district=String(r[3]||'—');
-        const id=String(r[0]);
-        const ds=fmtD(r[1]),de=fmtD(r[2]);
-        const ha=parseFloat(r[9])||0;
-        const spent=parseFloat(r[7])||0;
-        const advance=parseFloat(r[6])||0;
-        const balance=advance-spent;
-        const crew=String(r[4]||'').trim();
-        return`<div class="trip-card">
-          <div class="trip-top">
-            <div>
-              <div class="trip-district">${district}</div>
-              <div class="trip-id">${id} · ${ds}→${de}</div>
-            </div>
-            <div>
-              <div class="trip-ha">${fmt(ha,1)} га</div>
-              <div class="trip-bal" style="color:${balance>=0?'var(--green)':'var(--red)'}">${balance>=0?'+':''}${fmt(balance)} BYN</div>
-            </div>
-          </div>
-          ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
-          <div class="trip-meta" style="margin-top:4px">
-            <span>💰 Аванс: ${fmt(advance)}</span>
-            <span>💸 Расходы: ${fmt(spent)}</span>
-          </div>
-        </div>`;
-      }).join(''):`<div class="empty">Нет закрытых командировок</div>`}
+      <div id="trips-list"></div>
+      <div id="trips-btn-wrap"></div>
     </div>
 
   `;
 
-  // Рендерим операторов отдельно (нужен DOM)
-  renderOps(d.topOps, false);
+  renderOps(d.topOps,false);
+  renderTrips(_closedTrips,false);
+  if(d.tiClosed.length)renderTiClosed(_tiClosed,false);
 }
 
 init();
