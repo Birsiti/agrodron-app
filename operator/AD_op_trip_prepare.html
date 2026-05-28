@@ -151,6 +151,20 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 /* ── Детальный экран pending ── */
 .detail-hdr{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:14px 16px;display:flex;align-items:center;gap:10px;border-radius:var(--r) var(--r) 0 0}
 .detail-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px}
+
+/* ── Карточки истории аренды ── */
+.rent-car-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.rent-car-card:active{transform:scale(.99)}
+.rent-car-card.selected{border-color:var(--orange);background:var(--orange-pale)}
+.rent-car-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange);opacity:0;transition:opacity .2s}
+.rent-car-card.selected::before{opacity:1}
+.rent-car-ico{font-size:22px;flex-shrink:0}
+.rent-car-info{flex:1;min-width:0}
+.rent-car-model{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rent-car-plate{font-size:12px;color:var(--t3);font-weight:500;margin-top:1px}
+.rent-car-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;position:relative;transition:all .2s}
+.rent-car-card.selected .rent-car-check{background:var(--orange);border-color:var(--orange)}
+.rent-car-card.selected .rent-car-check::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:11px;font-weight:800}
 </style>
 </head>
 <body>
@@ -263,14 +277,30 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <div class="radio-item selected" onclick="selectCar(this,'own')"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
       <div class="radio-item" onclick="selectCar(this,'rent')"><div class="radio-dot"></div><div class="radio-label">Аренда</div></div>
     </div>
-    <div class="fg" id="rent-model-field" style="display:none;margin-top:10px;margin-bottom:0">
-  <label class="fl">Марка / модель</label>
-  <input type="text" class="fi" id="rent-model" placeholder="Газель, MAN, Iveco...">
-</div>
-<div class="fg" id="rent-number-field" style="display:none;margin-top:8px;margin-bottom:0">
-  <label class="fl">Гос. номер</label>
-  <input type="text" class="fi" id="rent-number" placeholder="0000 AA-0">
-</div>
+
+    <!-- Блок аренды -->
+    <div id="rent-block" style="display:none;margin-top:12px">
+
+      <!-- История -->
+      <div id="rent-history-wrap" style="display:none;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📋 Из истории</div>
+        <div id="rent-history-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="height:1px;background:var(--border);margin:10px 0"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">✏️ Или введите вручную</div>
+      </div>
+
+      <!-- Загрузка истории -->
+      <div id="rent-history-loading" style="text-align:center;padding:10px;font-size:12px;color:var(--t3)">⏳ Загрузка истории...</div>
+
+      <div class="fg" style="margin-bottom:8px">
+        <label class="fl">Марка / модель</label>
+        <input type="text" class="fi" id="rent-model" placeholder="Газель, MAN, Iveco...">
+      </div>
+      <div class="fg" id="rent-number-field" style="margin-bottom:0">
+        <label class="fl">Гос. номер</label>
+        <input type="text" class="fi" id="rent-number" placeholder="0000 AA-0">
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -613,9 +643,12 @@ function resetForm(){
   selectedTech.clear();
   carType='own';
   document.querySelectorAll('.radio-item').forEach((el,i)=>{el.classList.toggle('selected',i===0)});
-  document.getElementById('rent-number-field').style.display='none';
-  document.getElementById('rent-model-field').style.display='none';
-document.getElementById('rent-model').value='';
+  document.getElementById('rent-block').style.display='none';
+  document.getElementById('rent-history-wrap').style.display='none';
+  document.getElementById('rent-history-loading').style.display='block';
+  document.getElementById('rent-model').value='';
+  document.getElementById('rent-number').value='';
+  selectedRentIdx=-1;
   document.getElementById('other-tech-field').style.display='none';
   gearCounters.blades=4;gearCounters.nozzles=2;gearCounters.batteries=8;gearCounters.chargers=2;
   ['blades','nozzles','batteries','chargers'].forEach(k=>document.getElementById(k+'-val').textContent=gearCounters[k]);
@@ -764,9 +797,73 @@ function toggleTech(el,id){
 function selectCar(el,type){
   document.querySelectorAll('.radio-item').forEach(i=>i.classList.remove('selected'));
   el.classList.add('selected');carType=type;
-  document.getElementById('rent-number-field').style.display=type==='rent'?'block':'none';
-  document.getElementById('rent-model-field').style.display=type==='rent'?'block':'none';
+  document.getElementById('rent-block').style.display=type==='rent'?'block':'none';
+  if(type==='rent') loadRentHistory();
 }
+let rentHistory = [];
+let selectedRentIdx = -1;
+
+async function loadRentHistory(){
+  const loading = document.getElementById('rent-history-loading');
+  const wrap    = document.getElementById('rent-history-wrap');
+  loading.style.display = 'block';
+  wrap.style.display    = 'none';
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ!A2:S500?key=${SHEETS_KEY}`;
+    const r=await fetch(url);const d=await r.json();
+    const rows=d.values||[];
+    const seen=new Set();
+    rentHistory=[];
+    rows.forEach(row=>{
+      const raw=row[17]||'';
+      if(!raw)return;
+      try{
+        const car=JSON.parse(raw);
+        if(car.type==='rent'&&car.car){
+          const key=car.car+'|'+(car.plate||'');
+          if(!seen.has(key)){seen.add(key);rentHistory.push({model:car.car,plate:car.plate||''});}
+        }
+      }catch(e){}
+    });
+    loading.style.display='none';
+    if(rentHistory.length>0){
+      wrap.style.display='block';
+      renderRentHistory();
+    }
+  }catch(e){loading.textContent='⚠️ Не удалось загрузить историю';}}
+
+function renderRentHistory(){
+  const list=document.getElementById('rent-history-list');
+  list.innerHTML=rentHistory.map((v,i)=>`
+    <div class="rent-car-card" id="rent-card-${i}" onclick="selectRentCar(${i})">
+      <div class="rent-car-ico">🚐</div>
+      <div class="rent-car-info">
+        <div class="rent-car-model">${v.model}</div>
+        ${v.plate?`<div class="rent-car-plate">${v.plate}</div>`:''}
+      </div>
+      <div class="rent-car-check"></div>
+    </div>`).join('');
+}
+
+function selectRentCar(idx){
+  // снимаем предыдущий выбор
+  if(selectedRentIdx>=0){
+    document.getElementById('rent-card-'+selectedRentIdx)?.classList.remove('selected');
+  }
+  if(selectedRentIdx===idx){
+    // повторный клик — снимаем
+    selectedRentIdx=-1;
+    document.getElementById('rent-model').value='';
+    document.getElementById('rent-number').value='';
+    return;
+  }
+  selectedRentIdx=idx;
+  document.getElementById('rent-card-'+idx)?.classList.add('selected');
+  const v=rentHistory[idx];
+  document.getElementById('rent-model').value=v.model;
+  document.getElementById('rent-number').value=v.plate||'';
+}
+
 function changeGear(key,delta){gearCounters[key]=Math.max(0,gearCounters[key]+delta);document.getElementById(key+'-val').textContent=gearCounters[key]}
 
 // ── Форматирование дат ────────────────────────────────────
