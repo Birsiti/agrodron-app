@@ -809,13 +809,18 @@ async function loadRentHistory(){
   loading.style.display = 'block';
   wrap.style.display    = 'none';
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ!A2:S500?key=${SHEETS_KEY}`;
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ!A1:S500?key=${SHEETS_KEY}`;
     const r=await fetch(url);const d=await r.json();
-    const rows=d.values||[];
+    const all=d.values||[];
+    if(!all.length){loading.style.display='none';return;}
+    const headers=all[0];
+    const carCol=headers.indexOf('Авто');
+    if(carCol<0){loading.style.display='none';return;}
+    const rows=all.slice(1);
     const seen=new Set();
     rentHistory=[];
     rows.forEach(row=>{
-      const raw=row[17]||'';
+      const raw=row[carCol]||'';
       if(!raw)return;
       try{
         const car=JSON.parse(raw);
@@ -838,8 +843,7 @@ function renderRentHistory(){
     <div class="rent-car-card" id="rent-card-${i}" onclick="selectRentCar(${i})">
       <div class="rent-car-ico">🚐</div>
       <div class="rent-car-info">
-        <div class="rent-car-model">${v.model}</div>
-        ${v.plate?`<div class="rent-car-plate">${v.plate}</div>`:''}
+        <div class="rent-car-model">${v.model}${v.plate?' · '+v.plate:''}</div>
       </div>
       <div class="rent-car-check"></div>
     </div>`).join('');
