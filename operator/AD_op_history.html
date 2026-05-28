@@ -282,13 +282,12 @@ function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab,c
     <div class="itab ${tab==='summary'?'active':''}" onclick="setTab('${id}','summary')">📊 Итог</div>
     <div class="itab ${tab==='days'?'active':''}" onclick="setTab('${id}','days')">☀️ Дни</div>
     <div class="itab ${tab==='expenses'?'active':''}" onclick="setTab('${id}','expenses')">💸 Расходы</div>
-    <div class="itab ${tab==='issues'?'active':''}" onclick="setTab('${id}','issues')">🔧 Техника</div>
-  </div>
+    <div class="itab ${tab==='issues'?'active':''}" onclick="setTab('${id}','issues')">🔧 Техника${allData.issues.filter(i=>String(i.tripId||i['Командировка']||'')===String(id)&&String(i.status||i['Статус']||'').toLowerCase()==='открыта').length?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle"></span>':''}</div>  </div>
   <div class="inner-body">
     ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance):''}
     ${tab==='days'?renderDays(id,days,obs):''}
     ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal,carry):''}
-  </div>
+    ${tab==='issues'?renderIssues(allData.issues,id):''}  </div>
 </div>`;
 }
 
