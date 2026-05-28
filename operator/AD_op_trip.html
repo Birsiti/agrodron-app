@@ -517,7 +517,7 @@ async function depart(){
   const carType=car==='Аренда'?'rent':'own';
   const carLabel=car==='Аренда'?(rentModel||'Аренда'):car;
   const plateFinal=car==='Аренда'?rentPlate:'AT1637-5';
-  await apiCall('updateTripCar',{tripId,type:carType,car:carLabel,plate:plateFinal,rentPerDay:rentCost,odoStart:odometer,trailer});
+  await apiCall('updateTripCar',{tripId,type:carType,car:carLabel,plate:plateFinal,rentPerDay:rentCost,odoStart:odometer,trailer,rentDateStart:todayISO()});
   await apiCall('updateTripZip',{tripId,blades:gearQty.blades,nozzles:gearQty.nozzles,batteries:gearQty.batteries,chargers:gearQty.chargers});
   const notes=`${carLabel}${rentCost>0?' | Аренда: '+rentCost+' BYN/день':''} | Спидометр выезд: ${odometer} | Лопасти:${gearQty.blades}, Форсунки:${gearQty.nozzles}, АКБ:${gearQty.batteries}, Зарядки:${gearQty.chargers}`;
   await apiCall('updateTripNotes',{tripId,notes});
@@ -769,9 +769,11 @@ function renderClose(){
   exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||'📦 Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
   document.getElementById('cl-atk-items').innerHTML=Object.entries(atkGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv blue" style="font-size:12px">${v.toFixed(2)} BYN</span></div>`).join('');
   if(gear.car==='Аренда'&&gear.rentCost>0){
+    const rentDateStart=gear.rentDateStart||lt.dateStart||today;
+    const rentDays=countDays(rentDateStart,today);
     document.getElementById('cl-rent-block').style.display='block';
     document.getElementById('cl-rent-per-day').textContent=gear.rentCost+' BYN/день';
-    document.getElementById('cl-rent-total').textContent=(gear.rentCost*days).toFixed(2)+' BYN';
+    document.getElementById('cl-rent-total').textContent=(gear.rentCost*rentDays).toFixed(2)+' BYN ('+rentDays+' дн)';
   }
 }
 function calcKm(){
@@ -812,9 +814,10 @@ function buildNotifyText(){
 
   const balStr=balance>=0?`+${balance.toFixed(2)} BYN (${closeOption==='carry'?'перенос':'сдано в кассу'})`:`−${Math.abs(balance).toFixed(2)} BYN (перерасход)`;
   const carLabel=gear.car==='Аренда'?'Ford Transit (аренда)':gear.car||'Ford Transit';
-let kmLine=km>0?`\n🛣 Пробег (${carLabel}): ${km} км`:'';
-  let rentLine=gear.car==='Аренда'&&gear.rentCost>0?`\n🚐 Аренда авто: ${(gear.rentCost*days).toFixed(2)} BYN`:'';
-
+  let kmLine=km>0?`\n🛣 Пробег (${carLabel}): ${km} км`:'';
+  const rentDateStart2=gear.rentDateStart||lt?.dateStart||today;
+  const rentDaysN=gear.car==='Аренда'&&gear.rentCost>0?countDays(rentDateStart2,today):0;
+  let rentLine=gear.car==='Аренда'&&gear.rentCost>0?`\n🚐 Аренда авто: ${(gear.rentCost*rentDaysN).toFixed(2)} BYN (${rentDaysN} дн)`:'';
   return`✅ Командировка закрыта
 📍 ${lt?.district||'—'} · ${fmtDMY(lt?.dateStart)} → ${fmtDMY(today)}
 📅 ${days} ${dayWord(days)} командировки
@@ -871,16 +874,18 @@ async function closeTrip(){
   const days=countDays(lt.dateStart,today);
   const gear=lt.gear||{};
   const rentPerDay=gear.car==='Аренда'?(gear.rentCost||0):0;
-
+  const rentDateStart=gear.rentDateStart||lt.dateStart||today;
+  const rentDays=rentPerDay>0?countDays(rentDateStart,today):0;
+  
   // Внести аренду как расход в РАСХОДЫ
   if(rentPerDay>0){
-    const rentTotal=rentPerDay*days;
+    const rentTotal=rentPerDay*rentDays;
     await apiCall('add_expense',{
       tripId,
       dayId:'',
       category:'🚐 Аренда авто',
       amount:rentTotal,
-      comment:`${rentPerDay} BYN/день × ${days} дн`,
+      comment:`${rentPerDay} BYN/день × ${rentDays} дн`,
       date:today,
       payType:'rent'
     });
