@@ -8,7 +8,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Карта полей · AgroDrone.BY</title>
-<script src="../config.js"></script>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -63,7 +63,6 @@ body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin
 <div class="filter-bar" id="filter-bar">
   <button class="chip active" style="background:var(--green)" data-status="all" onclick="filterMap('all',this)">Все</button>
   <button class="chip" data-status="новое" onclick="filterMap('новое',this)">🟡 Новое</button>
-  <button class="chip" data-status="подтверждено" onclick="filterMap('подтверждено',this)">🔵 Подтверждено</button>
   <button class="chip" data-status="в работе" onclick="filterMap('в работе',this)">🟣 В работе</button>
   <button class="chip" data-status="частично" onclick="filterMap('частично',this)">🟠 Частично</button>
   <button class="chip" data-status="готово" onclick="filterMap('готово',this)">🟢 Готово</button>
@@ -77,7 +76,6 @@ body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin
   </div>
   <div class="legend">
     <div class="leg-item"><div class="leg-dot" style="background:#fbbf24"></div>Новое</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Подтверждено</div>
     <div class="leg-item"><div class="leg-dot" style="background:#8b5cf6"></div>В работе</div>
     <div class="leg-item"><div class="leg-dot" style="background:#f97316"></div>Частично</div>
     <div class="leg-item"><div class="leg-dot" style="background:#10b981"></div>Готово</div>
