@@ -270,10 +270,7 @@ function validate() {
 async function submitCandidate() {
   if (!validate()) return;
 
-  if (!telegramId) {
-    showError('Ошибка: нет Telegram ID. Открой форму через бот.');
-    return;
-  }
+  if (!telegramId) telegramId = 0;
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
@@ -339,13 +336,6 @@ async function submitCandidate() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (!telegramId) {
-    const d = document.getElementById('debug-info');
-    d.textContent = '⚠️ Telegram ID не определён. Открой форму через бот.';
-    d.style.display = 'block';
-    d.style.background = '#fee2e2';
-    d.style.color = '#991b1b';
-  }
 });
 </script>
 </body>
