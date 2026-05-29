@@ -28,10 +28,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .hdr-title{font-size:16px;font-weight:800;color:#fff;flex:1}
 .hdr-count{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px}
 
-.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:11px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-.tab.active{color:var(--green);border-bottom-color:var(--green)}
-
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:8px}
 
@@ -150,13 +146,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   <div class="hdr-count" id="hdr-count"></div>
 </div>
 
-<!-- ВКЛАДКИ -->
-<div class="tabs" id="tabs-bar">
-  <div class="tab active" onclick="switchTab('open')" id="tab-open">⚠️ Открытые</div>
-  <div class="tab" onclick="switchTab('progress')" id="tab-progress">🔨 В работе</div>
-  <div class="tab" onclick="switchTab('closed')" id="tab-closed">✅ Закрытые</div>
-</div>
-
 <!-- ФИЛЬТР ПО ТЕХНИКЕ -->
 <div class="filter-bar" id="filter-bar">
   <button class="fchip active" onclick="filterBak('all',this)">Все</button>
@@ -210,7 +199,7 @@ const OWNER_CHAT='6204739474';
 const BAK_COLORS={'А60-ХМ':'bak-a60','А70-ХМ':'bak-a70','А1-Х':'bak-a1'};
 const BAK_SHORT={'А60-ХМ':'A60','А70-ХМ':'A70','А1-Х':'A1'};
 
-let allIssues=[], currentTab='open', currentBak='all', currentIssue=null;
+let allIssues=[], currentBak='all', currentIssue=null;
 
 function showToast(msg,color='var(--green)'){
   const t=document.getElementById('toast');
@@ -222,8 +211,7 @@ function handleBack(){
   if(document.getElementById('screen-detail').classList.contains('active')){
     showScreen('list');
     document.getElementById('hdr-title').textContent='🔧 Техобслуживание';
-    document.getElementById('tabs-bar').style.display='flex';
-  document.getElementById('filter-bar').style.display='flex';
+    document.getElementById('filter-bar').style.display='flex';
     currentIssue=null;
   } else {
     window.history.back();
@@ -233,13 +221,6 @@ function handleBack(){
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-}
-
-function switchTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  renderList();
 }
 
 function filterBak(bak,el){
@@ -272,9 +253,10 @@ async function loadIssues(){
 
 function updateCount(){
   const open=allIssues.filter(i=>normalizeStatus(i['Статус'])==='open').length;
+  const progress=allIssues.filter(i=>normalizeStatus(i['Статус'])==='progress').length;
   const el=document.getElementById('hdr-count');
-  el.textContent=open>0?open+' открытых':'всё закрыто';
-  el.style.background=open>0?'rgba(220,38,38,.3)':'rgba(255,255,255,.15)';
+  el.textContent=open>0?open+' открытых':progress>0?progress+' в работе':'всё закрыто';
+  el.style.background=open>0?'rgba(220,38,38,.3)':progress>0?'rgba(217,119,6,.3)':'rgba(255,255,255,.15)';
 }
 
 function normalizeStatus(s){
@@ -285,7 +267,8 @@ function normalizeStatus(s){
 }
 
 function renderList(){
-  let filtered=allIssues.filter(i=>normalizeStatus(i['Статус'])===currentTab);
+  const order={open:0,progress:1,closed:2};
+  let filtered=allIssues.slice().sort((a,b)=>(order[normalizeStatus(a['Статус'])]||0)-(order[normalizeStatus(b['Статус'])]||0));
   if(currentBak!=='all'){
     if(currentBak==='other'){
       const known=['А60-ХМ','А70-ХМ','А1-Х','Ford Transit'];
@@ -296,9 +279,7 @@ function renderList(){
   }
   const wrap=document.getElementById('issues-wrap');
   if(!filtered.length){
-    const msgs={open:'Открытых проблем нет',progress:'Нет задач в работе',closed:'Закрытых задач нет'};
-    const icos={open:'✅',progress:'🔨',closed:'📋'};
-    wrap.innerHTML=`<div class="empty"><div class="empty-ico">${icos[currentTab]}</div><div class="empty-txt">${msgs[currentTab]}</div></div>`;
+    wrap.innerHTML='<div class="empty"><div class="empty-ico">✅</div><div class="empty-txt">Проблем нет</div></div>';
     return;
   }
   wrap.innerHTML=filtered.map(issue=>{
@@ -512,7 +493,6 @@ function openDetail(id){
     <button class="btn btn-outline" onclick="handleBack()" style="margin-top:8px">← Назад</button>
   `;
 
-  document.getElementById('tabs-bar').style.display='none';
   document.getElementById('filter-bar').style.display='none';
   document.getElementById('hdr-title').textContent=`${bak} · ${issue['Тип неисправности']||issue['Тип']||'—'}`;
   showScreen('detail');
