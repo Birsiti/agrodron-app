@@ -887,7 +887,10 @@ function fmt(d){
   const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
   if(gm)return`${String(parseInt(gm[3])).padStart(2,'0')}.${String(parseInt(gm[2])+1).padStart(2,'0')}.${gm[1]}`;
   const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
-  return m?`${m[3]}.${m[2]}.${m[1]}`:s;
+  if(m)return`${m[3]}.${m[2]}.${m[1]}`;
+  // уже в формате DD.MM.YYYY — возвращаем как есть
+  if(/^\d{2}\.\d{2}\.\d{4}$/.test(s))return s;
+  return s;
 }
 function fmtDate(val){if(!val)return'—';const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(val)}
 function isoDate(val){
