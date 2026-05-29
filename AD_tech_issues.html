@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Техобслуживание
+  v1.0 · 2026-05-29
+  Просмотр проблем + закрытие с комментарием + уведомления
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Техобслуживание · AgroDrone.BY</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --red:#dc2626;--amber:#d97706;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.hdr{background:linear-gradient(135deg,var(--green),var(--gm));padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.back{font-size:24px;color:#fff;cursor:pointer;font-weight:300;line-height:1}
+.hdr-title{font-size:16px;font-weight:800;color:#fff;flex:1}
+.hdr-count{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px}
+
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:11px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:8px}
+
+/* КАРТОЧКИ */
+.issue-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .15s}
+.issue-card:active{transform:scale(.99)}
+.issue-card.open{border-left:4px solid var(--red)}
+.issue-card.progress{border-left:4px solid var(--amber)}
+.issue-card.closed{border-left:4px solid var(--ga);opacity:.75}
+
+.ic-head{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.ic-bak{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
+.bak-a60{background:#dc2626}.bak-a70{background:#2563eb}.bak-a1{background:#7c3aed}.bak-other{background:#6b7280}
+.ic-info{flex:1;min-width:0}
+.ic-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.ic-bak-name{font-size:13px;font-weight:800;color:var(--t1)}
+.ic-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.badge-open{background:#fee2e2;color:var(--red)}
+.badge-progress{background:#fef3c7;color:var(--amber)}
+.badge-closed{background:#e8f4ed;color:var(--green)}
+.ic-type{font-size:11px;color:var(--t3);font-weight:600}
+.ic-desc{font-size:13px;color:var(--t2);line-height:1.4;padding:0 14px 10px}
+.ic-meta{display:flex;gap:12px;padding:0 14px 12px;font-size:10px;color:var(--t3)}
+.ic-urgency-high{color:var(--red);font-weight:700}
+.ic-urgency-med{color:var(--amber);font-weight:700}
+
+/* ДЕТАЛЬНЫЙ ВИД */
+.detail-wrap{padding:12px 12px 40px}
+.detail-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px}
+.dc-head{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.dc-bak{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.dc-title{font-size:15px;font-weight:800;color:var(--t1)}
+.dc-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.dc-row{display:flex;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px}
+.dc-row:last-child{border-bottom:none}
+.dc-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;min-width:90px;flex-shrink:0;padding-top:1px}
+.dc-val{font-size:13px;color:var(--t1);font-weight:600;line-height:1.4}
+.dc-val.red{color:var(--red)}.dc-val.amber{color:var(--amber)}.dc-val.green{color:var(--green)}
+
+/* ИСТОРИЯ ДЕЙСТВИЙ */
+.history-item{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px}
+.history-item:last-child{border-bottom:none}
+.history-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.history-dot.open{background:var(--red)}
+.history-dot.progress{background:var(--amber)}
+.history-dot.closed{background:var(--ga)}
+.history-info{flex:1}
+.history-action{font-size:13px;font-weight:700;color:var(--t1)}
+.history-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.history-comment{font-size:12px;color:var(--t2);margin-top:4px;font-style:italic;line-height:1.4}
+
+/* ФОРМА ЗАКРЫТИЯ */
+.close-form{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.cf-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.cf-label{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.cf-textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);resize:none;outline:none;min-height:80px;transition:border-color .2s;line-height:1.5}
+.cf-textarea:focus{border-color:var(--green)}
+.cf-select{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;margin-bottom:10px;appearance:none}
+.cf-select:focus{border-color:var(--green)}
+
+/* КНОПКИ */
+.btn{width:100%;padding:13px;border-radius:var(--rs);border:none;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px}
+.btn:last-child{margin-bottom:0}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.empty-ico{font-size:40px;margin-bottom:10px}
+.empty-txt{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t3);font-size:13px;font-weight:600}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--ga);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+
+/* ФИЛЬТР ПО ТЕХНИКЕ */
+.filter-bar{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.filter-bar::-webkit-scrollbar{display:none}
+.fchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:var(--f);border:1.5px solid var(--border);background:#fff;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.fchip.active{background:var(--green);color:#fff;border-color:var(--green)}
+.fchip:active{transform:scale(.96)}
+
+/* ЭКРАНЫ */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="back" onclick="handleBack()">‹</div>
+  <div class="hdr-title" id="hdr-title">🔧 Техобслуживание</div>
+  <div class="hdr-count" id="hdr-count"></div>
+</div>
+
+<!-- ВКЛАДКИ -->
+<div class="tabs" id="tabs-bar">
+  <div class="tab active" onclick="switchTab('open')" id="tab-open">⚠️ Открытые</div>
+  <div class="tab" onclick="switchTab('progress')" id="tab-progress">🔨 В работе</div>
+  <div class="tab" onclick="switchTab('closed')" id="tab-closed">✅ Закрытые</div>
+</div>
+
+<!-- ФИЛЬТР ПО ТЕХНИКЕ -->
+<div class="filter-bar" id="filter-bar">
+  <button class="fchip active" onclick="filterBak('all',this)">Все</button>
+  <button class="fchip" onclick="filterBak('А60-ХМ',this)">🚁 А60-ХМ</button>
+  <button class="fchip" onclick="filterBak('А70-ХМ',this)">🚁 А70-ХМ</button>
+  <button class="fchip" onclick="filterBak('А1-Х',this)">🛸 А1-Х</button>
+  <button class="fchip" onclick="filterBak('Ford Transit',this)">🚐 Транзит</button>
+  <button class="fchip" onclick="filterBak('other',this)">📦 Другое</button>
+</div>
+
+<!-- СПИСОК -->
+<div class="screen active" id="screen-list">
+  <div class="scroll">
+    <div class="wrap" id="issues-wrap">
+      <div class="loading"><div class="spinner"></div>Загрузка...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ДЕТАЛЬНЫЙ ВИД -->
+<div class="screen" id="screen-detail">
+  <div class="scroll">
+    <div class="detail-wrap" id="detail-wrap"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const BOT_TOKEN='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
+const OWNER_CHAT='6204739474';
+
+const BAK_COLORS={'А60-ХМ':'bak-a60','А70-ХМ':'bak-a70','А1-Х':'bak-a1'};
+const BAK_SHORT={'А60-ХМ':'A60','А70-ХМ':'A70','А1-Х':'A1'};
+
+let allIssues=[], currentTab='open', currentBak='all', currentIssue=null;
+
+function showToast(msg,color='var(--green)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=color;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function handleBack(){
+  if(document.getElementById('screen-detail').classList.contains('active')){
+    showScreen('list');
+    document.getElementById('hdr-title').textContent='🔧 Техобслуживание';
+    document.getElementById('tabs-bar').style.display='flex';
+  document.getElementById('filter-bar').style.display='flex';
+    currentIssue=null;
+  } else {
+    window.history.back();
+  }
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  renderList();
+}
+
+function filterBak(bak,el){
+  currentBak=bak;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+async function loadIssues(){
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ!A1:J200?key=${SHEETS_KEY}`;
+    const r=await fetch(url);const d=await r.json();
+    const rows=d.values||[];
+    if(rows.length<2){allIssues=[];renderList();return;}
+    const headers=rows[0];
+    allIssues=rows.slice(1).filter(r=>r[0]).map(r=>{
+      const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o;
+    });
+    renderList();
+    updateCount();
+  }catch(e){
+    document.getElementById('issues-wrap').innerHTML=
+      `<div class="empty"><div class="empty-ico">❌</div><div class="empty-txt">Ошибка загрузки</div></div>`;
+  }
+}
+
+function updateCount(){
+  const open=allIssues.filter(i=>normalizeStatus(i['Статус'])==='open').length;
+  const el=document.getElementById('hdr-count');
+  el.textContent=open>0?open+' открытых':'всё закрыто';
+  el.style.background=open>0?'rgba(220,38,38,.3)':'rgba(255,255,255,.15)';
+}
+
+function normalizeStatus(s){
+  const v=String(s||'').toLowerCase().trim();
+  if(v.includes('закр'))return'closed';
+  if(v.includes('работ')||v.includes('принят')||v.includes('progress'))return'progress';
+  return'open';
+}
+
+function renderList(){
+  let filtered=allIssues.filter(i=>normalizeStatus(i['Статус'])===currentTab);
+  if(currentBak!=='all'){
+    if(currentBak==='other'){
+      const known=['А60-ХМ','А70-ХМ','А1-Х','Ford Transit'];
+      filtered=filtered.filter(i=>!known.includes(i['БАК']));
+    } else {
+      filtered=filtered.filter(i=>i['БАК']===currentBak);
+    }
+  }
+  const wrap=document.getElementById('issues-wrap');
+  if(!filtered.length){
+    const msgs={open:'Открытых проблем нет',progress:'Нет задач в работе',closed:'Закрытых задач нет'};
+    const icos={open:'✅',progress:'🔨',closed:'📋'};
+    wrap.innerHTML=`<div class="empty"><div class="empty-ico">${icos[currentTab]}</div><div class="empty-txt">${msgs[currentTab]}</div></div>`;
+    return;
+  }
+  wrap.innerHTML=filtered.map(issue=>{
+    const status=normalizeStatus(issue['Статус']);
+    const bak=issue['БАК']||'—';
+    const bakClass=BAK_COLORS[bak]||'bak-other';
+    const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
+    const urgency=String(issue['Срочность']||'').toLowerCase();
+    const urgClass=urgency.includes('высок')?'ic-urgency-high':urgency.includes('средн')?'ic-urgency-med':'';
+    const badgeMap={open:'badge-open',progress:'badge-progress',closed:'badge-closed'};
+    const labelMap={open:'⚠️ Открыто',progress:'🔨 В работе',closed:'✅ Закрыто'};
+    return`<div class="issue-card ${status}" onclick="openDetail('${issue['ID']}')">
+      <div class="ic-head">
+        <div class="ic-bak ${bakClass}">${bakShort}</div>
+        <div class="ic-info">
+          <div class="ic-top">
+            <div class="ic-bak-name">${bak}</div>
+            <div class="ic-badge ${badgeMap[status]}">${labelMap[status]}</div>
+          </div>
+          <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}${urgency?` · <span class="${urgClass}">${issue['Срочность']}</span>`:''}</div>
+        </div>
+      </div>
+      <div class="ic-desc">${issue['Описание']||'Без описания'}</div>
+      <div class="ic-meta">
+        <span>📅 ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</span>
+        <span>👤 ${issue['Оператор']||'—'}</span>
+        ${issue['Дата закрытия']?`<span>🔒 ${fmtDate(issue['Дата закрытия'])}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openDetail(id){
+  const issue=allIssues.find(i=>i['ID']===id);
+  if(!issue)return;
+  currentIssue=issue;
+  const status=normalizeStatus(issue['Статус']);
+  const bak=issue['БАК']||'—';
+  const bakClass=BAK_COLORS[bak]||'bak-other';
+  const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
+  const urgency=String(issue['Срочность']||'').toLowerCase();
+  const urgColor=urgency.includes('высок')?'red':urgency.includes('средн')?'amber':'';
+
+  const history=buildHistory(issue);
+
+  document.getElementById('detail-wrap').innerHTML=`
+    <div class="detail-card">
+      <div class="dc-head">
+        <div class="dc-bak ${bakClass}">${bakShort}</div>
+        <div>
+          <div class="dc-title">${bak} · ${issue['Тип неисправности']||issue['Тип']||'—'}</div>
+          <div class="dc-sub">${issue['ID']} · ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</div>
+        </div>
+      </div>
+      <div class="dc-row"><div class="dc-label">Описание</div><div class="dc-val">${issue['Описание']||'—'}</div></div>
+      <div class="dc-row"><div class="dc-label">Оператор</div><div class="dc-val">${issue['Оператор']||'—'}</div></div>
+      <div class="dc-row"><div class="dc-label">Срочность</div><div class="dc-val ${urgColor}">${issue['Срочность']||'Не указана'}</div></div>
+      <div class="dc-row"><div class="dc-label">Статус</div><div class="dc-val ${status==='open'?'red':status==='progress'?'amber':'green'}">${issue['Статус']||'—'}</div></div>
+      ${issue['Дата закрытия']?`<div class="dc-row"><div class="dc-label">Закрыто</div><div class="dc-val green">${fmtDate(issue['Дата закрытия'])}</div></div>`:''}
+      ${issue['Решение']||issue['Комментарий']?`<div class="dc-row"><div class="dc-label">Что сделали</div><div class="dc-val">${issue['Решение']||issue['Комментарий']}</div></div>`:''}
+      ${issue['Закрыл']?`<div class="dc-row"><div class="dc-label">Закрыл</div><div class="dc-val green">✓ ${issue['Закрыл']}</div></div>`:''}
+    </div>
+
+    ${history.length?`
+    <div class="detail-card">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;padding:12px 16px 0">История</div>
+      ${history.map(h=>`
+        <div class="history-item">
+          <div class="history-dot ${h.type}"></div>
+          <div class="history-info">
+            <div class="history-action">${h.action}</div>
+            <div class="history-meta">${h.meta}</div>
+            ${h.comment?`<div class="history-comment">${h.comment}</div>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`:''}
+
+    ${status!=='closed'?`
+    <div class="close-form">
+      <div class="cf-title">Действие</div>
+      <label class="cf-label">Новый статус</label>
+      <select class="cf-select" id="new-status">
+        ${status==='open'?'<option value="progress">🔨 Принять в работу</option>':''}
+        <option value="closed">✅ Закрыть — проблема решена</option>
+      </select>
+      <label class="cf-label">Что сделали</label>
+      <textarea class="cf-textarea" id="fix-comment" placeholder="Опишите что было сделано, какие запчасти использованы, сколько времени заняло..."></textarea>
+    </div>
+    <button class="btn btn-green" onclick="updateIssue()" id="btn-update">💾 Сохранить</button>
+    `:`<div style="background:var(--gl);border-radius:var(--rs);padding:12px 16px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">✅ Заявка закрыта</div>`}
+    <button class="btn btn-outline" onclick="handleBack()" style="margin-top:8px">← Назад</button>
+  `;
+
+  document.getElementById('tabs-bar').style.display='none';
+  document.getElementById('filter-bar').style.display='none';
+  document.getElementById('hdr-title').textContent=`${bak} · ${issue['Тип неисправности']||issue['Тип']||'—'}`;
+  showScreen('detail');
+}
+
+function buildHistory(issue){
+  const h=[];
+  if(issue['Дата заявки']||issue['Дата']){
+    h.push({type:'open',action:'Заявка создана',meta:`${fmtDate(issue['Дата заявки']||issue['Дата'])} · ${issue['Оператор']||'—'}`,comment:issue['Описание']||''});
+  }
+  if(normalizeStatus(issue['Статус'])==='progress'||normalizeStatus(issue['Статус'])==='closed'){
+    if(issue['Принял']||issue['Принято']){
+      h.push({type:'progress',action:'Принято в работу',meta:issue['Принял']||'—',comment:''});
+    }
+  }
+  if(issue['Дата закрытия']){
+    h.push({type:'closed',action:'Закрыто',meta:`${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||'—'}`,comment:issue['Решение']||issue['Комментарий']||''});
+  }
+  return h;
+}
+
+async function updateIssue(){
+  if(!currentIssue)return;
+  const newStatus=document.getElementById('new-status')?.value;
+  const comment=document.getElementById('fix-comment')?.value.trim()||'';
+  if(!newStatus)return;
+  if(newStatus==='closed'&&!comment){showToast('⚠️ Опишите что сделали','var(--amber)');return;}
+
+  const btn=document.getElementById('btn-update');
+  btn.disabled=true;btn.textContent='⏳ Сохраняю...';
+
+  const statusLabel=newStatus==='closed'?'закрыто':newStatus==='progress'?'в работе':'открыто';
+  const now=new Date();
+  const dateStr=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  const closer=tg?.WebApp?.initDataUnsafe?.user?.first_name||'РП';
+
+  try{
+    // Обновляем через Apps Script
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
+      action:'updateMaintenance',
+      data:{
+        id:currentIssue['ID'],
+        status:statusLabel,
+        comment,
+        closedAt:newStatus==='closed'?dateStr:'',
+        closedBy:closer
+      }
+    })});
+    const json=await resp.json();
+    if(!json.ok)throw new Error(json.error||'Ошибка');
+
+    // Telegram уведомление
+    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const msg=newStatus==='closed'
+      ?`✅ *Техника: заявка закрыта*\n\n🚁 ${currentIssue['БАК']}\n🔧 ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Закрыл: ${closer}\n📝 ${comment}\n🆔 ${currentIssue['ID']}`
+      :`🔨 *Техника: принято в работу*\n\n🚁 ${currentIssue['БАК']}\n${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Принял: ${closer}\n${comment?'📝 '+comment+'\n':''}\n🆔 ${currentIssue['ID']}`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:OWNER_CHAT,text:msg,parse_mode:'Markdown'})
+    }).catch(()=>{});
+
+    showToast(newStatus==='closed'?'✅ Заявка закрыта':'🔨 Принято в работу');
+    await loadIssues();
+    handleBack();
+
+  }catch(e){
+    showToast('❌ '+e.message,'var(--red)');
+    btn.disabled=false;btn.textContent='💾 Сохранить';
+  }
+}
+
+function fmtDate(v){
+  if(!v)return'—';
+  const s=String(v);
+  const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(gm)return`${String(parseInt(gm[3])).padStart(2,'0')}.${String(parseInt(gm[2])+1).padStart(2,'0')}.${gm[1]}`;
+  const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return`${m[3]}.${m[2]}.${m[1]}`;
+  if(/^\d{2}\.\d{2}\.\d{4}$/.test(s))return s;
+  return s;
+}
+
+loadIssues();
+</script>
+</body>
+</html>
