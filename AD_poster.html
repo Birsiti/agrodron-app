@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Постер-менеджер
+  v1.0 · 2026-05-29
+  Файл: AD_poster.html
+  Локальный файл — токен вшит, не публиковать!
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Постер · AgroDrone.BY</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1419;
+  --card: #1a2332;
+  --card2: #1e2d3d;
+  --acc: #10b981;
+  --acm: #047857;
+  --acl: #064e35;
+  --border: #2a3f55;
+  --t1: #e8f0fe;
+  --t2: #8899aa;
+  --t3: #4a5f72;
+  --err: #ef4444;
+  --warn: #f59e0b;
+  --f: 'Manrope', sans-serif;
+  --r: 12px;
+  --rs: 8px;
+  --sh: 0 4px 24px rgba(0,0,0,.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; background: var(--bg); color: var(--t1); font-family: var(--f); }
+
+body {
+  background-image: radial-gradient(ellipse at 20% 20%, rgba(16,185,129,.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 80%, rgba(4,120,87,.06) 0%, transparent 50%);
+}
+
+.wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* HEADER */
+.hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.hdr-logo { width: 44px; height: 44px; background: linear-gradient(135deg, var(--acc), var(--acm)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.hdr-title { font-size: 20px; font-weight: 800; color: var(--t1); }
+.hdr-sub { font-size: 12px; color: var(--t2); margin-top: 2px; }
+
+/* SECTION */
+.section { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; margin-bottom: 16px; box-shadow: var(--sh); }
+.section-title { font-size: 13px; font-weight: 700; color: var(--acc); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+/* FORM */
+.frow { margin-bottom: 14px; }
+.frow:last-child { margin-bottom: 0; }
+.frow label { font-size: 11px; font-weight: 700; color: var(--t2); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.frow input, .frow select, .frow textarea {
+  width: 100%; background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--rs); padding: 11px 13px; font-family: var(--f);
+  font-size: 14px; color: var(--t1); outline: none; transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.frow input:focus, .frow select:focus, .frow textarea:focus { border-color: var(--acc); }
+.frow input::placeholder, .frow textarea::placeholder { color: var(--t3); }
+.frow textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.frow select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238899aa' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; }
+.frow select option { background: #1a2332; }
+
+/* TOGGLE */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; }
+.toggle-label { font-size: 13px; color: var(--t1); font-weight: 600; }
+.toggle { width: 44px; height: 24px; background: var(--border); border-radius: 12px; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
+.toggle.on { background: var(--acc); }
+.toggle::after { content: ''; width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left .2s; }
+.toggle.on::after { left: 23px; }
+
+/* UPLOAD */
+.upload-area {
+  border: 2px dashed var(--border); border-radius: var(--rs); padding: 28px 20px;
+  text-align: center; cursor: pointer; transition: all .2s; position: relative;
+  background: var(--card2);
+}
+.upload-area:hover, .upload-area.drag { border-color: var(--acc); background: var(--acl); }
+.upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 36px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; color: var(--t2); font-weight: 600; }
+.upload-hint { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+/* PREVIEW */
+.preview-wrap { margin-top: 12px; position: relative; display: none; }
+.preview-wrap.show { display: block; }
+.preview-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: var(--rs); border: 1px solid var(--border); }
+.preview-video { width: 100%; max-height: 280px; border-radius: var(--rs); border: 1px solid var(--border); }
+.preview-name { font-size: 12px; color: var(--t2); margin-top: 6px; text-align: center; }
+.preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+/* PROGRESS */
+.progress-wrap { margin-top: 10px; display: none; }
+.progress-wrap.show { display: block; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acm)); width: 0; transition: width .3s; border-radius: 2px; }
+.progress-text { font-size: 11px; color: var(--t2); margin-top: 4px; text-align: center; }
+
+/* FILE ID */
+.fileid-box { background: var(--acl); border: 1px solid var(--acc); border-radius: var(--rs); padding: 10px 12px; margin-top: 10px; display: none; }
+.fileid-box.show { display: block; }
+.fileid-label { font-size: 10px; color: var(--acc); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; font-weight: 700; }
+.fileid-value { font-size: 11px; color: var(--t1); font-family: monospace; word-break: break-all; }
+
+/* BTN */
+.btn { width: 100%; padding: 14px; border: none; border-radius: var(--rs); font-family: var(--f); font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: linear-gradient(135deg, var(--acc), var(--acm)); color: #fff; }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-sec { background: var(--card2); color: var(--t2); border: 1px solid var(--border); margin-top: 8px; }
+
+/* TOPICS */
+.topics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.topic-btn { padding: 12px 10px; border: 2px solid var(--border); border-radius: var(--rs); text-align: center; font-size: 13px; font-weight: 700; color: var(--t2); cursor: pointer; transition: all .2s; background: var(--card2); user-select: none; }
+.topic-btn:hover { border-color: var(--t3); color: var(--t1); }
+.topic-btn.active { border-color: var(--acc); background: var(--acl); color: var(--acc); }
+
+/* LOG */
+.log { background: #0a0f16; border: 1px solid var(--border); border-radius: var(--rs); padding: 12px; max-height: 180px; overflow-y: auto; font-size: 12px; font-family: monospace; line-height: 1.6; display: none; margin-top: 12px; }
+.log.show { display: block; }
+.log-line { color: var(--t2); }
+.log-line.ok { color: var(--acc); }
+.log-line.err { color: var(--err); }
+.log-line.info { color: var(--warn); }
+
+/* SUCCESS */
+.result-box { border-radius: var(--rs); padding: 16px; margin-top: 12px; display: none; text-align: center; }
+.result-box.show { display: block; }
+.result-box.ok { background: var(--acl); border: 1px solid var(--acc); }
+.result-box.err { background: rgba(239,68,68,.1); border: 1px solid var(--err); }
+.result-icon { font-size: 32px; margin-bottom: 8px; }
+.result-text { font-size: 14px; font-weight: 700; }
+.result-link { font-size: 12px; color: var(--acc); margin-top: 6px; text-decoration: none; display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-logo">🚁</div>
+    <div>
+      <div class="hdr-title">AgroDrone.BY — Постер</div>
+      <div class="hdr-sub">Отправка фото/видео с кнопкой в группу</div>
+    </div>
+  </div>
+
+  <!-- ШАГ 1: ТОПИК -->
+  <div class="section">
+    <div class="section-title">📍 Шаг 1 — Куда отправить</div>
+    <div class="topics" id="topics">
+      <div class="topic-btn active" data-id="10" onclick="selectTopic(this)">📢 Новости</div>
+      <div class="topic-btn" data-id="17" onclick="selectTopic(this)">🚀 Хочу в команду</div>
+      <div class="topic-btn" data-id="11" onclick="selectTopic(this)">🎬 Видео с полётов</div>
+      <div class="topic-btn" data-id="14" onclick="selectTopic(this)">💬 Общий чат</div>
+      <div class="topic-btn" data-id="0" onclick="selectTopic(this)">🔧 Техника</div>
+    </div>
+  </div>
+
+  <!-- ШАГ 2: МЕДИА -->
+  <div class="section">
+    <div class="section-title">🖼 Шаг 2 — Фото или видео</div>
+    <div class="frow">
+      <label>Тип медиа</label>
+      <select id="media-type" onchange="onMediaTypeChange()">
+        <option value="photo">📷 Фото</option>
+        <option value="video">🎬 Видео</option>
+        <option value="text">💬 Только текст (без медиа)</option>
+      </select>
+    </div>
+
+    <div id="upload-section">
+      <div class="upload-area" id="upload-area">
+        <input type="file" id="file-input" accept="image/*,video/*" onchange="onFileSelected(event)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text">Нажми или перетащи файл</div>
+        <div class="upload-hint">JPG, PNG, MP4, MOV — до 50 МБ</div>
+      </div>
+
+      <div class="preview-wrap" id="preview-wrap">
+        <img id="preview-img" class="preview-img" style="display:none">
+        <video id="preview-video" class="preview-video" controls style="display:none"></video>
+        <div class="preview-name" id="preview-name"></div>
+        <button class="preview-remove" onclick="removeFile()">✕</button>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">Загрузка...</div>
+      </div>
+
+      <div class="fileid-box" id="fileid-box">
+        <div class="fileid-label">✅ File ID получен</div>
+        <div class="fileid-value" id="fileid-value"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ШАГ 3: ТЕКСТ -->
+  <div class="section">
+    <div class="section-title">✏️ Шаг 3 — Текст сообщения</div>
+    <div class="frow">
+      <label>Подпись / текст</label>
+      <textarea id="caption" placeholder="Текст сообщения...&#10;Поддерживает эмодзи 🚁"></textarea>
+    </div>
+  </div>
+
+  <!-- ШАГ 4: КНОПКА -->
+  <div class="section">
+    <div class="section-title">🔘 Шаг 4 — Кнопка (необязательно)</div>
+    <div class="frow">
+      <div class="toggle-row">
+        <span class="toggle-label">Добавить кнопку</span>
+        <div class="toggle" id="btn-toggle" onclick="toggleBtn()"></div>
+      </div>
+    </div>
+    <div id="btn-fields" style="display:none;margin-top:14px">
+      <div class="frow">
+        <label>Текст кнопки</label>
+        <input type="text" id="btn-text" placeholder="📋 Заполнить анкету">
+      </div>
+      <div class="frow">
+        <label>URL кнопки</label>
+        <input type="url" id="btn-url" placeholder="https://...">
+      </div>
+      <!-- быстрые пресеты -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        <span style="font-size:11px;color:var(--t2);width:100%;margin-bottom:2px">Быстро:</span>
+        <button class="btn btn-sec" style="width:auto;padding:6px 10px;font-size:12px;margin:0" onclick="preset('📋 Заполнить анкету','https://birsiti.github.io/agrodron-app/AD_candidate.html')">Анкета</button>
+        <button class="btn btn-sec" style="width:auto;padding:6px 10px;font-size:12px;margin:0" onclick="preset('🌐 Наш сайт','https://agrodrone.by')">Сайт</button>
+        <button class="btn btn-sec" style="width:auto;padding:6px 10px;font-size:12px;margin:0" onclick="preset('🤖 Написать боту','https://t.me/AgroDrone_BY_Bot')">Бот</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОТПРАВИТЬ -->
+  <button class="btn btn-primary" id="send-btn" onclick="sendPost()">
+    🚀 Отправить в группу
+  </button>
+
+  <div class="log" id="log"></div>
+
+  <div class="result-box" id="result-box">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-text" id="result-text"></div>
+    <a class="result-link" id="result-link" target="_blank" href="#"></a>
+  </div>
+
+</div>
+
+<script>
+const BOT_TOKEN = '8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
+const CHAT_ID   = '-1003892820507';
+const API       = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+const TOPICS = {
+  '10': 'Новости',
+  '17': 'Хочу в команду',
+  '11': 'Видео с полётов',
+  '14': 'Общий чат',
+  '0':  'Техника'
+};
+
+// Техника thread_id пока неизвестен — нужно уточнить
+// Ставим 0 как placeholder, потом заменим
+
+let selectedTopic = '10';
+let uploadedFileId = null;
+let selectedFile = null;
+let btnEnabled = false;
+
+// ══ ТОПИК ══
+function selectTopic(el) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedTopic = el.dataset.id;
+}
+
+// ══ МЕДИА ══
+function onMediaTypeChange() {
+  const type = document.getElementById('media-type').value;
+  document.getElementById('upload-section').style.display = type === 'text' ? 'none' : 'block';
+  uploadedFileId = null;
+  document.getElementById('fileid-box').classList.remove('show');
+}
+
+function onFileSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  selectedFile = file;
+
+  const wrap = document.getElementById('preview-wrap');
+  const img  = document.getElementById('preview-img');
+  const vid  = document.getElementById('preview-video');
+  const name = document.getElementById('preview-name');
+
+  wrap.classList.add('show');
+  name.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' МБ)';
+
+  if (file.type.startsWith('image/')) {
+    img.src = URL.createObjectURL(file);
+    img.style.display = 'block';
+    vid.style.display = 'none';
+  } else {
+    vid.src = URL.createObjectURL(file);
+    vid.style.display = 'block';
+    img.style.display = 'none';
+  }
+
+  uploadedFileId = null;
+  document.getElementById('fileid-box').classList.remove('show');
+}
+
+function removeFile() {
+  selectedFile = null;
+  uploadedFileId = null;
+  document.getElementById('preview-wrap').classList.remove('show');
+  document.getElementById('fileid-box').classList.remove('show');
+  document.getElementById('file-input').value = '';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('preview-video').src = '';
+}
+
+// ══ КНОПКА ══
+function toggleBtn() {
+  btnEnabled = !btnEnabled;
+  document.getElementById('btn-toggle').classList.toggle('on', btnEnabled);
+  document.getElementById('btn-fields').style.display = btnEnabled ? 'block' : 'none';
+}
+
+function preset(text, url) {
+  document.getElementById('btn-text').value = text;
+  document.getElementById('btn-url').value  = url;
+}
+
+// ══ LOG ══
+function log(msg, type = '') {
+  const el = document.getElementById('log');
+  el.classList.add('show');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = new Date().toLocaleTimeString('ru') + ' — ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ══ UPLOAD FILE TO TELEGRAM ══
+async function uploadToTelegram(file) {
+  const type   = file.type.startsWith('image/') ? 'photo' : 'video';
+  const method = type === 'photo' ? 'sendPhoto' : 'sendVideo';
+  const field  = type === 'photo' ? 'photo' : 'video';
+
+  log('Загрузка файла в Telegram...', 'info');
+
+  const prog = document.getElementById('progress-wrap');
+  const fill = document.getElementById('progress-fill');
+  const ptxt = document.getElementById('progress-text');
+  prog.classList.add('show');
+
+  const fd = new FormData();
+  fd.append('chat_id', '6204739474'); // личка Дениса для получения file_id
+  fd.append(field, file);
+
+  // Анимация прогресса
+  let p = 0;
+  const timer = setInterval(() => {
+    p = Math.min(p + 8, 85);
+    fill.style.width = p + '%';
+    ptxt.textContent = 'Загружаем... ' + p + '%';
+  }, 200);
+
+  try {
+    const resp = await fetch(`${API}/${method}`, { method: 'POST', body: fd });
+    const data = await resp.json();
+
+    clearInterval(timer);
+    fill.style.width = '100%';
+    ptxt.textContent = 'Готово!';
+
+    if (!data.ok) throw new Error(data.description);
+
+    const result = data.result;
+    let fileId;
+    if (type === 'photo') {
+      const photos = result.photo;
+      fileId = photos[photos.length - 1].file_id;
+    } else {
+      fileId = result.video.file_id;
+    }
+
+    document.getElementById('fileid-value').textContent = fileId;
+    document.getElementById('fileid-box').classList.add('show');
+    log('File ID получен: ' + fileId.substring(0, 30) + '...', 'ok');
+
+    setTimeout(() => prog.classList.remove('show'), 1000);
+    return { fileId, type };
+
+  } catch(err) {
+    clearInterval(timer);
+    prog.classList.remove('show');
+    throw err;
+  }
+}
+
+// ══ SEND ══
+async function sendPost() {
+  const mediaType = document.getElementById('media-type').value;
+  const caption   = document.getElementById('caption').value.trim();
+  const threadId  = selectedTopic;
+
+  // Валидация
+  if (mediaType !== 'text' && !selectedFile) {
+    log('Выбери файл для отправки', 'err'); return;
+  }
+  if (!caption && mediaType === 'text') {
+    log('Напиши текст сообщения', 'err'); return;
+  }
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправка...';
+  document.getElementById('result-box').classList.remove('show');
+
+  try {
+    // Строим reply_markup
+    let replyMarkup = null;
+    if (btnEnabled) {
+      const btnText = document.getElementById('btn-text').value.trim();
+      const btnUrl  = document.getElementById('btn-url').value.trim();
+      if (btnText && btnUrl) {
+        replyMarkup = JSON.stringify({
+          inline_keyboard: [[{ text: btnText, url: btnUrl }]]
+        });
+      }
+    }
+
+    let method, params;
+
+    if (mediaType === 'text') {
+      // Только текст
+      method = 'sendMessage';
+      params = new URLSearchParams({
+        chat_id: CHAT_ID,
+        text: caption,
+        parse_mode: 'HTML'
+      });
+      if (threadId !== '0') params.append('message_thread_id', threadId);
+      if (replyMarkup) params.append('reply_markup', replyMarkup);
+
+      log('Отправка текста...', 'info');
+      const resp = await fetch(`${API}/${method}?` + params);
+      const data = await resp.json();
+      if (!data.ok) throw new Error(data.description);
+      showResult(true, data.result.message_id);
+
+    } else {
+      // С медиа — сначала загружаем
+      const { fileId, type } = await uploadToTelegram(selectedFile);
+
+      method = type === 'photo' ? 'sendPhoto' : 'sendVideo';
+      const field = type === 'photo' ? 'photo' : 'video';
+
+      params = new URLSearchParams({
+        chat_id: CHAT_ID,
+        [field]: fileId
+      });
+      if (threadId !== '0') params.append('message_thread_id', threadId);
+      if (caption) params.append('caption', caption);
+      if (replyMarkup) params.append('reply_markup', replyMarkup);
+
+      log('Отправка в группу...', 'info');
+      const resp = await fetch(`${API}/${method}?` + params);
+      const data = await resp.json();
+      if (!data.ok) throw new Error(data.description);
+      showResult(true, data.result.message_id);
+    }
+
+  } catch(err) {
+    log('Ошибка: ' + err.message, 'err');
+    showResult(false, null, err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 Отправить в группу';
+  }
+}
+
+function showResult(ok, msgId, errMsg) {
+  const box  = document.getElementById('result-box');
+  const icon = document.getElementById('result-icon');
+  const text = document.getElementById('result-text');
+  const link = document.getElementById('result-link');
+
+  box.className = 'result-box show ' + (ok ? 'ok' : 'err');
+  icon.textContent = ok ? '✅' : '❌';
+
+  if (ok) {
+    const topicName = TOPICS[selectedTopic] || 'группу';
+    text.textContent = 'Отправлено в «' + topicName + '»';
+    log('✅ Успешно! message_id=' + msgId, 'ok');
+    link.textContent = '';
+    link.href = '#';
+  } else {
+    text.textContent = 'Ошибка: ' + (errMsg || 'неизвестно');
+    link.textContent = '';
+  }
+}
+
+// Drag & drop
+const area = document.getElementById('upload-area');
+area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag'); });
+area.addEventListener('dragleave', () => area.classList.remove('drag'));
+area.addEventListener('drop', e => {
+  e.preventDefault();
+  area.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('file-input').files = e.dataTransfer.files;
+    onFileSelected({ target: { files: [file] } });
+  }
+});
+</script>
+</body>
+</html>
