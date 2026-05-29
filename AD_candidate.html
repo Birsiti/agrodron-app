@@ -316,12 +316,13 @@ async function submitCandidate() {
     });
     const result = await resp.json();
 
-    if (result.success) {
+    if (result.ok || result.success) {
       document.getElementById('s-fio').textContent      = payload.data.fio;
       document.getElementById('s-phone').textContent    = payload.data.phone;
       document.getElementById('s-district').textContent = payload.data.district;
       document.getElementById('s-role').textContent     = payload.data.role;
       showScreen('screen-success');
+      setTimeout(() => { tg.close(); }, 2500);
     } else {
       showScreen('screen-form');
       showError(result.error || 'Ошибка. Попробуй ещё раз.');
