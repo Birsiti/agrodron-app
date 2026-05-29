@@ -313,8 +313,14 @@ function renderList(){
         ${status==='open'?`<button class="ic-btn ic-btn-amber" onclick="quickAction(event,'${id}','progress')">🔨 Взять в работу</button>`:''}
         <button class="ic-btn ic-btn-green" onclick="quickAction(event,'${id}','closed')">✅ Закрыть</button>
       </div>`:`<div class="ic-actions"><div style="font-size:12px;color:var(--green);font-weight:700;padding:8px 0">✅ Заявка закрыта · ${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||''}</div></div>`;
-    return`<div class="issue-card ${status}" onclick="toggleCard('${id}')">
-      <div class="ic-head">
+    const safeId=id.replace(/['"]/g,'');
+    const actionBtns2=status!=='closed'?`
+      <div class="ic-actions">
+        ${status==='open'?`<button class="ic-btn ic-btn-amber" data-action="progress" data-id="${safeId}">🔨 Взять в работу</button>`:''}
+        <button class="ic-btn ic-btn-green" data-action="closed" data-id="${safeId}">✅ Закрыть</button>
+      </div>`:`<div style="font-size:12px;color:var(--green);font-weight:700;padding:8px 0">✅ Закрыта · ${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||''}</div>`;
+    return`<div class="issue-card ${status}" data-id="${safeId}">
+      <div class="ic-head ic-toggle" data-id="${safeId}">
         <div class="ic-bak ${bakClass}">${bakShort}</div>
         <div class="ic-info">
           <div class="ic-top">
@@ -323,9 +329,9 @@ function renderList(){
           </div>
           <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}${urgency?` · <span class="${urgClass}">${issue['Срочность']}</span>`:''}</div>
         </div>
-        <div class="ic-arrow" id="arrow-${id}">›</div>
+        <div class="ic-arrow" id="arrow-${safeId}">›</div>
       </div>
-      <div class="ic-body" id="body-${id}" style="display:none">
+      <div class="ic-body" id="body-${safeId}" style="display:none">
         <div class="ic-desc">${issue['Описание']||'Без описания'}</div>
         <div class="ic-meta">
           <span>📅 ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</span>
@@ -335,7 +341,7 @@ function renderList(){
           ${issue['Закрыл']?`<span>✓ ${issue['Закрыл']}</span>`:''}
         </div>
         ${issue['Фото URL']||issue['Фото']?`<img src="${issue['Фото URL']||issue['Фото']}" style="width:100%;border-radius:var(--rs);margin-top:8px" onerror="this.style.display='none'">`:''}
-        ${actionBtns}
+        ${actionBtns2}
       </div>
     </div>`;
   }).join('');
@@ -350,18 +356,28 @@ function toggleCard(id){
   arrow?.classList.toggle('open',!isOpen);
 }
 
-function quickAction(e,id,action){
-  e.stopPropagation();
-  const issue=allIssues.find(i=>i['ID']===id);
-  if(!issue)return;
-  currentIssue=issue;
-  if(action==='progress'){
-    doUpdate('progress','');
+// Event delegation для кнопок и тоггла
+document.addEventListener('click',function(e){
+  // Кнопка действия
+  const btn=e.target.closest('[data-action]');
+  if(btn){
+    e.stopPropagation();
+    const id=btn.getAttribute('data-id');
+    const action=btn.getAttribute('data-action');
+    const issue=allIssues.find(i=>i['ID']===id||i['ID'].replace(/['"]/g,'')===id);
+    if(!issue)return;
+    currentIssue=issue;
+    if(action==='progress'){doUpdate('progress','');return;}
+    showCloseModal(id);
     return;
   }
-  // Закрытие — модалка с комментарием
-  showCloseModal(id);
-}
+  // Тоггл карточки
+  const toggle=e.target.closest('.ic-toggle');
+  if(toggle){
+    const id=toggle.getAttribute('data-id');
+    toggleCard(id);
+  }
+});
 
 function showCloseModal(id){
   const issue=allIssues.find(i=>i['ID']===id);
