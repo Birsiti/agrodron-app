@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Регистрация агронома
-  v1.2 · 2026-05-19
-  Файл: agronomist/agrodron_register.html
+  AgroDrone.BY · Анкета кандидата в операторы
+  v1.1 · 2026-05-29
+  Файл: AD_candidate.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Регистрация · AgroDrone.BY</title>
-<!-- agrodron_register_v1_2.html | май 2026 | Подключён config.js -->
+<title>Хочу в команду · AgroDrone.BY</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="config.js"></script>
 <script src="config.js"></script>
 <style>
 :root{
@@ -36,34 +34,38 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .screen.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* FORM */
+/* CARD */
 .card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
 .card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* FIELDS */
 .frow{margin-bottom:14px}
 .frow:last-child{margin-bottom:0}
 .frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.frow input{width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);padding:13px 14px;font-family:var(--f);font-size:15px;color:var(--t1);outline:none;transition:all .2s;-webkit-appearance:none}
-.frow input:focus{border-color:var(--aca);background:#f9fafb}
-.frow input::placeholder{color:var(--t3)}
-.hint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
+.frow input,.frow select,.frow textarea{
+  width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);
+  padding:13px 14px;font-family:var(--f);font-size:15px;color:var(--t1);
+  outline:none;transition:all .2s;-webkit-appearance:none;appearance:none
+}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca);background:#f9fafb}
+.frow input::placeholder,.frow textarea::placeholder{color:var(--t3)}
+.frow textarea{resize:none;height:90px;line-height:1.5}
+.frow select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa3b2' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 
-.info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
-.info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
+/* RADIO GROUP */
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-btn{flex:1;min-width:80px;padding:11px 8px;border:2px solid var(--border);border-radius:var(--rs);text-align:center;font-size:13px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .2s;background:#fff;user-select:none}
+.radio-btn.active{border-color:var(--aca);background:var(--acl);color:var(--acc)}
 
-.btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-decoration:none;text-align:center}
+/* BTN */
+.btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-align:center}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-sec{background:#fff;color:var(--t2);border:2px solid var(--border)}
 
-/* SUCCESS */
-.success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
-@keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
-.success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
-.success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
-.success-id{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
-.success-id-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
-.success-id-value{font-size:28px;font-weight:800;letter-spacing:1px}
+/* INFO BOX */
+.info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
+.info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
 
 /* ERROR */
 .error-box{background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--rs);padding:14px;margin-bottom:12px}
@@ -75,6 +77,15 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:var(--t2);font-weight:600}
 
+/* SUCCESS */
+.success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
+.success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
+.success-id{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
+.success-id-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
+.success-id-value{font-size:24px;font-weight:800;letter-spacing:1px}
+
 /* DEBUG */
 .debug{background:#1a1f2e;color:#a5b4fc;padding:10px;border-radius:8px;font-size:11px;font-family:monospace;margin-top:12px;word-break:break-all;line-height:1.5}
 </style>
@@ -83,263 +94,284 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
 <div class="app-hdr">
   <div class="brand-name">Agro<em>Drone</em>.BY</div>
-  <div class="brand-sub">Регистрация агронома</div>
+  <div class="brand-sub">🚁 Хочу в команду</div>
 </div>
 
 <div class="scroll">
 
-<!-- ══════════════════════════════════
-     ФОРМА РЕГИСТРАЦИИ
-══════════════════════════════════ -->
+<!-- ФОРМА -->
 <div id="screen-form" class="screen active">
+
   <div class="info-box">
-    <div class="info-box-text">👋 Добро пожаловать в AgroDrone.BY!<br>Для начала работы заполните данные ниже.</div>
+    <div class="info-box-text">👋 Заполни анкету — мы свяжемся с тобой в течение 1–2 дней</div>
   </div>
 
+  <!-- Личные данные -->
   <div class="card">
-    <div class="card-title">📋 Регистрация</div>
-    
+    <div class="card-title">👤 Личные данные</div>
+
     <div class="frow">
-      <label>Название хозяйства *</label>
-      <input type="text" id="farm-name" placeholder="СПК Рассвет, ФХ Урожай">
+      <label>ФИО *</label>
+      <input type="text" id="fio" placeholder="Иванов Иван Иванович">
+    </div>
+
+    <div class="frow">
+      <label>Возраст *</label>
+      <input type="number" id="age" placeholder="25" inputmode="numeric" min="18" max="65">
     </div>
 
     <div class="frow">
       <label>Район / город *</label>
-      <input type="text" id="district" placeholder="Ганцевичи, Минск, Гродно">
+      <input type="text" id="district" placeholder="Минск, Брест, Гродно...">
     </div>
 
     <div class="frow">
-      <label>Ваше имя *</label>
-      <input type="text" id="agronomist-name" placeholder="Иван или Иван Иванович">
-    </div>
-
-    <div class="frow">
-      <label>Контактный телефон *</label>
+      <label>Телефон *</label>
       <input type="tel" id="phone" placeholder="+375291234567" inputmode="tel">
+    </div>
+  </div>
+
+  <!-- Роль и опыт -->
+  <div class="card">
+    <div class="card-title">🎯 Роль и опыт</div>
+
+    <div class="frow">
+      <label>Хочу быть *</label>
+      <div class="radio-group" id="role-group">
+        <div class="radio-btn" onclick="selectRadio('role','Оператор',this)">🕹️ Оператором</div>
+        <div class="radio-btn" onclick="selectRadio('role','Техник',this)">🔧 Техником</div>
+      </div>
+    </div>
+
+    <div class="frow">
+      <label>Опыт с дронами *</label>
+      <select id="experience">
+        <option value="" disabled selected>Выбери вариант</option>
+        <option value="Нет опыта">Нет опыта — готов учиться</option>
+        <option value="Хобби">Летаю для себя / хобби</option>
+        <option value="Есть опыт">Есть опыт работы с БПЛА</option>
+        <option value="Сертификат">Есть удостоверение оператора</option>
+      </select>
+    </div>
+
+    <div class="frow">
+      <label>Есть личный автомобиль? *</label>
+      <div class="radio-group" id="car-group">
+        <div class="radio-btn" onclick="selectRadio('car','Есть',this)">✅ Есть</div>
+        <div class="radio-btn" onclick="selectRadio('car','Нет',this)">❌ Нет</div>
+      </div>
+    </div>
+
+    <div class="frow">
+      <label>Готов к выездам в поля? *</label>
+      <div class="radio-group" id="trips-group">
+        <div class="radio-btn" onclick="selectRadio('trips','Да',this)">✅ Да</div>
+        <div class="radio-btn" onclick="selectRadio('trips','Нет',this)">❌ Нет</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- О себе -->
+  <div class="card">
+    <div class="card-title">💬 О себе</div>
+    <div class="frow">
+      <label>Пару слов о себе</label>
+      <textarea id="about" placeholder="Чем занимаюсь, почему хочу работать в агродронах..."></textarea>
     </div>
   </div>
 
   <div id="error-container"></div>
 
-  <button class="btn btn-primary" id="submit-btn" onclick="submitRegistration()">
-    ✓ Зарегистрироваться
+  <button class="btn btn-primary" id="submit-btn" onclick="submitCandidate()">
+    🚀 Отправить анкету
   </button>
 
   <div id="debug-info" class="debug" style="display:none"></div>
 </div>
 
-<!-- ══════════════════════════════════
-     УСПЕШНАЯ РЕГИСТРАЦИЯ
-══════════════════════════════════ -->
-<div id="screen-success" class="screen">
-  <div class="success-icon">✅</div>
-  <div class="success-title">Регистрация завершена!</div>
-  <div class="success-text">
-    Ваш кабинет агронома создан.<br>
-    Теперь вы можете добавлять поля и создавать заявки на обработку.
-  </div>
-
-  <div class="success-id">
-    <div class="success-id-label">Ваш ID клиента</div>
-    <div class="success-id-value" id="client-id-display">—</div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:13px;color:var(--t2);margin-bottom:8px;font-weight:600">📝 Ваши данные:</div>
-    <div style="font-size:13px;line-height:1.8;color:var(--t1)">
-      <div><strong>Хозяйство:</strong> <span id="success-farm">—</span></div>
-      <div><strong>Район:</strong> <span id="success-district">—</span></div>
-      <div><strong>Имя:</strong> <span id="success-name">—</span></div>
-      <div><strong>Телефон:</strong> <span id="success-phone">—</span></div>
-    </div>
-  </div>
-
-  <a href="#" class="btn btn-primary" id="open-cabinet-btn">
-    📱 Открыть кабинет агронома
-  </a>
-</div>
-
-<!-- ══════════════════════════════════
-     ЗАГРУЗКА
-══════════════════════════════════ -->
+<!-- ЗАГРУЗКА -->
 <div id="screen-loading" class="screen">
   <div class="loading">
     <div class="spinner"></div>
-    <div class="loading-text">Регистрация...</div>
+    <div class="loading-text">Отправляем анкету...</div>
+  </div>
+</div>
+
+<!-- УСПЕХ -->
+<div id="screen-success" class="screen">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">Анкета отправлена!</div>
+  <div class="success-text">
+    Спасибо! Мы рассмотрим твою кандидатуру<br>и свяжемся с тобой в ближайшее время.
+  </div>
+  <div class="success-id">
+    <div class="success-id-label">Номер заявки</div>
+    <div class="success-id-value" id="candidate-id-display">—</div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;color:var(--t2);line-height:1.8;color:var(--t1)">
+      <div><strong>ФИО:</strong> <span id="s-fio">—</span></div>
+      <div><strong>Телефон:</strong> <span id="s-phone">—</span></div>
+      <div><strong>Район:</strong> <span id="s-district">—</span></div>
+      <div><strong>Роль:</strong> <span id="s-role">—</span></div>
+    </div>
   </div>
 </div>
 
 </div><!-- /scroll -->
 
 <script>
-// CONFIG — см. config.js
-
 // ══════════════════════════════════
-// TELEGRAM WEB APP
+// TELEGRAM
 // ══════════════════════════════════
-let tg = window.Telegram.WebApp;
+const tg = window.Telegram.WebApp;
 let telegramId = null;
-let telegramUsername = null;
+let telegramUsername = '';
 
-// Инициализация Telegram WebApp
 tg.ready();
 tg.expand();
 
-// Получение данных пользователя Telegram
 try {
   const user = tg.initDataUnsafe?.user;
   if (user) {
     telegramId = user.id;
     telegramUsername = user.username || '';
-    
-    // Debug info
-    const debugEl = document.getElementById('debug-info');
-    debugEl.textContent = `Telegram ID: ${telegramId}\nUsername: @${telegramUsername}`;
-    // debugEl.style.display = 'block'; // Раскомментировать для отладки
   }
 } catch(e) {
-  console.error('Ошибка получения Telegram данных:', e);
+  console.error('TG init error:', e);
+}
+
+// ══════════════════════════════════
+// RADIO
+// ══════════════════════════════════
+const radioValues = { role: '', car: '', trips: '' };
+
+function selectRadio(key, value, el) {
+  radioValues[key] = value;
+  const group = el.parentElement;
+  group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
 }
 
 // ══════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════
-function showScreen(screenId) {
+function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+  document.getElementById(id).classList.add('active');
 }
 
 // ══════════════════════════════════
-// ВАЛИДАЦИЯ
+// VALIDATION
 // ══════════════════════════════════
-function validateForm() {
-  const farmName = document.getElementById('farm-name').value.trim();
-  const agronomistName = document.getElementById('agronomist-name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+function showError(msg) {
+  const c = document.getElementById('error-container');
+  c.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
+  setTimeout(() => { c.innerHTML = ''; }, 3500);
+}
 
-  if (!farmName) {
-    showError('Укажите название хозяйства');
-    return false;
-  }
-
-  if (farmName.length < 3) {
-    showError('Название хозяйства слишком короткое');
-    return false;
-  }
-
+function validate() {
+  const fio = document.getElementById('fio').value.trim();
+  const age = document.getElementById('age').value.trim();
   const district = document.getElementById('district').value.trim();
-  if (!district) {
-    showError('Укажите район или город');
-    return false;
-  }
+  const phone = document.getElementById('phone').value.trim();
+  const exp = document.getElementById('experience').value;
 
-  if (!agronomistName) {
-    showError('Укажите ваше имя');
-    return false;
-  }
+  if (!fio || fio.length < 3) { showError('Укажи ФИО'); return false; }
+  if (!age || age < 18 || age > 65) { showError('Укажи возраст (18–65)'); return false; }
+  if (!district) { showError('Укажи район или город'); return false; }
+  if (!phone) { showError('Укажи телефон'); return false; }
 
-  if (!phone) {
-    showError('Укажите контактный телефон');
-    return false;
-  }
-
-  // Валидация телефона (базовая)
   const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
   if (!/^\+?375\d{9}$/.test(phoneClean) && !/^\d{9,12}$/.test(phoneClean)) {
-    showError('Проверьте формат телефона (+375291234567)');
+    showError('Проверь формат телефона (+375291234567)');
     return false;
   }
+
+  if (!radioValues.role) { showError('Выбери роль: Оператор или Техник'); return false; }
+  if (!exp) { showError('Укажи опыт с дронами'); return false; }
+  if (!radioValues.car) { showError('Укажи: есть автомобиль или нет'); return false; }
+  if (!radioValues.trips) { showError('Укажи готовность к выездам'); return false; }
 
   return true;
 }
 
-function showError(msg) {
-  const container = document.getElementById('error-container');
-  container.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
-  setTimeout(() => {
-    container.innerHTML = '';
-  }, 3000);
-}
-
 // ══════════════════════════════════
-// РЕГИСТРАЦИЯ
+// SUBMIT
 // ══════════════════════════════════
-async function submitRegistration() {
-  // Валидация
-  if (!validateForm()) return;
+async function submitCandidate() {
+  if (!validate()) return;
 
-  // Проверка Telegram ID
   if (!telegramId) {
-    showError('Ошибка: не удалось получить Telegram ID. Откройте форму через бот.');
+    showError('Ошибка: нет Telegram ID. Открой форму через бот.');
     return;
   }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Регистрация...';
-
-  // Показываем экран загрузки
+  btn.textContent = '⏳ Отправка...';
   showScreen('screen-loading');
 
-  const farmName = document.getElementById('farm-name').value.trim();
-  const district = document.getElementById('district').value.trim();
-  const agronomistName = document.getElementById('agronomist-name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ru-RU', {
+    day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Europe/Minsk'
+  });
+
+  // ID: KAN-YYMMDD-HHММ
+  const pad = n => String(n).padStart(2,'0');
+  const candidateId = `KAN-${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+
+  const payload = {
+    action: 'addCandidate',
+    data: {
+      id:         candidateId,
+      date:       dateStr,
+      fio:        document.getElementById('fio').value.trim(),
+      age:        document.getElementById('age').value.trim(),
+      district:   document.getElementById('district').value.trim(),
+      phone:      document.getElementById('phone').value.trim(),
+      role:       radioValues.role,
+      experience: document.getElementById('experience').value,
+      car:        radioValues.car,
+      trips:      radioValues.trips,
+      source:     'Telegram группа',
+      about:      document.getElementById('about').value.trim(),
+      telegram_id: String(telegramId),
+      status:     'Новый',
+      status_date: dateStr,
+      notes:      ''
+    }
+  };
 
   try {
-    const response = await fetch(SCRIPT_URL, {
+    const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'registerClient',
-        farm_name: farmName,
-        district: district,
-        agronomist_name: agronomistName,
-        phone: phone,
-        telegram_id: telegramId
-      })
+      body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    const data = await resp.json();
 
     if (data.success) {
-      // Успешная регистрация
-      document.getElementById('client-id-display').textContent = data.clientId;
-      document.getElementById('success-farm').textContent = farmName;
-      document.getElementById('success-district').textContent = district;
-      document.getElementById('success-name').textContent = agronomistName;
-      document.getElementById('success-phone').textContent = phone;
-      
-      // Формируем ссылку на кабинет с clientId
-      const cabinetLink = `${CABINET_URL}?clientId=${data.clientId}`;
-      document.getElementById('open-cabinet-btn').href = cabinetLink;
-      
+      document.getElementById('candidate-id-display').textContent = candidateId;
+      document.getElementById('s-fio').textContent      = payload.data.fio;
+      document.getElementById('s-phone').textContent   = payload.data.phone;
+      document.getElementById('s-district').textContent = payload.data.district;
+      document.getElementById('s-role').textContent    = payload.data.role;
       showScreen('screen-success');
-
-      // Уведомляем Telegram бот об успешной регистрации
-      if (tg.MainButton) {
-        tg.MainButton.setText('Открыть кабинет');
-        tg.MainButton.onClick(() => {
-          window.location.href = cabinetLink;
-        });
-        tg.MainButton.show();
-      }
-
     } else {
-      // Ошибка регистрации
       showScreen('screen-form');
-      showError(data.error || 'Ошибка регистрации. Попробуйте ещё раз.');
+      showError(data.error || 'Ошибка. Попробуй ещё раз.');
       btn.disabled = false;
-      btn.textContent = '✓ Зарегистрироваться';
+      btn.textContent = '🚀 Отправить анкету';
     }
 
-  } catch(error) {
-    console.error('Ошибка:', error);
+  } catch(err) {
+    console.error(err);
     showScreen('screen-form');
-    showError('Ошибка подключения. Проверьте интернет и попробуйте снова.');
+    showError('Ошибка соединения. Проверь интернет.');
     btn.disabled = false;
-    btn.textContent = '✓ Зарегистрироваться';
+    btn.textContent = '🚀 Отправить анкету';
   }
 }
 
@@ -347,19 +379,13 @@ async function submitRegistration() {
 // INIT
 // ══════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  // Если не удалось получить Telegram ID, показываем предупреждение
   if (!telegramId) {
-    const debugEl = document.getElementById('debug-info');
-    debugEl.textContent = '⚠️ Внимание: Telegram ID не определён. Возможно, форма открыта вне Telegram бота.';
-    debugEl.style.display = 'block';
-    debugEl.style.background = '#fee2e2';
-    debugEl.style.color = '#991b1b';
+    const d = document.getElementById('debug-info');
+    d.textContent = '⚠️ Telegram ID не определён. Открой форму через бот.';
+    d.style.display = 'block';
+    d.style.background = '#fee2e2';
+    d.style.color = '#991b1b';
   }
-
-  // Автофокус на первое поле
-  setTimeout(() => {
-    document.getElementById('farm-name').focus();
-  }, 300);
 });
 </script>
 </body>
