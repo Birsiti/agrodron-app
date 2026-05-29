@@ -881,7 +881,14 @@ const DISTRICT_COORDS = {
   'Жодино':[54.100,28.055],'Молодечно':[54.313,26.842]
 };
 
-function fmt(d){if(!d)return'—';const m=String(d).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(d)}
+function fmt(d){
+  if(!d)return'—';
+  const s=String(d);
+  const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(gm)return`${String(parseInt(gm[3])).padStart(2,'0')}.${String(parseInt(gm[2])+1).padStart(2,'0')}.${gm[1]}`;
+  const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  return m?`${m[3]}.${m[2]}.${m[1]}`:s;
+}
 function fmtDate(val){if(!val)return'—';const m=String(val).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}.${m[2]}.${m[1]}`:String(val)}
 function isoDate(val){
   if(!val)return'';
