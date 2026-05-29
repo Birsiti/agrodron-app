@@ -183,7 +183,7 @@ const STATUS_COLORS={
 };
 let statsMap=null, mapsReady=false, fieldsData=[];
 
-function onMapsReady(){
+window.onMapsReady=function(){
   mapsReady=true;
   if(fieldsData.length>0)initStatsMap(fieldsData);
 }
