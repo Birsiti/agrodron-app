@@ -257,7 +257,10 @@ async function loadIssues(){
     if(rows.length<2){allIssues=[];renderList();return;}
     const headers=rows[0];
     allIssues=rows.slice(1).filter(r=>r[0]).map(r=>{
-      const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o;
+      const o={};headers.forEach((h,i)=>o[h]=r[i]||'');
+      // алиас — первая колонка всегда ID
+      if(!o['ID'])o['ID']=String(r[0]||'');
+      return o;
     });
     renderList();
     updateCount();
@@ -307,7 +310,7 @@ function renderList(){
     const urgClass=urgency.includes('высок')?'ic-urgency-high':urgency.includes('средн')?'ic-urgency-med':'';
     const badgeMap={open:'badge-open',progress:'badge-progress',closed:'badge-closed'};
     const labelMap={open:'⚠️ Открыто',progress:'🔨 В работе',closed:'✅ Закрыто'};
-    const id=issue['ID'];
+    const id=String(issue['ID']||issue['maintenance']||issue['id']||'');
     const actionBtns=status!=='closed'?`
       <div class="ic-actions" id="actions-${id}">
         ${status==='open'?`<button class="ic-btn ic-btn-amber" onclick="quickAction(event,'${id}','progress')">🔨 Взять в работу</button>`:''}
@@ -364,7 +367,7 @@ document.addEventListener('click',function(e){
     e.stopPropagation();
     const id=btn.getAttribute('data-id');
     const action=btn.getAttribute('data-action');
-    const issue=allIssues.find(i=>i['ID']===id||i['ID'].replace(/['"]/g,'')===id);
+    const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id||(i['ID']||'').replace(/['"]/g,'')===id);
     if(!issue)return;
     currentIssue=issue;
     if(action==='progress'){doUpdate('progress','');return;}
@@ -380,7 +383,7 @@ document.addEventListener('click',function(e){
 });
 
 function showCloseModal(id){
-  const issue=allIssues.find(i=>i['ID']===id);
+  const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id);
   if(!issue)return;
   currentIssue=issue;
   const modal=document.getElementById('modal-close');
@@ -449,7 +452,7 @@ ${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Т
 }
 
 function openDetail(id){
-  const issue=allIssues.find(i=>i['ID']===id);
+  const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id);
   if(!issue)return;
   currentIssue=issue;
   const status=normalizeStatus(issue['Статус']);
