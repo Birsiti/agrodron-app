@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Анкета кандидата в операторы
-  v1.1 · 2026-05-29
+  v1.2 · 2026-05-29
   Файл: AD_candidate.html
 -->
 <html lang="ru">
@@ -34,11 +34,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .screen.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* CARD */
 .card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
 .card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
-/* FIELDS */
 .frow{margin-bottom:14px}
 .frow:last-child{margin-bottom:0}
 .frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
@@ -52,41 +50,38 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .frow textarea{resize:none;height:90px;line-height:1.5}
 .frow select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa3b2' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 
-/* RADIO GROUP */
+.phone-wrap{display:flex;gap:6px;align-items:center}
+.phone-prefix{padding:13px 10px;background:#f3f4f6;border:2px solid var(--border);border-radius:var(--rs);font-size:15px;font-weight:700;white-space:nowrap;color:var(--t1)}
+.phone-wrap input{flex:1}
+
 .radio-group{display:flex;gap:8px;flex-wrap:wrap}
 .radio-btn{flex:1;min-width:80px;padding:11px 8px;border:2px solid var(--border);border-radius:var(--rs);text-align:center;font-size:13px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .2s;background:#fff;user-select:none}
 .radio-btn.active{border-color:var(--aca);background:var(--acl);color:var(--acc)}
 
-/* BTN */
 .btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-align:center}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 
-/* INFO BOX */
 .info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
 .info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
 
-/* ERROR */
 .error-box{background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--rs);padding:14px;margin-bottom:12px}
 .error-text{font-size:13px;color:#991b1b;font-weight:600;text-align:center}
 
-/* LOADING */
 .loading{text-align:center;padding:40px 20px}
 .spinner{border:3px solid var(--border);border-top:3px solid var(--acc);border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:var(--t2);font-weight:600}
 
-/* SUCCESS */
 .success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
 @keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
 .success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
 .success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
-.success-id{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
-.success-id-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
-.success-id-value{font-size:24px;font-weight:800;letter-spacing:1px}
+.success-banner{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
+.success-banner-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:6px}
+.success-banner-text{font-size:16px;font-weight:700}
 
-/* DEBUG */
 .debug{background:#1a1f2e;color:#a5b4fc;padding:10px;border-radius:8px;font-size:11px;font-family:monospace;margin-top:12px;word-break:break-all;line-height:1.5}
 </style>
 </head>
@@ -106,7 +101,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     <div class="info-box-text">👋 Заполни анкету — мы свяжемся с тобой в течение 1–2 дней</div>
   </div>
 
-  <!-- Личные данные -->
   <div class="card">
     <div class="card-title">👤 Личные данные</div>
 
@@ -127,11 +121,13 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="frow">
       <label>Телефон *</label>
-      <input type="tel" id="phone" placeholder="+375291234567" inputmode="tel">
+      <div class="phone-wrap">
+        <span class="phone-prefix">+375</span>
+        <input type="tel" id="phone" placeholder="291234567" inputmode="numeric">
+      </div>
     </div>
   </div>
 
-  <!-- Роль и опыт -->
   <div class="card">
     <div class="card-title">🎯 Роль и опыт</div>
 
@@ -171,7 +167,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     </div>
   </div>
 
-  <!-- О себе -->
   <div class="card">
     <div class="card-title">💬 О себе</div>
     <div class="frow">
@@ -201,15 +196,13 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div id="screen-success" class="screen">
   <div class="success-icon">🎉</div>
   <div class="success-title">Анкета отправлена!</div>
-  <div class="success-text">
-    Спасибо! Мы рассмотрим твою кандидатуру<br>и свяжемся с тобой в ближайшее время.
-  </div>
-  <div class="success-id">
-    <div class="success-id-label">Номер заявки</div>
-    <div class="success-id-value" id="candidate-id-display">—</div>
+  <div class="success-text">Спасибо! Мы рассмотрим твою кандидатуру<br>и свяжемся с тобой в ближайшее время.</div>
+  <div class="success-banner">
+    <div class="success-banner-label">✅ Анкета принята</div>
+    <div class="success-banner-text">Мы свяжемся с вами в течение 1–2 дней</div>
   </div>
   <div class="card">
-    <div style="font-size:13px;color:var(--t2);line-height:1.8;color:var(--t1)">
+    <div style="font-size:13px;line-height:1.8;color:var(--t1)">
       <div><strong>ФИО:</strong> <span id="s-fio">—</span></div>
       <div><strong>Телефон:</strong> <span id="s-phone">—</span></div>
       <div><strong>Район:</strong> <span id="s-district">—</span></div>
@@ -221,9 +214,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div><!-- /scroll -->
 
 <script>
-// ══════════════════════════════════
-// TELEGRAM
-// ══════════════════════════════════
 const tg = window.Telegram.WebApp;
 let telegramId = null;
 let telegramUsername = '';
@@ -237,33 +227,21 @@ try {
     telegramId = user.id;
     telegramUsername = user.username || '';
   }
-} catch(e) {
-  console.error('TG init error:', e);
-}
+} catch(e) { console.error('TG init error:', e); }
 
-// ══════════════════════════════════
-// RADIO
-// ══════════════════════════════════
 const radioValues = { role: '', car: '', trips: '' };
 
 function selectRadio(key, value, el) {
   radioValues[key] = value;
-  const group = el.parentElement;
-  group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+  el.parentElement.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ══════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ══════════════════════════════════
-// VALIDATION
-// ══════════════════════════════════
 function showError(msg) {
   const c = document.getElementById('error-container');
   c.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
@@ -271,34 +249,24 @@ function showError(msg) {
 }
 
 function validate() {
-  const fio = document.getElementById('fio').value.trim();
-  const age = document.getElementById('age').value.trim();
+  const fio      = document.getElementById('fio').value.trim();
+  const age      = parseInt(document.getElementById('age').value.trim());
   const district = document.getElementById('district').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const exp = document.getElementById('experience').value;
+  const phone    = document.getElementById('phone').value.trim().replace(/\D/g, '');
+  const exp      = document.getElementById('experience').value;
 
-  if (!fio || fio.length < 3) { showError('Укажи ФИО'); return false; }
-  if (!age || age < 18 || age > 65) { showError('Укажи возраст (18–65)'); return false; }
-  if (!district) { showError('Укажи район или город'); return false; }
-  if (!phone) { showError('Укажи телефон'); return false; }
-
-  const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
-  if (!/^\+?375\d{9}$/.test(phoneClean) && !/^\d{9,12}$/.test(phoneClean)) {
-    showError('Проверь формат телефона (+375291234567)');
-    return false;
-  }
-
-  if (!radioValues.role) { showError('Выбери роль: Оператор или Техник'); return false; }
-  if (!exp) { showError('Укажи опыт с дронами'); return false; }
-  if (!radioValues.car) { showError('Укажи: есть автомобиль или нет'); return false; }
-  if (!radioValues.trips) { showError('Укажи готовность к выездам'); return false; }
+  if (!fio || fio.length < 3)          { showError('Укажи ФИО'); return false; }
+  if (!age || age < 18 || age > 65)    { showError('Укажи возраст (18–65)'); return false; }
+  if (!district)                        { showError('Укажи район или город'); return false; }
+  if (phone.length < 9)                 { showError('Укажи номер после +375 (9 цифр)'); return false; }
+  if (!radioValues.role)                { showError('Выбери роль: Оператор или Техник'); return false; }
+  if (!exp)                             { showError('Укажи опыт с дронами'); return false; }
+  if (!radioValues.car)                 { showError('Укажи: есть автомобиль или нет'); return false; }
+  if (!radioValues.trips)               { showError('Укажи готовность к выездам'); return false; }
 
   return true;
 }
 
-// ══════════════════════════════════
-// SUBMIT
-// ══════════════════════════════════
 async function submitCandidate() {
   if (!validate()) return;
 
@@ -313,33 +281,30 @@ async function submitCandidate() {
   showScreen('screen-loading');
 
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ru-RU', {
-    day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Europe/Minsk'
-  });
-
-  // ID: KAN-YYMMDD-HHММ
-  const pad = n => String(n).padStart(2,'0');
+  const pad = n => String(n).padStart(2, '0');
+  const dateStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
   const candidateId = `KAN-${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const phone = '+375' + document.getElementById('phone').value.trim().replace(/\D/g, '');
 
   const payload = {
     action: 'addCandidate',
     data: {
-      id:         candidateId,
-      date:       dateStr,
-      fio:        document.getElementById('fio').value.trim(),
-      age:        document.getElementById('age').value.trim(),
-      district:   document.getElementById('district').value.trim(),
-      phone:      document.getElementById('phone').value.trim(),
-      role:       radioValues.role,
-      experience: document.getElementById('experience').value,
-      car:        radioValues.car,
-      trips:      radioValues.trips,
-      source:     'Telegram группа',
-      about:      document.getElementById('about').value.trim(),
+      id:          candidateId,
+      date:        dateStr,
+      fio:         document.getElementById('fio').value.trim(),
+      age:         document.getElementById('age').value.trim(),
+      district:    document.getElementById('district').value.trim(),
+      phone:       phone,
+      role:        radioValues.role,
+      experience:  document.getElementById('experience').value,
+      car:         radioValues.car,
+      trips:       radioValues.trips,
+      source:      'Telegram группа',
+      about:       document.getElementById('about').value.trim(),
       telegram_id: String(telegramId),
-      status:     'Новый',
+      status:      'Новый',
       status_date: dateStr,
-      notes:      ''
+      notes:       ''
     }
   };
 
@@ -349,23 +314,20 @@ async function submitCandidate() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+    const result = await resp.json();
 
-    const data = await resp.json();
-
-    if (data.success) {
-      document.getElementById('candidate-id-display').textContent = candidateId;
+    if (result.success) {
       document.getElementById('s-fio').textContent      = payload.data.fio;
-      document.getElementById('s-phone').textContent   = payload.data.phone;
+      document.getElementById('s-phone').textContent    = payload.data.phone;
       document.getElementById('s-district').textContent = payload.data.district;
-      document.getElementById('s-role').textContent    = payload.data.role;
+      document.getElementById('s-role').textContent     = payload.data.role;
       showScreen('screen-success');
     } else {
       showScreen('screen-form');
-      showError(data.error || 'Ошибка. Попробуй ещё раз.');
+      showError(result.error || 'Ошибка. Попробуй ещё раз.');
       btn.disabled = false;
       btn.textContent = '🚀 Отправить анкету';
     }
-
   } catch(err) {
     console.error(err);
     showScreen('screen-form');
@@ -375,9 +337,6 @@ async function submitCandidate() {
   }
 }
 
-// ══════════════════════════════════
-// INIT
-// ══════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   if (!telegramId) {
     const d = document.getElementById('debug-info');
