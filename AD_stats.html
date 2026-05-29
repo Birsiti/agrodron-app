@@ -188,7 +188,9 @@ async function init(){
       totalHa+=ha; obrCount++;
       if(ha>0&&ha<minHa)minHa=ha;
       if(ha>maxHa)maxHa=ha;
-      if(region)regionObr[region]=(regionObr[region]||0)+ha;
+      const tripRegion=String(r[15]||'').trim();
+      const key=tripRegion||region;
+      if(key)regionObr[key]=(regionObr[key]||0)+ha;
       if(ops){
         const list=ops.split(/[,;]+/).map(s=>s.trim()).filter(Boolean);
         list.forEach(op=>{opHa[op]=(opHa[op]||0)+ha/list.length;});
@@ -257,12 +259,8 @@ async function init(){
     // Чтобы показать реальные обработанные га по районам — берём regionObr (из ОБРАБОТОК, поле НП)
     // НП "Шашки" и "Мальковичи" — это внутри района "Ганцевичи"
     // Поэтому районы = из КОМАНДИРОВОК, а га = сумма га закрытых командировок по этому району
-    const topRegionsFinal=Object.entries(regionTrips)
-      .filter(([k])=>k)
-      .sort((a,b)=>b[1]-a[1]);
-
     render({totalHa,obrCount,avgHa,minHa,maxHa,tripCount,fieldDays,totalSpent,totalExpenses,
-      topOps,topRegions:topRegionsFinal,topCats,
+  topOps,topRegions:Object.entries(regionObr).filter(([k])=>k).sort((a,b)=>b[1]-a[1]),topCats,
       closedTrips:[...closedTrips].reverse(),tiOpen,tiClosed});
 
     document.getElementById('upd-time').textContent=
