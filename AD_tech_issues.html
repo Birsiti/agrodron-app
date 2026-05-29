@@ -58,6 +58,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ic-urgency-high{color:var(--red);font-weight:700}
 .ic-urgency-med{color:var(--amber);font-weight:700}
 
+/* РАСКРЫТИЕ КАРТОЧКИ */
+.ic-arrow{font-size:18px;color:var(--t3);transition:transform .2s;flex-shrink:0;margin-left:6px}
+.ic-arrow.open{transform:rotate(90deg)}
+.ic-body{padding:0 14px 4px}
+.ic-actions{display:flex;gap:6px;padding:10px 0 6px;flex-wrap:wrap}
+.ic-btn{padding:8px 14px;border-radius:var(--rs);font-size:12px;font-weight:700;font-family:var(--f);border:none;cursor:pointer;transition:all .18s;flex:1;min-width:80px}
+.ic-btn:active{transform:scale(.97)}
+.ic-btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.ic-btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.ic-btn-outline{background:#f8f9fa;color:var(--t2);border:1.5px solid var(--border)}
+
 /* ДЕТАЛЬНЫЙ ВИД */
 .detail-wrap{padding:12px 12px 40px}
 .detail-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px}
@@ -110,6 +121,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .loading{display:flex;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t3);font-size:13px;font-weight:600}
 .spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--ga);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:998;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:var(--r) var(--r) 0 0;padding:20px 16px;width:100%;max-width:480px}
+.modal-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
 .toast.show{opacity:1}
@@ -168,6 +184,21 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- МОДАЛКА ЗАКРЫТИЯ -->
+<div class="modal-overlay" id="modal-close">
+  <div class="modal-box">
+    <div class="modal-title">✅ Закрыть заявку</div>
+    <div class="modal-bak" id="modal-bak" style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px"></div>
+    <div id="modal-type" style="font-size:12px;color:var(--t3);margin-bottom:14px"></div>
+    <label style="font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Что сделали</label>
+    <textarea id="modal-comment" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);resize:none;outline:none;min-height:80px;line-height:1.5" placeholder="Опишите что было сделано..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-outline" onclick="closeModal()" style="margin:0">Отмена</button>
+      <button class="btn btn-green" onclick="submitClose()" style="margin:0">✅ Сохранить</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const tg=window.Telegram?.WebApp;
@@ -276,7 +307,14 @@ function renderList(){
     const urgClass=urgency.includes('высок')?'ic-urgency-high':urgency.includes('средн')?'ic-urgency-med':'';
     const badgeMap={open:'badge-open',progress:'badge-progress',closed:'badge-closed'};
     const labelMap={open:'⚠️ Открыто',progress:'🔨 В работе',closed:'✅ Закрыто'};
-    return`<div class="issue-card ${status}" onclick="openDetail('${issue['ID']}')">
+    const id=issue['ID'];
+    const actionBtns=status!=='closed'?`
+      <div class="ic-actions" id="actions-${id}">
+        ${status==='open'?`<button class="ic-btn ic-btn-amber" onclick="quickAction(event,'${id}','progress')">🔨 Взять в работу</button>`:''}
+        <button class="ic-btn ic-btn-green" onclick="quickAction(event,'${id}','closed')">✅ Закрыть</button>
+        <button class="ic-btn ic-btn-outline" onclick="openDetail('${id}')">📋 Подробнее</button>
+      </div>`:`<div class="ic-actions"><button class="ic-btn ic-btn-outline" onclick="openDetail('${id}')">📋 История</button></div>`;
+    return`<div class="issue-card ${status}" onclick="toggleCard('${id}')">
       <div class="ic-head">
         <div class="ic-bak ${bakClass}">${bakShort}</div>
         <div class="ic-info">
@@ -286,15 +324,113 @@ function renderList(){
           </div>
           <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}${urgency?` · <span class="${urgClass}">${issue['Срочность']}</span>`:''}</div>
         </div>
+        <div class="ic-arrow" id="arrow-${id}">›</div>
       </div>
-      <div class="ic-desc">${issue['Описание']||'Без описания'}</div>
-      <div class="ic-meta">
-        <span>📅 ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</span>
-        <span>👤 ${issue['Оператор']||'—'}</span>
-        ${issue['Дата закрытия']?`<span>🔒 ${fmtDate(issue['Дата закрытия'])}</span>`:''}
+      <div class="ic-body" id="body-${id}" style="display:none">
+        <div class="ic-desc">${issue['Описание']||'Без описания'}</div>
+        <div class="ic-meta">
+          <span>📅 ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</span>
+          <span>👤 ${issue['Оператор']||'—'}</span>
+          ${issue['Дата закрытия']?`<span>🔒 ${fmtDate(issue['Дата закрытия'])}</span>`:''}
+          ${issue['Решение']?`<span>📝 ${issue['Решение']}</span>`:''}
+          ${issue['Закрыл']?`<span>✓ ${issue['Закрыл']}</span>`:''}
+        </div>
+        ${issue['Фото URL']||issue['Фото']?`<img src="${issue['Фото URL']||issue['Фото']}" style="width:100%;border-radius:var(--rs);margin-top:8px" onerror="this.style.display='none'">`:''}
+        ${actionBtns}
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleCard(id){
+  const body=document.getElementById('body-'+id);
+  const arrow=document.getElementById('arrow-'+id);
+  if(!body)return;
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  arrow?.classList.toggle('open',!isOpen);
+}
+
+function quickAction(e,id,action){
+  e.stopPropagation();
+  const issue=allIssues.find(i=>i['ID']===id);
+  if(!issue)return;
+  currentIssue=issue;
+  if(action==='progress'){
+    doUpdate('progress','');
+    return;
+  }
+  // Закрытие — модалка с комментарием
+  showCloseModal(id);
+}
+
+function showCloseModal(id){
+  const issue=allIssues.find(i=>i['ID']===id);
+  if(!issue)return;
+  currentIssue=issue;
+  const modal=document.getElementById('modal-close');
+  document.getElementById('modal-bak').textContent=issue['БАК']||'—';
+  document.getElementById('modal-type').textContent=issue['Тип неисправности']||issue['Тип']||'—';
+  document.getElementById('modal-comment').value='';
+  modal.classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modal-close').classList.remove('show');
+  currentIssue=null;
+}
+
+async function submitClose(){
+  const comment=document.getElementById('modal-comment').value.trim();
+  if(!comment){showToast('⚠️ Опишите что сделали','var(--amber)');return;}
+  document.getElementById('modal-close').classList.remove('show');
+  await doUpdate('closed',comment);
+}
+
+async function doUpdate(action,comment){
+  if(!currentIssue)return;
+  const now=new Date();
+  const dateStr=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  const closer=window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name||'РП';
+  const statusLabel=action==='closed'?'закрыто':'в работе';
+
+  showToast('⏳ Сохраняю...');
+  try{
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
+      action:'updateMaintenance',
+      data:{id:currentIssue['ID'],status:statusLabel,comment,
+            closedAt:action==='closed'?dateStr:'',closedBy:action==='closed'?closer:''}
+    })});
+    const json=await resp.json();
+    if(!json.ok)throw new Error(json.error||'Ошибка');
+
+    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const msg=action==='closed'
+      ?`✅ *Техника: закрыто*
+
+🚁 ${currentIssue['БАК']}
+🔧 ${currentIssue['Тип неисправности']||currentIssue['Тип']}
+👤 ${closer}
+📝 ${comment}
+🆔 ${currentIssue['ID']}`
+      :`🔨 *Техника: принято в работу*
+
+🚁 ${currentIssue['БАК']}
+${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Тип']}
+👤 ${closer}
+🆔 ${currentIssue['ID']}`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:OWNER_CHAT,text:msg,parse_mode:'Markdown'})
+    }).catch(()=>{});
+
+    showToast(action==='closed'?'✅ Закрыто':'🔨 Принято в работу');
+    currentIssue=null;
+    await loadIssues();
+  }catch(e){
+    showToast('❌ '+e.message,'var(--red)');
+  }
 }
 
 function openDetail(id){
