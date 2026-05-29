@@ -11,7 +11,6 @@
 <title>AgroDrone.BY · Статистика</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="config.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjxpxSE5noJCigtTYP56_Q6O65awnflwg&callback=onMapsReady" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -105,15 +104,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .collapse-btn{width:100%;padding:9px;border:1.5px dashed var(--border);border-radius:var(--rs);background:transparent;color:var(--t3);font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:8px}
 .collapse-btn:active{background:#f8f9fa}
 
-/* КАРТА ПОЛЕЙ */
-.map-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.map-card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between}
-.map-wrap{height:300px;position:relative;margin-top:10px}
-#stats-map{width:100%;height:100%}
-.map-legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px}
-.map-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);font-weight:600}
-.map-leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
 /* LOADING */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t3);font-size:13px;font-weight:600}
 .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--ga);border-radius:50%;animation:spin .8s linear infinite}
@@ -175,70 +165,6 @@ async function loadSheet(sheet){
   const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
   const rows=json.table.rows.map(r=>r.c.map(c=>c?.v??''));
   return{rows};
-}
-
-const STATUS_COLORS={
-  'новое':'#fbbf24','подтверждено':'#3b82f6','в работе':'#8b5cf6',
-  'в_работе':'#8b5cf6','частично':'#f97316','готово':'#10b981','отклонено':'#9aa3b2'
-};
-let statsMap=null, mapsReady=false, fieldsData=[];
-
-window.onMapsReady=function(){
-  mapsReady=true;
-  if(fieldsData.length>0)initStatsMap(fieldsData);
-}
-
-async function loadAllFields(){
-  try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ПОЛЯ КЛИЕНТОВ!A2:N500?key=${SHEETS_KEY}`;
-    const r=await fetch(url);
-    const d=await r.json();
-    const rows=d.values||[];
-    // A=ID B=ID клиента C=Район D=Название E=Координаты F=Культура
-    // G=Препарат H=Норма I=Площадь J=Статус
-    fieldsData=rows.filter(r=>r[0]&&r[4]).map(r=>({
-      id:r[0],name:r[3]||'',coords:r[4]||'',
-      crop:r[5]||'',ha:parseFloat(r[8])||0,
-      status:(r[9]||'новое').toLowerCase().replace(/ /g,'_')
-    }));
-    document.getElementById('map-count').textContent=fieldsData.length+' полей';
-    if(mapsReady)initStatsMap(fieldsData);
-  }catch(e){console.error('loadAllFields:',e);}
-}
-
-function initStatsMap(fields){
-  if(statsMap)return;
-  const valid=fields.filter(f=>{
-    const n=f.coords.replace(/(\d),(\d)/g,'$1.$2');
-    const [la,ln]=n.split(',').map(s=>parseFloat(s.trim()));
-    return la>=51&&la<=56&&ln>=23&&ln<=33;
-  });
-  if(!valid.length)return;
-
-  statsMap=new google.maps.Map(document.getElementById('stats-map'),{
-    center:{lat:52.4,lng:26.5},zoom:8,
-    mapTypeId:'hybrid',
-    disableDefaultUI:true,
-    zoomControl:true
-  });
-
-  valid.forEach(f=>{
-    const n=f.coords.replace(/(\d),(\d)/g,'$1.$2');
-    const [la,ln]=n.split(',').map(s=>parseFloat(s.trim()));
-    const color=STATUS_COLORS[f.status]||'#9aa3b2';
-    const marker=new google.maps.Marker({
-      position:{lat:la,lng:ln},map:statsMap,title:f.name,
-      icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:color,
-        fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:8}
-    });
-    const iw=new google.maps.InfoWindow({content:
-      `<div style="font-family:Manrope,sans-serif;padding:6px">
-        <div style="font-weight:700;font-size:13px;margin-bottom:3px">${f.name}</div>
-        <div style="font-size:11px;color:#5a6476">${f.crop||'—'} · ${f.ha} га</div>
-      </div>`
-    });
-    marker.addListener('click',()=>iw.open(statsMap,marker));
-  });
 }
 
 async function init(){
@@ -341,8 +267,6 @@ async function init(){
 
     document.getElementById('upd-time').textContent=
       new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-
-    loadAllFields();
 
   }catch(e){
     console.error(e);
@@ -469,26 +393,7 @@ function render(d){
       <div class="card-title">👥 Га по операторам</div>
       <div id="ops-list"></div>
       <div id="ops-btn"></div>
-    </div>
-
-    <!-- КАРТА ПОЛЕЙ -->
-    <div class="map-card">
-      <div class="map-card-title">
-        🗺 Карта полей
-        <span id="map-count" style="font-size:11px;font-weight:700;color:var(--green)"></span>
-      </div>
-      <div class="map-wrap"><div id="stats-map"></div></div>
-      <div class="map-legend">
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#fbbf24"></div>Новое</div>
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#3b82f6"></div>Подтверждено</div>
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#8b5cf6"></div>В работе</div>
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#f97316"></div>Частично</div>
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#10b981"></div>Готово</div>
-        <div class="map-leg-item"><div class="map-leg-dot" style="background:#9aa3b2"></div>Отклонено</div>
-      </div>
-    </div>
-
-    <!-- РАЙОНЫ — га из КОМАНДИРОВОК -->
+    </div>    <!-- РАЙОНЫ — га из КОМАНДИРОВОК -->
     <div class="card">
       <div class="card-title">📍 Топ районов</div>
       ${d.topRegions.length?d.topRegions.map(([reg,ha],i)=>{
