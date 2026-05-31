@@ -574,7 +574,7 @@ async function init(){
     if(status==='подготовка'){
       showTab('depart');
     } else if(status==='активна'){
-      const hasDeparted=(parseFloat(tripData.advance)||0)>0||(tripData.notes||'').trim().length>0||departed;
+      const hasDeparted=(parseFloat(tripData.advance)||0)>0||departed;
       if(hasDeparted) showTab('overview');
       else showTab('depart');
     } else {
