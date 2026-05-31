@@ -553,7 +553,7 @@ async function init(){
   if(resp.ok&&resp.result&&resp.result.tripId){
     tripData=resp.result;
     const lt=getTrip();
-    if(lt&&lt.tripId!==tripId){localStorage.removeItem('atk_trip');localStorage.removeItem('atk_day');}
+    if(!lt||lt.tripId!==tripId){localStorage.removeItem('atk_trip');localStorage.removeItem('atk_day');}
     if(lt&&lt.tripId===tripId){
       tripData.expenses=lt.expenses||[];
       tripData.cashSpent=lt.cashSpent||0;
