@@ -581,7 +581,6 @@ tripData.cashSpent=mapped.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount
 tripData.atkSpent=mapped.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
   }catch(e){tripData.expenses=[];tripData.cashSpent=0;tripData.atkSpent=0;}
   saveTrip(tripData);
-}
     }
     tripData.tripId=tripId;
     showMainUI();
