@@ -438,7 +438,7 @@ else if(status==='активна') tabs=TABS_DEPART;
   });
   if(name==='overview') renderOverview();
   if(name==='days')     renderDays();
-  if(name==='expenses') ;
+  if(name==='expenses') renderExpenses();
   if(name==='close')    renderClose();
   if(name==='depart')   prefill();
 }
@@ -563,16 +563,30 @@ async function init(){
       tripData.advanceHistory=lt.advanceHistory||[];
       tripData.days=lt.days||[];
     } else {
-      tripData.expenses=[];tripData.cashSpent=0;tripData.atkSpent=0;
-      tripData.advance=parseFloat(tripData.advance)||0;
-      tripData.advanceHistory=[];tripData.days=[];
+  tripData.advance=parseFloat(tripData.advance)||0;
+  tripData.advanceHistory=[];tripData.days=[];
+  // Грузим расходы из Sheets
+  try{
+    const expResp=await apiCall('getExpenses',{tripId});
+    const exps=(expResp.ok&&expResp.result?.expenses)||[];
+    const mapped=exps.map(e=>({
+  id:e.id,date:e.date,time:'',
+  cat:e.category,label:e.category,
+  amount:parseFloat(e.amount)||0,
+  comment:e.comment,
+  payType:e.payType==='Безнал'?'atk':e.payType==='Аренда'?'atk':'cash'
+}));
+tripData.expenses=mapped;
+tripData.cashSpent=mapped.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
+tripData.atkSpent=mapped.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
+  }catch(e){tripData.expenses=[];tripData.cashSpent=0;tripData.atkSpent=0;}
+  saveTrip(tripData);
+}
     }
     tripData.tripId=tripId;
     showMainUI();
     const status=String(tripData.status||'').toLowerCase();
 if(status==='активна'){
-  localStorage.removeItem('atk_trip');
-  localStorage.removeItem('atk_day');
   showTab('overview');
   return;
 }
