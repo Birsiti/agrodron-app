@@ -426,10 +426,11 @@ function showTab(name){
   currentTab=name;
   const status=String(tripData?.status||'').toLowerCase();
   const lt=getTrip();
-  const departed=lt?.departed||false;
-  let tabs=TABS_PREPARE;
-  if(status==='активна'&&!departed) tabs=TABS_DEPART;
-  if(status==='активна'&&departed)  tabs=TABS_ACTIVE;
+const departed=lt?.departed||false;
+const advance=parseFloat(tripData?.advance)||0;
+let tabs=TABS_PREPARE;
+if(status==='активна'&&(departed||advance>0)) tabs=TABS_ACTIVE;
+else if(status==='активна') tabs=TABS_DEPART;
   buildTabs(tabs);
   ['prepare','depart','overview','days','expenses','close'].forEach(n=>{
     const s=document.getElementById('screen-'+n);
