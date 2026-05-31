@@ -234,11 +234,14 @@ async function loadExpensesFromSheets(){
     const d=await r.json();
     console.log('EXP RESP:', JSON.stringify(d).substring(0,300));
 const raw=(d.ok&&(d.result?.result?.expenses||d.result?.expenses||d.result))||[];
-    const exps=raw.map(e=>({
-      id:e.id,date:e.date,time:'',cat:e.category,label:e.category,
-      amount:parseFloat(e.amount)||0,comment:e.comment,
-      payType:e.payType==='Безнал'?'atk':e.payType==='Аренда'?'atk':'cash'
-    }));
+    const catMap={'Питание':'food','Гостиница':'hotel_cash','Бензин':'petrol_cash','Дизель':'diesel_cash','Ремонт / запчасти':'repair','Прочее':'other','🪣 Бензин':'petrol_cash','⛽ Дизель':'diesel_cash','🏨 Гостиница':'hotel','📦 Прочее':'other_atk','🚐 Аренда авто':'other_atk'};
+const exps=raw.map(e=>({
+  id:e.id,date:e.date,time:'',
+  cat:catMap[e.category]||'other',
+  label:e.category,
+  amount:parseFloat(e.amount)||0,comment:e.comment,
+  payType:e.payType==='Безнал'?'atk':e.payType==='Аренда'?'atk':'cash'
+}));
     trip.expenses=exps;
     trip.cashSpent=exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
     trip.atkSpent=exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
