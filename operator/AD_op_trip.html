@@ -721,7 +721,8 @@ function renderDays(){
 function renderExpenses(){
   const lt=getTrip()||tripData;
   const list=document.getElementById('expenses-list');
-  const exps=lt?.expenses||[];
+  const catMap={'Питание':'food','Гостиница':'hotel_cash','Бензин':'petrol_cash','Дизель':'diesel_cash','Ремонт / запчасти':'repair','Прочее':'other','🪣 Бензин':'petrol_cash','⛽ Дизель':'diesel_cash','🏨 Гостиница':'hotel','📦 Прочее':'other_atk','🚐 Аренда авто':'other_atk'};
+const exps=(lt?.expenses||[]).map(e=>({...e,cat:catMap[e.cat]||catMap[e.label]||e.cat}));
   const catIco={food:'🍽',diesel:'⛽',petrol:'🪣',diesel_cash:'⛽',petrol_cash:'🪣',hotel:'🏨',hotel_cash:'🏨',repair:'🔧',other:'📦',other_atk:'📦',fuel_card:'⛽'};
   if(!exps.length){list.innerHTML=`<div class="empty"><div class="empty-ico">💸</div><div class="empty-t">Расходов нет</div><div class="empty-s">Нажмите «Внести расход»</div></div>`;return}
   const cashTotal=exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
