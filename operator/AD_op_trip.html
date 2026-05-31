@@ -569,7 +569,7 @@ async function init(){
     tripData.tripId=tripId;
     showMainUI();
     const status=String(tripData.status||'').toLowerCase();
-console.log('STATUS:', status, 'ADVANCE:', tripData.advance, 'NOTES:', tripData.notes);
+if(status==='активна'){localStorage.removeItem('atk_trip');localStorage.removeItem('atk_day');}
     const lt2=getTrip();
     const departed=lt2?.departed||false;
     if(status==='подготовка'){
