@@ -334,9 +334,29 @@ function renderSummary() {
   document.getElementById('sum-total').textContent      = (cashTotal+atkTotal).toFixed(2) + ' BYN';
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const trip = getTrip();
-  if (!trip) { showToast('❌ Нет активной командировки'); }
+window.addEventListener('DOMContentLoaded', async () => {
+  let trip = getTrip();
+  if (!trip) {
+    const tripId = sessionStorage.getItem('atk_trip_id');
+    if (tripId) {
+      try {
+        const r = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getTripData',data:{tripId}})});
+        const d = await r.json();
+        if (d.ok && d.result?.result?.tripId) {
+          const td = d.result.result;
+          trip = {
+            tripId: td.tripId,
+            district: td.district,
+            advance: parseFloat(td.advance)||0,
+            cashSpent: 0, atkSpent: 0,
+            expenses: [], days: []
+          };
+          saveTrip(trip);
+        }
+      } catch(e) {}
+    }
+    if (!getTrip()) showToast('❌ Нет активной командировки');
+  }
 });
 </script>
 </body>
