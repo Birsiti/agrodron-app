@@ -569,6 +569,7 @@ async function init(){
     tripData.tripId=tripId;
     showMainUI();
     const status=String(tripData.status||'').toLowerCase();
+console.log('STATUS:', status, 'ADVANCE:', tripData.advance, 'NOTES:', tripData.notes);
     const lt2=getTrip();
     const departed=lt2?.departed||false;
     if(status==='подготовка'){
