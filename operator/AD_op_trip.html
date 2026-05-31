@@ -839,14 +839,13 @@ function buildNotifyText(){
   const odomEnd=parseInt(document.getElementById('cl-odo-end')?.value)||0;
   const km=odomEnd>0&&gear.odometer>0?odomEnd-gear.odometer:0;
 
-  const catLabels={food:'Питание',diesel_cash:'Дизель',petrol_cash:'Бензин',hotel_cash:'Гостиница',repair:'Ремонт',other:'Прочее'};
-  const cashGroups={};
-  exps.filter(e=>e.payType==='cash').forEach(e=>{const k=catLabels[e.cat]||'Прочее';cashGroups[k]=(cashGroups[k]||0)+e.amount});
-  const cashLines=Object.entries(cashGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
+  const catLabels={food:'Питание',diesel_cash:'Дизель',petrol_cash:'Бензин',hotel_cash:'Гостиница',repair:'Ремонт',other:'Прочее','Питание':'Питание','Дизель':'Дизель','Бензин':'Бензин','Гостиница':'Гостиница','Ремонт / запчасти':'Ремонт'};
+const cashGroups={};
+exps.filter(e=>e.payType==='cash').forEach(e=>{const k=catLabels[e.cat]||catLabels[e.label]||e.label||'Прочее';cashGroups[k]=(cashGroups[k]||0)+e.amount});  const cashLines=Object.entries(cashGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
 
-  const atkLabels={diesel:'Дизель (карта)',petrol:'Бензин (карта)',hotel:'Гостиница',other_atk:'Прочее'};
-  const atkGroups={};
-  exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||'Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
+  const atkLabels={diesel:'Дизель (карта)',petrol:'Бензин (карта)',hotel:'Гостиница',other_atk:'Прочее','Дизель':'Дизель (карта)','Бензин':'Бензин (карта)','Гостиница':'Гостиница','Питание':'Питание'};
+const atkGroups={};
+exps.filter(e=>e.payType==='atk').forEach(e=>{const k=atkLabels[e.cat]||atkLabels[e.label]||e.label||'Прочее';atkGroups[k]=(atkGroups[k]||0)+e.amount});
   const atkLines=Object.entries(atkGroups).map(([k,v])=>`  · ${k} — ${v.toFixed(2)} BYN`).join('\n')||'  · —';
 
   const balStr=balance>=0?`+${balance.toFixed(2)} BYN (${closeOption==='carry'?'перенос':'сдано в кассу'})`:`−${Math.abs(balance).toFixed(2)} BYN (перерасход)`;
