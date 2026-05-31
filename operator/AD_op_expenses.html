@@ -232,7 +232,8 @@ async function loadExpensesFromSheets(){
   try{
     const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getExpenses',data:{tripId:trip.tripId||trip.id}})});
     const d=await r.json();
-    const raw=(d.ok&&(d.result?.result?.expenses||d.result?.expenses))||[];
+    console.log('EXP RESP:', JSON.stringify(d).substring(0,300));
+const raw=(d.ok&&(d.result?.result?.expenses||d.result?.expenses||d.result))||[];
     const exps=raw.map(e=>({
       id:e.id,date:e.date,time:'',cat:e.category,label:e.category,
       amount:parseFloat(e.amount)||0,comment:e.comment,
