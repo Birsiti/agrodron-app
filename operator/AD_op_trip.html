@@ -291,6 +291,10 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   </div>
   <div class="card">
     <div class="card-title">🚐 Пробег и транспорт</div>
+    <div class="gear-row" id="cl-rent-date-row" style="display:none">
+      <div style="flex:1"><div class="gear-label">📅 Дата возврата авто</div></div>
+     <input class="gear-text" id="cl-rent-date" type="date" style="width:140px" oninput="calcRent()">
+    </div>
     <div class="row"><span class="rl">Спидометр при выезде</span><span class="rv" id="cl-odo-start">—</span></div>
     <div class="fg" style="margin-bottom:0">
       <label class="fl">Спидометр при возврате (км)</label>
@@ -791,11 +795,23 @@ function renderClose(){
   document.getElementById('cl-atk-items').innerHTML=Object.entries(atkGroups).map(([k,v])=>`<div class="row"><span class="rl" style="font-size:12px">${k}</span><span class="rv blue" style="font-size:12px">${v.toFixed(2)} BYN</span></div>`).join('');
   if(gear.car==='Аренда'&&gear.rentCost>0){
     const rentDateStart=gear.rentDateStart||lt.dateStart||today;
+    document.getElementById('cl-rent-date-row').style.display='flex';
+    document.getElementById('cl-rent-date').value=today;
     const rentDays=countDays(rentDateStart,today);
     document.getElementById('cl-rent-block').style.display='block';
     document.getElementById('cl-rent-per-day').textContent=gear.rentCost+' BYN/день';
     document.getElementById('cl-rent-total').textContent=(gear.rentCost*rentDays).toFixed(2)+' BYN ('+rentDays+' дн)';
   }
+}
+  function calcRent(){
+  const lt=getTrip()||tripData;
+  const gear=lt?.gear||{};
+  if(gear.car!=='Аренда'||!gear.rentCost) return;
+  const rentDateStart=gear.rentDateStart||lt.dateStart||todayISO();
+  const rentDateEnd=document.getElementById('cl-rent-date')?.value||todayISO();
+  const rentDays=countDays(rentDateStart,rentDateEnd);
+  document.getElementById('cl-rent-per-day').textContent=gear.rentCost+' BYN/день';
+  document.getElementById('cl-rent-total').textContent=(gear.rentCost*rentDays).toFixed(2)+' BYN ('+rentDays+' дн)';
 }
 function calcKm(){
   const lt=getTrip()||tripData;
@@ -837,7 +853,8 @@ function buildNotifyText(){
   const carLabel=gear.car==='Аренда'?'Ford Transit (аренда)':gear.car||'Ford Transit';
   let kmLine=km>0?`\n🛣 Пробег (${carLabel}): ${km} км`:'';
   const rentDateStart2=gear.rentDateStart||lt?.dateStart||today;
-  const rentDaysN=gear.car==='Аренда'&&gear.rentCost>0?countDays(rentDateStart2,today):0;
+  const rentDateEnd2=document.getElementById('cl-rent-date')?.value||today;
+const rentDaysN=gear.car==='Аренда'&&gear.rentCost>0?countDays(rentDateStart2,rentDateEnd2):0;
   let rentLine=gear.car==='Аренда'&&gear.rentCost>0?`\n🚐 Аренда авто: ${(gear.rentCost*rentDaysN).toFixed(2)} BYN (${rentDaysN} дн)`:'';
   return`✅ Командировка закрыта
 📍 ${lt?.district||'—'} · ${fmtDMY(lt?.dateStart)} → ${fmtDMY(today)}
@@ -896,7 +913,8 @@ async function closeTrip(){
   const gear=lt.gear||{};
   const rentPerDay=gear.car==='Аренда'?(gear.rentCost||0):0;
   const rentDateStart=gear.rentDateStart||lt.dateStart||today;
-  const rentDays=rentPerDay>0?countDays(rentDateStart,today):0;
+  const rentDateEnd=document.getElementById('cl-rent-date')?.value||today;
+const rentDays=rentPerDay>0?countDays(rentDateStart,rentDateEnd):0;
   
   // Внести аренду как расход в РАСХОДЫ
   if(rentPerDay>0){
