@@ -223,8 +223,36 @@ function showTab(name) {
     document.getElementById('screen-'+n).classList.toggle('active', n===name);
     document.getElementById('tab-'+n).classList.toggle('active', n===name);
   });
-  if (name==='list') renderList();
-  if (name==='summary') renderSummary();
+  if (name==='list') loadAndRenderList();
+  if (name==='summary') loadAndRenderSummary();
+}
+
+async function loadExpensesFromSheets(){
+  const trip=getTrip();if(!trip)return;
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getExpenses',data:{tripId:trip.tripId||trip.id}})});
+    const d=await r.json();
+    const raw=(d.ok&&(d.result?.result?.expenses||d.result?.expenses))||[];
+    const exps=raw.map(e=>({
+      id:e.id,date:e.date,time:'',cat:e.category,label:e.category,
+      amount:parseFloat(e.amount)||0,comment:e.comment,
+      payType:e.payType==='Безнал'?'atk':e.payType==='Аренда'?'atk':'cash'
+    }));
+    trip.expenses=exps;
+    trip.cashSpent=exps.filter(e=>e.payType==='cash').reduce((s,e)=>s+e.amount,0);
+    trip.atkSpent=exps.filter(e=>e.payType==='atk').reduce((s,e)=>s+e.amount,0);
+    saveTrip(trip);
+  }catch(e){}
+}
+
+async function loadAndRenderList(){
+  await loadExpensesFromSheets();
+  renderList();
+}
+
+async function loadAndRenderSummary(){
+  await loadExpensesFromSheets();
+  renderSummary();
 }
 
 function selectPay(type) {
