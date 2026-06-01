@@ -309,7 +309,8 @@ function renderTrips(list,all){
     const advance=parseFloat(r[6])||0;
     const rent=parseFloat(r[15])||0;
     const beznal=parseFloat(r[14])||0;
-    const balance=advance-spent-rent;
+    const totalSpent=spent+beznal+rent;
+    const balance=advance-totalSpent;
     const crew=String(r[4]||'').trim();
     return`<div class="trip-item">
       <div class="trip-top">
@@ -319,7 +320,7 @@ function renderTrips(list,all){
         </div>
         <div style="text-align:right">
           <div class="trip-ha">${fmt(ha,1)} га</div>
-          <div class="trip-bal" style="color:${balance>=0?'var(--green)':'var(--red)'}">${balance>=0?'+':''}${fmt(balance)} BYN</div>
+          <div class="trip-bal" style="color:var(--t2);font-size:11px">расходы: ${fmt(totalSpent)} BYN</div>
         </div>
       </div>
       ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
