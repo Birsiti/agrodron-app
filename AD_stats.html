@@ -335,7 +335,8 @@ function toggleTrips(){tripsAll=!tripsAll;renderTrips(_trips,tripsAll);}
 // ── collapse: техника закрытые ────────────────────────────
 let _tiClosed=[],tiAll2=false;
 function renderTiClosed(list,all){
-  const vis=all?list:list.slice(0,3);
+  const sorted=list.slice().reverse();
+  const vis=all?sorted:sorted.slice(0,3);
   document.getElementById('ti-closed').innerHTML=vis.map(t=>`
     <div class="ti-closed">
       <div class="ti-top">
