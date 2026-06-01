@@ -307,7 +307,9 @@ function renderTrips(list,all){
     const ha=parseFloat(r[9])||0;
     const spent=parseFloat(r[7])||0;
     const advance=parseFloat(r[6])||0;
-    const balance=advance-spent;
+    const rent=parseFloat(r[15])||0;
+    const beznal=parseFloat(r[14])||0;
+    const balance=advance-spent-rent;
     const crew=String(r[4]||'').trim();
     return`<div class="trip-item">
       <div class="trip-top">
@@ -321,7 +323,7 @@ function renderTrips(list,all){
         </div>
       </div>
       ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
-      <div class="trip-meta"><span>💰 ${fmt(advance)}</span><span>💸 ${fmt(spent)} BYN</span></div>
+      <div class="trip-meta"><span>💰 ${fmt(advance)}</span><span>💵 ${fmt(spent)} BYN</span>${beznal>0?`<span>💳 ${fmt(beznal)} BYN</span>`:''} ${rent>0?`<span>🚐 ${fmt(rent)} BYN</span>`:''}</div>
     </div>`;
   }).join('');
   document.getElementById('trips-btn').innerHTML=list.length>3
