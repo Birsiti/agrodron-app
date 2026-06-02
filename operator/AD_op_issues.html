@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Проблемы с техникой
-  v1.3 · 2026-05-27 · Данные из Sheets + карточка Другое
+  v1.4 · 2026-06-02 · Срочность — плитки с крупным эмодзи (Стоп больше не обрезается)
   Файл: AD_op_issues.html
 -->
 <html lang="ru">
@@ -51,11 +51,16 @@ textarea.fi{resize:none;min-height:100px}
 .tech-ico{font-size:26px;margin-bottom:6px}
 .tech-name{font-size:12px;font-weight:700;color:var(--t2)}
 
-.sev-row{display:flex;gap:8px}
-.sev-btn{flex:1;padding:10px;border-radius:var(--rs);border:2px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .18s;font-size:12px;font-weight:700}
-.sev-btn.sel-low    {border-color:var(--amber);background:var(--amber-light);color:#92400e}
-.sev-btn.sel-high   {border-color:var(--red);background:var(--red-light);color:var(--red)}
-.sev-btn.sel-critical{border-color:#7f1d1d;background:#fca5a5;color:#7f1d1d}
+.sev-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sev-btn{padding:14px 6px;border-radius:var(--rs);border:2px solid var(--border);background:#fff;text-align:center;cursor:pointer;transition:all .18s}
+.sev-ico{font-size:24px;margin-bottom:6px;line-height:1}
+.sev-name{font-size:12px;font-weight:700;color:var(--t2)}
+.sev-btn.sel-low     {border-color:var(--amber);background:var(--amber-light)}
+.sev-btn.sel-low      .sev-name{color:#92400e}
+.sev-btn.sel-high    {border-color:#f97316;background:#ffedd5}
+.sev-btn.sel-high     .sev-name{color:#ea580c}
+.sev-btn.sel-critical{border-color:#dc2626;background:var(--red-light)}
+.sev-btn.sel-critical .sev-name{color:#dc2626}
 
 .issue-card{background:var(--card);border-radius:var(--rs);padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--border)}
 .issue-card.открыта{border-left-color:var(--red)}
@@ -122,9 +127,9 @@ textarea.fi{resize:none;min-height:100px}
   <div class="card">
     <div class="card-title">Срочность</div>
     <div class="sev-row">
-      <div class="sev-btn sel-low" id="sev-low" onclick="selectSev('low')">⚠️ Некритично</div>
-      <div class="sev-btn" id="sev-high" onclick="selectSev('high')">🔴 Серьёзно</div>
-      <div class="sev-btn" id="sev-critical" onclick="selectSev('critical')">🆘 Стоп</div>
+      <div class="sev-btn sel-low" id="sev-low" onclick="selectSev('low')"><div class="sev-ico">⚠️</div><div class="sev-name">Некритично</div></div>
+      <div class="sev-btn" id="sev-high" onclick="selectSev('high')"><div class="sev-ico">🔴</div><div class="sev-name">Серьёзно</div></div>
+      <div class="sev-btn" id="sev-critical" onclick="selectSev('critical')"><div class="sev-ico">🆘</div><div class="sev-name">Стоп</div></div>
     </div>
   </div>
   <div class="card">
