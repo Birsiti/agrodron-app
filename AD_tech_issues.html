@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Техобслуживание
-  v1.1 · 2026-06-02 · Цветные бейджи срочности (Стоп/Серьёзно/Некритично) + сортировка
+  v1.2 · 2026-06-02 · Редизайн карточек: полоса по срочности, статус-подпись, чистые бейджи
   Просмотр проблем + закрытие с комментарием + уведомления
 -->
 <html lang="ru">
@@ -32,31 +32,37 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:8px}
 
 /* КАРТОЧКИ */
-.issue-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .15s}
+.issue-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .15s;border-left:4px solid var(--border)}
 .issue-card:active{transform:scale(.99)}
-.issue-card.open{border-left:4px solid var(--red)}
-.issue-card.progress{border-left:4px solid var(--amber)}
-.issue-card.closed{border-left:4px solid var(--ga);opacity:.75}
+.issue-card.closed{opacity:.65}
+/* левая полоса = срочность */
+.issue-card.sl-crit{border-left-color:#dc2626}
+.issue-card.sl-high{border-left-color:#f97316}
+.issue-card.sl-low{border-left-color:#f59e0b}
+.issue-card.closed{border-left-color:#cbd5e1}
 
-.ic-head{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
-.ic-bak{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
+.ic-head{padding:13px 14px;display:flex;align-items:center;gap:11px}
+.ic-bak{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff}
 .bak-a60{background:#dc2626}.bak-a70{background:#2563eb}.bak-a1{background:#7c3aed}.bak-other{background:#6b7280}
 .ic-info{flex:1;min-width:0}
-.ic-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
-.ic-bak-name{font-size:13px;font-weight:800;color:var(--t1)}
-.ic-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.badge-open{background:#fee2e2;color:var(--red)}
-.badge-progress{background:#fef3c7;color:var(--amber)}
-.badge-closed{background:#e8f4ed;color:var(--green)}
-.ic-type{font-size:11px;color:var(--t3);font-weight:600}
+.ic-top{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.ic-bak-name{font-size:14px;font-weight:800;color:var(--t1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ic-sub{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--t3)}
+.ic-type{color:var(--t3)}
+.ic-dot{color:var(--border)}
+.ic-status{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.ic-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.ic-status.st-open{color:var(--red)}
+.ic-status.st-progress{color:var(--amber)}
+.ic-status.st-closed{color:var(--green)}
 .ic-desc{font-size:13px;color:var(--t2);line-height:1.4;padding:0 14px 10px}
 .ic-meta{display:flex;gap:12px;padding:0 14px 12px;font-size:10px;color:var(--t3)}
-.ic-urgency-high{color:var(--red);font-weight:700}
-.ic-urgency-med{color:var(--amber);font-weight:700}
-.sev-b{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-left:4px}
+
+/* срочность — единственный яркий бейдж */
+.sev-b{font-size:11px;font-weight:800;padding:3px 11px;border-radius:20px;flex-shrink:0;white-space:nowrap}
 .sev-low{background:#fef3c7;color:#b45309}
-.sev-high{background:#fee2e2;color:var(--red)}
-.sev-crit{background:var(--red);color:#fff}
+.sev-high{background:#ffedd5;color:#ea580c}
+.sev-crit{background:#dc2626;color:#fff}
 
 /* РАСКРЫТИЕ КАРТОЧКИ */
 .ic-arrow{font-size:18px;color:var(--t3);transition:transform .2s;flex-shrink:0;margin-left:6px}
@@ -213,7 +219,7 @@ function sevKey(v){
   return'low';
 }
 const SEV_RANK={crit:0,high:1,low:2};
-const SEV_LABEL={crit:'🆘 Стоп',high:'🔴 Серьёзно',low:'⚠️ Некритично'};
+const SEV_LABEL={crit:'Стоп',high:'Серьёзно',low:'Некритично'};
 const SEV_ICON={crit:'🆘',high:'🔴',low:'⚠️'};
 function sevRank(v){return SEV_RANK[sevKey(v)];}
 function sevBadge(v){const k=sevKey(v);return `<span class="sev-b sev-${k}">${SEV_LABEL[k]}</span>`;}
@@ -308,10 +314,8 @@ function renderList(){
     const bak=issue['БАК']||'—';
     const bakClass=BAK_COLORS[bak]||'bak-other';
     const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
-    const urgency=String(issue['Срочность']||'').toLowerCase();
-    const urgClass=urgency.includes('высок')?'ic-urgency-high':urgency.includes('средн')?'ic-urgency-med':'';
-    const badgeMap={open:'badge-open',progress:'badge-progress',closed:'badge-closed'};
-    const labelMap={open:'⚠️ Открыто',progress:'🔨 В работе',closed:'✅ Закрыто'};
+    const sk=sevKey(issue['Срочность']);
+    const statusLbl={open:'Открыто',progress:'В работе',closed:'Закрыто'}[status];
     const id=String(issue['ID']||issue['maintenance']||issue['id']||'');
     const actionBtns=status!=='closed'?`
       <div class="ic-actions" id="actions-${id}">
@@ -324,16 +328,19 @@ function renderList(){
         ${status==='open'?`<button class="ic-btn ic-btn-amber" data-action="progress" data-id="${safeId}">🔨 Взять в работу</button>`:''}
         <button class="ic-btn ic-btn-green" data-action="closed" data-id="${safeId}">✅ Закрыть</button>
       </div>`:`<div style="font-size:12px;color:var(--green);font-weight:700;padding:8px 0">✅ Закрыта · ${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||''}</div>`;
-    return`<div class="issue-card ${status}" data-id="${safeId}">
+    return`<div class="issue-card ${status} sl-${sk}" data-id="${safeId}">
       <div class="ic-head ic-toggle" data-id="${safeId}">
         <div class="ic-bak ${bakClass}">${bakShort}</div>
         <div class="ic-info">
           <div class="ic-top">
             <div class="ic-bak-name">${bak}</div>
-            <div class="ic-badge ${badgeMap[status]}">${labelMap[status]}</div>
             ${sevBadge(issue['Срочность'])}
           </div>
-          <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}</div>
+          <div class="ic-sub">
+            <span class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}</span>
+            <span class="ic-dot">·</span>
+            <span class="ic-status st-${status}">${statusLbl}</span>
+          </div>
         </div>
         <div class="ic-arrow" id="arrow-${safeId}">›</div>
       </div>
@@ -462,8 +469,6 @@ function openDetail(id){
   const bak=issue['БАК']||'—';
   const bakClass=BAK_COLORS[bak]||'bak-other';
   const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
-  const urgency=String(issue['Срочность']||'').toLowerCase();
-  const urgColor=urgency.includes('высок')?'red':urgency.includes('средн')?'amber':'';
 
   const history=buildHistory(issue);
 
