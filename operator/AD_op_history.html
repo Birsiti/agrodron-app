@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · История командировок
-  v1.3 · 2026-06-02 · Перенос остатка нала в истории (вход/выход)
+  v1.4 · 2026-06-02 · Перенос нала + deep-link ?trip= (авто-раскрытие)
   - Список всех командировок
   - Разворот: Дни/Поля, Расходы, Итог
   - Action: getTripHistory
@@ -230,6 +230,18 @@ async function init(){
   document.getElementById('main-ui').style.display='flex';
   document.getElementById('hdr-count').textContent=(allData.trips||[]).length+' выездов';
   render();
+  // Deep-link: ?trip=ID → раскрыть и проскроллить к командировке
+  try{
+    const tid=new URLSearchParams(location.search).get('trip');
+    if(tid){
+      openStates[tid]={open:true,tab:'summary'};
+      render();
+      setTimeout(()=>{
+        const el=document.getElementById('tc-'+tid);
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      },200);
+    }
+  }catch(e){}
   // Инциденты грузим фоном — не блокируем рендер
   apiCall('get_issues',{}).then(issResp=>{
     if(issResp?.ok&&issResp.result) allData.issues=issResp.result.issues||[];
