@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Menu v3.0
-  v3.0 · 2026-05-25
+  AgroDrone.BY · Menu v3.1
+  v3.1 · 2026-06-02 · Fix: День NaN (дата ДД.ММ.ГГГГ)
   - Активные командировки из таблицы (массив)
   - История завершённых командировок
   - Новая подготовка всегда доступна
@@ -219,7 +219,11 @@ function fmtDMY(val){
 
 function countDays(start){
   if(!start)return 1;
-  const s=new Date(String(start).includes('T')?start:start+'T00:00:00');
+  let iso=String(start).trim();
+  const m=iso.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);   // ДД.ММ.ГГГГ → ISO
+  if(m) iso=`${m[3]}-${m[2]}-${m[1]}`;
+  const s=new Date(iso.includes('T')?iso:iso+'T00:00:00');
+  if(isNaN(s))return 1;
   const n=new Date();
   s.setHours(0,0,0,0);n.setHours(0,0,0,0);
   return Math.max(1,Math.round((n-s)/86400000)+1);
