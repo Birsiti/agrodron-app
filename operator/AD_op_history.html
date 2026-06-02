@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · История командировок
-  v1.0 · 2026-05-27
+  v1.1 · 2026-06-02 · Fix: Нал/Безнал по типу оплаты (регистр)
   - Список всех командировок
   - Разворот: Дни/Поля, Расходы, Итог
   - Action: getTripHistory
@@ -399,7 +399,7 @@ function renderExpenses(exps,advance,cashTotal,atkTotal,carry=0){
 // ── Хелперы ───────────────────────────────────────────────
 function num(v){return parseFloat(v)||0}
 function isNash(e){
-  const p=e.payType||e.tipOplaty||e['Тип оплаты']||'';
+  const p=String(e.payType||e.tipOplaty||e['Тип оплаты']||'').trim().toLowerCase();
   return !p||p==='cash'||p==='нал'||p==='наличные';
 }
 
