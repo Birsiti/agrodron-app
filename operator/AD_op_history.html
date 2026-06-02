@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · История командировок
-  v1.2 · 2026-06-02 · Fix: Нал/Безнал (регистр) + дней командировки NaN
+  v1.3 · 2026-06-02 · Перенос остатка нала в истории (вход/выход)
   - Список всех командировок
   - Разворот: Дни/Поля, Расходы, Итог
   - Action: getTripHistory
@@ -258,7 +258,11 @@ function tripCard(t){
   const cashTotal=exps.filter(e=>isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
   const atkTotal=exps.filter(e=>!isNash(e)).reduce((s,e)=>s+num(e.amount||e.suma||e['Сумма']),0);
   const advance=num(t.advance||t.avans||t['Аванс']);
-  const balance=advance-cashTotal;
+  const recompute=advance-cashTotal;
+  const storedBal=num(t.balance);
+  const balance=closed?storedBal:recompute;               // закрытая: остаток с переносом (с сервера)
+  const carryIn=closed?Math.round((storedBal-recompute)*100)/100:0;  // перенос-вход = разница
+  const carryOut=num(t.carry);                            // перенос в следующую (Q)
   const ha=num(t.ha||t.gaItogo||t['Га итого']);
 
   return`<div class="trip-card" id="tc-${id}">
@@ -275,26 +279,26 @@ function tripCard(t){
     </div>
     <div class="trip-chevron ${state.open?'open':''}" id="chev-${id}">›</div>
   </div>
-  ${state.open?detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,state.tab,num(t.carry)):'<div class="trip-detail" id="td-'+id+'"></div>'}
+  ${state.open?detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,state.tab,carryIn,carryOut):'<div class="trip-detail" id="td-'+id+'"></div>'}
 </div>`;
 }
 
-function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab,carry=0){
+function detailPanel(id,t,days,exps,obs,cashTotal,atkTotal,advance,balance,tab,carryIn=0,carryOut=0){
   return`<div class="trip-detail open" id="td-${id}">
   <div class="inner-tabs">
     <div class="itab ${tab==='summary'?'active':''}" onclick="setTab('${id}','summary')">📊 Итог</div>
     <div class="itab ${tab==='days'?'active':''}" onclick="setTab('${id}','days')">☀️ Дни</div>
     <div class="itab ${tab==='expenses'?'active':''}" onclick="setTab('${id}','expenses')">💸 Расходы</div>
     <div class="itab ${tab==='issues'?'active':''}" onclick="setTab('${id}','issues')">🔧 Техника${allData.issues.filter(i=>String(i.tripId||i['Командировка']||'')===String(id)).length?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle"></span>':''}</div>  </div>  <div class="inner-body">
-    ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance):''}
+    ${tab==='summary'?renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance,carryIn,carryOut):''}
     ${tab==='days'?renderDays(id,days,obs):''}
-    ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal,carry):''}
+    ${tab==='expenses'?renderExpenses(exps,advance,cashTotal,atkTotal,balance,carryIn,carryOut):''}
     ${tab==='issues'?renderIssues(allData.issues,id):''}  </div>
 </div>`;
 }
 
 // ── Итог ──────────────────────────────────────────────────
-function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
+function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance,carryIn=0,carryOut=0){
   const ha=num(t.ha||t.gaItogo||t['Га итого']);
   const daysCount=countDays(t.dateStart||t['Дата откр.'],t.dateEnd||t['Дата закр.']);
   const workDays=days.filter(d=>num(d.ha||d.gaFact||d['Га факт'])>0).length;
@@ -314,10 +318,12 @@ function renderSummary(t,days,exps,cashTotal,atkTotal,advance,balance){
   <div class="summary-block">
     <div class="summary-label">Финансы</div>
     <div class="row"><span class="rl">Аванс выдан</span><span class="rv">${advance.toFixed(2)} BYN</span></div>
+    ${carryIn!==0?`<div class="row"><span class="rl">↪️ Перенос с прошлой</span><span class="rv ${carryIn>=0?'green':'red'}">${carryIn>=0?'+':''}${carryIn.toFixed(2)} BYN</span></div>`:''}
     <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
     <div class="row"><span class="rl">Безнал (АТК)</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
     <div class="row"><span class="rl">Всего расходов</span><span class="rv">${(cashTotal+atkTotal).toFixed(2)} BYN</span></div>
-    ${advance>0?`<div class="row"><span class="rl" style="font-weight:700">Остаток</span><span class="rv ${balance>=0?'green':'red'}" style="font-size:15px">${balance.toFixed(2)} BYN</span></div>`:''}
+    <div class="row"><span class="rl" style="font-weight:700">Остаток нала</span><span class="rv ${balance>=0?'green':'red'}" style="font-size:15px">${balance.toFixed(2)} BYN</span></div>
+    ${carryOut!==0?`<div class="row"><span class="rl">↪️ Перенос в след.</span><span class="rv ${carryOut>=0?'green':'red'}">${carryOut.toFixed(2)} BYN</span></div>`:''}
   </div>
   ${crew.length?`<div class="summary-block">
     <div class="summary-label">Состав бригады</div>
@@ -369,14 +375,19 @@ function sameDate(a,b){
 }
 
 // ── Расходы ───────────────────────────────────────────────
-function renderExpenses(exps,advance,cashTotal,atkTotal,carry=0){
-  const balance=advance+carry-cashTotal;
+function renderExpenses(exps,advance,cashTotal,atkTotal,balance=0,carryIn=0,carryOut=0){
   const header=`
-    ${carry>0?`<div class="exp-item"><div class="exp-ico">🔄</div><div class="exp-info"><div class="exp-label">Перенос с прошлой командировки</div></div><div class="exp-amount" style="color:var(--green)">+${carry.toFixed(2)}</div></div>`:''}
+    ${carryIn!==0?`<div class="exp-item"><div class="exp-ico">🔄</div><div class="exp-info"><div class="exp-label">Перенос с прошлой командировки</div></div><div class="exp-amount" style="color:${carryIn>=0?'var(--green)':'var(--red)'}">${carryIn>=0?'+':''}${carryIn.toFixed(2)}</div></div>`:''}
     ${advance>0?`<div class="exp-item"><div class="exp-ico">💰</div><div class="exp-info"><div class="exp-label">Аванс выдан</div></div><div class="exp-amount" style="color:var(--green)">+${advance.toFixed(2)}</div></div>`:''}
-    ${carry>0||advance>0?`<div class="divider"></div>`:''}
+    ${carryIn!==0||advance>0?`<div class="divider"></div>`:''}
   `;
-  if(!exps.length) return header+`<div class="divider"></div><div class="row"><span class="rl" style="font-weight:700">Остаток → след. командировку</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>`;
+  const footer=`
+  <div class="divider"></div>
+  <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
+  <div class="row"><span class="rl">Безнал (АТК)</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
+  <div class="row"><span class="rl" style="font-weight:700">Остаток нала</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>
+  ${carryOut!==0?`<div class="row"><span class="rl">↪️ Перенос в след.</span><span class="rv ${carryOut>=0?'green':'red'}">${carryOut.toFixed(2)} BYN</span></div>`:''}`;
+  if(!exps.length) return header+footer;
   return header+exps.map(e=>{
     const cat=e.category||e.cat||e['Категория']||'📦';
     const label=e.label||cat;
@@ -392,11 +403,7 @@ function renderExpenses(exps,advance,cashTotal,atkTotal,carry=0){
       </div>
       <div class="exp-amount ${isC?'cash':'atk'}">−${amount.toFixed(2)}</div>
     </div>`;
-  }).join('')+`
-  <div class="divider"></div>
-  <div class="row"><span class="rl">Нал потрачено</span><span class="rv red">${cashTotal.toFixed(2)} BYN</span></div>
-  <div class="row"><span class="rl">Безнал (АТК)</span><span class="rv blue">${atkTotal.toFixed(2)} BYN</span></div>
-  <div class="row"><span class="rl" style="font-weight:700">Остаток → след. командировку</span><span class="rv ${balance>=0?'green':'red'}">${balance.toFixed(2)} BYN</span></div>`;
+  }).join('')+footer;
 }
 
 // ── Хелперы ───────────────────────────────────────────────
