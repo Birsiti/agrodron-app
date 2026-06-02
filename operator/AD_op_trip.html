@@ -479,6 +479,8 @@ function depToggleRent(){
 }
 
 async function depart(){
+  const _btn=document.querySelector('.btn-amber');
+  if(_btn){_btn.disabled=true;_btn.textContent='⏳ Отправляем выезд...';}
   const advance=parseFloat(document.getElementById('dep-advance').value)||0;
   const odometer=parseInt(document.getElementById('dep-odometer').value)||0;
   const car=document.getElementById('dep-car').value;
@@ -528,7 +530,7 @@ async function depart(){
   const carryRes=await apiCall('getLastCarry',{});
 const carryStr=carryRes?.result?.carry>0?`\n💵 Перенос с прошлой: ${carryRes.result.carry} BYN`:'';
 const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${car}${rentCost>0?' ('+rentCost+' BYN/день)':''}\n🔢 Спидометр: ${odometer} км\n💰 Аванс: ${advance} BYN${carryStr}\n⏰ ${todayStr()}`;
-  sendTG(GROUP_CHAT_ID, msg);
+  sendTG('group', msg);
 
   showToast('🚐 Выехали! Удачной командировки!',3000);
   setTimeout(()=>showTab('overview'),500);
@@ -938,8 +940,8 @@ const rentDays=rentPerDay>0?countDays(rentDateStart,rentDateEnd):0;
   if(!res.ok){showToast('❌ '+(res.error||'Ошибка'));btn.disabled=false;btn.textContent='✅ Закрыть командировку';return}
 
   const text=buildNotifyText();
-  sendTG(OWNER_ID,text);
-  sendTG(GROUP_CHAT_ID,text);
+  sendTG('me',text);
+  sendTG('group',text);
 
   localStorage.removeItem('atk_trip');
   localStorage.removeItem('atk_day');
@@ -1010,7 +1012,7 @@ async function saveCrewChange(){
   if(tripData) tripData.operators=newCrew;
 
   document.getElementById('ov-crew').textContent=newCrew;
-  sendTG(GROUP_CHAT_ID,`👥 Состав бригады изменён\n📍 ${lt?.district||tripId}\n\nБыл: ${oldCrew}\nСтал: ${newCrew}\n⏰ ${todayStr()}`);
+  sendTG('group',`👥 Состав бригады изменён\n📍 ${lt?.district||tripId}\n\nБыл: ${oldCrew}\nСтал: ${newCrew}\n⏰ ${todayStr()}`);
 
   closeCrewScreen();
   showToast('✅ Состав обновлён');
