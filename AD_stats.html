@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.4 · 2026-06-02 · Операторы после ТО; командировки кликабельны → история
+  v3.5 · 2026-06-02 · Остаток нала на карточке командировки
   Hero из v2.0, collapse операторы/ТО/командировки
 -->
 <html lang="ru">
@@ -310,7 +310,7 @@ function renderTrips(list,all){
     const rent=parseFloat(r[15])||0;
     const beznal=parseFloat(r[14])||0;
     const totalSpent=spent+beznal+rent;
-    const balance=advance-totalSpent;
+    const balance=parseFloat(r[8])||0;   // I = Остаток нала (с переносом)
     const crew=String(r[4]||'').trim();
     return`<div class="trip-item" onclick="location.href='AD_op_history.html?trip=${encodeURIComponent(id)}'" style="cursor:pointer">
       <div class="trip-top">
@@ -321,6 +321,7 @@ function renderTrips(list,all){
         <div style="text-align:right">
           <div class="trip-ha">${fmt(ha,1)} га</div>
           <div class="trip-bal" style="color:var(--t2);font-size:12px">расходы: ${fmt(totalSpent)} BYN</div>
+          <div class="trip-bal" style="font-size:12px;color:${balance>=0?'var(--green)':'var(--red)'}">остаток: ${balance>=0?'+':''}${fmt(balance)} BYN</div>
         </div>
       </div>
       ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
