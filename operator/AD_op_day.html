@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — День
-  v1.3 · 2026-05-19
+  v1.4 · 2026-06-02 · ID поля в карточках
   Файл: AD_op_day.html
   Изменения v1.3:
   - Исправлено название файла в комментарии
@@ -86,6 +86,7 @@ textarea.fi{resize:none;min-height:70px}
 
 .field-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .field-name{font-size:14px;font-weight:700;color:var(--t1);flex:1;margin-right:8px}
+.field-id{font-size:11px;font-weight:700;color:var(--t3);font-family:monospace;background:var(--bg);padding:1px 6px;border-radius:6px;margin-left:4px;white-space:nowrap}
 .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap}
 .badge-pending  {background:#fef3c7;color:#92400e}
 .badge-active   {background:var(--blue-light);color:#1d4ed8}
@@ -449,7 +450,7 @@ function renderOpenFieldsList() {
   listEl.innerHTML = pendingFields.map(f => `
     <div class="field-card ${f.carried?'partial':'pending'}" style="margin-bottom:6px">
       <div class="field-top">
-        <div class="field-name">${f.carried?'⏩ ':''} ${f.name}</div>
+        <div class="field-name">${f.carried?'⏩ ':''} ${f.name} <span class="field-id">${f.id||''}</span></div>
         <span class="badge ${f.carried?'badge-partial':'badge-pending'}">${f.carried?'Перенос':'Новое'}</span>
       </div>
       <div class="field-meta">${f.carried?'Осталось':'План'}: <span>${f.haLeft} га</span>${f.crop?' · '+f.crop:''}${f.prep?' · '+f.prep:''}${f.norm?' · '+f.norm+' л/га':''}</div>
@@ -541,7 +542,7 @@ function renderFieldsList() {
 
     return `<div class="field-card ${f.status}">
       <div class="field-top">
-        <div class="field-name">${f.name}</div>
+        <div class="field-name">${f.name} <span class="field-id">${f.id||''}</span></div>
         <span class="badge ${badgeClass}">${badgeLabel}</span>
       </div>
       <div class="field-meta">
