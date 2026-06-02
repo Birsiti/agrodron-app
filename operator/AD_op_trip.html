@@ -480,22 +480,35 @@ function depToggleRent(){
 
 async function depart(){
   const _btn=document.querySelector('.btn-amber');
-  if(_btn){_btn.disabled=true;_btn.textContent='⏳ Отправляем выезд...';}
+  if(_btn){_btn.disabled=true;_btn.textContent='\u23f3 Отправляем выезд...';}
   const advance=parseFloat(document.getElementById('dep-advance').value)||0;
   const odometer=parseInt(document.getElementById('dep-odometer').value)||0;
   const car=document.getElementById('dep-car').value;
   const trailer=document.getElementById('dep-trailer').value;
   const rentCost=parseFloat(document.getElementById('dep-rent-cost').value)||0;
-  await apiCall('activateTrip',{
+  const rentModel=document.getElementById('dep-rent-model')?.value||'';
+  const rentPlate=document.getElementById('dep-rent-plate')?.value||'';
+  const carType=car==='Аренда'?'rent':'own';
+  const carLabel=car==='Аренда'?(rentModel||'Аренда'):car;
+  const plateFinal=car==='Аренда'?rentPlate:'AT1637-5';
+  const notes=`${carLabel}${rentCost>0?' | Аренда: '+rentCost+' BYN/день':''} | Спидометр выезд: ${odometer} | Лопасти:${gearQty.blades}, Форсунки:${gearQty.nozzles}, АКБ:${gearQty.batteries}, Зарядки:${gearQty.chargers}`;
+
+  // Один запрос вместо шести — всё на сервере за одно выполнение
+  const res=await apiCall('activateTripFull',{
     tripId,
     district:tripData.district||'',
     dateStart:todayISO(),
     operators:tripData.operators||'',
     tech:tripData.tech||'',
-    plannedHa:tripData.plannedHa||0
+    plannedHa:tripData.plannedHa||0,
+    advance,
+    carType, carLabel, plate:plateFinal, rentPerDay:rentCost,
+    odoStart:odometer, trailer,
+    blades:gearQty.blades, nozzles:gearQty.nozzles, batteries:gearQty.batteries, chargers:gearQty.chargers,
+    notes
   });
+  if(!res.ok){showToast('\u274c '+(res.error||'Ошибка'));if(_btn){_btn.disabled=false;_btn.textContent='\ud83d\ude90 Выехали!';}return}
 
-  // Сохранить в localStorage
   const lt=getTrip()||{};
   lt.tripId=tripId;
   lt.status='active';
@@ -516,23 +529,12 @@ async function depart(){
   sessionStorage.setItem('atk_trip_id',tripId);
   tripData={...tripData,...lt};
 
-  if(advance>0) await apiCall('updateTripAdvance',{tripId,advance});
-  const rentModel=document.getElementById('dep-rent-model')?.value||'';
-  const rentPlate=document.getElementById('dep-rent-plate')?.value||'';
-  const carType=car==='Аренда'?'rent':'own';
-  const carLabel=car==='Аренда'?(rentModel||'Аренда'):car;
-  const plateFinal=car==='Аренда'?rentPlate:'AT1637-5';
-  await apiCall('updateTripCar',{tripId,type:carType,car:carLabel,plate:plateFinal,rentPerDay:rentCost,odoStart:odometer,trailer,rentDateStart:todayISO()});
-  await apiCall('updateTripZip',{tripId,blades:gearQty.blades,nozzles:gearQty.nozzles,batteries:gearQty.batteries,chargers:gearQty.chargers});
-  const notes=`${carLabel}${rentCost>0?' | Аренда: '+rentCost+' BYN/день':''} | Спидометр выезд: ${odometer} | Лопасти:${gearQty.blades}, Форсунки:${gearQty.nozzles}, АКБ:${gearQty.batteries}, Зарядки:${gearQty.chargers}`;
-  await apiCall('updateTripNotes',{tripId,notes});
-  
-  const carryRes=await apiCall('getLastCarry',{});
-const carryStr=carryRes?.result?.carry>0?`\n💵 Перенос с прошлой: ${carryRes.result.carry} BYN`:'';
-const msg=`🚐 ВЫЕЗД В КОМАНДИРОВКУ\n📍 ${lt.district}\n📅 ${fmtDMY(lt.dateStart)}\n👥 ${lt.operators}\n🚁 ${lt.tech}\n🌾 План: ${lt.plannedHa} га\n🚐 ${car}${rentCost>0?' ('+rentCost+' BYN/день)':''}\n🔢 Спидометр: ${odometer} км\n💰 Аванс: ${advance} BYN${carryStr}\n⏰ ${todayStr()}`;
+  const carry=res.result?.carry||0;
+  const carryStr=carry>0?`\n\ud83d\udcb5 Перенос с прошлой: ${carry} BYN`:'';
+  const msg=`\ud83d\ude90 ВЫЕЗД В КОМАНДИРОВКУ\n\ud83d\udccd ${lt.district}\n\ud83d\udcc5 ${fmtDMY(lt.dateStart)}\n\ud83d\udc65 ${lt.operators}\n\ud83d\ude81 ${lt.tech}\n\ud83c\udf3e План: ${lt.plannedHa} га\n\ud83d\ude90 ${car}${rentCost>0?' ('+rentCost+' BYN/день)':''}\n\ud83d\udd22 Спидометр: ${odometer} км\n\ud83d\udcb0 Аванс: ${advance} BYN${carryStr}\n\u23f0 ${todayStr()}`;
   sendTG('group', msg);
 
-  showToast('🚐 Выехали! Удачной командировки!',3000);
+  showToast('\ud83d\ude90 Выехали! Удачной командировки!',3000);
   setTimeout(()=>showTab('overview'),500);
 }
 
