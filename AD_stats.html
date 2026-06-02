@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.3 · 2026-06-02 · Темнее серый текст, крупнее мелкие шрифты
+  v3.4 · 2026-06-02 · Операторы после ТО; командировки кликабельны → история
   Hero из v2.0, collapse операторы/ТО/командировки
 -->
 <html lang="ru">
@@ -312,10 +312,10 @@ function renderTrips(list,all){
     const totalSpent=spent+beznal+rent;
     const balance=advance-totalSpent;
     const crew=String(r[4]||'').trim();
-    return`<div class="trip-item">
+    return`<div class="trip-item" onclick="location.href='AD_op_history.html?trip=${encodeURIComponent(id)}'" style="cursor:pointer">
       <div class="trip-top">
         <div>
-          <div class="trip-district">${district}</div>
+          <div class="trip-district">${district} <span style="color:var(--t3);font-weight:700">›</span></div>
           <div class="trip-id">${id} · ${fmtD(r[1])}→${fmtD(r[2])}</div>
         </div>
         <div style="text-align:right">
@@ -400,12 +400,7 @@ function render(d){
       <div style="font-size:20px;color:var(--t3)">›</div>
     </div>
     
-    <!-- ОПЕРАТОРЫ -->
-    <div class="card">
-      <div class="card-title">👥 Га по операторам</div>
-      <div id="ops-list"></div>
-      <div id="ops-btn"></div>
-    </div>    <!-- РАЙОНЫ — га из КОМАНДИРОВОК -->
+    <!-- РАЙОНЫ — га из КОМАНДИРОВОК -->
     <div class="card">
       <div class="card-title">📍 Топ районов</div>
       ${d.topRegions.length?d.topRegions.map(([reg,ha],i)=>{
@@ -466,6 +461,13 @@ function render(d){
         <div id="ti-btn"></div>
       `:''}
       ${!d.tiOpen.length&&!d.tiClosed.length?`<div class="empty">Нет записей</div>`:''}
+    </div>
+
+    <!-- ОПЕРАТОРЫ -->
+    <div class="card">
+      <div class="card-title">👥 Га по операторам</div>
+      <div id="ops-list"></div>
+      <div id="ops-btn"></div>
     </div>
 
     <!-- КОМАНДИРОВКИ -->
