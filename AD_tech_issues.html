@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Техобслуживание
-  v1.2 · 2026-06-02 · Редизайн карточек: полоса по срочности, статус-подпись, чистые бейджи
+  v1.3 · 2026-06-02 · Подкраска карточек по срочности, закрытые — зелёным
   Просмотр проблем + закрытие с комментарием + уведомления
 -->
 <html lang="ru">
@@ -34,12 +34,12 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 /* КАРТОЧКИ */
 .issue-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .15s;border-left:4px solid var(--border)}
 .issue-card:active{transform:scale(.99)}
-.issue-card.closed{opacity:.65}
-/* левая полоса = срочность */
-.issue-card.sl-crit{border-left-color:#dc2626}
-.issue-card.sl-high{border-left-color:#f97316}
-.issue-card.sl-low{border-left-color:#f59e0b}
-.issue-card.closed{border-left-color:#cbd5e1}
+/* фон + полоса = срочность (открытые/в работе) */
+.issue-card.sl-crit{border-left-color:#dc2626;background:#fef2f2}
+.issue-card.sl-high{border-left-color:#f97316;background:#fff7ed}
+.issue-card.sl-low{border-left-color:#f59e0b;background:#fffbf0}
+/* закрыто/решено — всегда зелёным, поверх срочности */
+.issue-card.closed{border-left-color:#16a34a;background:#f1faf4;opacity:.9}
 
 .ic-head{padding:13px 14px;display:flex;align-items:center;gap:11px}
 .ic-bak{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff}

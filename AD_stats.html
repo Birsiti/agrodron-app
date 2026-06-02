@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.6 · 2026-06-02 · Бейджи срочности ТО (Стоп/Серьёзно/Некритично) + сортировка открытых
+  v3.7 · 2026-06-02 · Тинт карточек ТО по срочности + фикс перехода в историю (operator/)
   Hero из v2.0, collapse операторы/ТО/командировки
 -->
 <html lang="ru">
@@ -89,8 +89,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .trip-meta{display:flex;gap:12px;font-size:12px;color:var(--t3);margin-top:3px}
 
 /* ТЕХНИКА */
-.ti-open{border-radius:var(--rs);border:1.5px solid #fca5a5;background:#fff7f7;padding:10px 12px;margin-bottom:6px}
-.ti-closed{border-radius:var(--rs);background:#f8f9fa;border:1.5px solid var(--border);padding:10px 12px;margin-bottom:6px}
+.ti-open{border-radius:var(--rs);border:1px solid var(--border);border-left:4px solid var(--border);background:#fff;padding:11px 12px;margin-bottom:6px}
+.ti-open.sl-crit{border-left-color:#dc2626;background:#fef2f2;border-color:#fecaca}
+.ti-open.sl-high{border-left-color:#f97316;background:#fff7ed;border-color:#fed7aa}
+.ti-open.sl-low{border-left-color:#f59e0b;background:#fffbf0;border-color:#fde68a}
+.ti-closed{border-radius:var(--rs);background:#f1faf4;border:1px solid #cbe8d6;border-left:4px solid #16a34a;padding:11px 12px;margin-bottom:6px;opacity:.92}
 .ti-open:last-child,.ti-closed:last-child{margin-bottom:0}
 .ti-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .ti-badge-open{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:var(--red);flex-shrink:0}
@@ -333,7 +336,7 @@ function renderTrips(list,all){
     const totalSpent=spent+beznal+rent;
     const balance=parseFloat(r[8])||0;   // I = Остаток нала (с переносом)
     const crew=String(r[4]||'').trim();
-    return`<div class="trip-item" onclick="location.href='AD_op_history.html?trip=${encodeURIComponent(id)}'" style="cursor:pointer">
+    return`<div class="trip-item" onclick="location.href='operator/AD_op_history.html?trip=${encodeURIComponent(id)}'" style="cursor:pointer">
       <div class="trip-top">
         <div>
           <div class="trip-district">${district} <span style="color:var(--t3);font-weight:700">›</span></div>
@@ -468,7 +471,7 @@ function render(d){
         <span style="font-size:12px;font-weight:700;color:${d.tiOpen.length?'var(--red)':'var(--t3)'}">${d.tiOpen.length?d.tiOpen.length+' открытых':'все закрыты'}</span>
       </div>
       ${d.tiOpen.length?d.tiOpen.map(t=>`
-        <div class="ti-open">
+        <div class="ti-open sl-${sevKey(t.sev)}">
           <div class="ti-top">
             ${sevBadge(t.sev)}
             <span class="ti-bak">${t.bak}</span>
