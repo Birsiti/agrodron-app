@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.2 · 2026-05-29
+  v3.3 · 2026-06-02 · Темнее серый текст, крупнее мелкие шрифты
   Hero из v2.0, collapse операторы/ТО/командировки
 -->
 <html lang="ru">
@@ -15,7 +15,7 @@
 <style>
 :root{
   --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--ga:#3aaa5e;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#2b323d;--t3:#444c59;
   --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
   --r:14px;--rs:10px;--f:'Manrope',sans-serif;
   --amber:#d97706;--red:#dc2626;
@@ -27,33 +27,33 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
 .back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
 .hdr-title{font-size:16px;font-weight:800;color:var(--t1);flex:1}
-.hdr-sub{font-size:11px;color:var(--t3)}
+.hdr-sub{font-size:12px;color:var(--t3)}
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:10px}
 
 /* HERO — из v2.0 (работающий) */
 .hero{background:linear-gradient(135deg,var(--green),var(--gm));border-radius:var(--r);padding:18px;color:#fff}
-.hero-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.hero-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .hero-item .val{font-size:28px;font-weight:900;line-height:1;letter-spacing:-1px}
-.hero-item .unit{font-size:11px;font-weight:500;opacity:.55;margin-left:2px}
-.hero-item .lbl{font-size:10px;opacity:.5;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.hero-item .unit{font-size:12px;font-weight:500;opacity:.55;margin-left:2px}
+.hero-item .lbl{font-size:12px;opacity:.5;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .hero-divider{border:none;border-top:1px solid rgba(255,255,255,.15);margin:12px 0}
 .hero-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12px;color:rgba(255,255,255,.6)}
 .hero-bottom b{color:#fff}
 
 /* CARDS */
 .card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
-.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 
 /* BAR ROWS */
 .bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .bar-row:last-child{border-bottom:none}
-.bar-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
+.bar-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff}
 .bar-info{flex:1;min-width:0}
 .bar-name{font-size:13px;font-weight:700;color:var(--t1)}
-.bar-sub{font-size:10px;color:var(--t3);margin-top:2px}
+.bar-sub{font-size:12px;color:var(--t3);margin-top:2px}
 .bar-bg{height:4px;background:#f0f4f8;border-radius:2px;overflow:hidden;margin-top:5px}
 .bar-fill{height:100%;border-radius:2px}
 .bar-right{text-align:right;flex-shrink:0}
@@ -68,7 +68,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .exp-fill{height:100%;border-radius:2px;background:var(--amber)}
 .exp-right{text-align:right;flex-shrink:0}
 .exp-val{font-size:13px;font-weight:800;color:var(--t1)}
-.exp-pct{font-size:10px;color:var(--t3);margin-top:2px}
+.exp-pct{font-size:12px;color:var(--t3);margin-top:2px}
 
 /* ROWS */
 .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
@@ -82,23 +82,23 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .trip-item:last-child{border-bottom:none}
 .trip-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
 .trip-district{font-size:13px;font-weight:800;color:var(--t1)}
-.trip-id{font-size:10px;color:var(--t3);margin-top:1px}
+.trip-id{font-size:12px;color:var(--t3);margin-top:1px}
 .trip-ha{font-size:15px;font-weight:900;color:var(--green)}
-.trip-bal{font-size:10px;font-weight:700;text-align:right;margin-top:1px}
-.trip-crew{font-size:10px;color:var(--t3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.trip-meta{display:flex;gap:12px;font-size:10px;color:var(--t3);margin-top:3px}
+.trip-bal{font-size:12px;font-weight:700;text-align:right;margin-top:1px}
+.trip-crew{font-size:12px;color:var(--t3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trip-meta{display:flex;gap:12px;font-size:12px;color:var(--t3);margin-top:3px}
 
 /* ТЕХНИКА */
 .ti-open{border-radius:var(--rs);border:1.5px solid #fca5a5;background:#fff7f7;padding:10px 12px;margin-bottom:6px}
 .ti-closed{border-radius:var(--rs);background:#f8f9fa;border:1.5px solid var(--border);padding:10px 12px;margin-bottom:6px}
 .ti-open:last-child,.ti-closed:last-child{margin-bottom:0}
 .ti-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.ti-badge-open{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:var(--red);flex-shrink:0}
-.ti-badge-done{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:#f0f4f8;color:var(--t3);flex-shrink:0}
+.ti-badge-open{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:var(--red);flex-shrink:0}
+.ti-badge-done{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;background:#f0f4f8;color:var(--t3);flex-shrink:0}
 .ti-bak{font-size:12px;font-weight:800;color:var(--t1)}
-.ti-type{font-size:11px;color:var(--t2);font-weight:600;margin-left:auto}
+.ti-type{font-size:12px;color:var(--t2);font-weight:600;margin-left:auto}
 .ti-desc{font-size:12px;color:var(--t2);line-height:1.4}
-.ti-meta{display:flex;gap:10px;margin-top:4px;font-size:10px;color:var(--t3)}
+.ti-meta{display:flex;gap:10px;margin-top:4px;font-size:12px;color:var(--t3)}
 
 /* COLLAPSE */
 .collapse-btn{width:100%;padding:9px;border:1.5px dashed var(--border);border-radius:var(--rs);background:transparent;color:var(--t3);font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:8px}
@@ -269,7 +269,7 @@ async function init(){
   }catch(e){
     console.error(e);
     document.getElementById('loading').innerHTML=
-      `<div style="color:var(--red);font-size:13px;text-align:center">❌ Ошибка<br><span style="font-size:11px;color:var(--t3)">${e.message}</span></div>`;
+      `<div style="color:var(--red);font-size:13px;text-align:center">❌ Ошибка<br><span style="font-size:12px;color:var(--t3)">${e.message}</span></div>`;
   }
 }
 
@@ -320,7 +320,7 @@ function renderTrips(list,all){
         </div>
         <div style="text-align:right">
           <div class="trip-ha">${fmt(ha,1)} га</div>
-          <div class="trip-bal" style="color:var(--t2);font-size:11px">расходы: ${fmt(totalSpent)} BYN</div>
+          <div class="trip-bal" style="color:var(--t2);font-size:12px">расходы: ${fmt(totalSpent)} BYN</div>
         </div>
       </div>
       ${crew?`<div class="trip-crew">👥 ${crew}</div>`:''}
@@ -448,7 +448,7 @@ function render(d){
     <div class="card">
       <div class="card-title">
         🔧 Техобслуживание
-        <span style="font-size:11px;font-weight:700;color:${d.tiOpen.length?'var(--red)':'var(--t3)'}">${d.tiOpen.length?d.tiOpen.length+' открытых':'все закрыты'}</span>
+        <span style="font-size:12px;font-weight:700;color:${d.tiOpen.length?'var(--red)':'var(--t3)'}">${d.tiOpen.length?d.tiOpen.length+' открытых':'все закрыты'}</span>
       </div>
       ${d.tiOpen.length?d.tiOpen.map(t=>`
         <div class="ti-open">
@@ -461,7 +461,7 @@ function render(d){
           <div class="ti-meta"><span>📅 ${fmtD(t.date)}</span>${t.op?`<span>👤 ${t.op}</span>`:''}</div>
         </div>`).join(''):''}
       ${d.tiClosed.length?`
-        <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin:${d.tiOpen.length?'10px':0} 0 8px">Закрытые</div>
+        <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin:${d.tiOpen.length?'10px':0} 0 8px">Закрытые</div>
         <div id="ti-closed"></div>
         <div id="ti-btn"></div>
       `:''}
