@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Техобслуживание
-  v1.0 · 2026-05-29
+  v1.1 · 2026-06-02 · Цветные бейджи срочности (Стоп/Серьёзно/Некритично) + сортировка
   Просмотр проблем + закрытие с комментарием + уведомления
 -->
 <html lang="ru">
@@ -53,6 +53,10 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ic-meta{display:flex;gap:12px;padding:0 14px 12px;font-size:10px;color:var(--t3)}
 .ic-urgency-high{color:var(--red);font-weight:700}
 .ic-urgency-med{color:var(--amber);font-weight:700}
+.sev-b{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-left:4px}
+.sev-low{background:#fef3c7;color:#b45309}
+.sev-high{background:#fee2e2;color:var(--red)}
+.sev-crit{background:var(--red);color:#fff}
 
 /* РАСКРЫТИЕ КАРТОЧКИ */
 .ic-arrow{font-size:18px;color:var(--t3);transition:transform .2s;flex-shrink:0;margin-left:6px}
@@ -201,6 +205,19 @@ const BAK_SHORT={'А60-ХМ':'A60','А70-ХМ':'A70','А1-Х':'A1'};
 
 let allIssues=[], currentBak='all', currentIssue=null;
 
+// ── Срочность: low=Некритично · high=Серьёзно · critical=Стоп ──
+function sevKey(v){
+  const s=String(v||'').toLowerCase();
+  if(s.includes('crit')||s.includes('стоп')||s.includes('критич'))return'crit';
+  if(s.includes('high')||s.includes('серьёз')||s.includes('серьез')||s.includes('высок'))return'high';
+  return'low';
+}
+const SEV_RANK={crit:0,high:1,low:2};
+const SEV_LABEL={crit:'🆘 Стоп',high:'🔴 Серьёзно',low:'⚠️ Некритично'};
+const SEV_ICON={crit:'🆘',high:'🔴',low:'⚠️'};
+function sevRank(v){return SEV_RANK[sevKey(v)];}
+function sevBadge(v){const k=sevKey(v);return `<span class="sev-b sev-${k}">${SEV_LABEL[k]}</span>`;}
+
 function showToast(msg,color='var(--green)'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.style.background=color;
@@ -268,7 +285,11 @@ function normalizeStatus(s){
 
 function renderList(){
   const order={open:0,progress:1,closed:2};
-  let filtered=allIssues.slice().sort((a,b)=>(order[normalizeStatus(a['Статус'])]||0)-(order[normalizeStatus(b['Статус'])]||0));
+  let filtered=allIssues.slice().sort((a,b)=>{
+    const so=(order[normalizeStatus(a['Статус'])]||0)-(order[normalizeStatus(b['Статус'])]||0);
+    if(so)return so;
+    return sevRank(a['Срочность'])-sevRank(b['Срочность']);   // Стоп → Серьёзно → Некритично
+  });
   if(currentBak!=='all'){
     if(currentBak==='other'){
       const known=['А60-ХМ','А70-ХМ','А1-Х','Ford Transit'];
@@ -310,8 +331,9 @@ function renderList(){
           <div class="ic-top">
             <div class="ic-bak-name">${bak}</div>
             <div class="ic-badge ${badgeMap[status]}">${labelMap[status]}</div>
+            ${sevBadge(issue['Срочность'])}
           </div>
-          <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}${urgency?` · <span class="${urgClass}">${issue['Срочность']}</span>`:''}</div>
+          <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}</div>
         </div>
         <div class="ic-arrow" id="arrow-${safeId}">›</div>
       </div>
@@ -403,7 +425,7 @@ async function doUpdate(action,comment){
     const json=await resp.json();
     if(!json.ok)throw new Error(json.error||'Ошибка');
 
-    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const urgIcon=SEV_ICON[sevKey(currentIssue['Срочность'])];
     const msg=action==='closed'
       ?`✅ *Техника: закрыто*
 
@@ -456,7 +478,7 @@ function openDetail(id){
       </div>
       <div class="dc-row"><div class="dc-label">Описание</div><div class="dc-val">${issue['Описание']||'—'}</div></div>
       <div class="dc-row"><div class="dc-label">Оператор</div><div class="dc-val">${issue['Оператор']||'—'}</div></div>
-      <div class="dc-row"><div class="dc-label">Срочность</div><div class="dc-val ${urgColor}">${issue['Срочность']||'Не указана'}</div></div>
+      <div class="dc-row"><div class="dc-label">Срочность</div><div class="dc-val">${issue['Срочность']?sevBadge(issue['Срочность']):'Не указана'}</div></div>
       <div class="dc-row"><div class="dc-label">Статус</div><div class="dc-val ${status==='open'?'red':status==='progress'?'amber':'green'}">${issue['Статус']||'—'}</div></div>
       ${issue['Дата закрытия']?`<div class="dc-row"><div class="dc-label">Закрыто</div><div class="dc-val green">${fmtDate(issue['Дата закрытия'])}</div></div>`:''}
       ${issue['Решение']||issue['Комментарий']?`<div class="dc-row"><div class="dc-label">Что сделали</div><div class="dc-val">${issue['Решение']||issue['Комментарий']}</div></div>`:''}
@@ -545,7 +567,7 @@ async function updateIssue(){
     if(!json.ok)throw new Error(json.error||'Ошибка');
 
     // Telegram уведомление
-    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const urgIcon=SEV_ICON[sevKey(currentIssue['Срочность'])];
     const msg=newStatus==='closed'
       ?`✅ *Техника: заявка закрыта*\n\n🚁 ${currentIssue['БАК']}\n🔧 ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Закрыл: ${closer}\n📝 ${comment}\n🆔 ${currentIssue['ID']}`
       :`🔨 *Техника: принято в работу*\n\n🚁 ${currentIssue['БАК']}\n${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Принял: ${closer}\n${comment?'📝 '+comment+'\n':''}\n🆔 ${currentIssue['ID']}`;

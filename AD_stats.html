@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Статистика
-  v3.5 · 2026-06-02 · Остаток нала на карточке командировки
+  v3.6 · 2026-06-02 · Бейджи срочности ТО (Стоп/Серьёзно/Некритично) + сортировка открытых
   Hero из v2.0, collapse операторы/ТО/командировки
 -->
 <html lang="ru">
@@ -95,6 +95,10 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .ti-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .ti-badge-open{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:var(--red);flex-shrink:0}
 .ti-badge-done{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;background:#f0f4f8;color:var(--t3);flex-shrink:0}
+.sev-b{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.sev-low{background:#fef3c7;color:#b45309}
+.sev-high{background:#fee2e2;color:#dc2626}
+.sev-crit{background:#dc2626;color:#fff}
 .ti-bak{font-size:12px;font-weight:800;color:var(--t1)}
 .ti-type{font-size:12px;color:var(--t2);font-weight:600;margin-left:auto}
 .ti-desc{font-size:12px;color:var(--t2);line-height:1.4}
@@ -143,6 +147,22 @@ function fmt(n,d=0){
   const v=Number(n||0);
   return isNaN(v)?'0':v.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 }
+
+// ── Срочность ТО: low=Некритично · high=Серьёзно · critical=Стоп ──
+function sevKey(v){
+  const s=String(v||'').toLowerCase();
+  if(s.includes('crit')||s.includes('стоп')||s.includes('критич'))return'crit';
+  if(s.includes('high')||s.includes('серьёз')||s.includes('серьез')||s.includes('высок'))return'high';
+  return'low';
+}
+const SEV_RANK={crit:0,high:1,low:2};
+const SEV_BADGE={
+  crit:'<span class="sev-b sev-crit">🆘 Стоп</span>',
+  high:'<span class="sev-b sev-high">🔴 Серьёзно</span>',
+  low:'<span class="sev-b sev-low">⚠️ Некритично</span>'
+};
+function sevRank(v){return SEV_RANK[sevKey(v)];}
+function sevBadge(v){return SEV_BADGE[sevKey(v)];}
 
 function fmtD(v){
   if(!v)return'—';
@@ -245,10 +265,11 @@ async function init(){
     // ── ТЕХНИКА ───────────────────────────────────────────
     const tiAll=ti.rows.filter(r=>r[0]).map(r=>({
       bak:String(r[1]||''),date:r[2],type:String(r[3]||''),
-      desc:String(r[4]||''),op:String(r[5]||''),
+      desc:String(r[4]||''),op:String(r[5]||''),sev:String(r[6]||''),
       status:String(r[7]||'').toLowerCase(),closedAt:r[8]
     }));
-    const tiOpen=tiAll.filter(t=>t.status.includes('откр'));
+    const tiOpen=tiAll.filter(t=>t.status.includes('откр'))
+      .sort((a,b)=>sevRank(a.sev)-sevRank(b.sev));   // Стоп → Серьёзно → Некритично
     const tiClosed=tiAll.filter(t=>!t.status.includes('откр'));
 
     const topOps=Object.entries(opHa).sort((a,b)=>b[1]-a[1]);
@@ -449,7 +470,7 @@ function render(d){
       ${d.tiOpen.length?d.tiOpen.map(t=>`
         <div class="ti-open">
           <div class="ti-top">
-            <span class="ti-badge-open">⚠️ Открыто</span>
+            ${sevBadge(t.sev)}
             <span class="ti-bak">${t.bak}</span>
             <span class="ti-type">${t.type}</span>
           </div>
