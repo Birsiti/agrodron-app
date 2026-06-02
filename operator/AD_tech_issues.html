@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Техобслуживание
+  v1.1 · 2026-06-01 · TG через сервер (токен убран)
+  Просмотр проблем + закрытие с комментарием + уведомления
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Техобслуживание · AgroDrone.BY</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --red:#dc2626;--amber:#d97706;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+
+.hdr{background:linear-gradient(135deg,var(--green),var(--gm));padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.back{font-size:24px;color:#fff;cursor:pointer;font-weight:300;line-height:1}
+.hdr-title{font-size:16px;font-weight:800;color:#fff;flex:1}
+.hdr-count{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 40px;display:flex;flex-direction:column;gap:8px}
+
+/* КАРТОЧКИ */
+.issue-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .15s}
+.issue-card:active{transform:scale(.99)}
+.issue-card.open{border-left:4px solid var(--red)}
+.issue-card.progress{border-left:4px solid var(--amber)}
+.issue-card.closed{border-left:4px solid var(--ga);opacity:.75}
+
+.ic-head{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.ic-bak{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
+.bak-a60{background:#dc2626}.bak-a70{background:#2563eb}.bak-a1{background:#7c3aed}.bak-other{background:#6b7280}
+.ic-info{flex:1;min-width:0}
+.ic-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.ic-bak-name{font-size:13px;font-weight:800;color:var(--t1)}
+.ic-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.badge-open{background:#fee2e2;color:var(--red)}
+.badge-progress{background:#fef3c7;color:var(--amber)}
+.badge-closed{background:#e8f4ed;color:var(--green)}
+.ic-type{font-size:11px;color:var(--t3);font-weight:600}
+.ic-desc{font-size:13px;color:var(--t2);line-height:1.4;padding:0 14px 10px}
+.ic-meta{display:flex;gap:12px;padding:0 14px 12px;font-size:10px;color:var(--t3)}
+.ic-urgency-high{color:var(--red);font-weight:700}
+.ic-urgency-med{color:var(--amber);font-weight:700}
+
+/* РАСКРЫТИЕ КАРТОЧКИ */
+.ic-arrow{font-size:18px;color:var(--t3);transition:transform .2s;flex-shrink:0;margin-left:6px}
+.ic-arrow.open{transform:rotate(90deg)}
+.ic-body{padding:0 14px 4px}
+.ic-actions{display:flex;gap:6px;padding:10px 0 6px;flex-wrap:wrap}
+.ic-btn{padding:8px 14px;border-radius:var(--rs);font-size:12px;font-weight:700;font-family:var(--f);border:none;cursor:pointer;transition:all .18s;flex:1;min-width:80px}
+.ic-btn:active{transform:scale(.97)}
+.ic-btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.ic-btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.ic-btn-outline{background:#f8f9fa;color:var(--t2);border:1.5px solid var(--border)}
+
+/* ДЕТАЛЬНЫЙ ВИД */
+.detail-wrap{padding:12px 12px 40px}
+.detail-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px}
+.dc-head{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.dc-bak{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.dc-title{font-size:15px;font-weight:800;color:var(--t1)}
+.dc-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.dc-row{display:flex;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px}
+.dc-row:last-child{border-bottom:none}
+.dc-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;min-width:90px;flex-shrink:0;padding-top:1px}
+.dc-val{font-size:13px;color:var(--t1);font-weight:600;line-height:1.4}
+.dc-val.red{color:var(--red)}.dc-val.amber{color:var(--amber)}.dc-val.green{color:var(--green)}
+
+/* ИСТОРИЯ ДЕЙСТВИЙ */
+.history-item{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px}
+.history-item:last-child{border-bottom:none}
+.history-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.history-dot.open{background:var(--red)}
+.history-dot.progress{background:var(--amber)}
+.history-dot.closed{background:var(--ga)}
+.history-info{flex:1}
+.history-action{font-size:13px;font-weight:700;color:var(--t1)}
+.history-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.history-comment{font-size:12px;color:var(--t2);margin-top:4px;font-style:italic;line-height:1.4}
+
+/* ФОРМА ЗАКРЫТИЯ */
+.close-form{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
+.cf-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.cf-label{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.cf-textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);resize:none;outline:none;min-height:80px;transition:border-color .2s;line-height:1.5}
+.cf-textarea:focus{border-color:var(--green)}
+.cf-select{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);background:#fff;outline:none;margin-bottom:10px;appearance:none}
+.cf-select:focus{border-color:var(--green)}
+
+/* КНОПКИ */
+.btn{width:100%;padding:13px;border-radius:var(--rs);border:none;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .18s;margin-bottom:8px}
+.btn:last-child{margin-bottom:0}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--gm));color:#fff}
+.btn-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+.btn-outline{background:#fff;color:var(--t2);border:1.5px solid var(--border)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.empty-ico{font-size:40px;margin-bottom:10px}
+.empty-txt{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t3);font-size:13px;font-weight:600}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--ga);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:998;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:var(--r) var(--r) 0 0;padding:20px 16px;width:100%;max-width:480px}
+.modal-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+
+/* ФИЛЬТР ПО ТЕХНИКЕ */
+.filter-bar{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.filter-bar::-webkit-scrollbar{display:none}
+.fchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:var(--f);border:1.5px solid var(--border);background:#fff;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.fchip.active{background:var(--green);color:#fff;border-color:var(--green)}
+.fchip:active{transform:scale(.96)}
+
+/* ЭКРАНЫ */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="back" onclick="handleBack()">‹</div>
+  <div class="hdr-title" id="hdr-title">🔧 Техобслуживание</div>
+  <div class="hdr-count" id="hdr-count"></div>
+</div>
+
+<!-- ФИЛЬТР ПО ТЕХНИКЕ -->
+<div class="filter-bar" id="filter-bar">
+  <button class="fchip active" onclick="filterBak('all',this)">Все</button>
+  <button class="fchip" onclick="filterBak('А60-ХМ',this)">🚁 А60-ХМ</button>
+  <button class="fchip" onclick="filterBak('А70-ХМ',this)">🚁 А70-ХМ</button>
+  <button class="fchip" onclick="filterBak('А1-Х',this)">🛸 А1-Х</button>
+  <button class="fchip" onclick="filterBak('Ford Transit',this)">🚐 Транзит</button>
+  <button class="fchip" onclick="filterBak('other',this)">📦 Другое</button>
+</div>
+
+<!-- СПИСОК -->
+<div class="screen active" id="screen-list">
+  <div class="scroll">
+    <div class="wrap" id="issues-wrap">
+      <div class="loading"><div class="spinner"></div>Загрузка...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ДЕТАЛЬНЫЙ ВИД -->
+<div class="screen" id="screen-detail">
+  <div class="scroll">
+    <div class="detail-wrap" id="detail-wrap"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- МОДАЛКА ЗАКРЫТИЯ -->
+<div class="modal-overlay" id="modal-close">
+  <div class="modal-box">
+    <div class="modal-title">✅ Закрыть заявку</div>
+    <div class="modal-bak" id="modal-bak" style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px"></div>
+    <div id="modal-type" style="font-size:12px;color:var(--t3);margin-bottom:14px"></div>
+    <label style="font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Что сделали</label>
+    <textarea id="modal-comment" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--f);color:var(--t1);resize:none;outline:none;min-height:80px;line-height:1.5" placeholder="Опишите что было сделано..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-outline" onclick="closeModal()" style="margin:0">Отмена</button>
+      <button class="btn btn-green" onclick="submitClose()" style="margin:0">✅ Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+// Telegram — через Apps Script (токен на сервере)
+async function notifyTg(text,md){
+  try{await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'notify_tg',data:{target:'me',text,md:md?1:0}})})}catch(e){}
+}
+
+const BAK_COLORS={'А60-ХМ':'bak-a60','А70-ХМ':'bak-a70','А1-Х':'bak-a1'};
+const BAK_SHORT={'А60-ХМ':'A60','А70-ХМ':'A70','А1-Х':'A1'};
+
+let allIssues=[], currentBak='all', currentIssue=null;
+
+function showToast(msg,color='var(--green)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=color;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function handleBack(){
+  if(document.getElementById('screen-detail').classList.contains('active')){
+    showScreen('list');
+    document.getElementById('hdr-title').textContent='🔧 Техобслуживание';
+    document.getElementById('filter-bar').style.display='flex';
+    currentIssue=null;
+  } else {
+    window.history.back();
+  }
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function filterBak(bak,el){
+  currentBak=bak;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+async function loadIssues(){
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ТЕХНИЧЕСКОЕ ОБСЛУЖИВАНИЕ!A1:J200?key=${SHEETS_KEY}`;
+    const r=await fetch(url);const d=await r.json();
+    const rows=d.values||[];
+    if(rows.length<2){allIssues=[];renderList();return;}
+    const headers=rows[0];
+    allIssues=rows.slice(1).filter(r=>r[0]).map(r=>{
+      const o={};headers.forEach((h,i)=>o[h]=r[i]||'');
+      // алиас — первая колонка всегда ID
+      if(!o['ID'])o['ID']=String(r[0]||'');
+      return o;
+    });
+    renderList();
+    updateCount();
+  }catch(e){
+    document.getElementById('issues-wrap').innerHTML=
+      `<div class="empty"><div class="empty-ico">❌</div><div class="empty-txt">Ошибка загрузки</div></div>`;
+  }
+}
+
+function updateCount(){
+  const open=allIssues.filter(i=>normalizeStatus(i['Статус'])==='open').length;
+  const progress=allIssues.filter(i=>normalizeStatus(i['Статус'])==='progress').length;
+  const el=document.getElementById('hdr-count');
+  el.textContent=open>0?open+' открытых':progress>0?progress+' в работе':'всё закрыто';
+  el.style.background=open>0?'rgba(220,38,38,.3)':progress>0?'rgba(217,119,6,.3)':'rgba(255,255,255,.15)';
+}
+
+function normalizeStatus(s){
+  const v=String(s||'').toLowerCase().trim();
+  if(v.includes('закр'))return'closed';
+  if(v.includes('работ')||v.includes('принят')||v.includes('progress'))return'progress';
+  return'open';
+}
+
+function renderList(){
+  const order={open:0,progress:1,closed:2};
+  let filtered=allIssues.slice().sort((a,b)=>(order[normalizeStatus(a['Статус'])]||0)-(order[normalizeStatus(b['Статус'])]||0));
+  if(currentBak!=='all'){
+    if(currentBak==='other'){
+      const known=['А60-ХМ','А70-ХМ','А1-Х','Ford Transit'];
+      filtered=filtered.filter(i=>!known.includes(i['БАК']));
+    } else {
+      filtered=filtered.filter(i=>i['БАК']===currentBak);
+    }
+  }
+  const wrap=document.getElementById('issues-wrap');
+  if(!filtered.length){
+    wrap.innerHTML='<div class="empty"><div class="empty-ico">✅</div><div class="empty-txt">Проблем нет</div></div>';
+    return;
+  }
+  wrap.innerHTML=filtered.map(issue=>{
+    const status=normalizeStatus(issue['Статус']);
+    const bak=issue['БАК']||'—';
+    const bakClass=BAK_COLORS[bak]||'bak-other';
+    const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
+    const urgency=String(issue['Срочность']||'').toLowerCase();
+    const urgClass=urgency.includes('высок')?'ic-urgency-high':urgency.includes('средн')?'ic-urgency-med':'';
+    const badgeMap={open:'badge-open',progress:'badge-progress',closed:'badge-closed'};
+    const labelMap={open:'⚠️ Открыто',progress:'🔨 В работе',closed:'✅ Закрыто'};
+    const id=String(issue['ID']||issue['maintenance']||issue['id']||'');
+    const actionBtns=status!=='closed'?`
+      <div class="ic-actions" id="actions-${id}">
+        ${status==='open'?`<button class="ic-btn ic-btn-amber" onclick="quickAction(event,'${id}','progress')">🔨 Взять в работу</button>`:''}
+        <button class="ic-btn ic-btn-green" onclick="quickAction(event,'${id}','closed')">✅ Закрыть</button>
+      </div>`:`<div class="ic-actions"><div style="font-size:12px;color:var(--green);font-weight:700;padding:8px 0">✅ Заявка закрыта · ${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||''}</div></div>`;
+    const safeId=id.replace(/['"]/g,'');
+    const actionBtns2=status!=='closed'?`
+      <div class="ic-actions">
+        ${status==='open'?`<button class="ic-btn ic-btn-amber" data-action="progress" data-id="${safeId}">🔨 Взять в работу</button>`:''}
+        <button class="ic-btn ic-btn-green" data-action="closed" data-id="${safeId}">✅ Закрыть</button>
+      </div>`:`<div style="font-size:12px;color:var(--green);font-weight:700;padding:8px 0">✅ Закрыта · ${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||''}</div>`;
+    return`<div class="issue-card ${status}" data-id="${safeId}">
+      <div class="ic-head ic-toggle" data-id="${safeId}">
+        <div class="ic-bak ${bakClass}">${bakShort}</div>
+        <div class="ic-info">
+          <div class="ic-top">
+            <div class="ic-bak-name">${bak}</div>
+            <div class="ic-badge ${badgeMap[status]}">${labelMap[status]}</div>
+          </div>
+          <div class="ic-type">${issue['Тип неисправности']||issue['Тип']||'—'}${urgency?` · <span class="${urgClass}">${issue['Срочность']}</span>`:''}</div>
+        </div>
+        <div class="ic-arrow" id="arrow-${safeId}">›</div>
+      </div>
+      <div class="ic-body" id="body-${safeId}" style="display:none">
+        <div class="ic-desc">${issue['Описание']||'Без описания'}</div>
+        <div class="ic-meta">
+          <span>📅 ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</span>
+          <span>👤 ${issue['Оператор']||'—'}</span>
+          ${issue['Дата закрытия']?`<span>🔒 ${fmtDate(issue['Дата закрытия'])}</span>`:''}
+          ${issue['Решение']?`<span>📝 ${issue['Решение']}</span>`:''}
+          ${issue['Закрыл']?`<span>✓ ${issue['Закрыл']}</span>`:''}
+        </div>
+        ${issue['Фото URL']||issue['Фото']?`<img src="${issue['Фото URL']||issue['Фото']}" style="width:100%;border-radius:var(--rs);margin-top:8px" onerror="this.style.display='none'">`:''}
+        ${actionBtns2}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id){
+  const body=document.getElementById('body-'+id);
+  const arrow=document.getElementById('arrow-'+id);
+  if(!body)return;
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  arrow?.classList.toggle('open',!isOpen);
+}
+
+// Event delegation для кнопок и тоггла
+document.addEventListener('click',function(e){
+  // Кнопка действия
+  const btn=e.target.closest('[data-action]');
+  if(btn){
+    e.stopPropagation();
+    const id=btn.getAttribute('data-id');
+    const action=btn.getAttribute('data-action');
+    const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id||(i['ID']||'').replace(/['"]/g,'')===id);
+    if(!issue)return;
+    currentIssue=issue;
+    if(action==='progress'){doUpdate('progress','');return;}
+    showCloseModal(id);
+    return;
+  }
+  // Тоггл карточки
+  const toggle=e.target.closest('.ic-toggle');
+  if(toggle){
+    const id=toggle.getAttribute('data-id');
+    toggleCard(id);
+  }
+});
+
+function showCloseModal(id){
+  const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id);
+  if(!issue)return;
+  currentIssue=issue;
+  const modal=document.getElementById('modal-close');
+  document.getElementById('modal-bak').textContent=issue['БАК']||'—';
+  document.getElementById('modal-type').textContent=issue['Тип неисправности']||issue['Тип']||'—';
+  document.getElementById('modal-comment').value='';
+  modal.classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modal-close').classList.remove('show');
+  currentIssue=null;
+}
+
+async function submitClose(){
+  const comment=document.getElementById('modal-comment').value.trim();
+  if(!comment){showToast('⚠️ Опишите что сделали','var(--amber)');return;}
+  document.getElementById('modal-close').classList.remove('show');
+  await doUpdate('closed',comment);
+}
+
+async function doUpdate(action,comment){
+  if(!currentIssue)return;
+  const now=new Date();
+  const dateStr=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  const closer=window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name||'РП';
+  const statusLabel=action==='closed'?'закрыто':'в работе';
+
+  showToast('⏳ Сохраняю...');
+  try{
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
+      action:'updateMaintenance',
+      data:{id:currentIssue['ID'],status:statusLabel,comment,
+            closedAt:action==='closed'?dateStr:'',closedBy:action==='closed'?closer:''}
+    })});
+    const json=await resp.json();
+    if(!json.ok)throw new Error(json.error||'Ошибка');
+
+    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const msg=action==='closed'
+      ?`✅ *Техника: закрыто*
+
+🚁 ${currentIssue['БАК']}
+🔧 ${currentIssue['Тип неисправности']||currentIssue['Тип']}
+👤 ${closer}
+📝 ${comment}
+🆔 ${currentIssue['ID']}`
+      :`🔨 *Техника: принято в работу*
+
+🚁 ${currentIssue['БАК']}
+${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Тип']}
+👤 ${closer}
+🆔 ${currentIssue['ID']}`;
+    await notifyTg(msg,true);
+
+    showToast(action==='closed'?'✅ Закрыто':'🔨 Принято в работу');
+    currentIssue=null;
+    await loadIssues();
+  }catch(e){
+    showToast('❌ '+e.message,'var(--red)');
+  }
+}
+
+function openDetail(id){
+  const issue=allIssues.find(i=>(i['ID']||i['maintenance']||'')===id);
+  if(!issue)return;
+  currentIssue=issue;
+  const status=normalizeStatus(issue['Статус']);
+  const bak=issue['БАК']||'—';
+  const bakClass=BAK_COLORS[bak]||'bak-other';
+  const bakShort=BAK_SHORT[bak]||bak.slice(0,3).toUpperCase();
+  const urgency=String(issue['Срочность']||'').toLowerCase();
+  const urgColor=urgency.includes('высок')?'red':urgency.includes('средн')?'amber':'';
+
+  const history=buildHistory(issue);
+
+  document.getElementById('detail-wrap').innerHTML=`
+    <div class="detail-card">
+      <div class="dc-head">
+        <div class="dc-bak ${bakClass}">${bakShort}</div>
+        <div>
+          <div class="dc-title">${bak} · ${issue['Тип неисправности']||issue['Тип']||'—'}</div>
+          <div class="dc-sub">${issue['ID']} · ${fmtDate(issue['Дата заявки']||issue['Дата']||'')}</div>
+        </div>
+      </div>
+      <div class="dc-row"><div class="dc-label">Описание</div><div class="dc-val">${issue['Описание']||'—'}</div></div>
+      <div class="dc-row"><div class="dc-label">Оператор</div><div class="dc-val">${issue['Оператор']||'—'}</div></div>
+      <div class="dc-row"><div class="dc-label">Срочность</div><div class="dc-val ${urgColor}">${issue['Срочность']||'Не указана'}</div></div>
+      <div class="dc-row"><div class="dc-label">Статус</div><div class="dc-val ${status==='open'?'red':status==='progress'?'amber':'green'}">${issue['Статус']||'—'}</div></div>
+      ${issue['Дата закрытия']?`<div class="dc-row"><div class="dc-label">Закрыто</div><div class="dc-val green">${fmtDate(issue['Дата закрытия'])}</div></div>`:''}
+      ${issue['Решение']||issue['Комментарий']?`<div class="dc-row"><div class="dc-label">Что сделали</div><div class="dc-val">${issue['Решение']||issue['Комментарий']}</div></div>`:''}
+      ${issue['Закрыл']?`<div class="dc-row"><div class="dc-label">Закрыл</div><div class="dc-val green">✓ ${issue['Закрыл']}</div></div>`:''}
+    </div>
+
+    ${history.length?`
+    <div class="detail-card">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;padding:12px 16px 0">История</div>
+      ${history.map(h=>`
+        <div class="history-item">
+          <div class="history-dot ${h.type}"></div>
+          <div class="history-info">
+            <div class="history-action">${h.action}</div>
+            <div class="history-meta">${h.meta}</div>
+            ${h.comment?`<div class="history-comment">${h.comment}</div>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`:''}
+
+    ${status!=='closed'?`
+    <div class="close-form">
+      <div class="cf-title">Действие</div>
+      <label class="cf-label">Новый статус</label>
+      <select class="cf-select" id="new-status">
+        ${status==='open'?'<option value="progress">🔨 Принять в работу</option>':''}
+        <option value="closed">✅ Закрыть — проблема решена</option>
+      </select>
+      <label class="cf-label">Что сделали</label>
+      <textarea class="cf-textarea" id="fix-comment" placeholder="Опишите что было сделано, какие запчасти использованы, сколько времени заняло..."></textarea>
+    </div>
+    <button class="btn btn-green" onclick="updateIssue()" id="btn-update">💾 Сохранить</button>
+    `:`<div style="background:var(--gl);border-radius:var(--rs);padding:12px 16px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">✅ Заявка закрыта</div>`}
+    <button class="btn btn-outline" onclick="handleBack()" style="margin-top:8px">← Назад</button>
+  `;
+
+  document.getElementById('filter-bar').style.display='none';
+  document.getElementById('hdr-title').textContent=`${bak} · ${issue['Тип неисправности']||issue['Тип']||'—'}`;
+  showScreen('detail');
+}
+
+function buildHistory(issue){
+  const h=[];
+  if(issue['Дата заявки']||issue['Дата']){
+    h.push({type:'open',action:'Заявка создана',meta:`${fmtDate(issue['Дата заявки']||issue['Дата'])} · ${issue['Оператор']||'—'}`,comment:issue['Описание']||''});
+  }
+  if(normalizeStatus(issue['Статус'])==='progress'||normalizeStatus(issue['Статус'])==='closed'){
+    if(issue['Принял']||issue['Принято']){
+      h.push({type:'progress',action:'Принято в работу',meta:issue['Принял']||'—',comment:''});
+    }
+  }
+  if(issue['Дата закрытия']){
+    h.push({type:'closed',action:'Закрыто',meta:`${fmtDate(issue['Дата закрытия'])} · ${issue['Закрыл']||'—'}`,comment:issue['Решение']||issue['Комментарий']||''});
+  }
+  return h;
+}
+
+async function updateIssue(){
+  if(!currentIssue)return;
+  const newStatus=document.getElementById('new-status')?.value;
+  const comment=document.getElementById('fix-comment')?.value.trim()||'';
+  if(!newStatus)return;
+  if(newStatus==='closed'&&!comment){showToast('⚠️ Опишите что сделали','var(--amber)');return;}
+
+  const btn=document.getElementById('btn-update');
+  btn.disabled=true;btn.textContent='⏳ Сохраняю...';
+
+  const statusLabel=newStatus==='closed'?'закрыто':newStatus==='progress'?'в работе':'открыто';
+  const now=new Date();
+  const dateStr=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  const closer=tg?.WebApp?.initDataUnsafe?.user?.first_name||'РП';
+
+  try{
+    // Обновляем через Apps Script
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
+      action:'updateMaintenance',
+      data:{
+        id:currentIssue['ID'],
+        status:statusLabel,
+        comment,
+        closedAt:newStatus==='closed'?dateStr:'',
+        closedBy:closer
+      }
+    })});
+    const json=await resp.json();
+    if(!json.ok)throw new Error(json.error||'Ошибка');
+
+    // Telegram уведомление
+    const urgIcon=String(currentIssue['Срочность']||'').toLowerCase().includes('высок')?'🔴':'🟡';
+    const msg=newStatus==='closed'
+      ?`✅ *Техника: заявка закрыта*\n\n🚁 ${currentIssue['БАК']}\n🔧 ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Закрыл: ${closer}\n📝 ${comment}\n🆔 ${currentIssue['ID']}`
+      :`🔨 *Техника: принято в работу*\n\n🚁 ${currentIssue['БАК']}\n${urgIcon} ${currentIssue['Тип неисправности']||currentIssue['Тип']}\n👤 Принял: ${closer}\n${comment?'📝 '+comment+'\n':''}\n🆔 ${currentIssue['ID']}`;
+    await notifyTg(msg,true);
+
+    showToast(newStatus==='closed'?'✅ Заявка закрыта':'🔨 Принято в работу');
+    await loadIssues();
+    handleBack();
+
+  }catch(e){
+    showToast('❌ '+e.message,'var(--red)');
+    btn.disabled=false;btn.textContent='💾 Сохранить';
+  }
+}
+
+function fmtDate(v){
+  if(!v)return'—';
+  const s=String(v);
+  const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(gm)return`${String(parseInt(gm[3])).padStart(2,'0')}.${String(parseInt(gm[2])+1).padStart(2,'0')}.${gm[1]}`;
+  const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return`${m[3]}.${m[2]}.${m[1]}`;
+  if(/^\d{2}\.\d{2}\.\d{4}$/.test(s))return s;
+  return s;
+}
+
+loadIssues();
+</script>
+</body>
+</html>

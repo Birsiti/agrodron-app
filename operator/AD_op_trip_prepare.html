@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Бригадир — Prepare v2.3
-  v2.2 · 2026-05-27 · Fix: sanitize op id для DOM; погода не блокирует отправку
+  AgroDrone.BY · Бригадир — Prepare v2.4
+  v2.4 · 2026-06-01 · Токен убран (TG через сервер); операторы из листа ОПЕРАТОРЫ (роль из кол. J); единая версия
   Файл: AD_op_trip_prepare.html
 -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AgroDrone.BY · Prepare v2.1</title>
+<title>AgroDrone.BY · Prepare v2.4</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +172,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div class="sub-hdr">
   <div class="hdr-top">
     <div class="back-btn" id="back-btn" onclick="handleBack()">‹</div>
-    <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v2.3</span></div>
+    <div class="hdr-title" id="hdr-title">Подготовка <span style="font-size:11px;opacity:.6">v2.4</span></div>
   </div>
   <div class="tabs">
     <div class="tab active" id="tab-pending" onclick="switchTab('pending')">
@@ -439,13 +439,13 @@ function switchTab(tab){
 
   if(tab==='pending'){
     document.getElementById('tab-content-pending').style.display='block';
-    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.3</span>';
+    document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.4</span>';
   } else {
     document.getElementById('tab-content-new').style.display='block';
     if(editMode){
-      document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.3</span>';
+      document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.4</span>';
     } else {
-      document.getElementById('hdr-title').innerHTML='Новая заявка <span style="font-size:11px;opacity:.6">v2.3</span>';
+      document.getElementById('hdr-title').innerHTML='Новая заявка <span style="font-size:11px;opacity:.6">v2.4</span>';
       resetForm();
     }
   }
@@ -462,7 +462,7 @@ function handleBack(){
 function showPendingList(){
   document.getElementById('screen-detail').style.display='none';
   document.getElementById('tab-content-pending').style.display='block';
-  document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.3</span>';
+  document.getElementById('hdr-title').innerHTML='Подготовка <span style="font-size:11px;opacity:.6">v2.4</span>';
   editMode=false;currentTrip=null;
 }
 
@@ -503,15 +503,23 @@ function updateBadge(){
 // ── Загрузка операторов из Sheets ────────────────────────
 async function loadOperatorsData(){
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ОПЕРАТОРЫ!A2:G100?key=${SHEETS_KEY}`;
-    const r=await fetch(url);const d=await r.json();
+    // A=ID, B=ФИО, G=Статус(6), J=Тип/роль(9)
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/ОПЕРАТОРЫ!A2:L200?key=${SHEETS_KEY}`;
+    const r=await fetch(url);
+    if(!r.ok) throw new Error('sheets '+r.status);
+    const d=await r.json();
     const rows=d.values||[];
-    if(rows.length){
-      opsData = rows.filter(r=>r[0]&&r[1]).map(r=>({
-        id: r[0].trim(),
-        name: r[1].trim(),
-        role: r[2]||'Оператор'
-      }));
+    const loaded = rows
+      .filter(r=>r[0]&&r[1] && !['неактивен','архив'].includes(String(r[6]||'').toLowerCase()))
+      .map(r=>({ id:String(r[0]).trim(), name:String(r[1]).trim(), role:(r[9]||'Оператор').trim() }));
+    if(loaded.length){
+      opsData = loaded;
+      // пересобираем карты, чтобы OP_NAMES/OP_ROLES/OP_IDS были консистентны
+      Object.keys(OP_NAMES).forEach(k=>delete OP_NAMES[k]);
+      Object.keys(OP_ROLES).forEach(k=>delete OP_ROLES[k]);
+      Object.keys(OP_IDS).forEach(k=>delete OP_IDS[k]);
+      opsData.forEach(o=>{ OP_NAMES[o.id]=o.name; OP_ROLES[o.id]=o.role; OP_IDS[o.name]=o.id; });
+      renderOpsList();
     }
   } catch(e){ /* используем дефолт */ }
 }
@@ -556,7 +564,7 @@ function openDetail(idx){
   fillDetailScreen(currentTrip);
   document.getElementById('tab-content-pending').style.display='none';
   document.getElementById('screen-detail').style.display='block';
-  document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.3</span>';
+  document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.4</span>';
 }
 
 function fillDetailScreen(t){
@@ -606,7 +614,7 @@ function editPending(){
 
   document.getElementById('btn-submit').textContent='💾 Сохранить изменения';
   document.getElementById('btn-cancel').style.display='block';
-  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.3</span>';
+  document.getElementById('hdr-title').innerHTML='Редактирование <span style="font-size:11px;opacity:.6">v2.4</span>';
 
   document.getElementById('screen-detail').style.display='none';
   document.getElementById('tab-content-new').style.display='block';
@@ -626,7 +634,7 @@ function cancelEdit(){
     document.getElementById('tab-pending').classList.add('active');
     document.getElementById('tab-new').classList.remove('active');
     activeTab='pending';
-    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.3</span>';
+    document.getElementById('hdr-title').innerHTML='На согласовании <span style="font-size:11px;opacity:.6">v2.4</span>';
   } else {
     switchTab('pending');
   }
@@ -710,13 +718,15 @@ async function sendForApproval(){
 
     if(!editMode){
       pendingTrips.push(newTrip);
-      // Telegram — отправляем сразу без погоды, погода догоняет фоном
-      const BOT='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk',CID='6204739474';
-      const msgBase=`🚐 ЗАЯВКА НА КОМАНДИРОВКУ\n🆔 ${tripId}\n\n📍 ${d.district}\n📅 ${fmtDate(d.dateStart)}${d.dateEnd?' → '+fmtDate(d.dateEnd):''}\n🌾 ~${d.plannedHa} га\n\n👥 ${d.operators}\n🚁 ${d.tech}\n🚐 ${d.car}\n\n⏰ ${new Date().toLocaleString('ru-RU')}`;
-      fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msgBase})}).catch(()=>{});
-      // Погода — фоном, отдельным сообщением
+      // Telegram — через Apps Script (токен на сервере, НЕ на фронте)
+      fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'notify_trip',data:{
+        tripId, district:d.district,
+        dateStart:fmtDate(d.dateStart), dateEnd:d.dateEnd?fmtDate(d.dateEnd):'',
+        plannedHa:d.plannedHa, operators:d.operators, tech:d.tech, car:d.car
+      }})}).catch(()=>{});
+      // Погода — фоном, отдельным сообщением (тоже через сервер)
       getWeatherForecast(d.district, d.dateStart).then(weather=>{
-        if(weather) fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:weather})}).catch(()=>{});
+        if(weather) fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'notify_trip',data:{tripId,weatherText:weather}})}).catch(()=>{});
       });
       showToast(`✅ Заявка ${tripId} отправлена`);
     } else {

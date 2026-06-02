@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Командировка v3.0
-  v3.0 · 2026-05-26
+  AgroDrone.BY · Командировка v3.1
+  v3.1 · 2026-06-01 · TG через сервер (токен убран)
   - Динамические вкладки по статусу
   - подготовка: одна вкладка "Подготовка"
   - активна: Обзор / Дни / Расходы / Закрыть
@@ -391,10 +391,8 @@ function dayWord(n){
   return'дней';
 }
 
-const BOT_TOKEN='8675713209:AAHS6P8TGpO3efMHwDblTzyLwDarHMINiAk';
-
-async function sendTG(chatId,text){
-  try{await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chatId,text})})}catch(e){}
+async function sendTG(target,text){
+  try{await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'notify_tg',data:{target,text}})})}catch(e){}
 }
 
 async function apiCall(action,data={}){
@@ -879,8 +877,7 @@ ${balance>=0?'💵':'⚠️'} Остаток: ${balStr}`;
 
 async function sendNotify(target){
   const text=buildNotifyText();
-  const chatId=target==='me'?OWNER_ID:GROUP_CHAT_ID;
-  await sendTG(chatId,text);
+  await sendTG(target,text);
   showToast(target==='me'?'📱 Отправлено тебе':'👥 Отправлено в группу');
 }
 
