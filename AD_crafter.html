@@ -572,7 +572,7 @@ function onTypeChange() {
 
 function calcTrip() {
   const d = parseInt(document.getElementById('fDays').value) || 1;
-  document.getElementById('fAmount').value = (d * RATE).toFixed(0);
+  document.getElementById('fAmount').value = (d * DEFAULT_RATE).toFixed(0);
 }
 
 async function saveRecord() {
