@@ -1,417 +1,341 @@
 <!DOCTYPE html>
+<!--
+  AgroDrone.BY · Крафтер v2.0
+  v2.0 · июнь 2026 · Полный рефакторинг — лента карточек, взаиморасчёт
+-->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Крафтер — Учёт</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VW Crafter — Учёт</title>
 <style>
-  /* ── Tokens ── */
-  :root {
-    --bg:        #F7F8FA;
-    --surface:   #FFFFFF;
-    --border:    #E4E7EC;
-    --text:      #1A1D23;
-    --muted:     #6B7280;
-    --accent:    #2563EB;
-    --green:     #16A34A;
-    --red:       #DC2626;
-    --orange:    #EA580C;
-    --radius:    10px;
-    --font:      'Inter', system-ui, sans-serif;
-  }
+:root {
+  --bg:       #F0F2F5;
+  --surface:  #FFFFFF;
+  --border:   #E4E7EC;
+  --t1:       #111827;
+  --t2:       #4B5563;
+  --t3:       #9CA3AF;
+  --green:    #059669;
+  --green-bg: #ECFDF5;
+  --red:      #DC2626;
+  --red-bg:   #FEF2F2;
+  --blue:     #2563EB;
+  --blue-bg:  #EFF6FF;
+  --amber:    #D97706;
+  --amber-bg: #FFFBEB;
+  --radius:   14px;
+  --font:     -apple-system, 'Manrope', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font); background: var(--bg); color: var(--t1); display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Header ── */
+.hdr {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  flex-shrink: 0;
+}
+.hdr-top { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+.hdr-icon { font-size: 24px; }
+.hdr-text h1 { font-size: 16px; font-weight: 700; color: var(--t1); }
+.hdr-text p  { font-size: 11px; color: var(--t3); margin-top: 1px; }
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    min-height: 100vh;
-  }
+/* ── Balance hero ── */
+.balance-hero {
+  background: var(--t1);
+  padding: 20px 16px 16px;
+  flex-shrink: 0;
+}
+.balance-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.balance-amount { font-size: 36px; font-weight: 800; letter-spacing: -.5px; }
+.balance-amount.pos { color: #34D399; }
+.balance-amount.neg { color: #F87171; }
+.balance-meta { display: flex; gap: 16px; margin-top: 12px; }
+.bm-item { flex: 1; }
+.bm-val  { font-size: 15px; font-weight: 700; color: #fff; }
+.bm-lab  { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+.bm-sep  { width: 1px; background: rgba(255,255,255,.12); flex-shrink: 0; }
 
-  /* ── Header ── */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .header-icon {
-    width: 32px; height: 32px;
-    background: #1A1D23;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .header h1 { font-size: 15px; font-weight: 600; }
-  .header small { font-size: 11px; color: var(--muted); display: block; }
+/* ── Scroll ── */
+.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.wrap   { padding: 12px 12px 100px; }
 
-  /* ── Main ── */
-  .main { padding: 14px 12px; max-width: 600px; margin: 0 auto; }
+/* ── Section title ── */
+.sec-title {
+  font-size: 11px; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin: 16px 0 8px 2px;
+  display: flex; justify-content: space-between; align-items: center;
+}
 
-  /* ── Summary cards ── */
-  .summary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-  }
-  .card.wide { grid-column: 1 / -1; }
-  .card-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    margin-bottom: 4px;
-  }
-  .card-value {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
-  .positive { color: var(--green); }
-  .negative { color: var(--red); }
+/* ── Feed cards ── */
+.feed { display: flex; flex-direction: column; gap: 6px; }
 
-  /* Баланс-карточка */
-  .balance-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .balance-label { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
-  .balance-value { font-size: 28px; font-weight: 800; }
-  .balance-breakdown { font-size: 11px; color: var(--muted); text-align: right; line-height: 1.6; }
+.fc {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  cursor: default;
+}
+.fc-ico {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.fc-ico.trip    { background: #EFF6FF; }
+.fc-ico.mileage { background: #ECFDF5; }
+.fc-ico.repair  { background: #FEF2F2; }
+.fc-ico.payment { background: #F0FDF4; }
 
-  /* ── Section title ── */
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.fc-body { flex: 1; min-width: 0; }
+.fc-desc { font-size: 13px; font-weight: 600; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fc-meta { font-size: 11px; color: var(--t3); margin-top: 2px; }
 
-  /* ── Table ── */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-  .tbl { width: 100%; border-collapse: collapse; }
-  .tbl th {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-align: left;
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-  .tbl td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    vertical-align: middle;
-  }
-  .tbl tr:last-child td { border-bottom: none; }
-  .tbl tr:hover td { background: #F9FAFB; }
+.fc-amount { font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.fc-amount.pos { color: var(--green); }
+.fc-amount.neg { color: var(--red); }
+.fc-amount.pay { color: var(--blue); }
 
-  /* Тип-бейдж */
-  .badge {
-    display: inline-block;
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
-  }
-  .badge-trip    { background: #EFF6FF; color: #1D4ED8; }
-  .badge-mileage { background: #F0FDF4; color: #15803D; }
-  .badge-repair  { background: #FEF2F2; color: #B91C1C; }
-  .badge-fuel    { background: #FFF7ED; color: #C2410C; }
+.fc-source { font-size: 10px; color: var(--t3); margin-top: 2px; text-align: right; }
 
-  .amount-pos { color: var(--green); font-weight: 600; }
-  .amount-neg { color: var(--red);   font-weight: 600; }
-  .source-auto { font-size: 10px; color: var(--muted); }
+.empty-feed { text-align: center; padding: 40px 20px; }
+.empty-feed .ico { font-size: 40px; opacity: .3; margin-bottom: 10px; }
+.empty-feed .txt { font-size: 13px; color: var(--t3); }
 
-  .empty-row td { text-align: center; color: var(--muted); padding: 24px; font-size: 13px; }
+/* ── FAB (+ кнопка) ── */
+.fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--t1); color: #fff;
+  border: none; font-size: 28px; font-weight: 300;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  cursor: pointer; z-index: 50;
+  transition: transform .15s;
+}
+.fab:active { transform: scale(.93); }
 
-  /* ── Form ── */
-  .form-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-bottom: 16px;
-  }
-  .form-row { margin-bottom: 10px; }
-  .form-row label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
-  .form-row input,
-  .form-row select,
-  .form-row textarea {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 9px 11px;
-    font-size: 14px;
-    font-family: var(--font);
-    color: var(--text);
-    background: var(--bg);
-    outline: none;
-    transition: border-color .15s;
-  }
-  .form-row input:focus,
-  .form-row select:focus,
-  .form-row textarea:focus { border-color: var(--accent); background: #fff; }
-  .form-row textarea { resize: vertical; min-height: 60px; }
+/* ── Bottom sheet (форма) ── */
+.sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 100;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.sheet-overlay.show { opacity: 1; pointer-events: all; }
 
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sheet {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+  width: 100%; max-width: 480px;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  z-index: 101;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.sheet.show { transform: translateX(-50%) translateY(0); }
 
-  /* Динамические поля */
-  .extra-fields { display: none; }
-  .extra-fields.visible { display: block; }
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border); margin: 12px auto 0;
+}
+.sheet-title { font-size: 16px; font-weight: 700; padding: 14px 16px 4px; }
 
-  /* ── Btn ── */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: opacity .15s;
-  }
-  .btn:active { opacity: .8; }
-  .btn-primary { background: var(--accent); color: #fff; width: 100%; justify-content: center; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.form-wrap { padding: 0 16px 16px; }
+.fg { margin-bottom: 12px; }
+.fg label { display: block; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+.fi {
+  width: 100%; padding: 11px 13px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; font-family: var(--font); color: var(--t1);
+  background: var(--bg); outline: none; transition: border-color .15s;
+}
+.fi:focus { border-color: var(--t1); background: #fff; }
+select.fi { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: #1A1D23; color: #fff;
-    padding: 10px 18px; border-radius: 8px;
-    font-size: 13px; font-weight: 500;
-    opacity: 0; transition: opacity .25s;
-    pointer-events: none; z-index: 100;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; }
+.extra { display: none; }
+.extra.on { display: block; }
 
-  /* ── Loader ── */
-  .loader { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; }
-  .spin {
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin .6s linear infinite;
-    display: inline-block; vertical-align: middle; margin-right: 8px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.btn-save {
+  width: 100%; padding: 14px;
+  background: var(--t1); color: #fff;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700; font-family: var(--font);
+  cursor: pointer; margin-top: 4px;
+  transition: opacity .15s;
+}
+.btn-save:disabled { opacity: .5; }
+.btn-save:active { opacity: .8; }
 
-  /* Фильтры */
-  .filters {
-    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
-  }
-  .filter-btn {
-    padding: 4px 10px; border-radius: 20px; font-size: 12px;
-    border: 1px solid var(--border); background: var(--surface);
-    cursor: pointer; color: var(--muted); font-weight: 500;
-    transition: all .15s;
-  }
-  .filter-btn.active {
-    background: var(--accent); color: #fff; border-color: var(--accent);
-  }
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--t1); color: #fff;
+  padding: 10px 18px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity .2s;
+  pointer-events: none; z-index: 200;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Loader ── */
+.loader { text-align: center; padding: 40px; color: var(--t3); font-size: 13px; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-icon">🚐</div>
-  <div>
-    <h1>VW Crafter — Учёт</h1>
-    <small>AP 4246-7 | Передан АТК в безвозмездное пользование</small>
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-icon">🚐</div>
+    <div class="hdr-text">
+      <h1>VW Crafter — Учёт</h1>
+      <p>AP 4246-7 · личный автомобиль Бруй Д.А.</p>
+    </div>
   </div>
 </div>
 
-<div class="main">
+<!-- Баланс -->
+<div class="balance-hero">
+  <div class="balance-label">АТК должен тебе</div>
+  <div class="balance-amount pos" id="bal-amount">—</div>
+  <div class="balance-meta">
+    <div class="bm-item">
+      <div class="bm-val" id="bal-days">—</div>
+      <div class="bm-lab">Суток у АТК</div>
+    </div>
+    <div class="bm-sep"></div>
+    <div class="bm-item">
+      <div class="bm-val" id="bal-accrued">—</div>
+      <div class="bm-lab">Начислено BYN</div>
+    </div>
+    <div class="bm-sep"></div>
+    <div class="bm-item">
+      <div class="bm-val" id="bal-expenses">—</div>
+      <div class="bm-lab">Расходы BYN</div>
+    </div>
+    <div class="bm-sep"></div>
+    <div class="bm-item">
+      <div class="bm-val" id="bal-paid">—</div>
+      <div class="bm-lab">Оплачено BYN</div>
+    </div>
+  </div>
+</div>
 
-  <!-- Сводка -->
-  <div id="summaryBlock">
-    <div class="loader"><span class="spin"></span>Загружаю данные…</div>
+<div class="scroll">
+<div class="wrap">
+
+  <div class="sec-title">
+    <span>Лента</span>
+    <span id="feed-count" style="font-weight:400"></span>
   </div>
 
-  <!-- Записи -->
-  <div class="section-title">
-    <span>Все записи</span>
-    <span id="recordCount" style="font-weight:400"></span>
+  <div class="feed" id="feed">
+    <div class="loader">Загружаю...</div>
   </div>
 
-  <div class="filters">
-    <button class="filter-btn active" data-filter="all">Все</button>
-    <button class="filter-btn" data-filter="trip">Командировки</button>
-    <button class="filter-btn" data-filter="mileage">Выезды</button>
-    <button class="filter-btn" data-filter="repair">Ремонт</button>
-    <button class="filter-btn" data-filter="fuel">Заправки</button>
-  </div>
+</div>
+</div>
 
-  <div class="table-wrap">
-    <table class="tbl">
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Тип</th>
-          <th>Описание</th>
-          <th>Км</th>
-          <th>Сумма</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr class="empty-row"><td colspan="5"><span class="spin"></span></td></tr>
-      </tbody>
-    </table>
-  </div>
+<!-- FAB -->
+<button class="fab" onclick="openSheet()">+</button>
 
-  <!-- Форма добавления -->
-  <div class="section-title" style="margin-top:4px">Добавить запись</div>
-  <div class="form-card">
-    <div class="form-row">
+<!-- Overlay -->
+<div class="sheet-overlay" id="overlay" onclick="closeSheet()"></div>
+
+<!-- Bottom sheet -->
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Новая запись</div>
+  <div class="form-wrap">
+
+    <div class="fg">
       <label>Тип</label>
-      <select id="fType" onchange="onTypeChange()">
-        <option value="mileage">🟢 Выезд (пробег)</option>
-        <option value="repair">🔴 Ремонт</option>
-        <option value="fuel">🟠 Заправка</option>
+      <select class="fi" id="fType" onchange="onTypeChange()">
+        <option value="trip">📅 Командировка (суточные)</option>
+        <option value="mileage">🛣 Выезд (пробег)</option>
+        <option value="repair">🔧 Ремонт</option>
+        <option value="payment">✅ Оплата от АТК</option>
       </select>
     </div>
 
-    <div class="form-grid">
-      <div class="form-row">
-        <label>Дата</label>
-        <input type="date" id="fDate">
-      </div>
-      <div class="form-row" id="fKmRow">
-        <label>Пробег (км)</label>
-        <input type="number" id="fKm" placeholder="100" min="0">
-      </div>
+    <div class="fg">
+      <label>Дата</label>
+      <input type="date" class="fi" id="fDate">
     </div>
 
-    <div class="form-row" id="fDescRow">
-      <label>Маршрут / описание</label>
-      <input type="text" id="fDesc" placeholder="Боровляны → Камень → Боровляны">
+    <div class="fg">
+      <label id="fDescLabel">Описание</label>
+      <input type="text" class="fi" id="fDesc" placeholder="">
     </div>
 
-    <div class="form-row extra-fields" id="fAmountRow">
-      <label>Сумма (BYN)</label>
-      <input type="number" id="fAmount" placeholder="0.00" step="0.01" min="0">
+    <div class="fg extra" id="fKmGroup">
+      <label>Пробег (км)</label>
+      <input type="number" class="fi" id="fKm" placeholder="0" min="0">
     </div>
 
-    <div class="form-row extra-fields" id="fLitersRow">
-      <label>Литры</label>
-      <input type="number" id="fLiters" placeholder="60" step="0.1" min="0">
+    <div class="fg extra" id="fAmountGroup">
+      <label id="fAmountLabel">Сумма (BYN)</label>
+      <input type="number" class="fi" id="fAmount" placeholder="0" step="0.01" min="0">
     </div>
 
-    <div class="form-row">
-      <label>Примечание (необязательно)</label>
-      <textarea id="fNote" placeholder=""></textarea>
+    <div class="fg extra" id="fDaysGroup">
+      <label>Суток</label>
+      <input type="number" class="fi" id="fDays" placeholder="1" min="1" oninput="calcTrip()">
     </div>
 
-    <button class="btn btn-primary" onclick="saveRecord()">
-      <span>💾</span> Сохранить
-    </button>
+    <div class="fg">
+      <label>Примечание</label>
+      <textarea class="fi" id="fNote" rows="2" placeholder="" style="resize:none"></textarea>
+    </div>
+
+    <button class="btn-save" id="btnSave" onclick="saveRecord()">Сохранить</button>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Config ──
-const SCRIPT_URL  = 'https://agrodrone-proxy.birsiti.workers.dev';
-const SHEET_ID    = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
-const SHEETS_KEY  = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
-const RATE_PER_DAY = 150; // BYN/сутки
+const SCRIPT_URL = 'https://agrodrone-proxy.birsiti.workers.dev';
+const SHEET_ID   = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+const SHEETS_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const RATE       = 150; // BYN/сутки
+const PLATE_NORM = 'AP42467'; // без пробелов
 
-// ── State ──
 let allRecords = [];
-let currentFilter = 'all';
 
-// ── Init ──
+// ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setDefaultDate();
+  onTypeChange();
   loadAll();
-  initFilters();
 });
 
 function setDefaultDate() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('fDate').value = today;
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
 }
 
-function initFilters() {
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
-      renderTable();
-    });
-  });
-}
-
-// ── Load all data ──
+// ── Load ──────────────────────────────────────────────────
 async function loadAll() {
   try {
-    const [trips, manual] = await Promise.all([
-      loadTrips(),
-      loadManual()
-    ]);
-
-    // Объединяем и сортируем по дате
-    allRecords = [...trips, ...manual].sort((a, b) => new Date(b.dateSort) - new Date(a.dateSort));
-    renderSummary();
-    renderTable();
+    const [trips, manual] = await Promise.all([loadTrips(), loadManual()]);
+    allRecords = [...trips, ...manual].sort((a,b) => new Date(b.dateSort) - new Date(a.dateSort));
+    renderBalance();
+    renderFeed();
   } catch(e) {
-    document.getElementById('summaryBlock').innerHTML =
-      `<div class="loader" style="color:var(--red)">Ошибка загрузки: ${e.message}</div>`;
+    document.getElementById('feed').innerHTML = `<div class="loader" style="color:#DC2626">Ошибка: ${e.message}</div>`;
   }
 }
 
-// Командировки где авто = Crafter
 async function loadTrips() {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ?key=${SHEETS_KEY}`;
   const r = await fetch(url);
@@ -420,43 +344,47 @@ async function loadTrips() {
   if (!rows.length) return [];
 
   const h = rows[0];
-  const IDX = {
+  const C = {
     id:       h.indexOf('ID'),
     dateFrom: h.indexOf('Дата откр.'),
     dateTo:   h.indexOf('Дата закр.'),
     district: h.indexOf('Район'),
     car:      h.indexOf('Авто'),
+    note:     h.indexOf('Примечание'),
   };
 
   const results = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (!row[IDX.id]) continue;
+    if (!row[C.id]) continue;
     let carData = {};
-    try { carData = JSON.parse(row[IDX.car] || '{}'); } catch(e) {}
-    const carStr = (carData.car || '').toLowerCase();
-    const plate=String(carData.plate||'').replace(/\s/g,'');if(!plate.includes('AP 4246-7')&&!plate.includes('AP4246-7')) continue;
-    const dFrom = parseDate(row[IDX.dateFrom]);
-    const dTo   = parseDate(row[IDX.dateTo]);
-    if (!dFrom) continue;
+    try { carData = JSON.parse(row[C.car] || '{}'); } catch(e) {}
+    const plate = String(carData.plate || '').replace(/\s/g, '');
+    if (!plate.includes(PLATE_NORM) && !plate.includes('AP4246-7')) continue;
 
+    const dFrom = parseDate(row[C.dateFrom]);
+    const dTo   = parseDate(row[C.dateTo]);
+    if (!dFrom) continue;
     const days = daysBetween(dFrom, dTo || dFrom);
+    // Пробег из примечания командировки: "Пробег: 850 км"
+    const noteStr = String(row[C.note] || '');
+    const kmMatch = noteStr.match(/Пробег[:\s]+(\d+)/i);
+    const km = kmMatch ? parseInt(kmMatch[1]) : null;
+
     results.push({
       type:     'trip',
       dateSort: dFrom.toISOString(),
-      dateDisp: formatDateDisp(dFrom),
-      desc:     `${row[IDX.district]} | ${row[IDX.id]}`,
-      km:       '',
-      amount:   days * RATE_PER_DAY,
+      dateDisp: fmtDisp(dFrom),
+      desc:     `${row[C.district] || '—'} · ${row[C.id]}`,
+      km,
       days,
+      amount:   days * RATE,
       source:   'авто',
-      id:       row[IDX.id],
     });
   }
   return results;
 }
 
-// Ручные записи из листа КРАФТЕР
 async function loadManual() {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КРАФТЕР?key=${SHEETS_KEY}`;
   try {
@@ -464,160 +392,150 @@ async function loadManual() {
     const d = await r.json();
     const rows = d.values || [];
     if (rows.length < 2) return [];
-
     const h = rows[0];
-    const IDX = {
+    const C = {
       id:     h.indexOf('ID'),
       date:   h.indexOf('Дата'),
       type:   h.indexOf('Тип'),
       desc:   h.indexOf('Описание'),
       km:     h.indexOf('Км'),
       amount: h.indexOf('Сумма'),
-      liters: h.indexOf('Литры'),
+      days:   h.indexOf('Дни'),
       note:   h.indexOf('Примечание'),
     };
-
-    return rows.slice(1).filter(r => r[IDX.date]).map(row => {
-      const d = parseDate(row[IDX.date]);
-      const type = row[IDX.type] || 'mileage';
-      const amount = parseFloat(row[IDX.amount]) || 0;
+    return rows.slice(1).filter(r => r[C.date]).map(row => {
+      const d    = parseDate(row[C.date]);
+      const type = row[C.type] || 'mileage';
+      const amt  = parseFloat(row[C.amount]) || 0;
       return {
         type,
-        dateSort: d ? d.toISOString() : row[IDX.date],
-        dateDisp: d ? formatDateDisp(d) : row[IDX.date],
-        desc:     row[IDX.desc] || '',
-        km:       row[IDX.km] || '',
-        amount:   type === 'mileage' ? 0 : amount,
-        expense:  (type === 'repair' || type === 'fuel') ? amount : 0,
-        liters:   row[IDX.liters] || '',
-        note:     row[IDX.note] || '',
-        source:   'ручной',
-        id:       row[IDX.id] || '',
+        dateSort: d ? d.toISOString() : row[C.date],
+        dateDisp: d ? fmtDisp(d) : row[C.date],
+        desc:    row[C.desc] || '',
+        km:      row[C.km]   || null,
+        days:    parseInt(row[C.days]) || null,
+        amount:  amt,
+        note:    row[C.note] || '',
+        source:  'ручной',
+        id:      row[C.id]   || '',
       };
     });
-  } catch(e) {
-    return []; // Лист ещё не создан — ок
-  }
+  } catch(e) { return []; }
 }
 
-// ── Render Summary ──
-function renderSummary() {
-  const trips   = allRecords.filter(r => r.type === 'trip');
-  const repairs = allRecords.filter(r => r.type === 'repair');
-  const fuels   = allRecords.filter(r => r.type === 'fuel');
-  const mileage = allRecords.filter(r => r.type === 'mileage');
+// ── Balance ───────────────────────────────────────────────
+function renderBalance() {
+  const trips    = allRecords.filter(r => r.type === 'trip');
+  const repairs  = allRecords.filter(r => r.type === 'repair');
+  const mileage  = allRecords.filter(r => r.type === 'mileage');
+  const payments = allRecords.filter(r => r.type === 'payment');
 
   const totalDays    = trips.reduce((s, r) => s + (r.days || 0), 0);
-  const accrued      = totalDays * RATE_PER_DAY;
-  const repairCost   = repairs.reduce((s, r) => s + (r.expense || r.amount || 0), 0);
-  const fuelCost     = fuels.reduce((s, r) => s + (r.expense || r.amount || 0), 0);
-  const totalExpense = repairCost + fuelCost;
-  const balance      = accrued - totalExpense;
-  const totalKm      = mileage.reduce((s, r) => s + (parseFloat(r.km) || 0), 0);
+  const accrued      = trips.reduce((s, r) => s + (r.amount || 0), 0);
+  const repairCost   = repairs.reduce((s, r) => s + (r.amount || 0), 0);
+  const totalPaid    = payments.reduce((s, r) => s + (r.amount || 0), 0);
+  const balance      = accrued - repairCost - totalPaid;
 
-  const balClass = balance >= 0 ? 'positive' : 'negative';
-  const balSign  = balance >= 0 ? '+' : '';
+  const el = document.getElementById('bal-amount');
+  el.textContent = (balance >= 0 ? '+' : '') + fmt(balance) + ' BYN';
+  el.className   = 'balance-amount ' + (balance >= 0 ? 'pos' : 'neg');
 
-  document.getElementById('summaryBlock').innerHTML = `
-    <div class="balance-card">
-      <div>
-        <div class="balance-label">Баланс по крафтеру</div>
-        <div class="balance-value ${balClass}">${balSign}${fmt(balance)} BYN</div>
-      </div>
-      <div class="balance-breakdown">
-        Начислено: ${fmt(accrued)} BYN<br>
-        Ремонт: −${fmt(repairCost)} BYN<br>
-        Топливо: −${fmt(fuelCost)} BYN
-      </div>
-    </div>
-
-    <div class="summary">
-      <div class="card">
-        <div class="card-label">Суток у АТК</div>
-        <div class="card-value">${totalDays}</div>
-        <div class="card-sub">${trips.length} командировок × 150 BYN</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Начислено</div>
-        <div class="card-value positive">${fmt(accrued)}</div>
-        <div class="card-sub">BYN</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Ремонт</div>
-        <div class="card-value ${repairCost > 0 ? 'negative' : ''}">${fmt(repairCost)}</div>
-        <div class="card-sub">BYN · ${repairs.length} записей</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Доп. пробег</div>
-        <div class="card-value">${totalKm}</div>
-        <div class="card-sub">км · ${mileage.length} выездов</div>
-      </div>
-    </div>
-  `;
+  document.getElementById('bal-days').textContent     = totalDays;
+  document.getElementById('bal-accrued').textContent  = fmt(accrued);
+  document.getElementById('bal-expenses').textContent = fmt(repairCost);
+  document.getElementById('bal-paid').textContent     = fmt(totalPaid);
 }
 
-// ── Render Table ──
-function renderTable() {
-  const filtered = currentFilter === 'all'
-    ? allRecords
-    : allRecords.filter(r => r.type === currentFilter);
-
-  document.getElementById('recordCount').textContent =
-    `${filtered.length} из ${allRecords.length}`;
-
-  const tbody = document.getElementById('tableBody');
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Записей нет</td></tr>`;
+// ── Feed ──────────────────────────────────────────────────
+function renderFeed() {
+  document.getElementById('feed-count').textContent = allRecords.length + ' записей';
+  const feed = document.getElementById('feed');
+  if (!allRecords.length) {
+    feed.innerHTML = `<div class="empty-feed"><div class="ico">📋</div><div class="txt">Записей нет — нажмите + чтобы добавить</div></div>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(r => {
-    const badge = badgeHtml(r.type);
-    const km    = r.km ? `${r.km} км` : '—';
-    const amt   = (r.type === 'repair' || r.type === 'fuel')
-      ? `<span class="amount-neg">−${fmt(r.expense || r.amount)}</span>`
-      : r.type === 'trip'
-        ? `<span class="amount-pos">+${fmt(r.amount)}</span>`
-        : '—';
-    const src = r.source === 'авто'
-      ? `<br><span class="source-auto">из таблицы</span>` : '';
+  feed.innerHTML = allRecords.map(r => {
+    const ico = { trip:'📅', mileage:'🛣', repair:'🔧', payment:'✅' }[r.type] || '📦';
+    const icoClass = r.type;
 
-    return `<tr>
-      <td>${r.dateDisp}${src}</td>
-      <td>${badge}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.desc}">${r.desc}</td>
-      <td>${km}</td>
-      <td>${amt}</td>
-    </tr>`;
+    let amtHtml = '';
+    if (r.type === 'trip')    amtHtml = `<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
+    if (r.type === 'repair')  amtHtml = `<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
+    if (r.type === 'payment') amtHtml = `<div class="fc-amount pay">−${fmt(r.amount)}</div>`;
+    if (r.type === 'mileage') amtHtml = r.km ? `<div class="fc-amount" style="color:var(--t2)">${r.km} км</div>` : '';
+
+    const meta = [];
+    if (r.type === 'trip' && r.days) meta.push(`${r.days} сут`);
+    if (r.km && r.type !== 'mileage') meta.push(`${r.km} км`);
+    if (r.note) meta.push(r.note);
+
+    const src = r.source === 'авто' ? '<div class="fc-source">из таблицы</div>' : '';
+
+    return `<div class="fc">
+      <div class="fc-ico ${icoClass}">${ico}</div>
+      <div class="fc-body">
+        <div class="fc-desc">${r.dateDisp} — ${r.desc}</div>
+        ${meta.length ? `<div class="fc-meta">${meta.join(' · ')}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        ${amtHtml}
+        ${src}
+      </div>
+    </div>`;
   }).join('');
 }
 
-function badgeHtml(type) {
-  const map = {
-    trip:    ['badge-trip',    'Команд.'],
-    mileage: ['badge-mileage', 'Выезд'],
-    repair:  ['badge-repair',  'Ремонт'],
-    fuel:    ['badge-fuel',    'Заправка'],
-  };
-  const [cls, label] = map[type] || ['', type];
-  return `<span class="badge ${cls}">${label}</span>`;
+// ── Sheet ─────────────────────────────────────────────────
+function openSheet() {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+}
+function closeSheet() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
 }
 
-// ── Form ──
 function onTypeChange() {
   const type = document.getElementById('fType').value;
-  const amountRow = document.getElementById('fAmountRow');
-  const litersRow = document.getElementById('fLitersRow');
-  const kmRow     = document.getElementById('fKmRow');
-  const descEl    = document.getElementById('fDesc');
+  const km     = document.getElementById('fKmGroup');
+  const amount = document.getElementById('fAmountGroup');
+  const days   = document.getElementById('fDaysGroup');
+  const descLbl = document.getElementById('fDescLabel');
+  const amtLbl  = document.getElementById('fAmountLabel');
 
-  amountRow.classList.toggle('visible', type === 'repair' || type === 'fuel');
-  litersRow.classList.toggle('visible', type === 'fuel');
-  kmRow.style.display = type === 'mileage' ? '' : 'none';
+  km.classList.remove('on');
+  amount.classList.remove('on');
+  days.classList.remove('on');
 
-  if (type === 'mileage') descEl.placeholder = 'Боровляны → Камень → Боровляны';
-  else if (type === 'repair') descEl.placeholder = 'Замена колодок';
-  else descEl.placeholder = 'ДТ, АЗС Белоруснефть';
+  if (type === 'mileage') {
+    km.classList.add('on');
+    descLbl.textContent = 'Маршрут';
+    document.getElementById('fDesc').placeholder = 'Боровляны → Камень → Боровляны';
+  } else if (type === 'repair') {
+    amount.classList.add('on');
+    amtLbl.textContent = 'Сумма (BYN)';
+    descLbl.textContent = 'Что ремонтировали';
+    document.getElementById('fDesc').placeholder = 'Замена колодок';
+  } else if (type === 'payment') {
+    amount.classList.add('on');
+    amtLbl.textContent = 'Сумма оплаты (BYN)';
+    descLbl.textContent = 'Основание';
+    document.getElementById('fDesc').placeholder = 'Оплата за май';
+  } else if (type === 'trip') {
+    days.classList.add('on');
+    amount.classList.add('on');
+    amtLbl.textContent = 'Сумма (авто)';
+    descLbl.textContent = 'Куда';
+    document.getElementById('fDesc').placeholder = 'Ганцевичи';
+    document.getElementById('fDays').value = '1';
+    calcTrip();
+  }
+}
+
+function calcTrip() {
+  const d = parseInt(document.getElementById('fDays').value) || 1;
+  document.getElementById('fAmount').value = (d * RATE).toFixed(0);
 }
 
 async function saveRecord() {
@@ -626,37 +544,33 @@ async function saveRecord() {
   const desc   = document.getElementById('fDesc').value.trim();
   const km     = document.getElementById('fKm').value;
   const amount = document.getElementById('fAmount').value;
-  const liters = document.getElementById('fLiters').value;
+  const days   = document.getElementById('fDays').value;
   const note   = document.getElementById('fNote').value.trim();
 
-  if (!date || !desc) { showToast('Заполни дату и описание', true); return; }
+  if (!date || !desc) { showToast('Заполни дату и описание'); return; }
 
-  const payload = {
-    action: 'addCrafterRecord',
-    data: { type, date, desc, km, amount, liters, note }
-  };
-
-  const btn = document.querySelector('.btn-primary');
+  const btn = document.getElementById('btnSave');
   btn.disabled = true; btn.textContent = 'Сохраняю…';
 
   try {
     const r = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ action: 'addCrafterRecord', data: { type, date, desc, km, amount, days, note } })
     });
     const d = await r.json();
     const res = d.result?.result || d.result || d;
     if (res.ok) {
       showToast('Сохранено ✓');
+      closeSheet();
       clearForm();
       await loadAll();
     } else {
-      showToast(res.error || 'Ошибка', true);
+      showToast(res.error || 'Ошибка');
     }
   } catch(e) {
-    showToast('Ошибка сети', true);
+    showToast('Ошибка сети');
   } finally {
-    btn.disabled = false; btn.textContent = '💾 Сохранить';
+    btn.disabled = false; btn.textContent = 'Сохранить';
   }
 }
 
@@ -664,38 +578,33 @@ function clearForm() {
   document.getElementById('fDesc').value   = '';
   document.getElementById('fKm').value     = '';
   document.getElementById('fAmount').value = '';
-  document.getElementById('fLiters').value = '';
+  document.getElementById('fDays').value   = '';
   document.getElementById('fNote').value   = '';
   setDefaultDate();
+  onTypeChange();
 }
 
-// ── Helpers ──
+// ── Helpers ───────────────────────────────────────────────
 function parseDate(val) {
   if (!val) return null;
   if (val instanceof Date) return val;
-  // DD.MM.YYYY
   const m = String(val).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
   if (m) return new Date(+m[3], +m[2]-1, +m[1]);
   const d = new Date(val);
   return isNaN(d) ? null : d;
 }
-
 function daysBetween(d1, d2) {
   return Math.round(Math.abs(d2 - d1) / 86400000) + 1;
 }
-
-function formatDateDisp(d) {
+function fmtDisp(d) {
   return d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'2-digit' });
 }
-
 function fmt(n) {
   return Number(n).toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
-
-function showToast(msg, isErr = false) {
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = isErr ? 'var(--red)' : '#1A1D23';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
