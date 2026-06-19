@@ -435,8 +435,7 @@ async function loadTrips() {
     let carData = {};
     try { carData = JSON.parse(row[IDX.car] || '{}'); } catch(e) {}
     const carStr = (carData.car || '').toLowerCase();
-    if (!carStr.includes('crafter')) continue;
-
+    const plate=String(carData.plate||'').replace(/\s/g,'');if(!plate.includes('AP 4246-7')&&!plate.includes('AP4246-7')) continue;
     const dFrom = parseDate(row[IDX.dateFrom]);
     const dTo   = parseDate(row[IDX.dateTo]);
     if (!dFrom) continue;
