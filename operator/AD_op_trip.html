@@ -180,6 +180,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <div style="flex:1"><div class="gear-label">🚐 Автомобиль</div></div>
       <select class="gear-select" id="dep-car" onchange="depToggleRent()">
         <option value="Ford Transit AT1637-5">Ford Transit AT1637-5</option>
+        <option value="VW Crafter (AP 4246-7)">VW Crafter AP 4246-7</option>
         <option value="Аренда">Аренда</option>
         <option value="Другой">Другой</option>
       </select>
@@ -457,7 +458,7 @@ function prefill(){
   document.getElementById('hdr-sub').textContent='';
   const notes=String(t.notes||'');
   const carM=notes.match(/^([^|]+)/);
-  if(carM){const car=carM[1].trim();const sel=document.getElementById('dep-car');if([...sel.options].some(o=>o.value===car))sel.value=car;else sel.value='Аренда';depToggleRent();}
+if(carM){const car=carM[1].trim();const sel=document.getElementById('dep-car');if([...sel.options].some(o=>o.value===car))sel.value=car;else if(car.toLowerCase().includes('crafter'))sel.value='VW Crafter (AP 4246-7)';else sel.value='Аренда';depToggleRent();}
   const rentM=notes.match(/Аренда:\s*([\d.]+)\s*BYN/);
   if(rentM)document.getElementById('dep-rent-cost').value=rentM[1];
   const modelM=notes.match(/Аренда:\s*([^(]+)\s*\(/);
@@ -472,7 +473,7 @@ if(plateM&&document.getElementById('dep-rent-plate'))document.getElementById('de
   const chM=notes.match(/Зарядки:(\d+)/);if(chM){gearQty.chargers=+chM[1];document.getElementById('qty-chargers').textContent=chM[1];}
 }
 function depToggleRent(){
-  const isRent=document.getElementById('dep-car').value==='Аренда';
+const v=document.getElementById('dep-car').value;const isRent=v==='Аренда'||v==='Другой';
   ['dep-rent-row','dep-rent-model-row','dep-rent-plate-row'].forEach(id=>{
     document.getElementById(id).style.display=isRent?'flex':'none';
   });
@@ -485,12 +486,12 @@ async function depart(){
   const odometer=parseInt(document.getElementById('dep-odometer').value)||0;
   const car=document.getElementById('dep-car').value;
   const trailer=document.getElementById('dep-trailer').value;
-  const rentCost=parseFloat(document.getElementById('dep-rent-cost').value)||0;
+  const rentCost=parseFloat(document.getElementById('dep-rent-cost').value)||0;  
   const rentModel=document.getElementById('dep-rent-model')?.value||'';
   const rentPlate=document.getElementById('dep-rent-plate')?.value||'';
-  const carType=car==='Аренда'?'rent':'own';
+  const carType=car==='Аренда'?'rent':car.includes('Crafter')?'rent':'own';
+  const plateFinal=car==='Аренда'?rentPlate:car.includes('Crafter')?'AP 4246-7':'AT1637-5';
   const carLabel=car==='Аренда'?(rentModel||'Аренда'):car;
-  const plateFinal=car==='Аренда'?rentPlate:'AT1637-5';
   const notes=`${carLabel}${rentCost>0?' | Аренда: '+rentCost+' BYN/день':''} | Спидометр выезд: ${odometer} | Лопасти:${gearQty.blades}, Форсунки:${gearQty.nozzles}, АКБ:${gearQty.batteries}, Зарядки:${gearQty.chargers}`;
 
   // Один запрос вместо шести — всё на сервере за одно выполнение
