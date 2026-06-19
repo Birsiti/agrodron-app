@@ -274,8 +274,9 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   <div class="card">
     <div class="card-title">🚐 Автомобиль</div>
     <div class="radio-group">
-      <div class="radio-item selected" onclick="selectCar(this,'own')"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
-      <div class="radio-item" onclick="selectCar(this,'rent')"><div class="radio-dot"></div><div class="radio-label">Аренда</div></div>
+     <div class="radio-item selected" onclick="selectCar(this,'own')"><div class="radio-dot"></div><div class="radio-label">Свой (Ford Transit AT1637-5)</div></div>
+      <div class="radio-item" onclick="selectCar(this,'crafter')"><div class="radio-dot"></div><div class="radio-label">Крафтер (AP 4246-7)</div></div>
+      <div class="radio-item" onclick="selectCar(this,'rent')"><div class="radio-dot"></div><div class="radio-label">Аренда (другой)</div></div>
     </div>
 
     <!-- Блок аренды -->
@@ -675,7 +676,7 @@ function collectFormData(){
   let tech=Array.from(selectedTech).filter(id=>id!=='OTHER').map(id=>TECH_NAMES[id]).join(', ');
   if(selectedTech.has('OTHER')){const o=document.getElementById('other-tech').value.trim();if(o)tech+=(tech?', ':'')+o;}
   const rentModel=document.getElementById('rent-model').value.trim();
-const car=carType==='own'?'Ford Transit AT1637-5':`Аренда: ${rentModel||'—'} (${document.getElementById('rent-number').value||'—'})`;  const gear=`Лопасти:${gearCounters.blades}, Форсунки:${gearCounters.nozzles}, АКБ:${gearCounters.batteries}, Зарядки:${gearCounters.chargers}`;
+const car=carType==='own'?'Ford Transit AT1637-5':carType==='crafter'?'VW Crafter (AP 4246-7)':`Аренда: ${rentModel||'—'} (${document.getElementById('rent-number').value||'—'})`;  const gear=`Лопасти:${gearCounters.blades}, Форсунки:${gearCounters.nozzles}, АКБ:${gearCounters.batteries}, Зарядки:${gearCounters.chargers}`;
   return{district,dateStart,dateEnd,plannedHa,operators,tech,car,gear};
 }
 
@@ -807,9 +808,9 @@ function toggleTech(el,id){
 function selectCar(el,type){
   document.querySelectorAll('.radio-item').forEach(i=>i.classList.remove('selected'));
   el.classList.add('selected');carType=type;
-  document.getElementById('rent-block').style.display=type==='rent'?'block':'none';
-  if(type==='rent') loadRentHistory();
-}
+document.getElementById('rent-block').style.display=type==='rent'?'block':'none';
+if(type==='crafter'){document.getElementById('rent-model').value='VW Crafter';document.getElementById('rent-number').value='AP 4246-7';}
+  if(type==='rent') loadRentHistory();}
 let rentHistory = [];
 let selectedRentIdx = -1;
 
