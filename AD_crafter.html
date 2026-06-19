@@ -294,6 +294,11 @@ select.fi { appearance: none; background-image: url("data:image/svg+xml,%3Csvg x
     </div>
 
     <div class="fg">
+      <label>Новая ставка BYN/сутки <span style="color:var(--t3);font-weight:400">(оставь пустым если не меняется)</span></label>
+      <input type="number" class="fi" id="fRate" placeholder="150" step="1" min="0">
+    </div>
+
+    <div class="fg">
       <label>Примечание</label>
       <textarea class="fi" id="fNote" rows="2" placeholder="" style="resize:none"></textarea>
     </div>
@@ -308,8 +313,8 @@ select.fi { appearance: none; background-image: url("data:image/svg+xml,%3Csvg x
 const SCRIPT_URL = 'https://agrodrone-proxy.birsiti.workers.dev';
 const SHEET_ID   = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
 const SHEETS_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
-const RATE       = 150; // BYN/сутки
-const PLATE_NORM = 'AP42467'; // без пробелов
+const DEFAULT_RATE = 150; // BYN/сутки — дефолт если нет ставки в таблице
+const PLATE_NORM   = 'AP42467'; // без пробелов
 
 let allRecords = [];
 
@@ -328,7 +333,27 @@ function setDefaultDate() {
 async function loadAll() {
   try {
     const [trips, manual] = await Promise.all([loadTrips(), loadManual()]);
-    allRecords = [...trips, ...manual].sort((a,b) => new Date(b.dateSort) - new Date(a.dateSort));
+    // Объединяем и сортируем по дате ASC для расчёта ставок
+    const sorted = [...trips, ...manual].sort((a,b) => new Date(a.dateSort) - new Date(b.dateSort));
+    // Пересчитываем суммы с учётом актуальной ставки на дату
+    let currentRate = DEFAULT_RATE;
+    for (const r of sorted) {
+      // Обновляем ставку если в записи есть новая
+      if (r.rate) currentRate = r.rate;
+      r.rateUsed = currentRate;
+      // Пересчитываем суммы для trip и mileage
+      if (r.source === 'авто' && r.type === 'trip') {
+        r.amount = (r.nights || 0) * currentRate;
+      }
+      if (r.source === 'ручной' && r.type === 'trip' && r.days) {
+        r.amount = r.days * currentRate;
+      }
+      if (r.type === 'mileage') {
+        r.amount = currentRate * 0.5; // 75 BYN при ставке 150
+        r.amtDay = true;
+      }
+    }
+    allRecords = sorted.sort((a,b) => new Date(b.dateSort) - new Date(a.dateSort));
     renderBalance();
     renderFeed();
   } catch(e) {
@@ -365,7 +390,8 @@ async function loadTrips() {
     const dFrom = parseDate(row[C.dateFrom]);
     const dTo   = parseDate(row[C.dateTo]);
     if (!dFrom) continue;
-    const days = daysBetween(dFrom, dTo || dFrom);
+    const daysCount = daysBetween(dFrom, dTo || dFrom);
+    const nights = Math.max(0, daysCount - 1); // суток = дней - 1
     // Пробег из примечания командировки: "Пробег: 850 км"
     const noteStr = String(row[C.note] || '');
     const kmMatch = noteStr.match(/Пробег[:\s]+(\d+)/i);
@@ -377,8 +403,9 @@ async function loadTrips() {
       dateDisp: fmtDisp(dFrom),
       desc:     `${row[C.district] || '—'} · ${row[C.id]}`,
       km,
-      days,
-      amount:   days * RATE,
+      nights,
+      days:     daysCount,
+      amount:   0, // пересчитается в loadAll со ставкой
       source:   'авто',
     });
   }
@@ -402,11 +429,13 @@ async function loadManual() {
       amount: h.indexOf('Сумма'),
       days:   h.indexOf('Дни'),
       note:   h.indexOf('Примечание'),
+      rate:   h.indexOf('Ставка'),
     };
     return rows.slice(1).filter(r => r[C.date]).map(row => {
       const d    = parseDate(row[C.date]);
       const type = row[C.type] || 'mileage';
       const amt  = parseFloat(row[C.amount]) || 0;
+      const rate = C.rate >= 0 ? parseFloat(row[C.rate]) || null : null;
       return {
         type,
         dateSort: d ? d.toISOString() : row[C.date],
@@ -415,6 +444,7 @@ async function loadManual() {
         km:      row[C.km]   || null,
         days:    parseInt(row[C.days]) || null,
         amount:  amt,
+        rate,
         note:    row[C.note] || '',
         source:  'ручной',
         id:      row[C.id]   || '',
@@ -430,8 +460,10 @@ function renderBalance() {
   const mileage  = allRecords.filter(r => r.type === 'mileage');
   const payments = allRecords.filter(r => r.type === 'payment');
 
-  const totalDays    = trips.reduce((s, r) => s + (r.days || 0), 0);
-  const accrued      = trips.reduce((s, r) => s + (r.amount || 0), 0);
+  const totalNights  = trips.reduce((s, r) => s + (r.nights ?? r.days ?? 0), 0);
+  const tripAccrued  = trips.reduce((s, r) => s + (r.amount || 0), 0);
+  const mileAccrued  = mileage.reduce((s, r) => s + (r.amount || 0), 0);
+  const accrued      = tripAccrued + mileAccrued;
   const repairCost   = repairs.reduce((s, r) => s + (r.amount || 0), 0);
   const totalPaid    = payments.reduce((s, r) => s + (r.amount || 0), 0);
   const balance      = accrued - repairCost - totalPaid;
@@ -440,7 +472,7 @@ function renderBalance() {
   el.textContent = (balance >= 0 ? '+' : '') + fmt(balance) + ' BYN';
   el.className   = 'balance-amount ' + (balance >= 0 ? 'pos' : 'neg');
 
-  document.getElementById('bal-days').textContent     = totalDays;
+  document.getElementById('bal-days').textContent     = totalNights;
   document.getElementById('bal-accrued').textContent  = fmt(accrued);
   document.getElementById('bal-expenses').textContent = fmt(repairCost);
   document.getElementById('bal-paid').textContent     = fmt(totalPaid);
@@ -463,10 +495,15 @@ function renderFeed() {
     if (r.type === 'trip')    amtHtml = `<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
     if (r.type === 'repair')  amtHtml = `<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
     if (r.type === 'payment') amtHtml = `<div class="fc-amount pay">−${fmt(r.amount)}</div>`;
-    if (r.type === 'mileage') amtHtml = r.km ? `<div class="fc-amount" style="color:var(--t2)">${r.km} км</div>` : '';
+    if (r.type === 'mileage') {
+      const parts = [];
+      if (r.amount) parts.push(`<div class="fc-amount pos">+${fmt(r.amount)}</div>`);
+      if (r.km) parts.push(`<div class="fc-source">${r.km} км</div>`);
+      amtHtml = parts.join('');
+    }
 
     const meta = [];
-    if (r.type === 'trip' && r.days) meta.push(`${r.days} сут`);
+    if (r.type === 'trip') { const n = r.nights ?? (r.days ? r.days-1 : 0); if (n) meta.push(`${n} сут`); }
     if (r.km && r.type !== 'mileage') meta.push(`${r.km} км`);
     if (r.note) meta.push(r.note);
 
@@ -546,6 +583,7 @@ async function saveRecord() {
   const amount = document.getElementById('fAmount').value;
   const days   = document.getElementById('fDays').value;
   const note   = document.getElementById('fNote').value.trim();
+  const rate   = document.getElementById('fRate').value;
 
   if (!date || !desc) { showToast('Заполни дату и описание'); return; }
 
@@ -555,7 +593,7 @@ async function saveRecord() {
   try {
     const r = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'addCrafterRecord', data: { type, date, desc, km, amount, days, note } })
+      body: JSON.stringify({ action: 'addCrafterRecord', data: { type, date, desc, km, amount, days, note, rate } })
     });
     const d = await r.json();
     const res = d.result?.result || d.result || d;
@@ -580,6 +618,7 @@ function clearForm() {
   document.getElementById('fAmount').value = '';
   document.getElementById('fDays').value   = '';
   document.getElementById('fNote').value   = '';
+  document.getElementById('fRate').value   = '';
   setDefaultDate();
   onTypeChange();
 }
