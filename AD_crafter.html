@@ -391,7 +391,7 @@ async function loadTrips() {
     const dTo   = parseDate(row[C.dateTo]);
     if (!dFrom) continue;
     const daysCount = daysBetween(dFrom, dTo || dFrom);
-    const nights = Math.max(0, daysCount - 1); // суток = дней - 1
+    const nights = Math.max(1, daysCount - 1); // суток = дней - 1, минимум 1
     // Пробег из примечания командировки: "Пробег: 850 км"
     const noteStr = String(row[C.note] || '');
     const kmMatch = noteStr.match(/Пробег[:\s]+(\d+)/i);
