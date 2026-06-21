@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Menu v3.1
-  v3.1 · 2026-06-02 · Fix: День NaN (дата ДД.ММ.ГГГГ)
+  AgroDrone.BY · Menu v3.2
+  v3.2 · 2026-06-21 · Убрана погода, порядок: Проблемы → Карта, tg.expand()
   - Активные командировки из таблицы (массив)
   - История завершённых командировок
   - Новая подготовка всегда доступна
@@ -183,9 +183,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 
   <!-- Рабочее -->
   <div class="sep">🛠 Рабочее</div>
-  <div class="mi" onclick="goTo('AD_op_map.html')"><div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Карта полей</div><div class="mi-sub">Поля района на карте</div></div><div class="mi-arr">›</div></div>
-  <div class="mi" onclick="goTo('AD_op_weather.html')"><div class="mi-ico">🌤</div><div class="mi-info"><div class="mi-title">Погода</div><div class="mi-sub">Прогноз для полётов</div></div><div class="mi-arr">›</div></div>
   <div class="mi" onclick="goTo('AD_op_issues.html')"><div class="mi-ico">🔧</div><div class="mi-info"><div class="mi-title">Проблемы с техникой</div><div class="mi-sub">Дроны, авто, генератор, насос</div></div><div class="mi-badge" id="issues-badge" style="display:none">!</div><div class="mi-arr">›</div></div>
+  <div class="mi" onclick="goTo('AD_op_map.html')"><div class="mi-ico">🗺</div><div class="mi-info"><div class="mi-title">Карта полей</div><div class="mi-sub">Поля района на карте</div></div><div class="mi-arr">›</div></div>
 
   <!-- Информация -->
   <div class="sep">📋 Информация</div>
@@ -198,6 +197,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);margin:0 auto;hei
 <div id="toast" class="toast"></div>
 
 <script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
 function getOp(){ try{return JSON.parse(localStorage.getItem('atk_op')||'null')}catch(e){return null} }
 function saveOp(o){ localStorage.setItem('atk_op', JSON.stringify(o)) }
 function getDay(){ try{return JSON.parse(localStorage.getItem('atk_day')||'null')}catch(e){return null} }
@@ -220,7 +220,7 @@ function fmtDMY(val){
 function countDays(start){
   if(!start)return 1;
   let iso=String(start).trim();
-  const m=iso.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);   // ДД.ММ.ГГГГ → ISO
+  const m=iso.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
   if(m) iso=`${m[3]}-${m[2]}-${m[1]}`;
   const s=new Date(iso.includes('T')?iso:iso+'T00:00:00');
   if(isNaN(s))return 1;
@@ -243,19 +243,11 @@ async function apiCall(action,data={}){
   }catch(e){return{ok:false,error:e.message}}
 }
 
-// ── Рендер активных командировок ─────────────────────────
 function renderActiveTrips(trips){
   const list=document.getElementById('active-trips-list');
   document.getElementById('trips-skeleton').style.display='none';
-
-  if(!trips||trips.length===0){
-    list.innerHTML='';
-    return;
-  }
-
-  // Показать кнопку "Внести расход" если есть активные
+  if(!trips||trips.length===0){list.innerHTML='';return;}
   document.getElementById('btn-expense').style.display='flex';
-
   list.innerHTML=trips.map(t=>{
     const days=countDays(t.dateStart||t.dateStart);
     const balance=(parseFloat(t.advance)||0)-(parseFloat(t.spent)||0);
@@ -283,7 +275,6 @@ function openTrip(tripId){
   goTo(`AD_op_trip.html?tripId=${encodeURIComponent(tripId)}`);
 }
 
-// ── День-баннер ───────────────────────────────────────────
 function renderDayBanner(){
   const day=getDay();
   const banner=document.getElementById('day-banner');
@@ -301,7 +292,6 @@ function renderDayBanner(){
   banner.style.display='block';
 }
 
-// ── Оператор ──────────────────────────────────────────────
 function applyOp(op){
   const isBrigadier=op.id==='OP001'||op.id==='op_001';
   document.getElementById('op-chip').textContent=op.name||'—';
@@ -312,19 +302,15 @@ function applyOp(op){
   saveOp({...op,isBrigadier});
 }
 
-// ── Init ─────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
-  // Кэш сразу
   const cached=getOp();
   if(cached) applyOp(cached);
   renderDayBanner();
 
-  // Проблемы с техникой
   const issues=JSON.parse(localStorage.getItem('atk_issues')||'[]');
   const badge=document.getElementById('issues-badge');
   if(badge) badge.style.display=issues.filter(i=>i.status!=='resolved').length>0?'block':'none';
 
-  // Грузим данные параллельно
   const [opsResp, tripsResp, closedResp] = await Promise.all([
     apiCall('get_operators',{status:'Активен'}),
     apiCall('getActiveTrips',{}),
@@ -342,8 +328,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }
 
   if(closedResp.ok&&closedResp.result?.count>0){
-    document.getElementById('history-sub').textContent=
-      `Завершённых: ${closedResp.result.count}`;
+    document.getElementById('history-sub').textContent=`Завершённых: ${closedResp.result.count}`;
   }
 });
 </script>

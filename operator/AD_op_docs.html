@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Оператор — Документы и связь
-  v1.2 · 2026-05-19
-  Файл: AD_op_docs.html
-  Изменения v1.2:
-  - Вшиты PDF файлы из /mnt/project (ИВП_РБ_Выжимка_АТК.pdf, Заявка_ИВП_Инструкция_АТК.pdf)
-  - Добавлены заглушки телефонов (ждём реальных номеров от Дениса)
-  
-  Изменения v1.1:
-  - Исправлено название файла в комментарии
-  - Исправлены ссылки: op_menu.html → AD_op_menu.html
+  v1.3 · 2026-06-21 · Убран Леоновец, активированы кнопки звонка, tg.expand()
 -->
 <html lang="ru">
 <head>
@@ -30,7 +22,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .wrap{padding:12px 12px 32px}
 .card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);margin-bottom:10px}
 .card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
-.sep{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:14px 2px 8px}
 .contact-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
 .contact-row:last-child{border-bottom:none}
 .contact-info .name{font-size:14px;font-weight:700;color:var(--t1)}
@@ -43,7 +34,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .doc-title{font-size:14px;font-weight:700;color:var(--t1)}
 .doc-sub{font-size:11px;color:var(--t3);margin-top:2px}
 .doc-arr{color:var(--t3);font-size:18px}
-.sos-btn{display:block;width:100%;padding:16px;border-radius:var(--rs);background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;font-size:16px;font-weight:800;font-family:var(--f);cursor:pointer;text-align:center;margin-bottom:8px}
+.sos-btn{display:block;width:100%;padding:16px;border-radius:var(--rs);background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;font-size:16px;font-weight:800;font-family:var(--f);cursor:pointer;text-align:center;margin-bottom:8px;text-decoration:none}
 .sos-btn:active{transform:scale(.98)}
 </style>
 </head>
@@ -56,7 +47,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="wrap">
 
   <!-- ЭКСТРЕННАЯ СВЯЗЬ -->
-  <button class="sos-btn" onclick="sos()">🆘 ЭКСТРЕННАЯ СВЯЗЬ С РП</button>
+  <a class="sos-btn" href="tel:+375447615524">🆘 ЭКСТРЕННАЯ СВЯЗЬ С РП</a>
 
   <!-- КОНТАКТЫ -->
   <div class="card">
@@ -67,15 +58,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
         <div class="name">Костевич Сергей Анатольевич</div>
         <div class="role">📡 Руководитель полётов (РП)</div>
       </div>
-      <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
-    </div>
-
-    <div class="contact-row">
-      <div class="contact-info">
-        <div class="name">Леоновец Юрий Александрович</div>
-        <div class="role">👔 Генеральный директор</div>
-      </div>
-      <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
+      <a class="call-btn" href="tel:+375447615524">📞 Звонок</a>
     </div>
 
     <div class="contact-row">
@@ -83,7 +66,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
         <div class="name">Бруй Денис Анатольевич</div>
         <div class="role">⚡ Руководитель бригад</div>
       </div>
-      <a class="call-btn" href="tel:+375XXXXXXXXX">📞 Звонок</a>
+      <a class="call-btn" href="tel:+375297777222">📞 Звонок</a>
     </div>
   </div>
 
@@ -130,27 +113,19 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 </div>
 </div>
 <script>
-function sos() {
-  alert('📡 ЭКСТРЕННАЯ СВЯЗЬ С РП\n\nКостевич Сергей Анатольевич\n+375 XX XXX-XX-XX\n\n⚠️ Звонить только в экстренных случаях:\n• Серьёзная поломка техники\n• ЧП в поле\n• Проблемы с безопасностью полётов');
-}
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
 
 function openDoc(type) {
-  // PDF файлы из /mnt/project (загружены на сервер)
-  // TODO: заменить на реальные ссылки Google Drive или сервера после загрузки
   const docs = {
-    // Реальные PDF из /mnt/project:
-    ivp: '/docs/ИВП_РБ_Выжимка_АТК.pdf',        // 407KB, 3 страницы
-    zayavka: '/docs/Заявка_ИВП_Инструкция_АТК.pdf',  // 167KB, 1 страница
-    
-    // Эти документы ещё не готовы:
+    ivp: '/docs/ИВП_РБ_Выжимка_АТК.pdf',
+    zayavka: '/docs/Заявка_ИВП_Инструкция_АТК.pdf',
     safety: null,
     checklist: null
   };
-  
   if (docs[type]) {
     window.open(docs[type], '_blank');
   } else {
-    alert('📄 Документ скоро будет добавлен\n\nМы работаем над подготовкой этого материала.');
+    alert('📄 Документ скоро будет добавлен');
   }
 }
 </script>
