@@ -159,8 +159,8 @@ function setFilter(f,btn){
 function renderList(){
   const list=document.getElementById('list');
   let trips=allTrips;
-  if(currentFilter==='active') trips=trips.filter(t=>t.status!=='Завершена'&&t.status!=='closed');
-  if(currentFilter==='closed') trips=trips.filter(t=>t.status==='Завершена'||t.status==='closed');
+  if(currentFilter==='active') trips=trips.filter(t=>t.status==='активна'||t.status==='подготовка');
+if(currentFilter==='closed') trips=trips.filter(t=>t.status==='закрыта');
 
   if(!trips.length){
     list.innerHTML='<div class="empty">Командировки не найдены</div>';
@@ -168,7 +168,7 @@ function renderList(){
   }
 
   list.innerHTML=trips.map(t=>{
-    const isActive=t.status!=='Завершена'&&t.status!=='closed';
+    const isActive=t.status==='активна'||t.status==='подготовка';
     return`
     <div class="trip-card ${isActive?'active':'closed'}" onclick="openModal(${JSON.stringify(t).replace(/"/g,'&quot;')})">
       <div class="tc-top">
