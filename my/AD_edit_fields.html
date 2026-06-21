@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Редактор полей агрономов
-  v1.0 · 2026-06-21
+  v1.1 · 2026-06-21 · Фикс: маппинг полей под Fields.gs (crop/prep/haPlan/norm)
 -->
 <html lang="ru">
 <head>
@@ -37,24 +37,24 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:10px 12px 32px}
 
-/* Карточка поля */
 .field-card{background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;cursor:pointer;border-left:4px solid var(--border);transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .field-card:active{transform:scale(.99)}
-.field-card.status-new{border-left-color:#3b82f6}
-.field-card.status-process{border-left-color:var(--orange)}
-.field-card.status-done{border-left-color:var(--ga)}
-.field-card.status-cancel{border-left-color:var(--t3)}
+.field-card.s-new{border-left-color:#3b82f6}
+.field-card.s-confirmed{border-left-color:var(--orange)}
+.field-card.s-done{border-left-color:var(--ga)}
+.field-card.s-partial{border-left-color:#f59e0b}
+.field-card.s-other{border-left-color:var(--t3)}
 .fc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .fc-name{font-size:14px;font-weight:800;color:var(--t1)}
 .fc-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px}
 .b-new{background:#eff6ff;color:#2563eb}
-.b-process{background:#fff7ed;color:var(--orange)}
+.b-confirmed{background:#fff7ed;color:var(--orange)}
 .b-done{background:var(--gl);color:var(--green)}
-.b-cancel{background:#f3f4f6;color:var(--t3)}
+.b-partial{background:#fffbeb;color:#b45309}
+.b-other{background:#f3f4f6;color:var(--t3)}
 .fc-meta{font-size:12px;color:var(--t2);display:flex;gap:12px;flex-wrap:wrap}
 .fc-client{font-size:11px;color:var(--t3);margin-top:4px}
 
-/* Модалка */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end}
 .overlay.show{display:flex}
 .modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto}
@@ -88,10 +88,10 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
   <input class="search-inp" type="text" id="search" placeholder="🔍 Клиент, район, название..." oninput="applyFilters()">
   <div class="filter-row" id="status-filters">
     <button class="f-chip active" onclick="setStatus('',this)">Все</button>
-    <button class="f-chip" onclick="setStatus('Новая',this)">Новая</button>
-    <button class="f-chip" onclick="setStatus('В работе',this)">В работе</button>
-    <button class="f-chip" onclick="setStatus('Выполнено',this)">Выполнено</button>
-    <button class="f-chip" onclick="setStatus('Отмена',this)">Отмена</button>
+    <button class="f-chip" onclick="setStatus('новое',this)">Новое</button>
+    <button class="f-chip" onclick="setStatus('подтверждено',this)">Подтверждено</button>
+    <button class="f-chip" onclick="setStatus('частично',this)">Частично</button>
+    <button class="f-chip" onclick="setStatus('готово',this)">Готово</button>
   </div>
 </div>
 
@@ -107,7 +107,6 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
 </div>
 </div>
 
-<!-- Модалка -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-title" id="m-title">Поле</div>
@@ -115,26 +114,27 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
 
     <div class="field-label">Статус</div>
     <select class="inp" id="m-status">
-      <option value="Новая">Новая</option>
-      <option value="В работе">В работе</option>
-      <option value="Выполнено">Выполнено</option>
-      <option value="Отмена">Отмена</option>
+      <option value="новое">Новое</option>
+      <option value="подтверждено">Подтверждено</option>
+      <option value="частично">Частично</option>
+      <option value="готово">Готово</option>
+      <option value="отклонено">Отклонено</option>
     </select>
 
     <div class="field-label">Площадь (га)</div>
-    <input class="inp" type="number" step="0.1" id="m-area" placeholder="0.0">
+    <input class="inp" type="number" step="0.1" id="m-haPlan" placeholder="0.0">
 
     <div class="field-label">Культура</div>
-    <input class="inp" type="text" id="m-culture" placeholder="Пшеница, рапс...">
+    <input class="inp" type="text" id="m-crop" placeholder="Пшеница, рапс...">
 
     <div class="field-label">Препарат</div>
-    <input class="inp" type="text" id="m-drug" placeholder="Название препарата">
+    <input class="inp" type="text" id="m-prep" placeholder="Название препарата">
 
     <div class="field-label">Норма (л/га)</div>
     <input class="inp" type="number" step="0.1" id="m-norm" placeholder="0.0">
 
     <div class="field-label">Примечания</div>
-    <input class="inp" type="text" id="m-notes" placeholder="Дополнительно...">
+    <input class="inp" type="text" id="m-note" placeholder="Дополнительно...">
 
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal()">Отмена</button>
@@ -153,13 +153,9 @@ let filteredFields=[];
 let currentStatus='';
 let editingField=null;
 
-const STATUS_CLASS={
-  'Новая':'status-new','В работе':'status-process',
-  'Выполнено':'status-done','Отмена':'status-cancel',''  :'status-new'
-};
-const BADGE_CLASS={
-  'Новая':'b-new','В работе':'b-process','Выполнено':'b-done','Отмена':'b-cancel',''  :'b-new'
-};
+// Маппинг статус → CSS-класс и бейдж
+const S_CLASS={'новое':'s-new','подтверждено':'s-confirmed','готово':'s-done','частично':'s-partial'};
+const B_CLASS={'новое':'b-new','подтверждено':'b-confirmed','готово':'b-done','частично':'b-partial'};
 
 async function apiCall(action,data={}){
   try{
@@ -188,7 +184,11 @@ function applyFilters(){
   const q=document.getElementById('search').value.toLowerCase().trim();
   filteredFields=allFields.filter(f=>{
     const matchStatus=!currentStatus||(f.status||'')==currentStatus;
-    const matchQ=!q||(f.clientName||'').toLowerCase().includes(q)||(f.district||'').toLowerCase().includes(q)||(f.name||'').toLowerCase().includes(q)||(f.clientId||'').toLowerCase().includes(q);
+    const matchQ=!q||
+      (f.clientId||'').toLowerCase().includes(q)||
+      (f.city||'').toLowerCase().includes(q)||
+      (f.name||'').toLowerCase().includes(q)||
+      (f.crop||'').toLowerCase().includes(q);
     return matchStatus&&matchQ;
   });
   renderList();
@@ -204,34 +204,35 @@ function renderList(){
   }
 
   list.innerHTML=filteredFields.map(f=>{
-    const sc=STATUS_CLASS[f.status]||'status-new';
-    const bc=BADGE_CLASS[f.status]||'b-new';
+    const sc=S_CLASS[f.status]||'s-other';
+    const bc=B_CLASS[f.status]||'b-other';
+    const escaped=JSON.stringify(f).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
     return`
-    <div class="field-card ${sc}" onclick='openModal(${JSON.stringify(f).replace(/'/g,"&#39;")})'>
+    <div class="field-card ${sc}" onclick='openModal(${escaped})'>
       <div class="fc-top">
-        <div class="fc-name">${f.name||f.district||'Поле'}</div>
+        <div class="fc-name">${f.name||f.city||'Поле'}</div>
         <span class="fc-badge ${bc}">${f.status||'—'}</span>
       </div>
       <div class="fc-meta">
-        <span>📍 ${f.district||'—'}</span>
-        <span>📐 ${f.area||f.areaHa||'—'} га</span>
-        <span>🌿 ${f.culture||'—'}</span>
+        <span>📍 ${f.city||'—'}</span>
+        <span>📐 ${f.haPlan||'—'} га</span>
+        <span>🌿 ${f.crop||'—'}</span>
       </div>
-      <div class="fc-client">${f.clientName||f.clientId||''} · ID: ${f.id||f.fieldId}</div>
+      <div class="fc-client">ID клиента: ${f.clientId||'—'} · ${f.id}</div>
     </div>`;
   }).join('');
 }
 
 function openModal(f){
   editingField=f;
-  document.getElementById('m-title').textContent=f.name||f.district||'Поле';
-  document.getElementById('m-sub').textContent=`${f.clientName||f.clientId||''} · ID: ${f.id||f.fieldId}`;
-  document.getElementById('m-status').value=f.status||'Новая';
-  document.getElementById('m-area').value=f.area||f.areaHa||'';
-  document.getElementById('m-culture').value=f.culture||'';
-  document.getElementById('m-drug').value=f.drug||f.препарат||'';
-  document.getElementById('m-norm').value=f.norm||f.normLha||'';
-  document.getElementById('m-notes').value=f.notes||'';
+  document.getElementById('m-title').textContent=f.name||f.city||'Поле';
+  document.getElementById('m-sub').textContent=`${f.city||''} · ID: ${f.id}`;
+  document.getElementById('m-status').value=f.status||'новое';
+  document.getElementById('m-haPlan').value=f.haPlan||'';
+  document.getElementById('m-crop').value=f.crop||'';
+  document.getElementById('m-prep').value=f.prep||'';
+  document.getElementById('m-norm').value=f.norm||'';
+  document.getElementById('m-note').value=f.note||'';
   document.getElementById('overlay').classList.add('show');
 }
 
@@ -246,32 +247,55 @@ async function saveField(){
   const btn=document.querySelector('.btn-save');
   btn.textContent='Сохраняем...';btn.disabled=true;
 
-  const data={
-    fieldId:editingField.id||editingField.fieldId,
-    status:document.getElementById('m-status').value,
-    area:document.getElementById('m-area').value,
-    culture:document.getElementById('m-culture').value,
-    drug:document.getElementById('m-drug').value,
-    norm:document.getElementById('m-norm').value,
-    notes:document.getElementById('m-notes').value,
-  };
+  const newStatus=document.getElementById('m-status').value;
+  const statusChanged=newStatus!==editingField.status;
 
-  const resp=await apiCall('updateField',data);
+  // updateField — поля crop/prep/haPlan/norm как в Fields.gs
+  const calls=[
+    apiCall('updateField',{
+      id:     editingField.id,
+      crop:   document.getElementById('m-crop').value,
+      prep:   document.getElementById('m-prep').value,
+      haPlan: document.getElementById('m-haPlan').value,
+      norm:   document.getElementById('m-norm').value,
+      note:   document.getElementById('m-note').value,
+    })
+  ];
+
+  // Если статус изменился — отдельный вызов updateFieldStatus
+  if(statusChanged){
+    calls.push(apiCall('updateFieldStatus',{id:editingField.id,status:newStatus}));
+  }
+
+  const results=await Promise.all(calls);
   btn.textContent='Сохранить';btn.disabled=false;
 
-  if(resp.ok){
-    const idx=allFields.findIndex(f=>(f.id||f.fieldId)===(editingField.id||editingField.fieldId));
-    if(idx>=0){Object.assign(allFields[idx],{status:data.status,area:data.area,areaHa:data.area,culture:data.culture,drug:data.drug,norm:data.norm,notes:data.notes});}
+  const allOk=results.every(r=>r.ok);
+  if(allOk){
+    // Обновляем локально
+    const idx=allFields.findIndex(f=>f.id===editingField.id);
+    if(idx>=0){
+      Object.assign(allFields[idx],{
+        crop:   document.getElementById('m-crop').value,
+        prep:   document.getElementById('m-prep').value,
+        haPlan: document.getElementById('m-haPlan').value,
+        norm:   document.getElementById('m-norm').value,
+        note:   document.getElementById('m-note').value,
+        status: newStatus
+      });
+    }
     applyFilters();
     document.getElementById('overlay').classList.remove('show');
     showToast('✓ Сохранено');
   } else {
-    showToast('Ошибка: '+(resp.error||'нет ответа'),false);
+    const err=results.find(r=>!r.ok);
+    showToast('Ошибка: '+(err?.error||'нет ответа'),false);
   }
 }
 
 async function load(){
-  const resp=await apiCall('getClientFields',{all:true});
+  // getAllFields — все поля без фильтра по clientId
+  const resp=await apiCall('getAllFields',{});
   document.getElementById('skeleton').style.display='none';
   if(resp.ok&&resp.result?.fields){
     allFields=resp.result.fields;
