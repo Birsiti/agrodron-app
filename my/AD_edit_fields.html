@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Редактор полей агрономов
+  v1.0 · 2026-06-21
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Поля</title>
+<script src="../config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--orange:#d97706;--orange-dark:#b45309;
+  --orange-light:#fed7aa;--orange-pale:#fff5eb;
+  --green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.hdr-count{font-size:12px;color:var(--t3);margin-left:auto}
+
+.filters-wrap{background:var(--card);padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.search-inp{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--f);color:var(--t1);outline:none;transition:border .2s}
+.search-inp:focus{border-color:var(--orange)}
+.filter-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.f-chip{padding:6px 12px;border-radius:20px;border:2px solid var(--border);background:var(--card);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;white-space:nowrap;font-family:var(--f);transition:all .2s;flex-shrink:0}
+.f-chip.active{border-color:var(--orange);background:var(--orange-pale);color:var(--orange)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:10px 12px 32px}
+
+/* Карточка поля */
+.field-card{background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;cursor:pointer;border-left:4px solid var(--border);transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.field-card:active{transform:scale(.99)}
+.field-card.status-new{border-left-color:#3b82f6}
+.field-card.status-process{border-left-color:var(--orange)}
+.field-card.status-done{border-left-color:var(--ga)}
+.field-card.status-cancel{border-left-color:var(--t3)}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.fc-name{font-size:14px;font-weight:800;color:var(--t1)}
+.fc-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px}
+.b-new{background:#eff6ff;color:#2563eb}
+.b-process{background:#fff7ed;color:var(--orange)}
+.b-done{background:var(--gl);color:var(--green)}
+.b-cancel{background:#f3f4f6;color:var(--t3)}
+.fc-meta{font-size:12px;color:var(--t2);display:flex;gap:12px;flex-wrap:wrap}
+.fc-client{font-size:11px;color:var(--t3);margin-top:4px}
+
+/* Модалка */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:2px}
+.modal-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
+.field-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:14px}
+.field-label:first-of-type{margin-top:0}
+.inp{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:var(--f);color:var(--t1);background:#fafbfd;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--orange)}
+select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%239aa3b2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.modal-btns{display:flex;gap:10px;margin-top:20px;padding-bottom:8px}
+.btn-cancel{flex:1;padding:13px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;font-family:var(--f)}
+.btn-save{flex:2;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--f)}
+.btn-save:active{transform:scale(.98)}
+
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:var(--r);height:72px;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(27,89,53,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="sub-hdr">
+  <div class="back-btn" onclick="history.back()">‹</div>
+  <div class="hdr-title">Поля агрономов</div>
+  <div class="hdr-count" id="hdr-count"></div>
+</div>
+
+<div class="filters-wrap">
+  <input class="search-inp" type="text" id="search" placeholder="🔍 Клиент, район, название..." oninput="applyFilters()">
+  <div class="filter-row" id="status-filters">
+    <button class="f-chip active" onclick="setStatus('',this)">Все</button>
+    <button class="f-chip" onclick="setStatus('Новая',this)">Новая</button>
+    <button class="f-chip" onclick="setStatus('В работе',this)">В работе</button>
+    <button class="f-chip" onclick="setStatus('Выполнено',this)">Выполнено</button>
+    <button class="f-chip" onclick="setStatus('Отмена',this)">Отмена</button>
+  </div>
+</div>
+
+<div class="scroll">
+<div class="wrap">
+  <div id="skeleton">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </div>
+  <div id="list"></div>
+</div>
+</div>
+
+<!-- Модалка -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="m-title">Поле</div>
+    <div class="modal-sub" id="m-sub"></div>
+
+    <div class="field-label">Статус</div>
+    <select class="inp" id="m-status">
+      <option value="Новая">Новая</option>
+      <option value="В работе">В работе</option>
+      <option value="Выполнено">Выполнено</option>
+      <option value="Отмена">Отмена</option>
+    </select>
+
+    <div class="field-label">Площадь (га)</div>
+    <input class="inp" type="number" step="0.1" id="m-area" placeholder="0.0">
+
+    <div class="field-label">Культура</div>
+    <input class="inp" type="text" id="m-culture" placeholder="Пшеница, рапс...">
+
+    <div class="field-label">Препарат</div>
+    <input class="inp" type="text" id="m-drug" placeholder="Название препарата">
+
+    <div class="field-label">Норма (л/га)</div>
+    <input class="inp" type="number" step="0.1" id="m-norm" placeholder="0.0">
+
+    <div class="field-label">Примечания</div>
+    <input class="inp" type="text" id="m-notes" placeholder="Дополнительно...">
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+      <button class="btn-save" onclick="saveField()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
+
+let allFields=[];
+let filteredFields=[];
+let currentStatus='';
+let editingField=null;
+
+const STATUS_CLASS={
+  'Новая':'status-new','В работе':'status-process',
+  'Выполнено':'status-done','Отмена':'status-cancel',''  :'status-new'
+};
+const BADGE_CLASS={
+  'Новая':'b-new','В работе':'b-process','Выполнено':'b-done','Отмена':'b-cancel',''  :'b-new'
+};
+
+async function apiCall(action,data={}){
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})});
+    const d=await r.json();
+    return{ok:d.ok,result:d.result?.result||d.result,error:d.error};
+  }catch(e){return{ok:false,error:e.message}}
+}
+
+function showToast(msg,ok=true){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=ok?'rgba(27,89,53,.95)':'rgba(220,38,38,.95)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function setStatus(s,btn){
+  currentStatus=s;
+  document.querySelectorAll('#status-filters .f-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  filteredFields=allFields.filter(f=>{
+    const matchStatus=!currentStatus||(f.status||'')==currentStatus;
+    const matchQ=!q||(f.clientName||'').toLowerCase().includes(q)||(f.district||'').toLowerCase().includes(q)||(f.name||'').toLowerCase().includes(q)||(f.clientId||'').toLowerCase().includes(q);
+    return matchStatus&&matchQ;
+  });
+  renderList();
+}
+
+function renderList(){
+  const list=document.getElementById('list');
+  document.getElementById('hdr-count').textContent=filteredFields.length+' полей';
+
+  if(!filteredFields.length){
+    list.innerHTML='<div class="empty">Поля не найдены</div>';
+    return;
+  }
+
+  list.innerHTML=filteredFields.map(f=>{
+    const sc=STATUS_CLASS[f.status]||'status-new';
+    const bc=BADGE_CLASS[f.status]||'b-new';
+    return`
+    <div class="field-card ${sc}" onclick='openModal(${JSON.stringify(f).replace(/'/g,"&#39;")})'>
+      <div class="fc-top">
+        <div class="fc-name">${f.name||f.district||'Поле'}</div>
+        <span class="fc-badge ${bc}">${f.status||'—'}</span>
+      </div>
+      <div class="fc-meta">
+        <span>📍 ${f.district||'—'}</span>
+        <span>📐 ${f.area||f.areaHa||'—'} га</span>
+        <span>🌿 ${f.culture||'—'}</span>
+      </div>
+      <div class="fc-client">${f.clientName||f.clientId||''} · ID: ${f.id||f.fieldId}</div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(f){
+  editingField=f;
+  document.getElementById('m-title').textContent=f.name||f.district||'Поле';
+  document.getElementById('m-sub').textContent=`${f.clientName||f.clientId||''} · ID: ${f.id||f.fieldId}`;
+  document.getElementById('m-status').value=f.status||'Новая';
+  document.getElementById('m-area').value=f.area||f.areaHa||'';
+  document.getElementById('m-culture').value=f.culture||'';
+  document.getElementById('m-drug').value=f.drug||f.препарат||'';
+  document.getElementById('m-norm').value=f.norm||f.normLha||'';
+  document.getElementById('m-notes').value=f.notes||'';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('overlay'))return;
+  document.getElementById('overlay').classList.remove('show');
+  editingField=null;
+}
+
+async function saveField(){
+  if(!editingField)return;
+  const btn=document.querySelector('.btn-save');
+  btn.textContent='Сохраняем...';btn.disabled=true;
+
+  const data={
+    fieldId:editingField.id||editingField.fieldId,
+    status:document.getElementById('m-status').value,
+    area:document.getElementById('m-area').value,
+    culture:document.getElementById('m-culture').value,
+    drug:document.getElementById('m-drug').value,
+    norm:document.getElementById('m-norm').value,
+    notes:document.getElementById('m-notes').value,
+  };
+
+  const resp=await apiCall('updateField',data);
+  btn.textContent='Сохранить';btn.disabled=false;
+
+  if(resp.ok){
+    const idx=allFields.findIndex(f=>(f.id||f.fieldId)===(editingField.id||editingField.fieldId));
+    if(idx>=0){Object.assign(allFields[idx],{status:data.status,area:data.area,areaHa:data.area,culture:data.culture,drug:data.drug,norm:data.norm,notes:data.notes});}
+    applyFilters();
+    document.getElementById('overlay').classList.remove('show');
+    showToast('✓ Сохранено');
+  } else {
+    showToast('Ошибка: '+(resp.error||'нет ответа'),false);
+  }
+}
+
+async function load(){
+  const resp=await apiCall('getClientFields',{all:true});
+  document.getElementById('skeleton').style.display='none';
+  if(resp.ok&&resp.result?.fields){
+    allFields=resp.result.fields;
+    applyFilters();
+  } else {
+    document.getElementById('list').innerHTML='<div class="empty">Не удалось загрузить поля</div>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded',load);
+</script>
+</body>
+</html>

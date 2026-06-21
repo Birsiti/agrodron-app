@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+  AgroDrone.BY · Редактор командировок
+  v1.0 · 2026-06-21
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AgroDrone.BY · Командировки</title>
+<script src="../config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f5;--card:#fff;--orange:#d97706;--orange-dark:#b45309;
+  --orange-light:#fed7aa;--orange-pale:#fff5eb;
+  --green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
+  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.sub-hdr{background:var(--card);padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{font-size:24px;cursor:pointer;color:var(--green);line-height:1;padding-right:4px;font-weight:300}
+.hdr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{padding:12px 12px 32px}
+
+/* Фильтры */
+.filters{display:flex;gap:8px;margin-bottom:12px}
+.filter-btn{flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);background:var(--card);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;font-family:var(--f);text-align:center;transition:all .2s}
+.filter-btn.active{border-color:var(--orange);background:var(--orange-pale);color:var(--orange)}
+
+/* Карточка командировки */
+.trip-card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;border-left:4px solid var(--border);transition:all .2s}
+.trip-card.active{border-left-color:var(--orange)}
+.trip-card.closed{border-left-color:var(--ga)}
+.trip-card:active{transform:scale(.99)}
+.tc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.tc-district{font-size:15px;font-weight:800;color:var(--t1)}
+.tc-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px}
+.badge-active{background:#fff7ed;color:var(--orange)}
+.badge-closed{background:var(--gl);color:var(--green)}
+.tc-dates{font-size:12px;color:var(--t2);display:flex;gap:16px}
+.tc-op{font-size:11px;color:var(--t3);margin-top:4px}
+
+/* Модалка */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--t3);margin-bottom:20px}
+.field-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:14px}
+.field-label:first-of-type{margin-top:0}
+.inp{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:var(--f);color:var(--t1);background:#fafbfd;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--orange)}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;padding:13px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;font-family:var(--f)}
+.btn-save{flex:2;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--f)}
+.btn-save:active{transform:scale(.98)}
+
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:var(--r);height:80px;margin-bottom:10px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(27,89,53,.95);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="sub-hdr">
+  <div class="back-btn" onclick="history.back()">‹</div>
+  <div class="hdr-title">Командировки</div>
+</div>
+<div class="scroll">
+<div class="wrap">
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Все</button>
+    <button class="filter-btn" onclick="setFilter('active',this)">Активные</button>
+    <button class="filter-btn" onclick="setFilter('closed',this)">Завершённые</button>
+  </div>
+
+  <div id="skeleton">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </div>
+  <div id="list"></div>
+
+</div>
+</div>
+
+<!-- Модалка редактирования -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="m-title">Командировка</div>
+    <div class="modal-sub" id="m-sub"></div>
+    <div class="field-label">Дата выезда</div>
+    <input class="inp" type="date" id="m-date-start">
+    <div class="field-label">Дата возврата</div>
+    <input class="inp" type="date" id="m-date-end">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+      <button class="btn-save" onclick="saveTrip()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
+
+let allTrips=[];
+let currentFilter='all';
+let editingTrip=null;
+
+function fmtDMY(val){
+  if(!val)return'—';
+  const s=String(val);
+  if(s.includes('T')){const d=new Date(s);return`${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`}
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return`${m[3]}.${m[2]}.${m[1]}`;
+  return s;
+}
+
+function toISO(val){
+  if(!val)return'';
+  const s=String(val).trim();
+  const m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if(m)return`${m[3]}-${m[2]}-${m[1]}`;
+  if(s.match(/^\d{4}-\d{2}-\d{2}/))return s.slice(0,10);
+  return'';
+}
+
+async function apiCall(action,data={}){
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data})});
+    const d=await r.json();
+    return{ok:d.ok,result:d.result?.result||d.result,error:d.error};
+  }catch(e){return{ok:false,error:e.message}}
+}
+
+function showToast(msg,ok=true){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=ok?'rgba(27,89,53,.95)':'rgba(220,38,38,.95)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList(){
+  const list=document.getElementById('list');
+  let trips=allTrips;
+  if(currentFilter==='active') trips=trips.filter(t=>t.status!=='Завершена'&&t.status!=='closed');
+  if(currentFilter==='closed') trips=trips.filter(t=>t.status==='Завершена'||t.status==='closed');
+
+  if(!trips.length){
+    list.innerHTML='<div class="empty">Командировки не найдены</div>';
+    return;
+  }
+
+  list.innerHTML=trips.map(t=>{
+    const isActive=t.status!=='Завершена'&&t.status!=='closed';
+    return`
+    <div class="trip-card ${isActive?'active':'closed'}" onclick="openModal(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+      <div class="tc-top">
+        <div class="tc-district">${t.district||t.direction||'—'}</div>
+        <span class="tc-badge ${isActive?'badge-active':'badge-closed'}">${isActive?'Активна':'Завершена'}</span>
+      </div>
+      <div class="tc-dates">
+        <span>▶ ${fmtDMY(t.dateStart)||'—'}</span>
+        <span>◀ ${fmtDMY(t.dateEnd||t.dateReturn)||'—'}</span>
+      </div>
+      <div class="tc-op">${t.operatorName||t.operator||''} · ID: ${t.id||t.tripId}</div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(t){
+  editingTrip=t;
+  document.getElementById('m-title').textContent=t.district||t.direction||'Командировка';
+  document.getElementById('m-sub').textContent=`ID: ${t.id||t.tripId} · ${t.operatorName||t.operator||''}`;
+  document.getElementById('m-date-start').value=toISO(t.dateStart)||'';
+  document.getElementById('m-date-end').value=toISO(t.dateEnd||t.dateReturn)||'';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('overlay'))return;
+  document.getElementById('overlay').classList.remove('show');
+  editingTrip=null;
+}
+
+async function saveTrip(){
+  if(!editingTrip)return;
+  const dateStart=document.getElementById('m-date-start').value;
+  const dateEnd=document.getElementById('m-date-end').value;
+  const btn=document.querySelector('.btn-save');
+  btn.textContent='Сохраняем...';btn.disabled=true;
+
+  const resp=await apiCall('updateTrip',{
+    tripId:editingTrip.id||editingTrip.tripId,
+    dateStart,
+    dateEnd
+  });
+
+  btn.textContent='Сохранить';btn.disabled=false;
+
+  if(resp.ok){
+    // Обновляем локально
+    const idx=allTrips.findIndex(t=>(t.id||t.tripId)===(editingTrip.id||editingTrip.tripId));
+    if(idx>=0){allTrips[idx].dateStart=dateStart;allTrips[idx].dateEnd=dateEnd;allTrips[idx].dateReturn=dateEnd;}
+    renderList();
+    document.getElementById('overlay').classList.remove('show');
+    showToast('✓ Сохранено');
+  } else {
+    showToast('Ошибка: '+(resp.error||'нет ответа'),false);
+  }
+}
+
+async function load(){
+  const resp=await apiCall('getAllTrips',{});
+  document.getElementById('skeleton').style.display='none';
+  if(resp.ok&&resp.result?.trips){
+    allTrips=resp.result.trips;
+    renderList();
+  } else {
+    document.getElementById('list').innerHTML='<div class="empty">Не удалось загрузить командировки</div>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded',load);
+</script>
+</body>
+</html>
