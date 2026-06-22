@@ -414,8 +414,7 @@ function renderFeed() {
     if (r.type==='mileage') amtHtml = `<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
 
     const meta = [];
-    if (r.type==='trip') { const n=r.nights??(r.days?r.days-1:0); if(n) meta.push(`${n} сут`); }
-    if (r.km) meta.push(`${r.km} км`);
+    if (r.type==='trip') { const n=r.source==='ручной'?(r.days||0):(r.nights??0); if(n) meta.push(`${n} сут`); }    if (r.km) meta.push(`${r.km} км`);
     if (r.note) meta.push(r.note);
 
     const src = r.source==='авто' ? '<div class="fc-source">из таблицы</div>' : '';
@@ -423,7 +422,7 @@ function renderFeed() {
     // Детальная панель
     const detailRows = [];
     if (r.type==='trip') {
-      detailRows.push(['Суток',r.nights??'—']);
+      detailRows.push(['Суток', r.source==='ручной' ? (r.days||'—') : (r.nights??'—')]);
       detailRows.push(['Ставка',`${r.rateUsed||currentRate} BYN/сут`]);
       if (r.km) detailRows.push(['Пробег',`${r.km} км`]);
     }
