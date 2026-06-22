@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Крафтер v2.1
-  v2.1 · 2026-06-22 · Кликабельная лента, ставка вынесена, фильтры, разбивка баланса
+  AgroDrone.BY · Крафтер v2.2
+  v2.2 · 2026-06-22 · Редактирование записей, editingId, updateCrafterRecord
 -->
 <html lang="ru">
 <head>
@@ -266,7 +266,8 @@ const PLATE_NORM  = 'AP42467';
 let allRecords  = [];
 let currentRate = 150;
 let activeFilter= 'all';
-let openCardIdx = null; // индекс раскрытой карточки
+let openCardIdx = null;
+let editingId = null;
 
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -503,6 +504,8 @@ function editRecord(idx, e) {
   document.getElementById('fDays').value = r.days || '';
   document.getElementById('fAmount').value = r.amount || '';
   document.getElementById('fNote').value = r.note || '';
+  editingId = r.id;
+  document.querySelector('#sheet .sheet-title').textContent = 'Редактировать запись';
   openSheet();
 }
 // ── Ставка ────────────────────────────────────────────────
@@ -540,6 +543,8 @@ function openSheet() {
 function closeAll() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('sheet').classList.remove('show');
+  editingId = null;
+  document.querySelector('#sheet .sheet-title').textContent = 'Новая запись';
 }
 
 function onTypeChange() {
@@ -592,11 +597,16 @@ async function saveRecord() {
   const btn = document.getElementById('btnSave');
   btn.disabled=true; btn.textContent='Сохраняю…';
   try {
-    const r = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addCrafterRecord',data:{type,date,desc,km,amount,days,note,rate:''}})});
+    const action  = editingId ? 'updateCrafterRecord' : 'addCrafterRecord';
+    const payload = editingId
+      ? {id:editingId, type, date, desc, km, amount, days, note}
+      : {type, date, desc, km, amount, days, note, rate:''};
+    const r = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action, data:payload})});
     const d = await r.json();
     const res = d.result?.result||d.result||d;
     if (res.ok) {
-      showToast('Сохранено ✓'); closeAll(); clearForm(); await loadAll();
+      showToast(editingId ? 'Обновлено ✓' : 'Сохранено ✓');
+      closeAll(); clearForm(); await loadAll();
     } else { showToast(res.error||'Ошибка'); }
   } catch(e) { showToast('Ошибка сети'); }
   finally { btn.disabled=false; btn.textContent='Сохранить'; }
@@ -604,6 +614,8 @@ async function saveRecord() {
 
 function clearForm() {
   ['fDesc','fKm','fAmount','fDays','fNote'].forEach(id=>document.getElementById(id).value='');
+  editingId = null;
+  document.querySelector('#sheet .sheet-title').textContent = 'Новая запись';
   setDefaultDate(); onTypeChange();
 }
 
