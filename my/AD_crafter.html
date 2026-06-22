@@ -72,7 +72,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fc-ico.repair{background:#FEF2F2}
 .fc-ico.payment{background:#F0FDF4}
 .fc-body{flex:1;min-width:0}
-.fc-desc{font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-desc{font-size:13px;font-weight:600;color:var(--t1)}
+.fc-desc.collapsed{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fc-meta{font-size:11px;color:var(--t3);margin-top:2px}
 .fc-right{text-align:right;flex-shrink:0}
 .fc-amount{font-size:15px;font-weight:700}
@@ -414,7 +415,7 @@ function renderFeed() {
     const meta = [];
     if (r.type==='trip') { const n=r.nights??(r.days?r.days-1:0); if(n) meta.push(`${n} сут`); }
     if (r.km) meta.push(`${r.km} км`);
-    if (r.note&&r.type!=='trip') meta.push(r.note);
+    if (r.note) meta.push(r.note);
 
     const src = r.source==='авто' ? '<div class="fc-source">из таблицы</div>' : '';
 
@@ -443,6 +444,7 @@ function renderFeed() {
 
     const actionsHtml = r.source==='ручной' ? `
       <div class="fc-detail-actions">
+        <button class="btn-edit" onclick="editRecord(${idx},event)">Редактировать</button>
         <button class="btn-del" onclick="deleteRecord('${r.id}',event)">Удалить</button>
       </div>` : '';
 
@@ -451,7 +453,7 @@ function renderFeed() {
       <div class="fc-main">
         <div class="fc-ico ${r.type}">${ico}</div>
         <div class="fc-body">
-          <div class="fc-desc">${r.dateDisp} — ${r.desc}</div>
+          <div class="fc-desc ${isOpen?'':'collapsed'}">${r.dateDisp} — ${r.desc}</div>
           ${meta.length?`<div class="fc-meta">${meta.join(' · ')}</div>`:''}
         </div>
         <div class="fc-right">
@@ -489,7 +491,20 @@ async function deleteRecord(id, e) {
     }
   } catch(e) { showToast('Ошибка сети'); }
 }
-
+function editRecord(idx, e) {
+  e.stopPropagation();
+  const r = (activeFilter==='all' ? allRecords : allRecords.filter(x=>x.type===activeFilter))[idx];
+  if (!r) return;
+  document.getElementById('fType').value = r.type;
+  onTypeChange();
+  document.getElementById('fDate').value = r.dateSort?.split('T')[0] || '';
+  document.getElementById('fDesc').value = r.desc || '';
+  document.getElementById('fKm').value   = r.km || '';
+  document.getElementById('fDays').value = r.days || '';
+  document.getElementById('fAmount').value = r.amount || '';
+  document.getElementById('fNote').value = r.note || '';
+  openSheet();
+}
 // ── Ставка ────────────────────────────────────────────────
 function openRateSheet() {
   document.getElementById('rateInput').value = currentRate;
