@@ -80,6 +80,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fc-detail-actions{display:flex;gap:8px;margin-top:12px}
 .btn-edit{flex:1;padding:9px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--font)}
 .btn-del{flex:1;padding:9px;border-radius:9px;border:none;background:var(--red-bg);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;font-family:var(--font)}
+.mileage-btns{display:flex;gap:8px;margin-top:10px}
+.btn-fuel{flex:1;padding:10px;border-radius:9px;border:1.5px solid var(--amber);background:var(--amber-bg);font-size:13px;font-weight:700;color:var(--amber);cursor:pointer;font-family:var(--font)}
+.btn-expense{flex:1;padding:10px;border-radius:9px;border:1.5px solid #7C3AED;background:#F5F3FF;font-size:13px;font-weight:700;color:#7C3AED;cursor:pointer;font-family:var(--font)}
+.mileage-expenses{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.me-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.me-row:last-child{border-bottom:none}
+.me-lbl{color:var(--t2)}
+.me-amt{font-weight:700}
+.me-amt.fuel-c{color:var(--amber)}
+.me-amt.exp-c{color:var(--red)}
 .empty-feed{text-align:center;padding:40px 20px}
 .empty-feed .ico{font-size:40px;opacity:.3;margin-bottom:10px}
 .empty-feed .txt{font-size:13px;color:var(--t3)}
@@ -268,6 +278,43 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   <button class="btn-save" onclick="saveRateOrFuel()">Применить</button>
 </div>
 
+<!-- Bottom sheet: расходы/заправка выезда -->
+<div class="sheet-overlay" id="mileage-overlay" onclick="closeMileageSheet()"></div>
+<div class="sheet" id="mileage-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="mileage-sheet-title">Заправка</div>
+  <div class="form-wrap">
+    <!-- Заправка -->
+    <div id="ms-fuel-group">
+      <div class="fg">
+        <label>Тип топлива</label>
+        <div class="cat-grid">
+          <button class="cat-btn active" id="ms-fuel-benz" onclick="msFuelSelect('Бензин')">🪣 Бензин</button>
+          <button class="cat-btn" id="ms-fuel-diez" onclick="msFuelSelect('Дизель')">⛽ Дизель</button>
+        </div>
+      </div>
+      <div class="fg"><label>Литры</label><input type="number" class="fi" id="ms-liters" placeholder="0" min="0" step="0.1" oninput="msFuelCalc()"></div>
+      <div id="ms-fuel-calc" class="fuel-calc" style="display:none"></div>
+      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="ms-fuel-note" placeholder="АЗС, карта..."></div>
+    </div>
+    <!-- Расход -->
+    <div id="ms-exp-group" style="display:none">
+      <div class="fg">
+        <label>Категория</label>
+        <div class="cat-grid" id="ms-exp-cats">
+          <button class="cat-btn active" onclick="msCatSelect('Питание',this)">🍽 Питание</button>
+          <button class="cat-btn" onclick="msCatSelect('Гостиница',this)">🏨 Гостиница</button>
+          <button class="cat-btn" onclick="msCatSelect('Ремонт / запчасти',this)">🔧 Ремонт/запч.</button>
+          <button class="cat-btn" onclick="msCatSelect('Прочее',this)">📦 Прочее</button>
+        </div>
+      </div>
+      <div class="fg"><label>Сумма (BYN)</label><input type="number" class="fi" id="ms-exp-amount" placeholder="0" step="0.01"></div>
+      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="ms-exp-note" placeholder="Описание"></div>
+    </div>
+    <button class="btn-save" id="ms-btn" onclick="saveMileageExpense()">Сохранить</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -287,6 +334,7 @@ let editingId    = null;
 let rateMode     = 'rate'; // 'rate' | 'fuel'
 let selectedFuel = 'Бензин';
 let selectedCat  = 'Питание';
+let activeMileageId = null; // CR-ID выезда для привязки расходов
 
 document.addEventListener('DOMContentLoaded', () => {
   setDefaultDate();
@@ -472,8 +520,7 @@ function renderFeed(){
     if(r.type==='mileage'){
       if(r.km) detailRows.push(['Пробег',`${r.km} км`]);
       detailRows.push(['Ставка выезда',`50% · ${fmt(r.amount)} BYN`]);
-    }
-    if(r.type==='fuel'){
+    }    if(r.type==='fuel'){
       detailRows.push(['Топливо',r.cat||'—']);
       if(r.liters) detailRows.push(['Литры',`${r.liters} л`]);
       detailRows.push(['Сумма',`${fmt(r.amount)} BYN`]);
@@ -495,6 +542,47 @@ function renderFeed(){
 
     const canEdit=r.source==='ручной';
     const canDelete=r.source==='ручной'||r.source==='расходы';
+
+    // Расходы привязанные к этому выезду
+    let mileageExpHtml='';
+    if(r.type==='mileage' && r.id){
+      const linked=allRecords.filter(x=>(x.type==='fuel'||x.type==='expense')&&x.tripCrId===r.id);
+      if(linked.length){
+        mileageExpHtml=`<div class="mileage-expenses">`+linked.map(x=>{
+          const isFuel=x.type==='fuel';
+          return`<div class="me-row">
+            <span class="me-lbl">${isFuel?'⛽':'💸'} ${x.cat||x.desc}</span>
+            <span class="me-amt ${isFuel?'fuel-c':'exp-c'}">−${fmt(x.amount)} BYN</span>
+          </div>`;
+        }).join('')+`</div>`;
+      }
+      const mileageBtns=`<div class="mileage-btns">
+        <button class="btn-fuel" onclick="openMileageSheet('fuel','${r.id}',event)">⛽ Заправка</button>
+        <button class="btn-expense" onclick="openMileageSheet('expense','${r.id}',event)">💸 Расход</button>
+      </div>`;
+      const editDelBtns=canDelete?`<div class="fc-detail-actions" style="margin-top:8px">
+        ${canEdit?`<button class="btn-edit" onclick="editRecord(${idx},event)">Редактировать</button>`:''}
+        <button class="btn-del" onclick="deleteRecord('${r.id}','${r.source}',event)">Удалить</button>
+      </div>`:'';
+      return`<div class="fc" onclick="toggleCard(${idx})">
+        <div class="fc-main">
+          <div class="fc-ico ${r.type}">${ico}</div>
+          <div class="fc-body">
+            <div class="fc-desc ${isOpen?'':'collapsed'}">${r.dateDisp} — ${r.desc}</div>
+            ${meta.length?`<div class="fc-meta">${meta.join(' · ')}</div>`:''}
+          </div>
+          <div class="fc-right">${amtHtml}${src}</div>
+          <span class="fc-arrow" style="transform:rotate(${isOpen?'90':'0'}deg)">›</span>
+        </div>
+        <div class="fc-detail ${isOpen?'open':''}">
+          ${detailHtml}
+          ${mileageExpHtml}
+          ${mileageBtns}
+          ${editDelBtns}
+        </div>
+      </div>`;
+    }
+
     const actionsHtml=canDelete?`
       <div class="fc-detail-actions">
         ${canEdit?`<button class="btn-edit" onclick="editRecord(${idx},event)">Редактировать</button>`:''}
@@ -519,6 +607,82 @@ function renderFeed(){
 }
 
 function toggleCard(idx){openCardIdx=openCardIdx===idx?null:idx;renderFeed();}
+
+// ── Расходы/заправка внутри выезда ───────────────────────
+let msFuelSelected='Бензин';
+let msCatSelected='Питание';
+
+function openMileageSheet(mode, crId, e){
+  e.stopPropagation();
+  activeMileageId=crId;
+  const isFuel=mode==='fuel';
+  document.getElementById('mileage-sheet-title').textContent=isFuel?'⛽ Заправка':'💸 Расход';
+  document.getElementById('ms-fuel-group').style.display=isFuel?'block':'none';
+  document.getElementById('ms-exp-group').style.display=isFuel?'none':'block';
+  // сброс полей
+  document.getElementById('ms-liters').value='';
+  document.getElementById('ms-fuel-note').value='';
+  document.getElementById('ms-fuel-calc').style.display='none';
+  document.getElementById('ms-exp-amount').value='';
+  document.getElementById('ms-exp-note').value='';
+  document.getElementById('mileage-overlay').classList.add('show');
+  document.getElementById('mileage-sheet').classList.add('show');
+}
+function closeMileageSheet(){
+  document.getElementById('mileage-overlay').classList.remove('show');
+  document.getElementById('mileage-sheet').classList.remove('show');
+  activeMileageId=null;
+}
+function msFuelSelect(f){
+  msFuelSelected=f;
+  document.getElementById('ms-fuel-benz').classList.toggle('active',f==='Бензин');
+  document.getElementById('ms-fuel-diez').classList.toggle('active',f==='Дизель');
+  msFuelCalc();
+}
+function msCatSelect(c,btn){
+  msCatSelected=c;
+  document.querySelectorAll('#ms-exp-cats .cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function msFuelCalc(){
+  const l=parseFloat(document.getElementById('ms-liters').value)||0;
+  const el=document.getElementById('ms-fuel-calc');
+  if(l>0){el.textContent=`${l} л × ${fuelPrice.toFixed(2)} BYN/л = ${(l*fuelPrice).toFixed(2)} BYN`;el.style.display='block';}
+  else el.style.display='none';
+}
+
+async function saveMileageExpense(){
+  if(!activeMileageId){showToast('Нет ID выезда');return;}
+  const isFuel=document.getElementById('ms-fuel-group').style.display!=='none';
+  const btn=document.getElementById('ms-btn');
+  btn.disabled=true;btn.textContent='Сохраняю…';
+  try{
+    let ok=false;
+    if(isFuel){
+      const liters=parseFloat(document.getElementById('ms-liters').value)||0;
+      if(!liters){showToast('Укажи литры');btn.disabled=false;btn.textContent='Сохранить';return;}
+      const amount=(liters*fuelPrice).toFixed(2);
+      const note=document.getElementById('ms-fuel-note').value.trim();
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add_expense',data:{
+        tripId:activeMileageId, date:new Date().toISOString().split('T')[0],
+        payType:'Нал', cat:msFuelSelected,
+        amount, comment:`${liters} л${note?' · '+note:''}`
+      }})});
+      const d=await r.json(); ok=true;
+    } else {
+      const amount=parseFloat(document.getElementById('ms-exp-amount').value)||0;
+      if(!amount){showToast('Укажи сумму');btn.disabled=false;btn.textContent='Сохранить';return;}
+      const note=document.getElementById('ms-exp-note').value.trim();
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add_expense',data:{
+        tripId:activeMileageId, date:new Date().toISOString().split('T')[0],
+        payType:'Нал', cat:msCatSelected, amount, comment:note
+      }})});
+      const d=await r.json(); ok=true;
+    }
+    if(ok){showToast('Сохранено ✓');closeMileageSheet();await loadAll();}
+  }catch(e){showToast('Ошибка сети');}
+  finally{btn.disabled=false;btn.textContent='Сохранить';}
+}
 
 async function deleteRecord(id,source,e){
   e.stopPropagation();
