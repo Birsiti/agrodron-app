@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Крафтер v2.2
-  v2.2 · 2026-06-22 · Редактирование записей, editingId, updateCrafterRecord
+  AgroDrone.BY · Крафтер v2.3
+  v2.3 · 2026-06-29 · Заправка (литры × цена) и Расходы → лист РАСХОДЫ с ID CR-...
 -->
 <html lang="ru">
 <head>
@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>VW Crafter — Учёт</title>
 <style>
-:root {
+:root{
   --bg:#F0F2F5;--surface:#fff;--border:#E4E7EC;
   --t1:#111827;--t2:#4B5563;--t3:#9CA3AF;
   --green:#059669;--green-bg:#ECFDF5;
@@ -21,27 +21,19 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;flex-direction:column;max-width:480px;margin:0 auto}
-
-/* Header */
 .hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 12px;flex-shrink:0}
 .hdr-top{display:flex;align-items:center;gap:10px}
 .hdr-icon{font-size:24px}
 .hdr-text h1{font-size:16px;font-weight:700;color:var(--t1)}
 .hdr-text p{font-size:11px;color:var(--t3);margin-top:1px}
-
-/* Balance hero */
 .balance-hero{background:var(--t1);padding:16px 16px 14px;flex-shrink:0}
 .balance-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .balance-amount{font-size:34px;font-weight:800;letter-spacing:-.5px}
 .balance-amount.pos{color:#34D399}
 .balance-amount.neg{color:#F87171}
-
-/* Ставка-кнопка */
-.rate-btn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(255,255,255,.12);border:none;border-radius:20px;padding:6px 14px;color:#fff;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;transition:background .15s}
+.rate-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.rate-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:none;border-radius:20px;padding:6px 14px;color:#fff;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;transition:background .15s}
 .rate-btn:active{background:rgba(255,255,255,.2)}
-.rate-btn .pencil{font-size:11px;opacity:.7}
-
-/* Разбивка баланса */
 .balance-breakdown{display:flex;gap:0;margin-top:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
 .bb-item{flex:1;text-align:center}
 .bb-sep{width:1px;background:rgba(255,255,255,.1);flex-shrink:0}
@@ -49,19 +41,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .bb-val.pos{color:#34D399}
 .bb-val.neg{color:#F87171}
 .bb-lab{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;line-height:1.3}
-
-/* Фильтры */
 .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
 .filter-bar::-webkit-scrollbar{display:none}
 .f-chip{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;white-space:nowrap;font-family:var(--font);transition:all .15s;flex-shrink:0}
 .f-chip.active{border-color:var(--t1);background:var(--t1);color:#fff}
-
-/* Scroll */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .wrap{padding:10px 12px 100px}
 .sec-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 8px 2px;display:flex;justify-content:space-between;align-items:center}
-
-/* Feed cards */
 .feed{display:flex;flex-direction:column;gap:6px}
 .fc{background:var(--surface);border-radius:var(--radius);box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;cursor:pointer;transition:transform .1s}
 .fc:active{transform:scale(.99)}
@@ -71,6 +57,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fc-ico.mileage{background:#ECFDF5}
 .fc-ico.repair{background:#FEF2F2}
 .fc-ico.payment{background:#F0FDF4}
+.fc-ico.fuel{background:#FFFBEB}
+.fc-ico.expense{background:#F5F3FF}
 .fc-body{flex:1;min-width:0}
 .fc-desc{font-size:13px;font-weight:600;color:var(--t1)}
 .fc-desc.collapsed{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -80,10 +68,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fc-amount.pos{color:var(--green)}
 .fc-amount.neg{color:var(--red)}
 .fc-amount.pay{color:var(--blue)}
+.fc-amount.fuel-c{color:var(--amber)}
 .fc-source{font-size:10px;color:var(--t3);margin-top:2px}
 .fc-arrow{font-size:16px;color:var(--t3);margin-left:4px;transition:transform .2s}
-
-/* Раскрытая детальная панель */
 .fc-detail{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
 .fc-detail.open{display:block}
 .fc-detail-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)}
@@ -93,16 +80,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fc-detail-actions{display:flex;gap:8px;margin-top:12px}
 .btn-edit{flex:1;padding:9px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--font)}
 .btn-del{flex:1;padding:9px;border-radius:9px;border:none;background:var(--red-bg);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;font-family:var(--font)}
-
 .empty-feed{text-align:center;padding:40px 20px}
 .empty-feed .ico{font-size:40px;opacity:.3;margin-bottom:10px}
 .empty-feed .txt{font-size:13px;color:var(--t3)}
-
-/* FAB */
 .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--t1);color:#fff;border:none;font-size:28px;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;z-index:50;transition:transform .15s}
 .fab:active{transform:scale(.93)}
-
-/* Overlays */
 .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .sheet-overlay.show{opacity:1;pointer-events:all}
 .sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:480px;background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);z-index:101;transition:transform .28s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto}
@@ -115,19 +97,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .fi{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);color:var(--t1);background:var(--bg);outline:none;transition:border-color .15s}
 .fi:focus{border-color:var(--t1);background:#fff}
 select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+/* Кнопки категорий (расход/топливо) */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+.cat-btn{padding:12px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--font);text-align:center;transition:all .15s}
+.cat-btn.active{border-color:var(--t1);background:var(--t1);color:#fff}
+.fuel-calc{background:var(--amber-bg);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--amber);font-weight:600;margin-top:8px;text-align:center}
 .extra{display:none}
 .extra.on{display:block}
 .btn-save{width:100%;padding:14px;background:var(--t1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:4px;transition:opacity .15s}
 .btn-save:disabled{opacity:.5}
 .btn-save:active{opacity:.8}
-
-/* Модалка ставки */
+/* Модалки ставки/цены топлива */
 .rate-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:480px;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px 32px;z-index:102;transition:transform .25s cubic-bezier(.4,0,.2,1)}
 .rate-sheet.show{transform:translateX(-50%) translateY(0)}
-.rate-sheet h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.rate-sheet h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.rate-sheet p{font-size:12px;color:var(--t3);margin-bottom:16px}
 .rate-sheet .fi{margin-bottom:12px}
 .rate-sheet .btn-save{margin-top:0}
-
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:200;white-space:nowrap}
 .toast.show{opacity:1}
 .loader{text-align:center;padding:40px;color:var(--t3);font-size:13px}
@@ -145,42 +131,36 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   </div>
 </div>
 
-<!-- Баланс -->
 <div class="balance-hero">
   <div class="balance-label">АТК должен тебе</div>
   <div class="balance-amount pos" id="bal-amount">—</div>
-  <button class="rate-btn" onclick="openRateSheet()">
-    <span id="rate-display">Ставка: — BYN/сут</span>
-    <span class="pencil">✏️</span>
-  </button>
+  <div class="rate-btns">
+    <button class="rate-btn" onclick="openRateSheet('rate')">
+      <span id="rate-display">Ставка: — BYN/сут</span> <span>✏️</span>
+    </button>
+    <button class="rate-btn" onclick="openRateSheet('fuel')">
+      <span id="fuel-display">Топливо: 2.70 BYN/л</span> <span>✏️</span>
+    </button>
+  </div>
   <div class="balance-breakdown">
-    <div class="bb-item">
-      <div class="bb-val pos" id="bb-accrued">—</div>
-      <div class="bb-lab">Начислено</div>
-    </div>
+    <div class="bb-item"><div class="bb-val pos" id="bb-accrued">—</div><div class="bb-lab">Начислено</div></div>
     <div class="bb-sep"></div>
-    <div class="bb-item">
-      <div class="bb-val neg" id="bb-repair">—</div>
-      <div class="bb-lab">Ремонт</div>
-    </div>
+    <div class="bb-item"><div class="bb-val neg" id="bb-repair">—</div><div class="bb-lab">Ремонт</div></div>
     <div class="bb-sep"></div>
-    <div class="bb-item">
-      <div class="bb-val" id="bb-paid" style="color:#60A5FA">—</div>
-      <div class="bb-lab">Выплачено</div>
-    </div>
+    <div class="bb-item"><div class="bb-val neg" id="bb-fuel">—</div><div class="bb-lab">Топливо</div></div>
     <div class="bb-sep"></div>
-    <div class="bb-item">
-      <div class="bb-val" id="bb-days">—</div>
-      <div class="bb-lab">Суток</div>
-    </div>
+    <div class="bb-item"><div class="bb-val" id="bb-paid" style="color:#60A5FA">—</div><div class="bb-lab">Выплачено</div></div>
+    <div class="bb-sep"></div>
+    <div class="bb-item"><div class="bb-val" id="bb-days">—</div><div class="bb-lab">Суток</div></div>
   </div>
 </div>
 
-<!-- Фильтры -->
 <div class="filter-bar">
   <button class="f-chip active" onclick="setFilter('all',this)">Все</button>
   <button class="f-chip" onclick="setFilter('trip',this)">📅 Командировки</button>
   <button class="f-chip" onclick="setFilter('mileage',this)">🛣 Выезды</button>
+  <button class="f-chip" onclick="setFilter('fuel',this)">⛽ Заправки</button>
+  <button class="f-chip" onclick="setFilter('expense',this)">💸 Расходы</button>
   <button class="f-chip" onclick="setFilter('repair',this)">🔧 Ремонт</button>
   <button class="f-chip" onclick="setFilter('payment',this)">✅ Оплаты</button>
 </div>
@@ -191,18 +171,14 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <span>Лента</span>
     <span id="feed-count" style="font-weight:400"></span>
   </div>
-  <div class="feed" id="feed">
-    <div class="loader">Загружаю...</div>
-  </div>
+  <div class="feed" id="feed"><div class="loader">Загружаю...</div></div>
 </div>
 </div>
 
 <button class="fab" onclick="openSheet()">+</button>
-
-<!-- Overlay -->
 <div class="sheet-overlay" id="overlay" onclick="closeAll()"></div>
 
-<!-- Форма новой записи -->
+<!-- Форма -->
 <div class="sheet" id="sheet">
   <div class="sheet-handle"></div>
   <div class="sheet-title">Новая запись</div>
@@ -212,6 +188,8 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <select class="fi" id="fType" onchange="onTypeChange()">
         <option value="trip">📅 Командировка (суточные)</option>
         <option value="mileage">🛣 Выезд</option>
+        <option value="fuel">⛽ Заправка</option>
+        <option value="expense">💸 Расход</option>
         <option value="repair">🔧 Ремонт</option>
         <option value="payment">✅ Оплата от АТК</option>
       </select>
@@ -220,37 +198,74 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <label>Дата</label>
       <input type="date" class="fi" id="fDate">
     </div>
-    <div class="fg">
-      <label id="fDescLabel">Описание</label>
-      <input type="text" class="fi" id="fDesc" placeholder="">
+
+    <!-- trip -->
+    <div class="extra" id="g-trip-desc">
+      <div class="fg"><label>Куда</label><input type="text" class="fi" id="fDesc" placeholder="Ганцевичи"></div>
+      <div class="fg"><label>Суток</label><input type="number" class="fi" id="fDays" placeholder="1" min="1" oninput="calcTrip()"></div>
+      <div class="fg"><label>Сумма (BYN)</label><input type="number" class="fi" id="fAmount" placeholder="0" step="0.01"></div>
     </div>
-    <div class="fg extra" id="fKmGroup">
-      <label>Пробег (км)</label>
-      <input type="number" class="fi" id="fKm" placeholder="0" min="0">
+
+    <!-- mileage -->
+    <div class="extra" id="g-mileage">
+      <div class="fg"><label>Маршрут</label><input type="text" class="fi" id="fDescMileage" placeholder="Боровляны → Камень → Боровляны"></div>
+      <div class="fg"><label>Пробег (км)</label><input type="number" class="fi" id="fKm" placeholder="0" min="0"></div>
     </div>
-    <div class="fg extra" id="fAmountGroup">
-      <label id="fAmountLabel">Сумма (BYN)</label>
-      <input type="number" class="fi" id="fAmount" placeholder="0" step="0.01" min="0">
+
+    <!-- fuel -->
+    <div class="extra" id="g-fuel">
+      <div class="fg">
+        <label>Тип топлива</label>
+        <div class="cat-grid">
+          <button class="cat-btn active" id="fuel-benz" onclick="selectFuel('Бензин')">🪣 Бензин</button>
+          <button class="cat-btn" id="fuel-diez" onclick="selectFuel('Дизель')">⛽ Дизель</button>
+        </div>
+      </div>
+      <div class="fg"><label>Литры</label><input type="number" class="fi" id="fLiters" placeholder="0" min="0" step="0.1" oninput="calcFuel()"></div>
+      <div id="fuel-calc-display" class="fuel-calc" style="display:none"></div>
+      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fFuelNote" placeholder="АЗС, карта..."></div>
     </div>
-    <div class="fg extra" id="fDaysGroup">
-      <label>Суток</label>
-      <input type="number" class="fi" id="fDays" placeholder="1" min="1" oninput="calcTrip()">
+
+    <!-- expense -->
+    <div class="extra" id="g-expense">
+      <div class="fg">
+        <label>Категория</label>
+        <div class="cat-grid" id="exp-cats">
+          <button class="cat-btn active" onclick="selectCat('Питание',this)">🍽 Питание</button>
+          <button class="cat-btn" onclick="selectCat('Гостиница',this)">🏨 Гостиница</button>
+          <button class="cat-btn" onclick="selectCat('Ремонт / запчасти',this)">🔧 Ремонт/запч.</button>
+          <button class="cat-btn" onclick="selectCat('Прочее',this)">📦 Прочее</button>
+        </div>
+      </div>
+      <div class="fg"><label>Сумма (BYN)</label><input type="number" class="fi" id="fExpAmount" placeholder="0" step="0.01"></div>
+      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fExpNote" placeholder="Описание расхода"></div>
     </div>
-    <div class="fg">
-      <label>Примечание</label>
-      <textarea class="fi" id="fNote" rows="2" style="resize:none"></textarea>
+
+    <!-- repair -->
+    <div class="extra" id="g-repair">
+      <div class="fg"><label>Что ремонтировали</label><input type="text" class="fi" id="fRepairDesc" placeholder="Замена колодок"></div>
+      <div class="fg"><label>Сумма (BYN)</label><input type="number" class="fi" id="fRepairAmount" placeholder="0" step="0.01"></div>
     </div>
+
+    <!-- payment -->
+    <div class="extra" id="g-payment">
+      <div class="fg"><label>Основание</label><input type="text" class="fi" id="fPayDesc" placeholder="Оплата за май"></div>
+      <div class="fg"><label>Сумма оплаты (BYN)</label><input type="number" class="fi" id="fPayAmount" placeholder="0" step="0.01"></div>
+    </div>
+
+    <div class="fg"><label>Примечание</label><textarea class="fi" id="fNote" rows="2" style="resize:none;display:none"></textarea></div>
     <button class="btn-save" id="btnSave" onclick="saveRecord()">Сохранить</button>
   </div>
 </div>
 
-<!-- Модалка ставки -->
+<!-- Модалка ставки / цены топлива -->
 <div class="sheet-overlay" id="rate-overlay" onclick="closeRateSheet()"></div>
 <div class="rate-sheet" id="rate-sheet">
   <div class="sheet-handle"></div>
-  <h3>Изменить ставку</h3>
-  <input type="number" class="fi" id="rateInput" placeholder="150" min="1" step="1">
-  <button class="btn-save" onclick="saveRate()">Применить</button>
+  <h3 id="rateSheetTitle">Изменить ставку</h3>
+  <p id="rateSheetSub"></p>
+  <input type="number" class="fi" id="rateInput" placeholder="150" min="0.01" step="0.01">
+  <button class="btn-save" onclick="saveRateOrFuel()">Применить</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -258,18 +273,21 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <script>
 const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
 
-const SCRIPT_URL  = 'https://agrodrone-proxy.birsiti.workers.dev';
-const SHEET_ID    = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
-const SHEETS_KEY  = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
-const PLATE_NORM  = 'AP42467';
+const SCRIPT_URL = 'https://agrodrone-proxy.birsiti.workers.dev';
+const SHEET_ID   = '1NzeC5jdm5osCHFQVSHKpUGMkWT2xI6xTjwl7LMRLHWU';
+const SHEETS_KEY = 'AIzaSyAxiaO9KgDN277ibcLCfXHAc2VpSSeQMDg';
+const PLATE_NORM = 'AP42467';
 
-let allRecords  = [];
-let currentRate = 150;
-let activeFilter= 'all';
-let openCardIdx = null;
-let editingId = null;
+let allRecords   = [];
+let currentRate  = 150;
+let fuelPrice    = 2.70;
+let activeFilter = 'all';
+let openCardIdx  = null;
+let editingId    = null;
+let rateMode     = 'rate'; // 'rate' | 'fuel'
+let selectedFuel = 'Бензин';
+let selectedCat  = 'Питание';
 
-// ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setDefaultDate();
   onTypeChange();
@@ -283,356 +301,437 @@ function setDefaultDate() {
 // ── Load ──────────────────────────────────────────────────
 async function loadAll() {
   try {
-    const [trips, manual] = await Promise.all([loadTrips(), loadManual()]);
-    const sorted = [...trips, ...manual].sort((a,b) => new Date(a.dateSort) - new Date(b.dateSort));
-    let rate = 150;
+    const [trips, manual, expenses] = await Promise.all([loadTrips(), loadManual(), loadExpenses()]);
+    const sorted = [...trips, ...manual, ...expenses].sort((a,b)=>new Date(a.dateSort)-new Date(b.dateSort));
+    let rate = currentRate;
     for (const r of sorted) {
       if (r.rate) { rate = r.rate; currentRate = rate; }
       r.rateUsed = rate;
-      if (r.source === 'авто' && r.type === 'trip') r.amount = (r.nights||0) * rate;
-      if (r.source === 'ручной' && r.type === 'trip' && r.days) r.amount = r.days * rate;
-      if (r.type === 'mileage') r.amount = rate * 0.5;
+      if (r.source==='авто' && r.type==='trip') r.amount = (r.nights||0)*rate;
+      if (r.source==='ручной' && r.type==='trip' && r.days) r.amount = r.days*rate;
+      if (r.type==='mileage') r.amount = rate*0.5;
     }
-    allRecords = sorted.sort((a,b) => new Date(b.dateSort) - new Date(a.dateSort));
+    allRecords = sorted.sort((a,b)=>new Date(b.dateSort)-new Date(a.dateSort));
     document.getElementById('rate-display').textContent = `Ставка: ${currentRate} BYN/сут`;
+    document.getElementById('fuel-display').textContent = `Топливо: ${fuelPrice.toFixed(2)} BYN/л`;
     renderBalance();
     renderFeed();
   } catch(e) {
-    document.getElementById('feed').innerHTML = `<div class="loader" style="color:#DC2626">Ошибка: ${e.message}</div>`;
+    document.getElementById('feed').innerHTML=`<div class="loader" style="color:#DC2626">Ошибка: ${e.message}</div>`;
   }
 }
 
 async function loadTrips() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ?key=${SHEETS_KEY}`;
-  const r = await fetch(url);
-  const d = await r.json();
-  const rows = d.values || [];
-  if (!rows.length) return [];
-  const h = rows[0];
-  const C = { id:h.indexOf('ID'), dateFrom:h.indexOf('Дата откр.'), dateTo:h.indexOf('Дата закр.'), district:h.indexOf('Район'), car:h.indexOf('Авто'), note:h.indexOf('Примечание') };
-  const results = [];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row[C.id]) continue;
-    let carData = {};
-    try { carData = JSON.parse(row[C.car]||'{}'); } catch(e) {}
-    const plate = String(carData.plate||'').replace(/\s/g,'');
-    if (!plate.includes(PLATE_NORM) && !plate.includes('AP4246-7')) continue;
-    const dFrom = parseDate(row[C.dateFrom]);
-    const dTo   = parseDate(row[C.dateTo]);
-    if (!dFrom) continue;
-    const daysCount = daysBetween(dFrom, dTo||dFrom);
-    const nights = Math.max(1, daysCount - 1);
-    const noteStr = String(row[C.note]||'');
-    const kmMatch = noteStr.match(/Пробег[:\s]+(\d+)/i);
-    results.push({
-      type:'trip', dateSort:dFrom.toISOString(), dateDisp:fmtDisp(dFrom),
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КОМАНДИРОВКИ?key=${SHEETS_KEY}`;
+  const r=await fetch(url); const d=await r.json();
+  const rows=d.values||[]; if(!rows.length) return [];
+  const h=rows[0];
+  const C={id:h.indexOf('ID'),dateFrom:h.indexOf('Дата откр.'),dateTo:h.indexOf('Дата закр.'),district:h.indexOf('Район'),car:h.indexOf('Авто'),note:h.indexOf('Примечание')};
+  const results=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i]; if(!row[C.id]) continue;
+    let carData={};
+    try{carData=JSON.parse(row[C.car]||'{}');}catch(e){}
+    const plate=String(carData.plate||'').replace(/\s/g,'');
+    if(!plate.includes(PLATE_NORM)&&!plate.includes('AP4246-7')) continue;
+    const dFrom=parseDate(row[C.dateFrom]); const dTo=parseDate(row[C.dateTo]);
+    if(!dFrom) continue;
+    const daysCount=daysBetween(dFrom,dTo||dFrom);
+    const nights=Math.max(1,daysCount-1);
+    const noteStr=String(row[C.note]||'');
+    const kmMatch=noteStr.match(/Пробег[:\s]+(\d+)/i);
+    results.push({type:'trip',dateSort:dFrom.toISOString(),dateDisp:fmtDisp(dFrom),
       desc:`${row[C.district]||'—'} · ${row[C.id]}`,
-      km: kmMatch ? parseInt(kmMatch[1]) : null,
-      nights, days:daysCount, amount:0, source:'авто',
-      tripId: row[C.id]
-    });
+      km:kmMatch?parseInt(kmMatch[1]):null,nights,days:daysCount,amount:0,source:'авто',tripId:row[C.id]});
   }
   return results;
 }
 
 async function loadManual() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КРАФТЕР?key=${SHEETS_KEY}`;
-  try {
-    const r = await fetch(url);
-    const d = await r.json();
-    const rows = d.values||[];
-    if (rows.length < 2) return [];
-    const h = rows[0];
-    const C = { id:h.indexOf('ID'), date:h.indexOf('Дата'), type:h.indexOf('Тип'), desc:h.indexOf('Описание'), km:h.indexOf('Км'), amount:h.indexOf('Сумма'), days:h.indexOf('Дни'), note:h.indexOf('Примечание'), rate:h.indexOf('Ставка') };
-    return rows.slice(1).filter(r=>r[C.date]).map((row,i) => {
-      const d = parseDate(row[C.date]);
-      const type = row[C.type]||'mileage';
-      const amt  = parseFloat(row[C.amount])||0;
-      const rate = C.rate>=0 ? parseFloat(row[C.rate])||null : null;
-      return {
-        type, dateSort:d?d.toISOString():row[C.date], dateDisp:d?fmtDisp(d):row[C.date],
-        desc:row[C.desc]||'', km:row[C.km]||null,
-        days:parseInt(row[C.days])||null, amount:amt, rate,
-        note:row[C.note]||'', source:'ручной', id:row[C.id]||'',
-        rowIdx: i+1 // индекс строки (с 1, без заголовка)
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/КРАФТЕР?key=${SHEETS_KEY}`;
+  try{
+    const r=await fetch(url); const d=await r.json();
+    const rows=d.values||[]; if(rows.length<2) return [];
+    const h=rows[0];
+    const C={id:h.indexOf('ID'),date:h.indexOf('Дата'),type:h.indexOf('Тип'),desc:h.indexOf('Описание'),km:h.indexOf('Км'),amount:h.indexOf('Сумма'),days:h.indexOf('Дни'),note:h.indexOf('Примечание'),rate:h.indexOf('Ставка')};
+    return rows.slice(1).filter(r=>r[C.date]).map((row,i)=>{
+      const d=parseDate(row[C.date]);
+      const type=row[C.type]||'mileage';
+      const amt=parseFloat(row[C.amount])||0;
+      const rate=C.rate>=0?parseFloat(row[C.rate])||null:null;
+      return{type,dateSort:d?d.toISOString():row[C.date],dateDisp:d?fmtDisp(d):row[C.date],
+        desc:row[C.desc]||'',km:row[C.km]||null,days:parseInt(row[C.days])||null,
+        amount:amt,rate,note:row[C.note]||'',source:'ручной',id:row[C.id]||''};
+    });
+  }catch(e){return[];}
+}
+
+async function loadExpenses() {
+  // Тянем из РАСХОДЫ записи где Командировка ID начинается с CR-
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/РАСХОДЫ?key=${SHEETS_KEY}`;
+  try{
+    const r=await fetch(url); const d=await r.json();
+    const rows=d.values||[]; if(rows.length<2) return [];
+    const h=rows[0];
+    const C={id:h.indexOf('ID'),tripId:h.indexOf('Командировка ID'),dayId:h.indexOf('День ID'),
+      date:h.indexOf('Дата'),payType:h.indexOf('Тип оплаты'),cat:h.indexOf('Категория'),
+      amount:h.indexOf('Сумма'),comment:h.indexOf('Комментарий')};
+    return rows.slice(1).filter(row=>{
+      const tid=String(row[C.tripId]||'');
+      return tid.startsWith('CR-');
+    }).map(row=>{
+      const d=parseDate(row[C.date]);
+      const cat=String(row[C.cat]||'');
+      const isFuel=cat==='Бензин'||cat==='Дизель';
+      const liters=null; // литры не хранятся в РАСХОДЫ напрямую — берём из комментария
+      const commentStr=String(row[C.comment]||'');
+      const litMatch=commentStr.match(/(\d+[\.,]\d*)\s*л/i);
+      const litersVal=litMatch?parseFloat(litMatch[1].replace(',','.')):null;
+      return{
+        type:isFuel?'fuel':'expense',
+        dateSort:d?d.toISOString():row[C.date],
+        dateDisp:d?fmtDisp(d):String(row[C.date]||''),
+        desc:cat+(commentStr?` · ${commentStr}`:''),
+        amount:parseFloat(row[C.amount])||0,
+        liters:litersVal,
+        cat,
+        note:commentStr,
+        source:'расходы',
+        id:String(row[C.id]||''),
+        tripCrId:String(row[C.tripId]||'')
       };
     });
-  } catch(e) { return []; }
+  }catch(e){return[];}
 }
 
 // ── Balance ───────────────────────────────────────────────
-function renderBalance() {
+function renderBalance(){
   const trips    = allRecords.filter(r=>r.type==='trip');
   const repairs  = allRecords.filter(r=>r.type==='repair');
   const mileage  = allRecords.filter(r=>r.type==='mileage');
   const payments = allRecords.filter(r=>r.type==='payment');
-  const totalNights = trips.reduce((s,r)=>s+(r.nights??r.days??0),0);
-  const accrued  = trips.reduce((s,r)=>s+(r.amount||0),0) + mileage.reduce((s,r)=>s+(r.amount||0),0);
-  const repairCost = repairs.reduce((s,r)=>s+(r.amount||0),0);
-  const totalPaid  = payments.reduce((s,r)=>s+(r.amount||0),0);
-  const balance    = accrued - repairCost - totalPaid;
-
-  const el = document.getElementById('bal-amount');
-  el.textContent = (balance>=0?'+':'')+fmt(balance)+' BYN';
-  el.className = 'balance-amount '+(balance>=0?'pos':'neg');
-
-  document.getElementById('bb-accrued').textContent = '+'+fmt(accrued);
-  document.getElementById('bb-repair').textContent  = repairCost>0?'−'+fmt(repairCost):'0';
-  document.getElementById('bb-paid').textContent    = totalPaid>0?'−'+fmt(totalPaid):'0';
-  document.getElementById('bb-days').textContent    = totalNights;
+  const fuels    = allRecords.filter(r=>r.type==='fuel');
+  const expenses = allRecords.filter(r=>r.type==='expense');
+  const totalNights=trips.reduce((s,r)=>s+(r.nights??r.days??0),0);
+  const accrued=trips.reduce((s,r)=>s+(r.amount||0),0)+mileage.reduce((s,r)=>s+(r.amount||0),0);
+  const repairCost=repairs.reduce((s,r)=>s+(r.amount||0),0);
+  const fuelCost=fuels.reduce((s,r)=>s+(r.amount||0),0);
+  const expCost=expenses.reduce((s,r)=>s+(r.amount||0),0);
+  const totalPaid=payments.reduce((s,r)=>s+(r.amount||0),0);
+  const balance=accrued-repairCost-fuelCost-expCost-totalPaid;
+  const el=document.getElementById('bal-amount');
+  el.textContent=(balance>=0?'+':'')+fmt(balance)+' BYN';
+  el.className='balance-amount '+(balance>=0?'pos':'neg');
+  document.getElementById('bb-accrued').textContent='+'+fmt(accrued);
+  document.getElementById('bb-repair').textContent=repairCost>0?'−'+fmt(repairCost):'0';
+  document.getElementById('bb-fuel').textContent=(fuelCost+expCost)>0?'−'+fmt(fuelCost+expCost):'0';
+  document.getElementById('bb-paid').textContent=totalPaid>0?'−'+fmt(totalPaid):'0';
+  document.getElementById('bb-days').textContent=totalNights;
 }
 
-// ── Фильтр ───────────────────────────────────────────────
-function setFilter(f, btn) {
-  activeFilter = f;
+function setFilter(f,btn){
+  activeFilter=f;
   document.querySelectorAll('.f-chip').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  openCardIdx = null;
+  openCardIdx=null;
   renderFeed();
 }
 
-// ── Feed ──────────────────────────────────────────────────
-function renderFeed() {
-  const records = activeFilter==='all' ? allRecords : allRecords.filter(r=>r.type===activeFilter);
-  document.getElementById('feed-count').textContent = records.length+' записей';
-  const feed = document.getElementById('feed');
+function renderFeed(){
+  const records=activeFilter==='all'?allRecords:allRecords.filter(r=>r.type===activeFilter);
+  document.getElementById('feed-count').textContent=records.length+' записей';
+  const feed=document.getElementById('feed');
+  if(!records.length){feed.innerHTML=`<div class="empty-feed"><div class="ico">📋</div><div class="txt">Нет записей</div></div>`;return;}
 
-  if (!records.length) {
-    feed.innerHTML = `<div class="empty-feed"><div class="ico">📋</div><div class="txt">Нет записей</div></div>`;
-    return;
-  }
+  const ICO={trip:'📅',mileage:'🛣',repair:'🔧',payment:'✅',fuel:'⛽',expense:'💸'};
+  feed.innerHTML=records.map((r,idx)=>{
+    const ico=ICO[r.type]||'📦';
+    const isOpen=openCardIdx===idx;
+    let amtHtml='';
+    if(r.type==='trip')    amtHtml=`<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
+    if(r.type==='repair')  amtHtml=`<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
+    if(r.type==='payment') amtHtml=`<div class="fc-amount pay">−${fmt(r.amount)}</div>`;
+    if(r.type==='mileage') amtHtml=`<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
+    if(r.type==='fuel')    amtHtml=`<div class="fc-amount fuel-c">−${fmt(r.amount)}</div>`;
+    if(r.type==='expense') amtHtml=`<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
 
-  feed.innerHTML = records.map((r, idx) => {
-    const ico = {trip:'📅',mileage:'🛣',repair:'🔧',payment:'✅'}[r.type]||'📦';
-    const isOpen = openCardIdx === idx;
+    const meta=[];
+    if(r.type==='trip'){const n=r.source==='ручной'?(r.days||0):(r.nights??0);if(n)meta.push(`${n} сут`);}
+    if(r.km) meta.push(`${r.km} км`);
+    if(r.type==='fuel'&&r.liters) meta.push(`${r.liters} л`);
+    if(r.note&&r.type!=='fuel'&&r.type!=='expense') meta.push(r.note);
 
-    let amtHtml = '';
-    if (r.type==='trip')    amtHtml = `<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
-    if (r.type==='repair')  amtHtml = `<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
-    if (r.type==='payment') amtHtml = `<div class="fc-amount pay">−${fmt(r.amount)}</div>`;
-    if (r.type==='mileage') amtHtml = `<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
+    const src=r.source==='авто'?'<div class="fc-source">из таблицы</div>':'';
 
-    const meta = [];
-    if (r.type==='trip') { const n=r.source==='ручной'?(r.days||0):(r.nights??0); if(n) meta.push(`${n} сут`); }    if (r.km) meta.push(`${r.km} км`);
-    if (r.note) meta.push(r.note);
-
-    const src = r.source==='авто' ? '<div class="fc-source">из таблицы</div>' : '';
-
-    // Детальная панель
-    const detailRows = [];
-    if (r.type==='trip') {
-      detailRows.push(['Суток', r.source==='ручной' ? (r.days||'—') : (r.nights??'—')]);
+    const detailRows=[];
+    if(r.type==='trip'){
+      detailRows.push(['Суток',r.source==='ручной'?(r.days||'—'):(r.nights??'—')]);
       detailRows.push(['Ставка',`${r.rateUsed||currentRate} BYN/сут`]);
-      if (r.km) detailRows.push(['Пробег',`${r.km} км`]);
+      if(r.km) detailRows.push(['Пробег',`${r.km} км`]);
     }
-    if (r.type==='mileage') {
-      if (r.km) detailRows.push(['Пробег',`${r.km} км`]);
-      detailRows.push(['Ставка выезда',`50% · ${r.amount} BYN`]);
+    if(r.type==='mileage'){
+      if(r.km) detailRows.push(['Пробег',`${r.km} км`]);
+      detailRows.push(['Ставка выезда',`50% · ${fmt(r.amount)} BYN`]);
     }
-    if (r.type==='repair'||r.type==='payment') {
+    if(r.type==='fuel'){
+      detailRows.push(['Топливо',r.cat||'—']);
+      if(r.liters) detailRows.push(['Литры',`${r.liters} л`]);
+      detailRows.push(['Сумма',`${fmt(r.amount)} BYN`]);
+      if(r.note) detailRows.push(['Примечание',r.note]);
+    }
+    if(r.type==='expense'){
+      detailRows.push(['Категория',r.cat||'—']);
+      detailRows.push(['Сумма',`${fmt(r.amount)} BYN`]);
+      if(r.note) detailRows.push(['Примечание',r.note]);
+    }
+    if(r.type==='repair'||r.type==='payment'){
       detailRows.push(['Сумма',`${fmt(r.amount)} BYN`]);
     }
-    if (r.note) detailRows.push(['Примечание',r.note]);
-    if (r.source) detailRows.push(['Источник',r.source==='авто'?'Таблица командировок':'Ручной ввод']);
+    if(r.note&&r.type!=='fuel'&&r.type!=='expense') detailRows.push(['Примечание',r.note]);
+    detailRows.push(['Источник',r.source==='авто'?'Таблица командировок':r.source==='расходы'?'Лист РАСХОДЫ':'Ручной ввод']);
 
-    const detailHtml = detailRows.map(([l,v])=>`
-      <div class="fc-detail-row">
-        <span class="fc-detail-lbl">${l}</span>
-        <span class="fc-detail-val">${v}</span>
-      </div>`).join('');
+    const detailHtml=detailRows.map(([l,v])=>`
+      <div class="fc-detail-row"><span class="fc-detail-lbl">${l}</span><span class="fc-detail-val">${v}</span></div>`).join('');
 
-    const actionsHtml = r.source==='ручной' ? `
+    const canEdit=r.source==='ручной';
+    const canDelete=r.source==='ручной'||r.source==='расходы';
+    const actionsHtml=canDelete?`
       <div class="fc-detail-actions">
-        <button class="btn-edit" onclick="editRecord(${idx},event)">Редактировать</button>
-        <button class="btn-del" onclick="deleteRecord('${r.id}',event)">Удалить</button>
-      </div>` : '';
+        ${canEdit?`<button class="btn-edit" onclick="editRecord(${idx},event)">Редактировать</button>`:''}
+        <button class="btn-del" onclick="deleteRecord('${r.id}','${r.source}',event)">Удалить</button>
+      </div>`:'';
 
-    return `
-    <div class="fc" onclick="toggleCard(${idx})">
+    return`<div class="fc" onclick="toggleCard(${idx})">
       <div class="fc-main">
         <div class="fc-ico ${r.type}">${ico}</div>
         <div class="fc-body">
           <div class="fc-desc ${isOpen?'':'collapsed'}">${r.dateDisp} — ${r.desc}</div>
           ${meta.length?`<div class="fc-meta">${meta.join(' · ')}</div>`:''}
         </div>
-        <div class="fc-right">
-          ${amtHtml}
-          ${src}
-        </div>
+        <div class="fc-right">${amtHtml}${src}</div>
         <span class="fc-arrow" style="transform:rotate(${isOpen?'90':'0'}deg)">›</span>
       </div>
       <div class="fc-detail ${isOpen?'open':''}">
-        ${detailHtml}
-        ${actionsHtml}
+        ${detailHtml}${actionsHtml}
       </div>
     </div>`;
   }).join('');
 }
 
-function toggleCard(idx) {
-  openCardIdx = openCardIdx===idx ? null : idx;
-  renderFeed();
+function toggleCard(idx){openCardIdx=openCardIdx===idx?null:idx;renderFeed();}
+
+async function deleteRecord(id,source,e){
+  e.stopPropagation();
+  if(!id){showToast('Нет ID записи');return;}
+  if(!confirm('Удалить запись?')) return;
+  const action=source==='расходы'?'deleteExpenseRecord':'deleteCrafterRecord';
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data:{id}})});
+    const d=await r.json();
+    if((d.result?.result||d.result)?.ok||d.ok){showToast('Удалено ✓');openCardIdx=null;await loadAll();}
+    else showToast('Ошибка удаления');
+  }catch(e){showToast('Ошибка сети');}
 }
 
-async function deleteRecord(id, e) {
+function editRecord(idx,e){
   e.stopPropagation();
-  if (!id) { showToast('Нет ID записи'); return; }
-  if (!confirm('Удалить запись?')) return;
-  try {
-    const r = await fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify({action:'deleteCrafterRecord',data:{id}}) });
-    const d = await r.json();
-    if ((d.result?.result||d.result)?.ok || d.ok) {
-      showToast('Удалено ✓');
-      openCardIdx = null;
-      await loadAll();
-    } else {
-      showToast('Ошибка удаления');
-    }
-  } catch(e) { showToast('Ошибка сети'); }
-}
-function editRecord(idx, e) {
-  e.stopPropagation();
-  const r = (activeFilter==='all' ? allRecords : allRecords.filter(x=>x.type===activeFilter))[idx];
-  if (!r) return;
-  document.getElementById('fType').value = r.type;
+  const r=(activeFilter==='all'?allRecords:allRecords.filter(x=>x.type===activeFilter))[idx];
+  if(!r||r.source!=='ручной') return;
+  document.getElementById('fType').value=r.type;
   onTypeChange();
-  document.getElementById('fDate').value = r.dateSort?.split('T')[0] || '';
-  document.getElementById('fDesc').value = r.desc || '';
-  document.getElementById('fKm').value   = r.km || '';
-  document.getElementById('fDays').value = r.days || '';
-  document.getElementById('fAmount').value = r.amount || '';
-  document.getElementById('fNote').value = r.note || '';
-  editingId = r.id;
-  document.querySelector('#sheet .sheet-title').textContent = 'Редактировать запись';
+  document.getElementById('fDate').value=r.dateSort?.split('T')[0]||'';
+  // заполняем нужные поля
+  if(r.type==='trip'){
+    document.getElementById('fDesc').value=r.desc||'';
+    document.getElementById('fDays').value=r.days||'';
+    document.getElementById('fAmount').value=r.amount||'';
+  } else if(r.type==='mileage'){
+    document.getElementById('fDescMileage').value=r.desc||'';
+    document.getElementById('fKm').value=r.km||'';
+  } else if(r.type==='repair'){
+    document.getElementById('fRepairDesc').value=r.desc||'';
+    document.getElementById('fRepairAmount').value=r.amount||'';
+  } else if(r.type==='payment'){
+    document.getElementById('fPayDesc').value=r.desc||'';
+    document.getElementById('fPayAmount').value=r.amount||'';
+  }
+  editingId=r.id;
+  document.querySelector('#sheet .sheet-title').textContent='Редактировать запись';
   openSheet();
 }
-// ── Ставка ────────────────────────────────────────────────
-function openRateSheet() {
-  document.getElementById('rateInput').value = currentRate;
+
+// ── Ставка / Цена топлива ─────────────────────────────────
+function openRateSheet(mode){
+  rateMode=mode;
+  if(mode==='rate'){
+    document.getElementById('rateSheetTitle').textContent='Ставка суточных';
+    document.getElementById('rateSheetSub').textContent='BYN за сутки командировки';
+    document.getElementById('rateInput').value=currentRate;
+  } else {
+    document.getElementById('rateSheetTitle').textContent='Цена топлива';
+    document.getElementById('rateSheetSub').textContent='BYN за литр (дефолт для расчёта)';
+    document.getElementById('rateInput').value=fuelPrice;
+  }
   document.getElementById('rate-overlay').classList.add('show');
   document.getElementById('rate-sheet').classList.add('show');
 }
-function closeRateSheet() {
+function closeRateSheet(){
   document.getElementById('rate-overlay').classList.remove('show');
   document.getElementById('rate-sheet').classList.remove('show');
 }
-function saveRate() {
-  const v = parseInt(document.getElementById('rateInput').value);
-  if (!v||v<1) { showToast('Введи корректную ставку'); return; }
-  currentRate = v;
-  document.getElementById('rate-display').textContent = `Ставка: ${currentRate} BYN/сут`;
-  // Пересчитать суммы
-  for (const r of allRecords) {
-    r.rateUsed = currentRate;
-    if (r.type==='trip') r.amount = (r.nights||r.days||0)*currentRate;
-    if (r.type==='mileage') r.amount = currentRate*0.5;
+function saveRateOrFuel(){
+  const v=parseFloat(document.getElementById('rateInput').value);
+  if(!v||v<=0){showToast('Введи корректное значение');return;}
+  if(rateMode==='rate'){
+    currentRate=v;
+    document.getElementById('rate-display').textContent=`Ставка: ${currentRate} BYN/сут`;
+    for(const r of allRecords){
+      r.rateUsed=currentRate;
+      if(r.type==='trip') r.amount=(r.nights||r.days||0)*currentRate;
+      if(r.type==='mileage') r.amount=currentRate*0.5;
+    }
+  } else {
+    fuelPrice=v;
+    document.getElementById('fuel-display').textContent=`Топливо: ${fuelPrice.toFixed(2)} BYN/л`;
+    calcFuel();
   }
-  renderBalance();
-  renderFeed();
+  renderBalance();renderFeed();
   closeRateSheet();
-  showToast('Ставка обновлена ✓');
+  showToast(rateMode==='rate'?'Ставка обновлена ✓':'Цена топлива обновлена ✓');
 }
 
-// ── Sheet форма ───────────────────────────────────────────
-function openSheet() {
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('sheet').classList.add('show');
-}
-function closeAll() {
+// ── Форма ─────────────────────────────────────────────────
+function openSheet(){document.getElementById('overlay').classList.add('show');document.getElementById('sheet').classList.add('show');}
+function closeAll(){
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('sheet').classList.remove('show');
-  editingId = null;
-  document.querySelector('#sheet .sheet-title').textContent = 'Новая запись';
+  editingId=null;
+  document.querySelector('#sheet .sheet-title').textContent='Новая запись';
 }
 
-function onTypeChange() {
-  const type = document.getElementById('fType').value;
-  const km     = document.getElementById('fKmGroup');
-  const amount = document.getElementById('fAmountGroup');
-  const days   = document.getElementById('fDaysGroup');
-  const descLbl  = document.getElementById('fDescLabel');
-  const amtLbl   = document.getElementById('fAmountLabel');
-  km.classList.remove('on'); amount.classList.remove('on'); days.classList.remove('on');
-
-  if (type==='mileage') {
-    km.classList.add('on');
-    descLbl.textContent='Маршрут';
-    document.getElementById('fDesc').placeholder='Боровляны → Камень → Боровляны';
-  } else if (type==='repair') {
-    amount.classList.add('on'); amtLbl.textContent='Сумма (BYN)';
-    descLbl.textContent='Что ремонтировали';
-    document.getElementById('fDesc').placeholder='Замена колодок';
-  } else if (type==='payment') {
-    amount.classList.add('on'); amtLbl.textContent='Сумма оплаты (BYN)';
-    descLbl.textContent='Основание';
-    document.getElementById('fDesc').placeholder='Оплата за май';
-  } else if (type==='trip') {
-    days.classList.add('on'); amount.classList.add('on');
-    amtLbl.textContent='Сумма (авто)';
-    descLbl.textContent='Куда';
-    document.getElementById('fDesc').placeholder='Ганцевичи';
-    document.getElementById('fDays').value='1';
-    calcTrip();
-  }
+function selectFuel(f){
+  selectedFuel=f;
+  document.getElementById('fuel-benz').classList.toggle('active',f==='Бензин');
+  document.getElementById('fuel-diez').classList.toggle('active',f==='Дизель');
+  calcFuel();
 }
 
-function calcTrip() {
-  const d = parseInt(document.getElementById('fDays').value)||1;
-  document.getElementById('fAmount').value = (d*currentRate).toFixed(0);
+function selectCat(c,btn){
+  selectedCat=c;
+  document.querySelectorAll('#exp-cats .cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-async function saveRecord() {
-  const type  = document.getElementById('fType').value;
-  const date  = document.getElementById('fDate').value;
-  const desc  = document.getElementById('fDesc').value.trim();
-  const km    = document.getElementById('fKm').value;
-  const amount= document.getElementById('fAmount').value;
-  const days  = document.getElementById('fDays').value;
-  const note  = document.getElementById('fNote').value.trim();
-
-  if (!date||!desc) { showToast('Заполни дату и описание'); return; }
-
-  const btn = document.getElementById('btnSave');
-  btn.disabled=true; btn.textContent='Сохраняю…';
-  try {
-    const action  = editingId ? 'updateCrafterRecord' : 'addCrafterRecord';
-    const payload = editingId
-      ? {id:editingId, type, date, desc, km, amount, days, note}
-      : {type, date, desc, km, amount, days, note, rate:''};
-    const r = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action, data:payload})});
-    const d = await r.json();
-    const res = d.result?.result||d.result||d;
-    if (res.ok) {
-      showToast(editingId ? 'Обновлено ✓' : 'Сохранено ✓');
-      closeAll(); clearForm(); await loadAll();
-    } else { showToast(res.error||'Ошибка'); }
-  } catch(e) { showToast('Ошибка сети'); }
-  finally { btn.disabled=false; btn.textContent='Сохранить'; }
+function calcFuel(){
+  const l=parseFloat(document.getElementById('fLiters').value)||0;
+  const el=document.getElementById('fuel-calc-display');
+  if(l>0){
+    const sum=(l*fuelPrice).toFixed(2);
+    el.textContent=`${l} л × ${fuelPrice.toFixed(2)} BYN/л = ${sum} BYN`;
+    el.style.display='block';
+  } else {el.style.display='none';}
 }
 
-function clearForm() {
-  ['fDesc','fKm','fAmount','fDays','fNote'].forEach(id=>document.getElementById(id).value='');
-  editingId = null;
-  document.querySelector('#sheet .sheet-title').textContent = 'Новая запись';
-  setDefaultDate(); onTypeChange();
+function onTypeChange(){
+  const type=document.getElementById('fType').value;
+  ['g-trip-desc','g-mileage','g-fuel','g-expense','g-repair','g-payment'].forEach(id=>{
+    document.getElementById(id).classList.remove('on');
+  });
+  document.getElementById('fNote').style.display='none';
+  const map={trip:'g-trip-desc',mileage:'g-mileage',fuel:'g-fuel',expense:'g-expense',repair:'g-repair',payment:'g-payment'};
+  if(map[type]) document.getElementById(map[type]).classList.add('on');
+  if(type==='trip'){document.getElementById('fDays').value='1';calcTrip();}
 }
 
-// ── Helpers ───────────────────────────────────────────────
-function parseDate(val) {
-  if (!val) return null;
-  if (val instanceof Date) return val;
-  const m = String(val).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if (m) return new Date(+m[3],+m[2]-1,+m[1]);
-  const d = new Date(val);
+function calcTrip(){
+  const d=parseInt(document.getElementById('fDays').value)||1;
+  document.getElementById('fAmount').value=(d*currentRate).toFixed(0);
+}
+
+async function saveRecord(){
+  const type=document.getElementById('fType').value;
+  const date=document.getElementById('fDate').value;
+  if(!date){showToast('Укажи дату');return;}
+
+  const btn=document.getElementById('btnSave');
+  btn.disabled=true;btn.textContent='Сохраняю…';
+
+  try{
+    let ok=false;
+
+    if(type==='fuel'){
+      const liters=parseFloat(document.getElementById('fLiters').value)||0;
+      if(!liters){showToast('Укажи литры');btn.disabled=false;btn.textContent='Сохранить';return;}
+      const amount=(liters*fuelPrice).toFixed(2);
+      const note=document.getElementById('fFuelNote').value.trim();
+      // Генерируем CR-ID
+      const crId='CR-'+date.replace(/-/g,'')+'-'+Date.now().toString().slice(-6);
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add_expense',data:{
+        tripId:crId, date, payType:'Нал', cat:selectedFuel,
+        amount, comment:`${liters} л${note?' · '+note:''}`
+      }})});
+      const d2=await r.json();
+      ok=(d2.result?.result||d2.result)?.ok||d2.ok||true;
+
+    } else if(type==='expense'){
+      const amount=parseFloat(document.getElementById('fExpAmount').value)||0;
+      if(!amount){showToast('Укажи сумму');btn.disabled=false;btn.textContent='Сохранить';return;}
+      const note=document.getElementById('fExpNote').value.trim();
+      const crId='CR-'+date.replace(/-/g,'')+'-'+Date.now().toString().slice(-6);
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add_expense',data:{
+        tripId:crId, date, payType:'Нал', cat:selectedCat, amount, comment:note
+      }})});
+      const d2=await r.json();
+      ok=(d2.result?.result||d2.result)?.ok||d2.ok||true;
+
+    } else {
+      // Остальные типы — в КРАФТЕР
+      let desc='',amount='',km='',days='';
+      if(type==='trip'){desc=document.getElementById('fDesc').value.trim();days=document.getElementById('fDays').value;amount=document.getElementById('fAmount').value;}
+      else if(type==='mileage'){desc=document.getElementById('fDescMileage').value.trim();km=document.getElementById('fKm').value;}
+      else if(type==='repair'){desc=document.getElementById('fRepairDesc').value.trim();amount=document.getElementById('fRepairAmount').value;}
+      else if(type==='payment'){desc=document.getElementById('fPayDesc').value.trim();amount=document.getElementById('fPayAmount').value;}
+      if(!desc){showToast('Заполни описание');btn.disabled=false;btn.textContent='Сохранить';return;}
+
+      const action=editingId?'updateCrafterRecord':'addCrafterRecord';
+      const payload=editingId
+        ?{id:editingId,type,date,desc,km,amount,days,note:''}
+        :{type,date,desc,km,amount,days,note:'',rate:''};
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data:payload})});
+      const d2=await r.json();
+      const res=d2.result?.result||d2.result||d2;
+      ok=res.ok;
+      if(!ok){showToast(res.error||'Ошибка');btn.disabled=false;btn.textContent='Сохранить';return;}
+    }
+
+    if(ok){showToast(editingId?'Обновлено ✓':'Сохранено ✓');closeAll();clearForm();await loadAll();}
+  }catch(e){showToast('Ошибка сети');}
+  finally{btn.disabled=false;btn.textContent='Сохранить';}
+}
+
+function clearForm(){
+  ['fDesc','fKm','fAmount','fDays','fNote','fDescMileage','fLiters','fFuelNote','fExpAmount','fExpNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount']
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  editingId=null;
+  document.querySelector('#sheet .sheet-title').textContent='Новая запись';
+  document.getElementById('fuel-calc-display').style.display='none';
+  setDefaultDate();onTypeChange();
+}
+
+function parseDate(val){
+  if(!val) return null;
+  if(val instanceof Date) return val;
+  const m=String(val).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  const d=new Date(val);
   return isNaN(d)?null:d;
 }
-function daysBetween(d1,d2) { return Math.round(Math.abs(d2-d1)/86400000)+1; }
-function fmtDisp(d) { return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
-function fmt(n) { return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:0}); }
-function showToast(msg) {
+function daysBetween(d1,d2){return Math.round(Math.abs(d2-d1)/86400000)+1;}
+function fmtDisp(d){return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function fmt(n){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 </script>
