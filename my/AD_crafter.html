@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Крафтер v2.6
-  v2.6 · 2026-07-06 · Заправка везде только Дизель; Выезд = полный день (было 50%), Дней = командировки + выезды
+  AgroDrone.BY · Крафтер v2.12
+  v2.12 · 2026-07-06 · Убрана дублирующая строка "N л" под карточкой заправки — литраж уже в заголовке
 -->
 <html lang="ru">
 <head>
@@ -189,9 +189,8 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="fg">
       <label>Тип</label>
       <select class="fi" id="fType" onchange="onTypeChange()">
-        <option value="trip">📅 Командировка (по дням)</option>
         <option value="mileage">🛣 Выезд</option>
-        <option value="fuel">⛽ Заправка</option>
+        <option value="trip">📅 Командировка (по дням)</option>
         <option value="repair">🔧 Ремонт</option>
         <option value="payment">✅ Оплата от АТК</option>
       </select>
@@ -212,17 +211,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="extra" id="g-mileage">
       <div class="fg"><label>Маршрут</label><input type="text" class="fi" id="fDescMileage" placeholder="Боровляны → Камень → Боровляны"></div>
       <div class="fg"><label>Пробег (км)</label><input type="number" class="fi" id="fKm" placeholder="0" min="0"></div>
-    </div>
-
-    <!-- fuel -->
-    <div class="extra" id="g-fuel">
-      <div class="fg">
-        <label>Тип топлива</label>
-        <div class="fuel-calc" style="text-align:left;margin-top:0">⛽ Дизель — топливо Крафтера</div>
-      </div>
-      <div class="fg"><label>Литры</label><input type="number" class="fi" id="fLiters" placeholder="0" min="0" step="0.1" oninput="calcFuel()"></div>
-      <div id="fuel-calc-display" class="fuel-calc" style="display:none"></div>
-      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fFuelNote" placeholder="АЗС, карта..."></div>
+      <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fMileageNote" placeholder="Выгрузка, облёты..."></div>
     </div>
 
     <!-- repair -->
@@ -289,7 +278,6 @@ let activeFilter = 'all';
 let openCardIdx  = null;
 let editingId    = null;
 let rateMode     = 'rate'; // 'rate' | 'fuel'
-let selectedFuel = 'Дизель';
 let activeMileageId = null; // CR-ID выезда для привязки расходов
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -381,12 +369,12 @@ async function loadExpenses() {
     return rows.slice(1).filter(row=>{
       const tid=String(row[C.tripId]||'');
       const cat=String(row[C.cat]||'');
-      return tid.startsWith('CR-') && (cat==='Бензин'||cat==='Дизель');
+      return tid.startsWith('CR-') && (cat.includes('Бензин')||cat.includes('Дизель'));
     }).map(row=>{
       const d=parseDate(row[C.date]);
       const cat=String(row[C.cat]||'');
       const commentStr=String(row[C.comment]||'');
-      const litMatch=commentStr.match(/(\d+[\.,]\d*)\s*л/i);
+      const litMatch=commentStr.match(/(\d+(?:[.,]\d+)?)\s*л/i);
       const litersVal=litMatch?parseFloat(litMatch[1].replace(',','.')):null;
       return{
         type:'fuel',
@@ -416,6 +404,7 @@ function renderBalance(){
   const accrued=trips.reduce((s,r)=>s+(r.amount||0),0)+mileage.reduce((s,r)=>s+(r.amount||0),0);
   const repairCost=repairs.reduce((s,r)=>s+(r.amount||0),0);
   const fuelCost=fuels.reduce((s,r)=>s+(r.amount||0),0);
+  const fuelLiters=fuels.reduce((s,r)=>s+(r.liters||0),0);
   const totalPaid=payments.reduce((s,r)=>s+(r.amount||0),0);
   const balance=accrued-repairCost-fuelCost-totalPaid;
   const el=document.getElementById('bal-amount');
@@ -423,7 +412,7 @@ function renderBalance(){
   el.className='balance-amount '+(balance>=0?'pos':'neg');
   document.getElementById('bb-accrued').textContent='+'+fmt(accrued);
   document.getElementById('bb-repair').textContent=repairCost>0?'−'+fmt(repairCost):'0';
-  document.getElementById('bb-fuel').textContent=fuelCost>0?'−'+fmt(fuelCost):'0';
+  document.getElementById('bb-fuel').textContent=fuelLiters>0?'⛽-'+fmt(fuelLiters):'0';
   document.getElementById('bb-paid').textContent=totalPaid>0?'−'+fmt(totalPaid):'0';
   document.getElementById('bb-days').textContent=totalDays;
 }
@@ -451,13 +440,18 @@ function renderFeed(){
     if(r.type==='repair')  amtHtml=`<div class="fc-amount neg">−${fmt(r.amount)}</div>`;
     if(r.type==='payment') amtHtml=`<div class="fc-amount pay">−${fmt(r.amount)}</div>`;
     if(r.type==='mileage') amtHtml=`<div class="fc-amount pos">+${fmt(r.amount)}</div>`;
-    if(r.type==='fuel')    amtHtml=`<div class="fc-amount fuel-c">−${fmt(r.amount)}</div>`;
+    if(r.type==='fuel')    amtHtml=`<div class="fc-amount fuel-c">⛽-${r.liters||0}</div>`;
 
     const meta=[];
     if(r.type==='trip'){const n=r.days||0;if(n)meta.push(`${n} дн`);}
     if(r.type==='mileage') meta.push('1 дн');
     if(r.km) meta.push(`${r.km} км`);
-    if(r.type==='fuel'&&r.liters) meta.push(`${r.liters} л`);
+    let linkedFuel=[];
+    if(r.type==='mileage' && r.id){
+      linkedFuel=allRecords.filter(x=>x.type==='fuel'&&x.tripCrId===r.id);
+      const totalL=linkedFuel.reduce((s,x)=>s+(x.liters||0),0);
+      if(totalL) meta.push(`⛽ ${totalL} л`);
+    }
     if(r.note&&r.type!=='fuel') meta.push(r.note);
 
     const src=r.source==='авто'?'<div class="fc-source">из таблицы</div>':'';
@@ -493,12 +487,11 @@ function renderFeed(){
     // Расходы привязанные к этому выезду
     let mileageExpHtml='';
     if(r.type==='mileage' && r.id){
-      const linked=allRecords.filter(x=>x.type==='fuel'&&x.tripCrId===r.id);
-      if(linked.length){
-        mileageExpHtml=`<div class="mileage-expenses">`+linked.map(x=>{
+      if(linkedFuel.length){
+        mileageExpHtml=`<div class="mileage-expenses">`+linkedFuel.map(x=>{
           return`<div class="me-row">
             <span class="me-lbl">⛽ ${x.cat||x.desc}</span>
-            <span class="me-amt fuel-c">−${fmt(x.amount)} BYN</span>
+            <span class="me-amt fuel-c">⛽-${x.liters||0}</span>
           </div>`;
         }).join('')+`</div>`;
       }
@@ -554,7 +547,7 @@ function renderFeed(){
 function toggleCard(idx){openCardIdx=openCardIdx===idx?null:idx;renderFeed();}
 
 // ── Заправка внутри выезда (генератор) ───────────────────
-let msFuelSelected='Дизель';
+let msFuelSelected='⛽ Дизель';
 
 function openMileageSheet(crId, e){
   e.stopPropagation();
@@ -626,6 +619,7 @@ function editRecord(idx,e){
   } else if(r.type==='mileage'){
     document.getElementById('fDescMileage').value=r.desc||'';
     document.getElementById('fKm').value=r.km||'';
+    document.getElementById('fMileageNote').value=r.note||'';
   } else if(r.type==='repair'){
     document.getElementById('fRepairDesc').value=r.desc||'';
     document.getElementById('fRepairAmount').value=r.amount||'';
@@ -687,30 +681,13 @@ function closeAll(){
   document.querySelector('#sheet .sheet-title').textContent='Новая запись';
 }
 
-function selectFuel(f){
-  selectedFuel=f;
-  document.getElementById('fuel-benz').classList.toggle('active',f==='Бензин');
-  document.getElementById('fuel-diez').classList.toggle('active',f==='Дизель');
-  calcFuel();
-}
-
-function calcFuel(){
-  const l=parseFloat(document.getElementById('fLiters').value)||0;
-  const el=document.getElementById('fuel-calc-display');
-  if(l>0){
-    const sum=(l*fuelPrice).toFixed(2);
-    el.textContent=`${l} л × ${fuelPrice.toFixed(2)} BYN/л = ${sum} BYN`;
-    el.style.display='block';
-  } else {el.style.display='none';}
-}
-
 function onTypeChange(){
   const type=document.getElementById('fType').value;
-  ['g-trip-desc','g-mileage','g-fuel','g-repair','g-payment'].forEach(id=>{
+  ['g-trip-desc','g-mileage','g-repair','g-payment'].forEach(id=>{
     document.getElementById(id).classList.remove('on');
   });
   document.getElementById('fNote').style.display='none';
-  const map={trip:'g-trip-desc',mileage:'g-mileage',fuel:'g-fuel',repair:'g-repair',payment:'g-payment'};
+  const map={trip:'g-trip-desc',mileage:'g-mileage',repair:'g-repair',payment:'g-payment'};
   if(map[type]) document.getElementById(map[type]).classList.add('on');
   if(type==='trip'){document.getElementById('fDays').value='1';calcTrip();}
 }
@@ -731,33 +708,19 @@ async function saveRecord(){
   try{
     let ok=false;
 
-    if(type==='fuel'){
-      const liters=parseFloat(document.getElementById('fLiters').value)||0;
-      if(!liters){showToast('Укажи литры');btn.disabled=false;btn.textContent='Сохранить';return;}
-      const amount=(liters*fuelPrice).toFixed(2);
-      const note=document.getElementById('fFuelNote').value.trim();
-      // Генерируем CR-ID
-      const crId='CR-'+date.replace(/-/g,'')+'-'+Date.now().toString().slice(-6);
-      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add_expense',data:{
-        tripId:crId, date, payType:'Нал', cat:selectedFuel,
-        amount, comment:`${liters} л${note?' · '+note:''}`
-      }})});
-      const d2=await r.json();
-      ok=(d2.result?.result||d2.result)?.ok||d2.ok||true;
-
-    } else {
+    {
       // Остальные типы — в КРАФТЕР
-      let desc='',amount='',km='',days='';
+      let desc='',amount='',km='',days='',note='';
       if(type==='trip'){desc=document.getElementById('fDesc').value.trim();days=document.getElementById('fDays').value;amount=document.getElementById('fAmount').value;}
-      else if(type==='mileage'){desc=document.getElementById('fDescMileage').value.trim();km=document.getElementById('fKm').value;}
+      else if(type==='mileage'){desc=document.getElementById('fDescMileage').value.trim();km=document.getElementById('fKm').value;note=document.getElementById('fMileageNote').value.trim();}
       else if(type==='repair'){desc=document.getElementById('fRepairDesc').value.trim();amount=document.getElementById('fRepairAmount').value;}
       else if(type==='payment'){desc=document.getElementById('fPayDesc').value.trim();amount=document.getElementById('fPayAmount').value;}
       if(!desc){showToast('Заполни описание');btn.disabled=false;btn.textContent='Сохранить';return;}
 
       const action=editingId?'updateCrafterRecord':'addCrafterRecord';
       const payload=editingId
-        ?{id:editingId,type,date,desc,km,amount,days,note:''}
-        :{type,date,desc,km,amount,days,note:'',rate:''};
+        ?{id:editingId,type,date,desc,km,amount,days,note}
+        :{type,date,desc,km,amount,days,note,rate:''};
       const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,data:payload})});
       const d2=await r.json();
       const res=d2.result?.result||d2.result||d2;
@@ -771,11 +734,10 @@ async function saveRecord(){
 }
 
 function clearForm(){
-  ['fDesc','fKm','fAmount','fDays','fNote','fDescMileage','fLiters','fFuelNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount']
+  ['fDesc','fKm','fAmount','fDays','fNote','fDescMileage','fMileageNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount']
     .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   editingId=null;
   document.querySelector('#sheet .sheet-title').textContent='Новая запись';
-  document.getElementById('fuel-calc-display').style.display='none';
   setDefaultDate();onTypeChange();
 }
 
