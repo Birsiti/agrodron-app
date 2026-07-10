@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Крафтер v3.6
+  AgroDrone.BY · Крафтер v3.9
+  v3.9 · 2026-07-10 · Приказ АТК от 15.06.2026 отменил дифференцированные нормы расхода
+  топлива (трасса/город x лето/зима x с прицепом/без) - введена единая линейная норма
+  13,5 л/100км для Crafter АР 4246-7 (дв. 2,5) на все поездки. Убраны FUEL_NORMS,
+  seasonOf, сезонность и коэффициент прицепа из расчета. Прицеп в форме "Выезд" остался
+  информационным полем (тег ##FZ:{...}## и строка "Прицеп" в деталях выезда), на расчет
+  топлива больше не влияет.
+  v3.8 · 2026-07-07 · Расход топлива по норме (Инструкция Минтранса РБ №141). В форме "Выезд":
+  км по трассе / км по Минску отдельно + переключатель прицепа (по умолчанию без прицепа).
+  Сезон (лето/зима) определяется автоматически по дате выезда: апрель-октябрь — лето,
+  ноябрь-март — зима. Норма считается как в путевом листе: трасса и Минск отдельно, с
+  прицепом/без — разные коэффициенты. Под общим балансом — строка "По норме / Факт / Разница"
+  (запас или перерасход в литрах, факт = реально заправлено через "⛽ Заправка"). Данные по
+  км/прицепу пишутся скрытым тегом ##FZ:{...}## внутри Примечания в листе КРАФТЕР — колонки
+  в таблице не менял, при чтении тег вырезается и не виден в интерфейсе. Старые выезды без тега
+  просто не участвуют в расчёте нормы (учитываются только по общему пробегу как раньше).
+  v3.7 · 2026-07-07 · Убрал задвоенный смайлик топлива в списке заправок внутри карточки: категория
+  из таблицы уже приходит со своей иконкой (например "⛽ Дизель"), а код поверх добавлял ещё одну —
+  получалось два одинаковых значка подряд плюс третий в сумме. Теперь ровно один значок на строку,
+  сумма показывается как "−35 л" без лишней иконки.
   v3.6 · 2026-07-07 · Заправка через кнопку "⛽ Заправка" на карточке выезда писалась в РАСХОДЫ
   сегодняшним числом, а не датой самого выезда. Из-за этого при внесении задним числом (например,
   сразу за весь месяц) все заправки получали одну и ту же (текущую) дату вместо реальных.
@@ -55,6 +74,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .rate-btn{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;color:var(--t1);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;transition:border-color .15s}
 .rate-btn:active{border-color:var(--brand)}
 .balance-breakdown{display:flex;gap:0;margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+.norm-summary{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-size:12px;color:var(--t2);text-align:center}
+.norm-summary.show{display:block}
+.trailer-toggle{display:flex;align-items:center;gap:8px;width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:9px;padding:11px 12px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--t2)}
+.trailer-toggle.on{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+#norm-preview{font-size:12px;color:var(--t3);padding:2px 2px 0}
 .bb-item{flex:1;text-align:center}
 .bb-sep{width:1px;background:var(--border);flex-shrink:0}
 .bb-val{font-size:14px;font-weight:700;color:var(--t1)}
@@ -175,6 +199,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="bb-sep"></div>
     <div class="bb-item"><div class="bb-val" id="bb-days">—</div><div class="bb-lab">Дней</div></div>
   </div>
+  <div class="norm-summary" id="norm-summary"></div>
 </div>
 
 <div class="filter-bar">
@@ -215,7 +240,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     </div>
     <div class="fg">
       <label>Дата</label>
-      <input type="date" class="fi" id="fDate">
+      <input type="date" class="fi" id="fDate" onchange="calcNormPreview()">
     </div>
 
     <!-- trip -->
@@ -228,7 +253,13 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <!-- mileage -->
     <div class="extra" id="g-mileage">
       <div class="fg"><label>Маршрут</label><input type="text" class="fi" id="fDescMileage" placeholder="Боровляны → Камень → Боровляны"></div>
-      <div class="fg"><label>Пробег (км)</label><input type="number" class="fi" id="fKm" placeholder="0" min="0"></div>
+      <div class="fg"><label>Км по трассе</label><input type="number" class="fi" id="fKmTrassa" placeholder="0" min="0" oninput="calcNormPreview()"></div>
+      <div class="fg"><label>Км по Минску</label><input type="number" class="fi" id="fKmMinsk" placeholder="0" min="0" oninput="calcNormPreview()"></div>
+      <div class="fg">
+        <label>Прицеп</label>
+        <button type="button" class="trailer-toggle" id="fTrailerBtn" onclick="toggleTrailer()">❌ Без прицепа</button>
+      </div>
+      <div id="norm-preview"></div>
       <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fMileageNote" placeholder="Выгрузка, облёты..."></div>
     </div>
 
@@ -297,6 +328,29 @@ let editingId    = null;
 let rateMode     = 'rate'; // 'rate' | 'fuel'
 let activeMileageId = null; // CR-ID выезда для привязки заправки
 let activeMileageDate = null; // дата выезда - заправка должна вноситься этим числом, не сегодняшним
+let fTrailerState = false; // прицеп в форме "Новая запись" (Выезд), по умолчанию без прицепа
+
+// ── Норма расхода топлива (Приказ АТК от 15.06.2026) ──
+// Единая линейная норма для всех поездок, без сезона и без коэффициента прицепа
+const FUEL_RATE = 13.5; // л/100км
+function normLiters(kmTrassa,kmMinsk){
+  return ((parseFloat(kmTrassa)||0) + (parseFloat(kmMinsk)||0)) / 100 * FUEL_RATE;
+}
+function toggleTrailer(){
+  fTrailerState=!fTrailerState;
+  const btn=document.getElementById('fTrailerBtn');
+  btn.textContent=fTrailerState?'✅ С прицепом':'❌ Без прицепа';
+  btn.classList.toggle('on',fTrailerState);
+  calcNormPreview();
+}
+function calcNormPreview(){
+  const kt=document.getElementById('fKmTrassa').value;
+  const km=document.getElementById('fKmMinsk').value;
+  const el=document.getElementById('norm-preview');
+  if((parseFloat(kt)||0)+(parseFloat(km)||0)<=0){el.textContent='';return;}
+  const n=normLiters(kt,km);
+  el.textContent=`≈ ${n.toFixed(1)} л по норме`;
+}
 let msFuelSelected = '⛽ Дизель';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -371,9 +425,17 @@ async function loadManual() {
       const type=row[C.type]||'mileage';
       const amt=parseFloat(row[C.amount])||0;
       const rate=C.rate>=0?parseFloat(row[C.rate])||null:null;
+      let rawNote=row[C.note]||'';
+      let kmTrassa=null,kmMinsk=null,trailer=false;
+      const fzMatch=rawNote.match(/##FZ:({.*?})##/);
+      if(fzMatch){
+        try{const fz=JSON.parse(fzMatch[1]);kmTrassa=fz.t||0;kmMinsk=fz.m||0;trailer=!!fz.p;}catch(e){}
+        rawNote=rawNote.replace(fzMatch[0],'').trim();
+      }
       return{type,dateSort:d?d.toISOString():row[C.date],dateDisp:d?fmtDisp(d):row[C.date],
         desc:row[C.desc]||'',km:row[C.km]||null,days:parseInt(row[C.days])||null,
-        amount:amt,rate,note:row[C.note]||'',source:'ручной',id:row[C.id]||''};
+        amount:amt,rate,note:rawNote,source:'ручной',id:row[C.id]||'',
+        kmTrassa,kmMinsk,trailer};
     });
   }catch(e){return[];}
 }
@@ -435,6 +497,18 @@ function renderBalance(){
   document.getElementById('bb-fuel').textContent=fuelLiters>0?'⛽-'+fmt(fuelLiters):'0';
   document.getElementById('bb-paid').textContent=totalPaid>0?'−'+fmt(totalPaid):'0';
   document.getElementById('bb-days').textContent=totalDays;
+
+  const normTotal=mileage.reduce((s,r)=>s+(r.kmTrassa!=null?normLiters(r.kmTrassa,r.kmMinsk):0),0);
+  const normEl=document.getElementById('norm-summary');
+  if(normTotal>0){
+    const delta=fuelLiters-normTotal;
+    normEl.innerHTML=`По норме: <b>${fmt(normTotal)} л</b> · Факт: <b>${fmt(fuelLiters)} л</b> · `+
+      (delta>=0?`<span style="color:var(--green)">запас +${fmt(delta)} л</span>`
+               :`<span style="color:var(--red)">перерасход ${fmt(Math.abs(delta))} л</span>`);
+    normEl.classList.add('show');
+  }else{
+    normEl.classList.remove('show');
+  }
 }
 
 function setFilter(f,btn){
@@ -486,7 +560,14 @@ function renderFeed(){
     if(r.type==='mileage'){
       detailRows.push(['Дней',1]);
       detailRows.push(['Ставка',`${r.rateUsed||currentRate} BYN/день`]);
-      if(r.km) detailRows.push(['Пробег',`${r.km} км`]);
+      if(r.kmTrassa!=null){
+        detailRows.push(['Прицеп',r.trailer?'✅ да':'❌ нет']);
+        if(r.kmTrassa) detailRows.push(['Пробег трасса',`${r.kmTrassa} км`]);
+        if(r.kmMinsk) detailRows.push(['Пробег Минск',`${r.kmMinsk} км`]);
+        detailRows.push(['Норма расхода',`${normLiters(r.kmTrassa,r.kmMinsk).toFixed(1)} л`]);
+      }else if(r.km){
+        detailRows.push(['Пробег',`${r.km} км`]);
+      }
     }
     if(r.type==='fuel'){
       detailRows.push(['Топливо',r.cat||'—']);
@@ -511,9 +592,10 @@ function renderFeed(){
     if((r.type==='mileage'||r.type==='trip') && ownId){
       if(linkedFuel.length){
         mileageExpHtml=`<div class="mileage-expenses">`+linkedFuel.map(x=>{
+          const cleanCat=(x.cat||x.desc||'').replace(/^[^\p{L}]+/u,'').trim();
           return`<div class="me-row">
-            <span class="me-lbl">⛽ ${x.cat||x.desc}</span>
-            <span class="me-amt fuel-c">⛽-${x.liters||0}</span>
+            <span class="me-lbl">⛽ ${cleanCat}</span>
+            <span class="me-amt fuel-c">−${x.liters||0} л</span>
           </div>`;
         }).join('')+`</div>`;
       }
@@ -639,8 +721,14 @@ function editRecord(idx,e){
     document.getElementById('fAmount').value=r.amount||'';
   } else if(r.type==='mileage'){
     document.getElementById('fDescMileage').value=r.desc||'';
-    document.getElementById('fKm').value=r.km||'';
+    document.getElementById('fKmTrassa').value=(r.kmTrassa!=null?r.kmTrassa:r.km)||'';
+    document.getElementById('fKmMinsk').value=r.kmMinsk||'';
     document.getElementById('fMileageNote').value=r.note||'';
+    fTrailerState=!!r.trailer;
+    const tbtn=document.getElementById('fTrailerBtn');
+    tbtn.textContent=fTrailerState?'✅ С прицепом':'❌ Без прицепа';
+    tbtn.classList.toggle('on',fTrailerState);
+    calcNormPreview();
   } else if(r.type==='repair'){
     document.getElementById('fRepairDesc').value=r.desc||'';
     document.getElementById('fRepairAmount').value=r.amount||'';
@@ -728,7 +816,15 @@ async function saveRecord(){
   try{
     let desc='',amount='',km='',days='',note='';
     if(type==='trip'){desc=document.getElementById('fDesc').value.trim();days=document.getElementById('fDays').value;amount=document.getElementById('fAmount').value;}
-    else if(type==='mileage'){desc=document.getElementById('fDescMileage').value.trim();km=document.getElementById('fKm').value;note=document.getElementById('fMileageNote').value.trim();}
+    else if(type==='mileage'){
+      desc=document.getElementById('fDescMileage').value.trim();
+      const kt=parseFloat(document.getElementById('fKmTrassa').value)||0;
+      const km_=parseFloat(document.getElementById('fKmMinsk').value)||0;
+      km=(kt+km_)||'';
+      note=document.getElementById('fMileageNote').value.trim();
+      const tag=`##FZ:${JSON.stringify({t:kt,m:km_,p:fTrailerState})}##`;
+      note=(note?note+' ':'')+tag;
+    }
     else if(type==='repair'){desc=document.getElementById('fRepairDesc').value.trim();amount=document.getElementById('fRepairAmount').value;}
     else if(type==='payment'){desc=document.getElementById('fPayDesc').value.trim();amount=document.getElementById('fPayAmount').value;}
     if(!desc){showToast('Заполни описание');btn.disabled=false;btn.textContent='Сохранить';return;}
@@ -748,8 +844,12 @@ async function saveRecord(){
 }
 
 function clearForm(){
-  ['fDesc','fKm','fAmount','fDays','fNote','fDescMileage','fMileageNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount']
+  ['fDesc','fAmount','fDays','fNote','fDescMileage','fMileageNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount','fKmTrassa','fKmMinsk']
     .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  fTrailerState=false;
+  const tbtn=document.getElementById('fTrailerBtn');
+  if(tbtn){tbtn.textContent='❌ Без прицепа';tbtn.classList.remove('on');}
+  const npEl=document.getElementById('norm-preview'); if(npEl) npEl.textContent='';
   editingId=null;
   document.querySelector('#sheet .sheet-title').textContent='Новая запись';
   setDefaultDate();onTypeChange();
