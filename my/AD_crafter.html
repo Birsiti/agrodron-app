@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <!--
-  AgroDrone.BY · Крафтер v3.13
+  AgroDrone.BY · Крафтер v3.14
+  v3.14 · 2026-07-10 · Прицеп убран полностью — раз норма линейная (13,5 л/100км на все поездки),
+  отслеживать его было незачем даже как информационное поле. Убрана кнопка "Прицеп" из формы
+  выезда, fTrailerState, toggleTrailer(), строка "Прицеп" в деталях карточки, тег ##FZ:{...}##
+  больше не пишется в новые записи — Примечание сохраняется как есть, без служебной метки.
+  Старые записи, где тег уже сохранён в Google Sheets (например ##FZ:{"p":false}##) — при чтении
+  по-прежнему вырезаются из отображения автоматически, руками их подчищать необязательно, но
+  можно, если хочется убрать и из самой таблицы — на работу приложения это не влияет.
   v3.13 · 2026-07-10 · Остаток топлива в баке на карточке выезда. Якорь: 30.06.2026 = 12,95 л
   (сверено вручную по докладной/путевому листу за июнь). computeTankBalance() идёт по всем
   mileage-записям после этой даты по возрастанию, на каждой вычитает норму (13,5 л/100км от
@@ -107,8 +114,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;f
 .balance-breakdown{display:flex;gap:0;margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
 .norm-summary{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-size:12px;color:var(--t2);text-align:center}
 .norm-summary.show{display:block}
-.trailer-toggle{display:flex;align-items:center;gap:8px;width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:9px;padding:11px 12px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--t2)}
-.trailer-toggle.on{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
 #norm-preview{font-size:12px;color:var(--t3);padding:2px 2px 0}
 .bb-item{flex:1;text-align:center}
 .bb-sep{width:1px;background:var(--border);flex-shrink:0}
@@ -285,10 +290,6 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="extra" id="g-mileage">
       <div class="fg"><label>Маршрут</label><input type="text" class="fi" id="fDescMileage" placeholder="Боровляны → Камень → Боровляны"></div>
       <div class="fg"><label>Пробег, км</label><input type="number" class="fi" id="fKm" placeholder="0" min="0" oninput="calcNormPreview()"></div>
-      <div class="fg">
-        <label>Прицеп</label>
-        <button type="button" class="trailer-toggle" id="fTrailerBtn" onclick="toggleTrailer()">❌ Без прицепа</button>
-      </div>
       <div id="norm-preview"></div>
       <div class="fg"><label>Примечание</label><input type="text" class="fi" id="fMileageNote" placeholder="Выгрузка, облёты..."></div>
     </div>
@@ -358,7 +359,6 @@ let editingId    = null;
 let rateMode     = 'rate'; // 'rate' | 'fuel'
 let activeMileageId = null; // CR-ID выезда для привязки заправки
 let activeMileageDate = null; // дата выезда - заправка должна вноситься этим числом, не сегодняшним
-let fTrailerState = false; // прицеп в форме "Новая запись" (Выезд), по умолчанию без прицепа
 
 // ── Норма расхода топлива (Приказ АТК от 15.06.2026) ──
 // Единая линейная норма для всех поездок, без сезона и без коэффициента прицепа
@@ -371,13 +371,6 @@ const TANK_ANCHOR_DATE   = new Date(2026,5,30,23,59,59);
 const TANK_ANCHOR_LITERS = 12.95;
 function normLiters(km){
   return (parseFloat(km)||0) / 100 * FUEL_RATE;
-}
-function toggleTrailer(){
-  fTrailerState=!fTrailerState;
-  const btn=document.getElementById('fTrailerBtn');
-  btn.textContent=fTrailerState?'✅ С прицепом':'❌ Без прицепа';
-  btn.classList.toggle('on',fTrailerState);
-  calcNormPreview();
 }
 function calcNormPreview(){
   const km=document.getElementById('fKm').value;
@@ -451,16 +444,13 @@ async function loadManual() {
       const amt=parseFloat(row[C.amount])||0;
       const rate=C.rate>=0?parseFloat(row[C.rate])||null:null;
       let rawNote=row[C.note]||'';
-      let trailer=false;
+      // старые записи (до этой правки) могут содержать тег ##FZ:{...}## — просто вырезаем его
+      // из отображения, прицеп больше не отслеживаем и не используем нигде
       const fzMatch=rawNote.match(/##FZ:({.*?})##/);
-      if(fzMatch){
-        try{const fz=JSON.parse(fzMatch[1]);trailer=!!fz.p;}catch(e){}
-        rawNote=rawNote.replace(fzMatch[0],'').trim();
-      }
+      if(fzMatch) rawNote=rawNote.replace(fzMatch[0],'').trim();
       return{type,dateSort:d?d.toISOString():row[C.date],dateDisp:d?fmtDisp(d):row[C.date],
         desc:row[C.desc]||'',km:row[C.km]||null,days:parseInt(row[C.days])||null,
-        amount:amt,rate,note:rawNote,source:'ручной',id:row[C.id]||'',
-        trailer};
+        amount:amt,rate,note:rawNote,source:'ручной',id:row[C.id]||''};
     });
   }catch(e){return[];}
 }
@@ -585,7 +575,6 @@ function renderFeed(){
     if(r.type==='mileage'){
       detailRows.push(['Дней',1]);
       detailRows.push(['Ставка',`${r.rateUsed||currentRate} BYN/день`]);
-      detailRows.push(['Прицеп',r.trailer?'✅ да':'❌ нет']);
       if(r.km){
         detailRows.push(['Пробег',`${r.km} км`]);
         detailRows.push(['Норма расхода',`${normLiters(r.km).toFixed(1)} л`]);
@@ -749,10 +738,6 @@ function editRecord(idx,e){
     document.getElementById('fDescMileage').value=r.desc||'';
     document.getElementById('fKm').value=r.km||'';
     document.getElementById('fMileageNote').value=r.note||'';
-    fTrailerState=!!r.trailer;
-    const tbtn=document.getElementById('fTrailerBtn');
-    tbtn.textContent=fTrailerState?'✅ С прицепом':'❌ Без прицепа';
-    tbtn.classList.toggle('on',fTrailerState);
     calcNormPreview();
   } else if(r.type==='repair'){
     document.getElementById('fRepairDesc').value=r.desc||'';
@@ -841,8 +826,6 @@ async function saveRecord(){
       desc=document.getElementById('fDescMileage').value.trim();
       km=parseFloat(document.getElementById('fKm').value)||'';
       note=document.getElementById('fMileageNote').value.trim();
-      const tag=`##FZ:${JSON.stringify({p:fTrailerState})}##`;
-      note=(note?note+' ':'')+tag;
     }
     else if(type==='repair'){desc=document.getElementById('fRepairDesc').value.trim();amount=document.getElementById('fRepairAmount').value;}
     else if(type==='payment'){desc=document.getElementById('fPayDesc').value.trim();amount=document.getElementById('fPayAmount').value;}
@@ -865,9 +848,6 @@ async function saveRecord(){
 function clearForm(){
   ['fDesc','fAmount','fDays','fNote','fDescMileage','fMileageNote','fRepairDesc','fRepairAmount','fPayDesc','fPayAmount','fKm']
     .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  fTrailerState=false;
-  const tbtn=document.getElementById('fTrailerBtn');
-  if(tbtn){tbtn.textContent='❌ Без прицепа';tbtn.classList.remove('on');}
   const npEl=document.getElementById('norm-preview'); if(npEl) npEl.textContent='';
   editingId=null;
   document.querySelector('#sheet .sheet-title').textContent='Новая запись';
