@@ -13,15 +13,8 @@
 <title>AgroDrone.BY · Командировка</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-:root{
-  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
-  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
-  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
-  --amber:#d97706;--amber-dark:#b45309;--amber-light:#fef3c7;
-  --red:#dc2626;--blue:#2563eb;--blue-light:#eff6ff;
-}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -342,6 +335,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div id="toast" class="toast"></div>
 
 <script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
 // ── Helpers ───────────────────────────────────────────────
 function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }
 function saveTrip(t){ localStorage.setItem('atk_trip', JSON.stringify(t)) }

@@ -10,13 +10,8 @@
 <title>Добавить поле · AgroDrone.BY</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-:root{
-  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
-  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
-  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;
-}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -119,6 +114,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <div class="toast" id="toast"></div>
 
 <script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
+
 let CLIENT_ID, CITY, fieldHistory = {}, editMode = false, editId = null;
 
 function init() {

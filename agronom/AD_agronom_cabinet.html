@@ -10,13 +10,8 @@
 <title>Мои поля · AgroDrone.BY</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-:root{
-  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
-  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
-  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;--orange:#f59e0b;--blue:#3b82f6;
-}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -83,7 +78,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 .dot-готово{background:#10b981}
 .dot-отклонено{background:#ef4444}
 
-.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom, 0px));right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(4,120,87,.4);cursor:pointer;transition:transform .2s;z-index:100}
+.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom, 0px));right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(21,128,61,.4);cursor:pointer;transition:transform .2s;z-index:100}
 .fab:active{transform:scale(.9)}
 
 .empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
@@ -175,6 +170,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjxpxSE5noJCigtTYP56_Q6O65awnflwg"></script>
 
 <script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
+
 let CLIENT_ID, CITY, FARM_NAME, allFields = [], currentTab = 'active', map, markers = [];
 
 const STATUS_COLORS = {

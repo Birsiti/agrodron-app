@@ -15,14 +15,8 @@
 <title>AgroDrone.BY · Карта полей</title>
 <script src="../config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-:root{
-  --bg:#eef0f5;--card:#fff;--green:#1b5935;--gm:#2a7a4a;--gl:#e8f4ed;--ga:#3aaa5e;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
-  --f:'Manrope',sans-serif;--rs:10px;
-  --amber:#d97706;--amber-light:#fef3c7;
-  --red:#dc2626;--blue:#2563eb;--blue-light:#eff6ff;
-}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -112,6 +106,7 @@ body{font-family:var(--f);background:#000;color:var(--t1);max-width:480px;margin
 <div id="toast" class="toast"></div>
 
 <script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}
 // ── Config ───────────────────────────────────────────────
 // MAPS_KEY, SHEET_ID — см. config.js
 function getTrip(){ try{return JSON.parse(localStorage.getItem('atk_trip')||'null')}catch(e){return null} }

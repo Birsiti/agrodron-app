@@ -1,0 +1,9 @@
+/* AgroDrone.BY — тема «Агроном» · зелёный + янтарь
+   v1.0 · 2026-08-01 · вынесено из inline :root трёх файлов /agronom/ */
+:root{
+  --bg:#f0fdf4;--card:#fff;--acc:#15803d;--acm:#14532d;--acl:#dcfce7;--aca:#22c55e;
+  --gold:#a16207;--goldl:#fef3c7;
+  --border:#bbf7d0;--t1:#14532d;--t2:#4b7a5f;--t3:#8fae9c;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(21,128,61,.08);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;--red:#dc2626;--orange:#a16207;--blue:#3b82f6;
+}

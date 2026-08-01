@@ -1,0 +1,18 @@
+/* AgroDrone.BY — тема «Оператор» · графит + защитный оранжевый
+   v1.0 · 2026-08-01 · вынесено из inline :root одиннадцати файлов /operator/
+   Раньше 8 файлов брендировались зелёным на сером фоне, 3 (menu/trip_prepare/weather) —
+   оранжевым на кремовом. Теперь единый графит как основной цвет (шапки, кнопки-«подтвердить»),
+   --amber = защитный оранжевый как акцент (предупреждения/важное), --green/--gl/--ga оставлены
+   как алиасы графита, чтобы не переписывать CSS-правила во всех файлах. */
+:root{
+  --bg:#f8fafc;--card:#fff;
+  --green:#1e293b;--gm:#334155;--gl:#e2e8f0;--ga:#475569;
+  --orange:#1e293b;--orange-dark:#334155;--orange-light:#e2e8f0;--orange-pale:#f1f5f9;
+  --amber:#ea580c;--amber-dark:#c2410c;--amber-light:#ffedd5;
+  --border:#e2e8f0;--t1:#1e293b;--t2:#64748b;--t3:#94a3b8;--gray:#64748b;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(30,41,59,.08);
+  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --red:#dc2626;--red-light:#fee2e2;
+  --blue:#2563eb;--blue-light:#eff6ff;
+  --purple:#7c3aed;--purple-light:#f5f3ff;
+}
