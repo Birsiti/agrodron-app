@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   AgroDrone.BY · Анкета кандидата в операторы
-  v1.2 · 2026-05-29
+  v1.3 · 2026-08-11 · миниапп-стиль студии (light/dark, telegram_id)
   Файл: AD_candidate.html
 -->
 <html lang="ru">
@@ -9,80 +9,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Хочу в команду · AgroDrone.BY</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function(){
+  var tg = window.Telegram && window.Telegram.WebApp;
+  var scheme = (tg && tg.colorScheme) ? tg.colorScheme
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', scheme);
+})();
+</script>
 <script src="config.js"></script>
 <style>
 :root{
-  --bg:#eef0f5;--card:#fff;--acc:#047857;--acm:#065f46;--acl:#d1fae5;--aca:#10b981;
-  --border:#e2e6ef;--t1:#1a1f2e;--t2:#5a6476;--t3:#9aa3b2;
-  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
-  --r:14px;--rs:10px;--f:'Manrope',sans-serif;
+  --radius:14px;--radius-sm:10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --f-head:'Chakra Petch',sans-serif;--f-body:'Inter',sans-serif;--f-mono:'JetBrains Mono',monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#111417;--surface:#1A1E22;--surface-2:#20252A;--surface-3:#262B31;
+  --ink:#EDEFF0;--ink-soft:#8C949C;--ink-faint:#565D64;
+  --accent:#10B981;--accent-dark:#047857;--accent-soft:rgba(16,185,129,.16);
+  --ok:#38A89D;--ok-soft:rgba(56,168,157,.14);
+  --danger:#E5626A;--danger-soft:rgba(229,98,106,.12);
+  --line:#2A2F35;--line-strong:#3A414A;
+}
+:root[data-theme="light"]{
+  --bg:#F4F6F8;--surface:#FFFFFF;--surface-2:#EEF1F4;--surface-3:#E4E8EC;
+  --ink:#171A1D;--ink-soft:#5B6570;--ink-faint:#98A1AA;
+  --accent:#10B981;--accent-dark:#047857;--accent-soft:rgba(16,185,129,.12);
+  --ok:#2E9B8F;--ok-soft:rgba(46,155,143,.12);
+  --danger:#D6505A;--danger-soft:rgba(214,80,90,.10);
+  --line:#E2E6EA;--line-strong:#CDD3D9;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+body{font-family:var(--f-body);background:var(--bg);color:var(--ink);max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 
-.app-hdr{background:linear-gradient(135deg,var(--acc),var(--acm));padding:20px 16px;flex-shrink:0;text-align:center}
-.brand-name{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.app-hdr{background:linear-gradient(135deg,var(--accent),var(--accent-dark));padding:calc(20px + var(--safe-top)) 16px 20px;flex-shrink:0;text-align:center}
+.brand-name{font-family:var(--f-head);font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
 .brand-name em{font-style:normal;color:#d1fae5}
 .brand-sub{font-size:13px;color:rgba(255,255,255,.85);font-weight:600}
 
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 40px}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px max(100px, calc(70px + var(--safe-bottom)))}
 
 .screen{display:none;animation:fadeIn .3s ease}
 .screen.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
-.card-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);margin-bottom:12px}
+.card-title{font-family:var(--f-head);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
 .frow{margin-bottom:14px}
 .frow:last-child{margin-bottom:0}
-.frow label{font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.frow input,.frow select,.frow textarea{
-  width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);
-  padding:13px 14px;font-family:var(--f);font-size:15px;color:var(--t1);
+.frow > label{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.frow > input,.frow > select,.frow > textarea{
+  width:100%;min-height:44px;background:var(--surface-2);border:2px solid var(--line);border-radius:var(--radius-sm);
+  padding:13px 14px;font-family:var(--f-body);font-size:15px;color:var(--ink);
   outline:none;transition:all .2s;-webkit-appearance:none;appearance:none
 }
-.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--aca);background:#f9fafb}
-.frow input::placeholder,.frow textarea::placeholder{color:var(--t3)}
-.frow textarea{resize:none;height:90px;line-height:1.5}
-.frow select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa3b2' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+#age,#district{font-family:var(--f-mono)}
+.frow > input:focus,.frow > select:focus,.frow > textarea:focus{border-color:var(--accent);background:var(--surface)}
+.frow > input::placeholder,.frow > textarea::placeholder{color:var(--ink-faint)}
+.frow > textarea{resize:none;height:90px;line-height:1.5;font-family:var(--f-body)}
+.frow > select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa3b2' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 
-.phone-wrap{display:flex;gap:6px;align-items:center}
-.phone-prefix{padding:13px 10px;background:#f3f4f6;border:2px solid var(--border);border-radius:var(--rs);font-size:15px;font-weight:700;white-space:nowrap;color:var(--t1)}
-.phone-wrap input{flex:1}
+.phone-field{display:flex;align-items:center;gap:8px;min-height:44px;background:var(--surface-2);border:2px solid var(--line);border-radius:var(--radius-sm);padding:0 14px;transition:border-color .2s}
+.phone-field:focus-within{border-color:var(--accent);background:var(--surface)}
+.phone-prefix{font-family:var(--f-mono);font-weight:700;color:var(--ink-soft);flex:none}
+.phone-input{flex:1;min-height:44px;border:none;background:transparent;color:var(--ink);font-family:var(--f-mono);font-size:15px}
+.phone-input:focus{outline:none}
+.phone-input::placeholder{color:var(--ink-faint)}
 
-.radio-group{display:flex;gap:8px;flex-wrap:wrap}
-.radio-btn{flex:1;min-width:80px;padding:11px 8px;border:2px solid var(--border);border-radius:var(--rs);text-align:center;font-size:13px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .2s;background:#fff;user-select:none}
-.radio-btn.active{border-color:var(--aca);background:var(--acl);color:var(--acc)}
+.chip-group{display:flex;gap:8px;flex-wrap:wrap}
+.chip{position:relative;flex:1;min-width:80px}
+.chip input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0}
+.chip span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:11px 8px;border:2px solid var(--line);border-radius:var(--radius-sm);text-align:center;font-size:13px;font-weight:700;color:var(--ink-soft);background:var(--surface);transition:all .2s;user-select:none}
+.chip input:checked + span{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+.chip input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
 
-.btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:8px;display:block;text-align:center}
+.submit-bar{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:480px;background:var(--surface);border-top:1px solid var(--line);padding:12px 16px calc(12px + var(--safe-bottom));z-index:10}
+.btn{width:100%;min-height:44px;padding:15px;border:none;border-radius:var(--radius-sm);font-family:var(--f-head);font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{transform:scale(.98)}
-.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top:2px solid #fff;border-radius:50%;animation:spin .8s linear infinite}
 
-.info-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:var(--rs);padding:12px;margin-bottom:12px}
-.info-box-text{font-size:12px;color:#1e40af;font-weight:600;text-align:center;line-height:1.5}
+.info-box{background:var(--accent-soft);border:2px solid var(--accent);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px}
+.info-box-text{font-size:12px;color:var(--accent-dark);font-weight:600;text-align:center;line-height:1.5}
 
-.error-box{background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--rs);padding:14px;margin-bottom:12px}
-.error-text{font-size:13px;color:#991b1b;font-weight:600;text-align:center}
+.error-box{background:var(--danger-soft);border:2px solid var(--danger);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px}
+.error-text{font-size:13px;color:var(--danger);font-weight:600;text-align:center}
 
 .loading{text-align:center;padding:40px 20px}
-.spinner{border:3px solid var(--border);border-top:3px solid var(--acc);border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
+.spinner{border:3px solid var(--line);border-top:3px solid var(--accent);border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:var(--t2);font-weight:600}
+.loading-text{font-size:14px;color:var(--ink-soft);font-weight:600}
 
-.success-icon{font-size:64px;text-align:center;margin-bottom:16px;animation:bounceIn .5s ease}
+.success-icon{width:88px;height:88px;border-radius:50%;background:var(--ok-soft);display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto 16px;animation:bounceIn .5s ease}
 @keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
-.success-title{font-size:20px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:8px}
-.success-text{font-size:14px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:20px}
-.success-banner{background:linear-gradient(135deg,var(--acc),var(--acm));color:#fff;padding:16px;border-radius:var(--rs);text-align:center;margin-bottom:20px}
+.success-title{font-family:var(--f-head);font-size:20px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:8px}
+.success-text{font-size:14px;color:var(--ink-soft);text-align:center;line-height:1.6;margin-bottom:20px}
+.success-banner{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;padding:16px;border-radius:var(--radius-sm);text-align:center;margin-bottom:20px}
 .success-banner-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:6px}
 .success-banner-text{font-size:16px;font-weight:700}
-
-.debug{background:#1a1f2e;color:#a5b4fc;padding:10px;border-radius:8px;font-size:11px;font-family:monospace;margin-top:12px;word-break:break-all;line-height:1.5}
+.success-row{font-size:13px;line-height:1.8;color:var(--ink);font-family:var(--f-body)}
+.success-row b{font-weight:700}
+.success-row span{font-family:var(--f-mono)}
 </style>
 </head>
 <body>
@@ -121,9 +157,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="frow">
       <label>Телефон *</label>
-      <div class="phone-wrap">
+      <div class="phone-field">
         <span class="phone-prefix">+375</span>
-        <input type="tel" id="phone" placeholder="291234567" inputmode="numeric">
+        <input type="tel" class="phone-input" id="phone" inputmode="numeric" placeholder="29-123-45-67" maxlength="12">
       </div>
     </div>
   </div>
@@ -133,9 +169,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="frow">
       <label>Хочу быть *</label>
-      <div class="radio-group" id="role-group">
-        <div class="radio-btn" onclick="selectRadio('role','Оператор',this)">🕹️ Оператором</div>
-        <div class="radio-btn" onclick="selectRadio('role','Техник',this)">🔧 Техником</div>
+      <div class="chip-group">
+        <label class="chip"><input type="radio" name="role" value="Оператор"><span>🕹️ Оператором</span></label>
+        <label class="chip"><input type="radio" name="role" value="Техник"><span>🔧 Техником</span></label>
       </div>
     </div>
 
@@ -152,17 +188,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
 
     <div class="frow">
       <label>Есть личный автомобиль? *</label>
-      <div class="radio-group" id="car-group">
-        <div class="radio-btn" onclick="selectRadio('car','Есть',this)">✅ Есть</div>
-        <div class="radio-btn" onclick="selectRadio('car','Нет',this)">❌ Нет</div>
+      <div class="chip-group">
+        <label class="chip"><input type="radio" name="car" value="Есть"><span>✅ Есть</span></label>
+        <label class="chip"><input type="radio" name="car" value="Нет"><span>❌ Нет</span></label>
       </div>
     </div>
 
     <div class="frow">
       <label>Готов к выездам в поля? *</label>
-      <div class="radio-group" id="trips-group">
-        <div class="radio-btn" onclick="selectRadio('trips','Да',this)">✅ Да</div>
-        <div class="radio-btn" onclick="selectRadio('trips','Нет',this)">❌ Нет</div>
+      <div class="chip-group">
+        <label class="chip"><input type="radio" name="trips" value="Да"><span>✅ Да</span></label>
+        <label class="chip"><input type="radio" name="trips" value="Нет"><span>❌ Нет</span></label>
       </div>
     </div>
   </div>
@@ -176,12 +212,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
   </div>
 
   <div id="error-container"></div>
-
-  <button class="btn btn-primary" id="submit-btn" onclick="submitCandidate()">
-    🚀 Отправить анкету
-  </button>
-
-  <div id="debug-info" class="debug" style="display:none"></div>
 </div>
 
 <!-- ЗАГРУЗКА -->
@@ -202,67 +232,128 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);max-width:480px;m
     <div class="success-banner-text">Мы свяжемся с вами в течение 1–2 дней</div>
   </div>
   <div class="card">
-    <div style="font-size:13px;line-height:1.8;color:var(--t1)">
-      <div><strong>ФИО:</strong> <span id="s-fio">—</span></div>
-      <div><strong>Телефон:</strong> <span id="s-phone">—</span></div>
-      <div><strong>Район:</strong> <span id="s-district">—</span></div>
-      <div><strong>Роль:</strong> <span id="s-role">—</span></div>
+    <div class="success-row">
+      <div><b>ФИО:</b> <span id="s-fio">—</span></div>
+      <div><b>Телефон:</b> <span id="s-phone">—</span></div>
+      <div><b>Район:</b> <span id="s-district">—</span></div>
+      <div><b>Роль:</b> <span id="s-role">—</span></div>
     </div>
   </div>
+  <button class="btn btn-primary" onclick="closeApp()">Готово</button>
 </div>
 
 </div><!-- /scroll -->
 
+<div class="submit-bar" id="submit-bar">
+  <button class="btn btn-primary" id="submit-btn" onclick="submitCandidate()">
+    <span id="submit-spinner" class="btn-spinner" hidden></span>
+    <span id="submit-label">🚀 Отправить анкету</span>
+  </button>
+</div>
+
 <script>
-const tg = window.Telegram.WebApp;
-let telegramId = null;
-let telegramUsername = '';
+const tg = window.Telegram ? window.Telegram.WebApp : null;
 
-tg.ready();
-tg.expand();
-
-try {
-  const user = tg.initDataUnsafe?.user;
-  if (user) {
-    telegramId = user.id;
-    telegramUsername = user.username || '';
+function haptic(style) {
+  if (tg && tg.HapticFeedback) {
+    if (["success","error","warning"].includes(style)) tg.HapticFeedback.notificationOccurred(style);
+    else tg.HapticFeedback.impactOccurred(style || "light");
   }
+}
+
+function applyTelegramTheme(){
+  const scheme = (tg && tg.colorScheme) ? tg.colorScheme
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', scheme);
+  if (tg) {
+    const s = getComputedStyle(document.documentElement);
+    try { tg.setHeaderColor(s.getPropertyValue("--surface").trim()); tg.setBackgroundColor(s.getPropertyValue("--bg").trim()); } catch(e) {}
+  }
+}
+
+function alertAsync(message){
+  return new Promise((resolve)=>{
+    if (tg && tg.showAlert && tg.isVersionAtLeast && tg.isVersionAtLeast('6.2')) {
+      try { tg.showAlert(message, resolve); return; } catch(e) {}
+    }
+    window.alert(message); resolve();
+  });
+}
+
+function initTelegram() {
+  if (!tg) return;
+  tg.ready(); tg.expand();
+  applyTelegramTheme();
+  tg.onEvent && tg.onEvent('themeChanged', applyTelegramTheme);
+  if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) { try { tg.disableVerticalSwipes(); } catch(e) {} }
+}
+
+function closeApp(){
+  haptic('light');
+  if (tg) tg.close();
+}
+
+let telegramId = null;
+try {
+  const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (user) telegramId = user.id;
 } catch(e) { console.error('TG init error:', e); }
 
-const radioValues = { role: '', car: '', trips: '' };
+const PHONE_PREFIX = '+375';
 
-function selectRadio(key, value, el) {
-  radioValues[key] = value;
-  el.parentElement.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+function bindPhoneMask(el){
+  el.addEventListener('input', ()=>{
+    const digits = el.value.replace(/\D/g,'').slice(0,9);
+    let out = digits;
+    if (digits.length > 2) out = digits.slice(0,2) + '-' + digits.slice(2);
+    if (digits.length > 5) out = digits.slice(0,2) + '-' + digits.slice(2,5) + '-' + digits.slice(5);
+    if (digits.length > 7) out = digits.slice(0,2) + '-' + digits.slice(2,5) + '-' + digits.slice(5,7) + '-' + digits.slice(7);
+    el.value = out;
+  });
 }
+function fullPhone(el){ return PHONE_PREFIX + el.value.replace(/\D/g,''); }
+function isPhoneValid(el){ return el.value.replace(/\D/g,'').length === 9; }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.getElementById('submit-bar').style.display = (id === 'screen-form') ? 'block' : 'none';
 }
 
 function showError(msg) {
+  haptic('error');
   const c = document.getElementById('error-container');
   c.innerHTML = `<div class="error-box"><div class="error-text">⚠️ ${msg}</div></div>`;
   setTimeout(() => { c.innerHTML = ''; }, 3500);
+}
+
+function resetSubmitBtn(){
+  const btn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('submit-spinner');
+  const label = document.getElementById('submit-label');
+  btn.disabled = false;
+  spinner.hidden = true;
+  label.textContent = '🚀 Отправить анкету';
 }
 
 function validate() {
   const fio      = document.getElementById('fio').value.trim();
   const age      = parseInt(document.getElementById('age').value.trim());
   const district = document.getElementById('district').value.trim();
-  const phone    = document.getElementById('phone').value.trim().replace(/\D/g, '');
+  const phoneEl  = document.getElementById('phone');
   const exp      = document.getElementById('experience').value;
+  const role     = document.querySelector('input[name="role"]:checked');
+  const car      = document.querySelector('input[name="car"]:checked');
+  const trips    = document.querySelector('input[name="trips"]:checked');
 
-  if (!fio || fio.length < 3)          { showError('Укажи ФИО'); return false; }
-  if (!age || age < 18 || age > 65)    { showError('Укажи возраст (18–65)'); return false; }
-  if (!district)                        { showError('Укажи район или город'); return false; }
-  if (phone.length < 9)                 { showError('Укажи номер после +375 (9 цифр)'); return false; }
-  if (!radioValues.role)                { showError('Выбери роль: Оператор или Техник'); return false; }
-  if (!exp)                             { showError('Укажи опыт с дронами'); return false; }
-  if (!radioValues.car)                 { showError('Укажи: есть автомобиль или нет'); return false; }
-  if (!radioValues.trips)               { showError('Укажи готовность к выездам'); return false; }
+  if (!fio || fio.length < 3)       { showError('Укажи ФИО'); return false; }
+  if (!age || age < 18 || age > 65) { showError('Укажи возраст (18–65)'); return false; }
+  if (!district)                     { showError('Укажи район или город'); return false; }
+  if (!isPhoneValid(phoneEl))        { showError('Укажи номер после +375 (9 цифр)'); return false; }
+  if (!role)                         { showError('Выбери роль: Оператор или Техник'); return false; }
+  if (!exp)                          { showError('Укажи опыт с дронами'); return false; }
+  if (!car)                          { showError('Укажи: есть автомобиль или нет'); return false; }
+  if (!trips)                        { showError('Укажи готовность к выездам'); return false; }
 
   return true;
 }
@@ -273,15 +364,21 @@ async function submitCandidate() {
   if (!telegramId) telegramId = 0;
 
   const btn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('submit-spinner');
+  const label = document.getElementById('submit-label');
   btn.disabled = true;
-  btn.textContent = '⏳ Отправка...';
+  spinner.hidden = false;
+  label.textContent = 'Отправка...';
   showScreen('screen-loading');
 
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
   const dateStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
   const candidateId = `KAN-${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
-  const phone = '+375' + document.getElementById('phone').value.trim().replace(/\D/g, '');
+  const phone = fullPhone(document.getElementById('phone'));
+  const role  = document.querySelector('input[name="role"]:checked').value;
+  const car   = document.querySelector('input[name="car"]:checked').value;
+  const trips = document.querySelector('input[name="trips"]:checked').value;
 
   const payload = {
     action: 'addCandidate',
@@ -292,10 +389,10 @@ async function submitCandidate() {
       age:         document.getElementById('age').value.trim(),
       district:    document.getElementById('district').value.trim(),
       phone:       phone,
-      role:        radioValues.role,
+      role:        role,
       experience:  document.getElementById('experience').value,
-      car:         radioValues.car,
-      trips:       radioValues.trips,
+      car:         car,
+      trips:       trips,
       source:      'Telegram группа',
       about:       document.getElementById('about').value.trim(),
       telegram_id: String(telegramId),
@@ -314,29 +411,30 @@ async function submitCandidate() {
     const result = await resp.json();
 
     if (result.ok || result.success) {
+      haptic('success');
       document.getElementById('s-fio').textContent      = payload.data.fio;
       document.getElementById('s-phone').textContent    = payload.data.phone;
       document.getElementById('s-district').textContent = payload.data.district;
       document.getElementById('s-role').textContent     = payload.data.role;
       showScreen('screen-success');
-      setTimeout(() => { tg.close(); }, 2500);
     } else {
       showScreen('screen-form');
       showError(result.error || 'Ошибка. Попробуй ещё раз.');
-      btn.disabled = false;
-      btn.textContent = '🚀 Отправить анкету';
+      resetSubmitBtn();
     }
   } catch(err) {
     console.error(err);
     showScreen('screen-form');
     showError('Ошибка соединения. Проверь интернет.');
-    btn.disabled = false;
-    btn.textContent = '🚀 Отправить анкету';
+    resetSubmitBtn();
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+bindPhoneMask(document.getElementById('phone'));
+document.querySelectorAll('.chip-group input[type="radio"]').forEach(inp => {
+  inp.addEventListener('change', () => haptic('light'));
 });
+initTelegram();
 </script>
 </body>
 </html>
